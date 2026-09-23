@@ -46,6 +46,31 @@ Release 1.0.11 consolidates **57 PRs** focused on **the MCP Python SDK 2.x migra
 - **Tool execution failures return MCP-compliant errors** ([#6181](https://github.com/IBM/mcp-context-forge/pull/6181)) - A failed tool execution returns a protocol-conformant error result instead of the previous ad-hoc shape. Clients that parsed the old payload must read the MCP error fields.
 - **MCP Python SDK 2.x** ([#6868](https://github.com/IBM/mcp-context-forge/pull/6868)) - The gateway now requires `mcp>=2.0.0`, `mcp-types>=2.0.0`, and `cpex>=0.1.4`, the first CPEX release built for `mcp` 2.x. Python consumers that import the gateway next to `mcp` 1.x must upgrade. Protocol behaviour is unchanged by default: `MCP_CLIENT_CONNECT_MODE` and `MCP_INBOUND_PROTOCOL_MODE` both default to `legacy`, and `GATEWAY_MODERN_LISTENERS_ENABLED` defaults to `false`. Set them to `auto` and `true` to negotiate the 2026-07-28 revision.
 
+### Security
+
+- **Outbound connection hardening** - Outbound HTTP requests now establish connections against an
+  address that the outbound URL policy validated, while preserving the original hostname for the
+  `Host` header and for TLS certificate verification. No configuration change is required.
+
+  Operators should note the following behavior changes:
+
+  - Outbound URL validation now runs even when `SSRF_PROTECTION_ENABLED=false`. The scheme allowlist,
+    dangerous-protocol, control-character, embedded-credential and XSS checks in `SecurityValidator`
+    apply unconditionally. Disabling SSRF protection previously disabled these unrelated checks as a
+    side effect; it no longer does. A deployment that relied on that side effect to reach a
+    non-HTTP(S) URL will now see it rejected.
+  - Pooled upstream MCP sessions no longer follow HTTP redirects. An upstream that answers `/sse`
+    with a 307 redirect to `/sse/` now fails instead of following it. Register the redirected URL
+    directly if you rely on that behavior.
+  - Connection setup fails closed when a caller-supplied HTTP client's TLS context cannot be read,
+    rather than continuing with default trust material. Under `SKIP_SSL_VERIFY=true` the previous
+    fallback would have meant no certificate verification at all.
+  - Some outbound requests now connect to a single validated address instead of retrying every
+    address returned by DNS. A dual-stack upstream whose first-sorted address is unreachable may now
+    fail where a plain resolution previously fell through to the next address.
+  - Connection handling is unchanged when an environment proxy (`HTTP_PROXY`, `HTTPS_PROXY`,
+    `ALL_PROXY`) applies to the target, since the proxy performs name resolution.
+
 ### Fixed
 
 #### **Security & Auth**
