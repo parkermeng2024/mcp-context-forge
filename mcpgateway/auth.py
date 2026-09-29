@@ -104,7 +104,7 @@ from mcpgateway.utils.trace_context import (
 from mcpgateway.utils.verify_credentials import (
     ConfigurableHTTPBearer,
     security,
-    verify_jwt_token_cached,
+    verify_credentials_cached,
 )
 
 __all__ = [
@@ -1691,9 +1691,8 @@ async def get_current_user(
     email = None
 
     try:
-        # Try JWT token first using the centralized verify_jwt_token_cached function
         logger.debug("Attempting JWT token validation")
-        payload = await verify_jwt_token_cached(credentials.credentials, request)
+        payload = await verify_credentials_cached(credentials.credentials, request)
 
         logger.debug("JWT token validated successfully")
 
