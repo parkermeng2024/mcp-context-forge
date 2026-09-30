@@ -85,8 +85,8 @@ export const openResourceTestModal = function (resource) {
     // 2️⃣ If no template → show a simple message
     fieldsContainer.innerHTML = `
             <div class="text-gray-500 dark:text-gray-400 italic">
-                This resource has no URI template.
-                Click "Invoke Resource" to test directly.
+                ${t("resources.detail.noTemplate")}
+                ${t("resources.detail.invokeHint")}
             </div>
         `;
   }
@@ -351,12 +351,12 @@ export const viewResource = async function (resourceId) {
 
       // Add each piece of information safely
       const fields = [
-        { label: "URI", value: resource.uri },
-        { label: "Name", value: resource.name },
+        { label: t("resources.detail.uri"), value: resource.uri },
+        { label: t("resources.detail.name"), value: resource.name },
         { label: "Type", value: resource.mimeType || "N/A" },
         { label: "Description", value: resource.description || "N/A" },
         {
-          label: "Visibility",
+          label: t("resources.detail.visibility"),
           value: resource.visibility || "private",
         },
       ];
@@ -445,35 +445,35 @@ export const viewResource = async function (resourceId) {
 
         const metricsData = [
           {
-            label: "Total Executions",
+            label: t("metrics.kpi.totalExecutions"),
             value: resource.metrics.totalExecutions ?? 0,
           },
           {
-            label: "Successful Executions",
+            label: t("metrics.executions.successful"),
             value: resource.metrics.successfulExecutions ?? 0,
           },
           {
-            label: "Failed Executions",
+            label: t("metrics.executions.failed"),
             value: resource.metrics.failedExecutions ?? 0,
           },
           {
-            label: "Failure Rate",
+            label: t("metrics.executions.failureRate"),
             value: resource.metrics.failureRate ?? 0,
           },
           {
-            label: "Min Response Time",
+            label: t("resources.kpi.minResponseTime"),
             value: resource.metrics.minResponseTime ?? "N/A",
           },
           {
-            label: "Max Response Time",
+            label: t("resources.kpi.maxResponseTime"),
             value: resource.metrics.maxResponseTime ?? "N/A",
           },
           {
-            label: "Average Response Time",
+            label: t("metrics.executions.avgResponseTime"),
             value: resource.metrics.avgResponseTime ?? "N/A",
           },
           {
-            label: "Last Execution Time",
+            label: t("metrics.executions.lastExecutionTime"),
             value: resource.metrics.lastExecutionTime ?? "N/A",
           },
         ];
@@ -501,33 +501,33 @@ export const viewResource = async function (resourceId) {
 
       const metadataFields = [
         {
-          label: "Created By",
-          value: resource.created_by || resource.createdBy || "Legacy Entity",
+          label: t("a2a.detail.createdBy"),
+          value: resource.created_by || resource.createdBy || t("a2a.detail.legacyEntity"),
         },
         {
-          label: "Created At",
+          label: t("a2a.detail.createdAt"),
           value:
             resource.created_at || resource.createdAt
               ? new Date(
                 resource.created_at || resource.createdAt
               ).toLocaleString()
-              : "Pre-metadata",
+              : t("a2a.detail.preMetadata"),
         },
         {
-          label: "Created From IP",
+          label: t("a2a.detail.createdFromIp"),
           value:
             resource.created_from_ip || resource.createdFromIp || "Unknown",
         },
         {
-          label: "Created Via",
+          label: t("a2a.detail.createdVia"),
           value: resource.created_via || resource.createdVia || "Unknown",
         },
         {
-          label: "Last Modified By",
+          label: t("a2a.detail.lastModifiedBy"),
           value: resource.modified_by || resource.modifiedBy || "N/A",
         },
         {
-          label: "Last Modified At",
+          label: t("a2a.detail.lastModifiedAt"),
           value:
             resource.updated_at || resource.updatedAt
               ? new Date(
@@ -536,19 +536,19 @@ export const viewResource = async function (resourceId) {
               : "N/A",
         },
         {
-          label: "Modified From IP",
+          label: t("a2a.detail.modifiedFromIp"),
           value: resource.modified_from_ip || resource.modifiedFromIp || "N/A",
         },
         {
-          label: "Modified Via",
+          label: t("a2a.detail.modifiedVia"),
           value: resource.modified_via || resource.modifiedVia || "N/A",
         },
         {
-          label: "Version",
+          label: t("a2a.detail.version"),
           value: resource.version || "1",
         },
         {
-          label: "Import Batch",
+          label: t("a2a.detail.importBatch"),
           value: resource.import_batch_id || resource.importBatchId || "N/A",
         },
       ];
