@@ -1945,7 +1945,7 @@ export const loadTools = async function () {
                         </button>
                         <button data-action="generate-tool-tests" data-tool-id="${id}"
                         class="col-span-2 px-2 py-1 text-[11px] font-small rounded-md text-purple-600 hover:bg-purple-50">
-                        Generate Test Cases
+                        ${t("tools.validation.generate")}
                         </button>
                         <button data-action="validate-tool" data-tool-id="${id}"
                         class="col-span-2 px-2 py-1 text-xs font-medium rounded-md text-yellow-600 hover:bg-yellow-50">
@@ -2820,7 +2820,7 @@ export const validateTool = async function (toolId) {
           runAllDiv.innerHTML = `
                         <button id="run-all-tests-btn"
                         class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                        Run All Tests
+                        ${t("tools.validation.runAll")}
                         </button>`;
           container.appendChild(runAllDiv);
 

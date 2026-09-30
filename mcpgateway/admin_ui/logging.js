@@ -189,7 +189,7 @@ export const displayLogResults = function (data) {
   const end = Math.min(start + data.results.length - 1, data.total);
   logStats.innerHTML = `
     <span class="text-sm">
-      Showing ${start}-${end} of ${data.total.toLocaleString()} logs
+      ${t("logs.showingRange", { start, end, total: data.total.toLocaleString() })}
     </span>
   `;
 
@@ -330,7 +330,7 @@ export const restoreLogTableHeaders = function () {
           Duration
         </th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-          Correlation ID
+          ${t("logs.table.correlationId")}
         </th>
       </tr>
     `;
@@ -550,7 +550,7 @@ export const displayCorrelationTrace = function (trace) {
               Time
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Event Type
+              ${t("logs.table.eventType")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Component
@@ -800,7 +800,7 @@ export const displaySecurityEvents = function (events) {
               Severity
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Event Type
+              ${t("logs.table.eventType")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Description
@@ -809,10 +809,10 @@ export const displaySecurityEvents = function (events) {
               User/Source
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Threat Score
+              ${t("logs.table.threatScore")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Correlation ID
+              ${t("logs.table.correlationId")}
           </th>
       </tr>
     `;
@@ -954,7 +954,7 @@ export const displayAuditTrail = function (trails) {
                 Action
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Resource Type
+                ${t("logs.table.resourceType")}
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Resource
@@ -966,7 +966,7 @@ export const displayAuditTrail = function (trails) {
                 Status
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Correlation ID
+                ${t("logs.table.correlationId")}
             </th>
         </tr>
     `;
@@ -1134,16 +1134,16 @@ export const displayPerformanceMetrics = function (metrics) {
               Operation
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Avg Duration
+              ${t("logs.table.avgDuration")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Requests
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Error Rate
+              ${t("logs.table.errorRate")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              P99 Duration
+              ${t("logs.table.p99Duration")}
           </th>
       </tr>
     `;
@@ -1189,7 +1189,7 @@ export const displayPerformanceMetrics = function (metrics) {
                 </div>
             </td>
             <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                ${metric.request_count.toLocaleString()} requests
+                ${t("logs.requestCount", { count: metric.request_count.toLocaleString() })}
             </td>
             <td class="px-4 py-3 text-sm ${errorClass}">
                 ${errorRatePercent}%

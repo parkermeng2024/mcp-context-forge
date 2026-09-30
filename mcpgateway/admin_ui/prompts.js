@@ -1095,7 +1095,7 @@ export const buildPromptTestForm = function (prompt) {
   if (!prompt.arguments || prompt.arguments.length === 0) {
     fieldsContainer.innerHTML = `
                 <div class="text-gray-500 dark:text-gray-400 text-sm italic">
-                    This prompt has no arguments - it will render as-is.
+                    ${t("prompts.test.noArguments")}
                 </div>
             `;
     return;
@@ -1172,7 +1172,7 @@ export const runPromptTest = async function () {
     if (resultContainer) {
       resultContainer.innerHTML = `
                     <div class="text-gray-500 dark:text-gray-400 text-sm italic">
-                        Rendering prompt...
+                        ${t("prompts.test.rendering")}
                     </div>
                 `;
     }

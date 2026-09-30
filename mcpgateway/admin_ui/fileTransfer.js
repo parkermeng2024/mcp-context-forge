@@ -273,7 +273,7 @@ export const updateDropZoneStatus = function (fileName, importData) {
                         ${totalEntities} entities • Version ${escapeHtml(importData.version || "unknown")}
                     </div>
                     <button class="text-xs text-blue-600 dark:text-blue-400 hover:underline" data-action="reset-import">
-                        Choose different file
+                        ${t("fileTransfer.chooseDifferent")}
                     </button>
                 </div>
             `;

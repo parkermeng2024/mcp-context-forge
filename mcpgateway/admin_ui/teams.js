@@ -243,7 +243,7 @@ const loadPublicTeams = async function () {
                           </div>
                           <div class="ml-3">
                               <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
-                                  Failed to load public teams
+                                  ${t("teams.error.publicLoadFailed")}
                               </h3>
                               <div class="mt-2 text-sm text-red-700 dark:text-red-300">
                                   ${escapeHtml(error.message)}
@@ -307,13 +307,13 @@ export const displayPublicTeams = function (teams) {
                           <svg class="flex-shrink-0 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                               <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
                           </svg>
-                          ${team.member_count} members
+                          ${t("teams.memberCount", { count: team.member_count })}
                       </div>
                       <button
                           data-action="request-join" data-team-id="${escapeHtml(team.id)}"
                           class="px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
-                          Request to Join
+                          ${t("teams.actions.requestToJoin")}
                       </button>
                   </div>
               </div>
