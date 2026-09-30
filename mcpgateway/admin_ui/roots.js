@@ -1,3 +1,4 @@
+import { t } from "./i18n.js";
 import { openModal } from "./modals.js";
 import { validateInputName } from "./security.js";
 import {
@@ -41,8 +42,8 @@ export const viewRoot = async function (uri) {
 
       // Add each piece of information safely
       const fields = [
-        { label: "URI", value: root.uri },
-        { label: "Name", value: root.name || "N/A" },
+        { label: t("common.table.uri"), value: root.uri },
+        { label: t("common.table.name"), value: root.name || t("common.na") },
       ];
 
       fields.forEach((field) => {
@@ -62,7 +63,11 @@ export const viewRoot = async function (uri) {
     openModal("root-details-modal");
   } catch (error) {
     console.error("Error fetching root details:", error);
-    const errorMessage = handleFetchError(error, "load root details");
+    const errorMessage = handleFetchError(
+      error,
+      "load root details",
+      t("roots.ops.loadDetails")
+    );
     showErrorMessage(errorMessage);
   }
 };
@@ -112,8 +117,14 @@ export const editRoot = async function (uri) {
     }
 
     // Validate inputs
-    const nameValidation = validateInputName(root.name || "", "root name");
-    const uriValidation = validateInputName(root.uri, "root URI");
+    const nameValidation = validateInputName(
+      root.name || "",
+      t("roots.validation.nameLabel")
+    );
+    const uriValidation = validateInputName(
+      root.uri,
+      t("roots.validation.uriLabel")
+    );
 
     const uriField = safeGetElement("edit-root-uri");
     const nameField = safeGetElement("edit-root-name");
@@ -134,7 +145,11 @@ export const editRoot = async function (uri) {
     openModal("root-edit-modal");
   } catch (error) {
     console.error("Error fetching root for editing:", error);
-    const errorMessage = handleFetchError(error, "load root for editing");
+    const errorMessage = handleFetchError(
+      error,
+      "load root for editing",
+      t("roots.ops.loadForEdit")
+    );
     showErrorMessage(errorMessage);
   }
 };
@@ -175,6 +190,6 @@ export const exportRoot = async function (uri) {
     window.URL.revokeObjectURL(url);
   } catch (error) {
     console.error("Error exporting root:", error);
-    showErrorMessage("Failed to export root");
+    showErrorMessage(t("roots.ops.exportFailed"));
   }
 };
