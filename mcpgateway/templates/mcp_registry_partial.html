@@ -54,17 +54,17 @@
             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
           />
         </svg>
-        MCP Registry
+        {{ t('registry.title') }}
       </h2>
       <button
         data-action-click="refreshCatalog"
         class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors flex items-center gap-2"
-        title="Refresh catalog"
+        title="{{ t('registry.refreshTooltip') }}"
       >
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
-        Refresh
+        {{ t('common.actions.refresh') }}
       </button>
     </div>
 
@@ -168,7 +168,7 @@
             d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
           />
         </svg>
-        Categories
+        {{ t('registry.filters.categories') }}
       </h3>
       <div class="flex flex-wrap gap-2">
         {% set is_all_selected = not filter_params.category %}
@@ -178,7 +178,7 @@
           data-filter-value=""
           data-action-click="filterByCategory" data-arg0="" data-action-keydown="handleKeydown" role="button" tabindex="0"
         >
-          All Categories
+          {{ t('registry.filters.allCategories') }}
           <span class="ml-1 text-xs {% if is_all_selected %}text-blue-600 dark:text-blue-300{% else %}text-gray-500 dark:text-gray-400{% endif %}"
             >({{ stats.total_servers }})</span
           >
@@ -218,7 +218,7 @@
             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
           />
         </svg>
-        Authentication Types
+        {{ t('registry.filters.authTypes') }}
       </h3>
       <div class="space-y-2">
         {% set is_all_auth_selected = not filter_params.auth_type %}
@@ -277,7 +277,7 @@
             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
           />
         </svg>
-        Providers
+        {{ t('registry.filters.providers') }}
       </h3>
       <div class="flex flex-wrap gap-2">
         <span
@@ -286,7 +286,7 @@
           data-filter-value=""
           data-action-click="filterByProvider" data-arg0="" data-action-keydown="handleKeydown" role="button" tabindex="0"
         >
-          All Providers
+          {{ t('registry.filters.allProviders') }}
           <span class="ml-1 text-xs text-blue-600 dark:text-blue-300"
             >({{ stats.total_servers }})</span
           >
@@ -324,7 +324,7 @@
       hx-swap="innerHTML"
       class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
     >
-      First
+      {{ t('registry.pagination.first') }}
     </a>
     <!-- Previous Page -->
     <a
@@ -334,26 +334,26 @@
       hx-swap="innerHTML"
       class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
     >
-      Previous
+      {{ t('common.actions.previous') }}
     </a>
     {% else %}
     <button
       disabled
       class="px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed"
     >
-      First
+      {{ t('registry.pagination.first') }}
     </button>
     <button
       disabled
       class="px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed"
     >
-      Previous
+      {{ t('common.actions.previous') }}
     </button>
     {% endif %}
 
     <!-- Page Info -->
     <span class="px-4 py-2 text-gray-700 dark:text-gray-300">
-      Page {{ page }} of {{ total_pages }}
+      {{ t('registry.pagination.pageOf', page=page, total=total_pages) }}
     </span>
 
     <!-- Next Page -->
@@ -365,7 +365,7 @@
       hx-swap="innerHTML"
       class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
     >
-      Next
+      {{ t('common.actions.next') }}
     </a>
     <!-- Last Page -->
     <a
@@ -375,20 +375,20 @@
       hx-swap="innerHTML"
       class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
     >
-      Last
+      {{ t('registry.pagination.last') }}
     </a>
     {% else %}
     <button
       disabled
       class="px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed"
     >
-      Next
+      {{ t('common.actions.next') }}
     </button>
     <button
       disabled
       class="px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed"
     >
-      Last
+      {{ t('registry.pagination.last') }}
     </button>
     {% endif %}
   </div>
@@ -415,10 +415,10 @@
         />
       </svg>
       <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">
-        No servers found
+        {{ t('registry.empty.title') }}
       </h3>
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-        No servers match your current filters.
+        {{ t('registry.empty.hint') }}
       </p>
     </div>
     {% endif %}
@@ -516,19 +516,19 @@
       <button
         class="w-full px-4 py-2 bg-yellow-600 text-white rounded-md cursor-default"
         disabled
-        title="Server is registered but OAuth configuration is required before activation"
+        title="{{ t('registry.oauthRequiredTooltip') }}"
       >
         <svg class="inline-block h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
         </svg>
-        OAuth Config Required
+        {{ t('registry.oauthRequired') }}
       </button>
       {% else %}
       <button
         class="w-full px-4 py-2 bg-gray-300 text-gray-600 rounded-md cursor-not-allowed"
         disabled
       >
-        Already Registered
+        {{ t('registry.alreadyRegistered') }}
       </button>
       {% endif %}
       {% else %} {% if server.requires_api_key or server.auth_type in ["API
@@ -537,7 +537,7 @@
         class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         data-action-click="showApiKeyModal" data-arg0="{{ server.id|tojson_attr }}" data-arg1="{{ server.name|tojson_attr }}" data-arg2="{{ server.url|tojson_attr }}"
       >
-        Add Server
+        {{ t('registry.addServer') }}
       </button>
       {% else %}
       <div id="{{ server.id }}-button-container">
@@ -549,7 +549,7 @@
           hx-swap="innerHTML"
           hx-disabled-elt="this"
         >
-          Add Server
+          {{ t('registry.addServer') }}
         </button>
       </div>
       {% endif %} {% endif %}
@@ -573,7 +573,7 @@
           class="text-lg font-medium text-gray-900 dark:text-gray-100"
           id="modal-server-name"
         >
-          Add Server
+          {{ t('registry.addServer') }}
         </h3>
         <button
           data-action-click="closeApiKeyModal"
@@ -622,13 +622,13 @@
           id="modal-api-key"
           autocomplete="off"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          placeholder="Enter your API key"
+          placeholder="{{ t('registry.apiKey.apiKeyPlaceholder') }}"
         />
         <button
           data-action-click="registerServerWithApiKey"
           class="w-full mt-4 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
         >
-          Register Server
+          {{ t('registry.registerServer') }}
         </button>
       </div>
     </div>
