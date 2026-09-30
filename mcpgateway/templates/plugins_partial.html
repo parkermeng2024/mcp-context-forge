@@ -60,31 +60,30 @@
     <div
       class="bg-yellow-100 border-l-4 border-yellow-500 dark:text-purple-950 text-yellow-700 p-4 rounded mb-4"
     >
-      <p class="font-bold">Plugins are currently disabled</p>
+      <p class="font-bold">{{ t('plugins.disabled.title') }}</p>
       <p class="text-sm">
-        Set PLUGINS_ENABLED=true in your environment to enable plugin
-        functionality.
+        {{ t('plugins.disabled.hint') }}
       </p>
     </div>
     {% else %}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="text-center">
         <div class="text-3xl font-bold">{{ stats.total_plugins }}</div>
-        <div class="text-purple-100 text-sm">Total Plugins</div>
+        <div class="text-purple-100 text-sm">{{ t('plugins.stats.total') }}</div>
       </div>
       <div class="text-center">
         <div class="text-3xl font-bold">{{ stats.enabled_plugins }}</div>
-        <div class="text-purple-100 text-sm">Enabled</div>
+        <div class="text-purple-100 text-sm">{{ t('common.states.enabled') }}</div>
       </div>
       <div class="text-center">
         <div class="text-3xl font-bold">{{ stats.disabled_plugins }}</div>
-        <div class="text-purple-100 text-sm">Disabled</div>
+        <div class="text-purple-100 text-sm">{{ t('common.states.disabled') }}</div>
       </div>
       <div class="text-center">
         <div class="text-3xl font-bold">
           {{ (stats.plugins_by_mode.enforce | default(0)) + (stats.plugins_by_mode.sequential | default(0)) + (stats.plugins_by_mode.enforce_ignore_error | default(0)) + (stats.plugins_by_mode.concurrent | default(0)) }}
         </div>
-        <div class="text-purple-100 text-sm">Enforcing</div>
+        <div class="text-purple-100 text-sm">{{ t('plugins.stats.enforcing') }}</div>
       </div>
     </div>
     {% endif %}
@@ -118,7 +117,7 @@
         >
           <span
             class="text-sm font-medium text-indigo-700 dark:text-indigo-300"
-            >All Hooks</span
+            >{{ t('plugins.filters.allHooks') }}</span
           >
           <span
             class="bg-indigo-200 text-indigo-900 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-indigo-800 dark:text-indigo-100"
@@ -236,7 +235,7 @@
         <input
           type="text"
           id="plugin-search"
-          placeholder="Search plugins by name, description, or author..."
+          placeholder="{{ t('plugins.searchPlaceholder') }}"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         />
       </div>
@@ -245,7 +244,7 @@
           id="plugin-mode-filter"
           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         >
-          <option value="">All Modes</option>
+          <option value="">{{ t('plugins.filters.allModes') }}</option>
           {#- Deduplicate: collect unique display labels from active modes -#}
           {%- set seen_labels = [] -%}
           {%- for mode_key in stats.plugins_by_mode.keys() | sort -%}
@@ -260,27 +259,27 @@
           id="plugin-status-filter"
           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         >
-          <option value="">All Status</option>
-          <option value="enabled">Enabled</option>
-          <option value="disabled">Disabled</option>
+          <option value="">{{ t('obs.status.all') }}</option>
+          <option value="enabled">{{ t('common.states.enabled') }}</option>
+          <option value="disabled">{{ t('common.states.disabled') }}</option>
         </select>
         <select
           id="plugin-hook-filter"
           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         >
-          <option value="">All Hooks</option>
+          <option value="">{{ t('plugins.filters.allHooks') }}</option>
         </select>
         <select
           id="plugin-tag-filter"
           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         >
-          <option value="">All Tags</option>
+          <option value="">{{ t('plugins.filters.allTags') }}</option>
         </select>
         <select
           id="plugin-author-filter"
           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         >
-          <option value="">All Authors</option>
+          <option value="">{{ t('plugins.filters.allAuthors') }}</option>
         </select>
       </div>
     </div>
@@ -331,11 +330,11 @@
           {% if plugin.status == 'enabled' %}
           <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
           <span class="text-sm text-green-600 dark:text-green-400"
-            >Enabled</span
+            >{{ t('common.states.enabled') }}</span
           >
           {% else %}
           <span class="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
-          <span class="text-sm text-gray-500 dark:text-gray-400">Disabled</span>
+          <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('common.states.disabled') }}</span>
           {% endif %}
         </div>
 
@@ -365,7 +364,7 @@
       <!-- Hooks -->
       {% if plugin.hooks %}
       <div class="text-xs text-gray-500 dark:text-gray-400 mb-4">
-        <div class="font-medium mb-1">Hooks:</div>
+        <div class="font-medium mb-1">{{ t('plugins.details.hooksLabel') }}</div>
         <div class="flex flex-wrap gap-1">
           {% for hook in plugin.hooks %}
           <span class="text-xs">{{ hook.replace('_', ' ') }}</span>
@@ -380,7 +379,7 @@
         data-show-plugin="{{ plugin.name }}"
         class="w-full mt-4 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
       >
-        View Details →
+        {{ t('obs.traces.viewDetails') }}
       </button>
     </div>
     {% endfor %}
