@@ -2,20 +2,20 @@
 <table id="agents-table" class="min-w-full divide-y divide-gray-200">
   <thead class="bg-gray-50 dark:bg-gray-700">
     <tr>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-12">S. No.</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-24">Agent ID</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-20">ID Type</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Endpoint</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tags</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Reachability</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Owner</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Team</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Visibility</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('a2a.table.actions') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-12">{{ t('a2a.table.sNo') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-24">{{ t('a2a.table.agentId') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-20">{{ t('a2a.table.idType') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('a2a.table.name') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('a2a.table.description') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('a2a.table.endpoint') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('a2a.table.tags') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('a2a.table.type') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('a2a.table.status') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('a2a.table.reachability') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('a2a.table.owner') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('a2a.table.team') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('a2a.table.visibility') }}</th>
     </tr>
   </thead>
   <tbody id="agents-table-body" class="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
@@ -35,8 +35,8 @@
               class="p-1.5 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 transition-colors"
               :aria-expanded="menuOpen"
               aria-haspopup="menu"
-              aria-label="Actions"
-              x-tooltip="'Actions'"
+              aria-label="{{ t('a2a.table.actions') }}"
+              x-tooltip="'{{ t('a2a.table.actions') }}'"
             >
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -67,15 +67,15 @@
                 tabindex="0"
                 @click="dispatch('testA2AAgent', {{ agent.id|tojson_attr }}, {{ agent.name|tojson_attr }}, {{ agent.endpointUrl|tojson_attr }})"
                 class="w-full flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                x-tooltip="'💡Test this agent with sample arguments'"
-              >Test</button>
+                x-tooltip="'{{ t('a2a.actions.testTooltip') }}'"
+              >{{ t('common.actions.test') }}</button>
               <button
                 type="button"
                 role="menuitem"
                 tabindex="0"
                 @click="dispatch('viewA2AAgent', {{ agent.id|tojson_attr }})"
                 class="w-full flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >View</button>
+              >{{ t('common.actions.view') }}</button>
               {% if can_modify %}
               <button
                 type="button"
@@ -83,7 +83,7 @@
                 tabindex="0"
                 @click="dispatch('editA2AAgent', {{ agent.id|tojson_attr }})"
                 class="w-full flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >Edit</button>
+              >{{ t('common.actions.edit') }}</button>
               <hr class="border-gray-200 dark:border-gray-600 my-1">
               <form method="POST" action="{{ root_path }}/admin/a2a/{{ agent.id }}/state" class="contents" @submit="menuOpen = false" data-action-submit="handleToggleSubmit" data-arg0="a2a-agents">
                 <input type="hidden" name="activate" value="{{ 'false' if agent.enabled else 'true' }}" />
@@ -92,7 +92,7 @@
                   role="menuitem"
                   tabindex="0"
                   class="w-full flex items-center px-4 py-2 text-sm {% if agent.enabled %}text-yellow-600 dark:text-yellow-400{% else %}text-green-600 dark:text-green-400{% endif %} hover:bg-gray-100 dark:hover:bg-gray-700"
-                >{% if agent.enabled %}Deactivate{% else %}Activate{% endif %}</button>
+                >{% if agent.enabled %}{{ t('common.actions.deactivate') }}{% else %}{{ t('common.actions.activate') }}{% endif %}</button>
               </form>
               <form method="POST" action="{{ root_path }}/admin/a2a/{{ agent.id }}/delete" class="contents" @submit="menuOpen = false" data-action-submit="handleDeleteSubmit" data-arg0="agent" data-arg1="{{ agent_label|tojson_attr }}" data-arg2="a2a-agents">
                 <button
@@ -100,7 +100,7 @@
                   role="menuitem"
                   tabindex="0"
                   class="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >Delete</button>
+                >{{ t('common.actions.delete') }}</button>
               </form>
               {% endif %}
             </div>
@@ -111,12 +111,12 @@
         <td class="px-6 py-4 whitespace-nowrap text-sm">
           {% if agent.uaid %}
             <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200"
-                  title="Universal Agent ID - Cross-gateway routing enabled">
+                  title="{{ t('a2a.badge.uaidTooltip') }}">
               UAID
             </span>
           {% else %}
             <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-                  title="Standard UUID">
+                  title="{{ t('a2a.badge.uuidTooltip') }}">
               UUID
             </span>
           {% endif %}
@@ -138,25 +138,25 @@
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">{{ agent.agentType }}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
           <div class="flex flex-col gap-1">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if agent.enabled %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">{% if agent.enabled %}Active{% else %}Inactive{% endif %}</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if agent.enabled %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">{% if agent.enabled %}{{ t('common.states.active') }}{% else %}{{ t('common.states.inactive') }}{% endif %}</span>
           </div>
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
           <div class="flex flex-col gap-1">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if agent.reachable %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">{% if agent.reachable %}Reachable{% else %}Unreachable{% endif %}</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if agent.reachable %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">{% if agent.reachable %}{{ t('a2a.badge.reachable') }}{% else %}{{ t('a2a.badge.unreachable') }}{% endif %}</span>
           </div>
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">{{ agent.ownerEmail }}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">{{ agent.team }}</td>
         <td class="px-6 py-4 whitespace-nowrap">
           {% if agent.visibility == 'private' %}
-          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Private</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">{{ t('a2a.badge.private') }}</span>
           {% elif agent.visibility == 'team' %}
-          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Team</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">{{ t('a2a.badge.team') }}</span>
           {% elif agent.visibility == 'public' %}
-          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Public</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">{{ t('a2a.badge.public') }}</span>
           {% else %}
-          <span class="text-gray-500 dark:text-gray-300 text-xs">N/A</span>
+          <span class="text-gray-500 dark:text-gray-300 text-xs">{{ t('common.na') }}</span>
           {% endif %}
         </td>
       </tr>

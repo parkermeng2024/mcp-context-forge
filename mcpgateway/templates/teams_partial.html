@@ -16,39 +16,39 @@
 
                 <!-- Relationship badge -->
                 {% if team.relationship == 'personal' %}
-                <span class="relationship-badge inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">PERSONAL</span>
+                <span class="relationship-badge inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">{{ t('teams.badge.personal') }}</span>
                 {% elif team.relationship == 'owner' %}
-                <span class="relationship-badge inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">OWNER</span>
+                <span class="relationship-badge inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">{{ t('teams.badge.owner') }}</span>
                 {% elif team.relationship == 'member' %}
-                <span class="relationship-badge inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">MEMBER</span>
+                <span class="relationship-badge inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">{{ t('teams.badge.member') }}</span>
                 {% elif team.relationship == 'public' %}
-                <span class="relationship-badge inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">CAN JOIN</span>
+                <span class="relationship-badge inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">{{ t('teams.badge.canJoin') }}</span>
                 {% else %}
                 <!-- Fallback to active/inactive for admin view -->
                 {% if team.is_active %}
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">ACTIVE</span>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">{{ t('teams.badge.active') }}</span>
                 {% else %}
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">INACTIVE</span>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">{{ t('teams.badge.inactive') }}</span>
                 {% endif %}
                 {% endif %}
 
                 <span
                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">{{
                     team.visibility|upper }}</span>
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ team.member_count|default(0) }} members</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('teams.memberCount', count=team.member_count|default(0)) }}</span>
             </div>
 
             <p class="team-description text-sm text-gray-600 dark:text-gray-400">
                 {% if team.relationship == 'personal' %}
-                Your personal team • Private workspace
+                {{ t('teams.relationship.personal') }}
                 {% elif team.relationship == 'owner' %}
-                You own this team
+                {{ t('teams.relationship.owner') }}
                 {% elif team.relationship == 'member' %}
-                You are a member • Owner: {{ team.created_by|default('Unknown') }}
+                {{ t('teams.relationship.member', owner=team.created_by|default(t('common.unknown'))) }}
                 {% elif team.relationship == 'public' %}
-                Public team • Owner: {{ team.created_by|default('Unknown') }}
+                {{ t('teams.relationship.public', owner=team.created_by|default(t('common.unknown'))) }}
                 {% else %}
-                {{ (team.description | decode_html)|truncate(80) if team.description else "No description" }}
+                {{ (team.description | decode_html)|truncate(80) if team.description else t('teams.relationship.noDescription') }}
                 {% endif %}
             </p>
         </div>
@@ -58,60 +58,60 @@
     <div class="flex flex-wrap gap-2 mt-3">
         {% if team.relationship == 'personal' %}
         <span class="px-3 py-1 text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-md">
-            Personal workspace - no actions available
+            {{ t('teams.actions.personalOnly') }}
         </span>
         {% elif team.relationship == 'owner' %}
         <button data-team-id="{{ team.id }}" data-action-click="manageTeamMembersSafe" data-arg0="this"
             class="px-3 py-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-600 hover:border-blue-500 dark:hover:border-blue-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            Manage Members
+            {{ t('teams.actions.manageMembers') }}
         </button>
         <button data-team-id="{{ team.id }}" data-action-click="editTeamSafe" data-arg0="this"
             class="px-3 py-1 text-sm font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 border border-green-300 dark:border-green-600 hover:border-green-500 dark:hover:border-green-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-            Edit Settings
+            {{ t('teams.actions.editSettings') }}
         </button>
         {% if team.visibility == 'public' %}
         <button data-team-id="{{ team.id }}" data-action-click="viewJoinRequestsSafe" data-arg0="this"
             class="px-3 py-1 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 border border-purple-300 dark:border-purple-600 hover:border-purple-500 dark:hover:border-purple-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
-            Join Requests
+            {{ t('teams.actions.joinRequests') }}
         </button>
         {% endif %}
         <button data-team-id="{{ team.id }}" data-team-name="{{ team.name|escape }}" data-action-click="deleteTeamSafe" data-arg0="this"
             class="px-3 py-1 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-300 dark:border-red-600 hover:border-red-500 dark:hover:border-red-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-            Delete Team
+            {{ t('teams.actions.deleteTeam') }}
         </button>
         {% elif team.relationship == 'member' %}
         <button data-team-id="{{ team.id }}" data-team-name="{{ team.name|escape }}" data-action-click="leaveTeamSafe" data-arg0="this"
             class="px-3 py-1 text-sm font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 border border-orange-300 dark:border-orange-600 hover:border-orange-500 dark:hover:border-orange-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-            Leave Team
+            {{ t('teams.actions.leaveTeam') }}
         </button>
         {% elif team.relationship == 'public' %}
         {% if team.pending_request %}
         <span class="px-3 py-1 text-sm font-medium text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900 rounded-md border border-yellow-300 dark:border-yellow-600">
-            ⏳ Requested to Join
+            {{ t('teams.actions.requested') }}
         </span>
         <button data-action-click="cancelJoinRequest" data-arg0="{{ team.id|tojson_attr }}" data-arg1="{{ team.pending_request.id|tojson_attr }}"
             class="px-3 py-1 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-300 dark:border-red-600 hover:border-red-500 dark:hover:border-red-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-            Cancel Request
+            {{ t('teams.actions.cancelRequest') }}
         </button>
         {% else %}
         <button data-team-id="{{ team.id }}" data-team-name="{{ team.name|escape }}" data-action-click="requestToJoinTeamSafe" data-arg0="this"
             class="px-3 py-1 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 border border-indigo-300 dark:border-indigo-600 hover:border-indigo-500 dark:hover:border-indigo-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            Request to Join
+            {{ t('teams.actions.requestToJoin') }}
         </button>
         {% endif %}
         {% else %}
         <!-- Fallback actions for admin view without relationship -->
         <button data-team-id="{{ team.id }}" data-action-click="manageTeamMembersSafe" data-arg0="this"
             class="px-3 py-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-600 hover:border-blue-500 dark:hover:border-blue-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            Manage Members
+            {{ t('teams.actions.manageMembers') }}
         </button>
         <button data-team-id="{{ team.id }}" data-action-click="editTeamSafe" data-arg0="this"
             class="px-3 py-1 text-sm font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 border border-green-300 dark:border-green-600 hover:border-green-500 dark:hover:border-green-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-            Edit Settings
+            {{ t('teams.actions.editSettings') }}
         </button>
         <button data-team-id="{{ team.id }}" data-team-name="{{ team.name|escape }}" data-action-click="deleteTeamSafe" data-arg0="this"
             class="px-3 py-1 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-300 dark:border-red-600 hover:border-red-500 dark:hover:border-red-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-            Delete Team
+            {{ t('teams.actions.deleteTeam') }}
         </button>
         {% endif %}
     </div>
@@ -120,7 +120,7 @@
 
 {% if not data %}
 <div class="text-center py-12">
-    <p class="text-gray-500 dark:text-gray-400">No teams found. Create your first team using the button above.</p>
+    <p class="text-gray-500 dark:text-gray-400">{{ t('teams.empty.title') }}</p>
 </div>
 {% endif %}
 
