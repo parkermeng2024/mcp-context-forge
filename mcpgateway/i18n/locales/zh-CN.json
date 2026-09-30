@@ -70,8 +70,8 @@
   "common.theme.toDark": "切换到深色模式",
   "common.links.documentation": "文档",
   "common.links.github": "GitHub",
-  "common.branding.logoAlt": "AIGateway 徽标",
-  "common.branding.iconAlt": "AIGateway 图标",
+  "common.branding.logoAlt": "AI Gateway 徽标",
+  "common.branding.iconAlt": "ContextForge 图标",
 
   "common.na": "不适用",
   "common.unknown": "未知",
@@ -2187,7 +2187,7 @@
   "header.searchTooltip": "跨工具、提示模板、资源、服务、网关、智能体和根目录搜索（Ctrl/Cmd+K）",
 
   "login.title": "登录 - ContextForge",
-  "login.logoAlt": "ContextForge 徽标",
+  "login.logoAlt": "AI Gateway 徽标",
   "login.continueWith": "使用以下方式继续",
   "login.orContinueWithEmail": "或使用邮箱继续",
   "login.emailLabel": "邮箱地址",

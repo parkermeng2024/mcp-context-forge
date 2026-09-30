@@ -70,7 +70,7 @@
   "common.theme.toDark": "Switch to dark mode",
   "common.links.documentation": "Documentation",
   "common.links.github": "GitHub",
-  "common.branding.logoAlt": "ContextForge logo",
+  "common.branding.logoAlt": "AI Gateway logo",
   "common.branding.iconAlt": "ContextForge icon",
 
   "common.na": "N/A",
@@ -2187,7 +2187,7 @@
   "header.searchTooltip": "Search across tools, prompts, resources, servers, gateways, agents, and roots (Ctrl/Cmd+K)",
 
   "login.title": "Sign In - ContextForge",
-  "login.logoAlt": "ContextForge logo",
+  "login.logoAlt": "AI Gateway logo",
   "login.continueWith": "Continue with",
   "login.orContinueWithEmail": "Or continue with email",
   "login.emailLabel": "Email address",
