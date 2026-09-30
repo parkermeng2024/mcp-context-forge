@@ -2187,7 +2187,7 @@
   "header.searchTooltip": "跨工具、提示模板、资源、服务、网关、智能体和根目录搜索（Ctrl/Cmd+K）",
 
   "login.title": "登录 - AI Gateway",
-  "login.logoAlt": "AI Gateway 徽标",
+  "login.logoAlt": "https://1-finger.com/",
   "login.continueWith": "使用以下方式继续",
   "login.orContinueWithEmail": "或使用邮箱继续",
   "login.emailLabel": "邮箱地址",
