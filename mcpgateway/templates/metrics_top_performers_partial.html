@@ -62,7 +62,7 @@
         {% if last_exec %}
           {{ last_exec[:16] | replace('T', ' ') }}
         {% else %}
-          Never
+          {{ t('metrics.topPerformers.never') }}
         {% endif %}
       </td>
     </tr>
@@ -70,7 +70,7 @@
     {% if not data %}
     <tr>
       <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-        No data available
+        {{ t('metrics.topPerformers.empty') }}
       </td>
     </tr>
     {% endif %}

@@ -21,11 +21,10 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
       </svg>
-      A2A Agent Plugin Bindings
+      {{ t('plugins.bindings.title') }}
     </h2>
     <p class="text-purple-100 text-sm">
-      Configure per-agent plugin policies for A2A agents. Bindings control which
-      plugins execute before and after A2A agent invocations.
+      {{ t('plugins.bindings.hint') }}
     </p>
   </div>
 
@@ -219,11 +218,11 @@
           <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
             <button type="button" onclick="closeAddBindingForm()"
                     class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
-              Cancel
+              {{ t('common.actions.cancel') }}
             </button>
             <button type="submit"
                     class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              Create Binding
+              {{ t('plugins.bindings.create') }}
             </button>
           </div>
         </form>
