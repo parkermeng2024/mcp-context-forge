@@ -1495,8 +1495,7 @@
                           d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
                       </svg>
                       <span id="selected-server-name"
-                        class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate max-w-[200px]">Select
-                        Virtual Server</span>
+                        class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate max-w-[200px]">{{ t('llm.chat.selectServer') }}</span>
                       <svg class="w-4 h-4 ml-2 text-gray-500" :class="{ 'rotate-180': serverDropdownOpen }" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -1517,7 +1516,7 @@
                         class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-750">
                         <div class="flex items-center justify-between">
                           <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
-                            Virtual Servers
+                            {{ t('llm.chat.virtualServers') }}
                           </h3>
                           <button data-action-click="loadVirtualServersForChat" data-stop-propagation="true"
                             class="text-xs px-2 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors">
@@ -1526,7 +1525,7 @@
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
-                            Refresh
+                            {{ t('common.actions.refresh') }}
                           </button>
                         </div>
                       </div>
@@ -1539,7 +1538,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
                           </svg>
-                          Click Refresh to load servers
+                          {{ t('llm.chat.clickRefresh') }}
                         </div>
                       </div>
                     </div>
@@ -1556,7 +1555,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">LLM Configuration</span>
+                      <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">{{ t('llm.chat.config') }}</span>
                       <svg class="w-4 h-4 ml-2 text-gray-500" :class="{ 'rotate-180': configDropdownOpen }" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -1575,36 +1574,32 @@
                       <form id="llm-chat-config-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <!-- Model Selection -->
                         <div>
-                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">LLM
-                            Model</label>
+                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('llm.chat.modelLabel') }}</label>
                           <select id="llm-model-select"
                             class="w-full rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-300 transition-colors"
                             data-action-change="handleLLMModelChange">
                             <option value="">
-                              Select Model (configure in Settings → LLM
-                              Settings)
+                              {{ t('llm.chat.selectModelOption') }}
                             </option>
                           </select>
                           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            Models are configured in LLM Settings
+                            {{ t('llm.chat.modelsHint') }}
                           </p>
                         </div>
 
                         <!-- Temperature -->
                         <div>
-                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Temperature
-                            (0-2)</label>
+                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('llm.chat.temperature') }}</label>
                           <input type="number" id="llm-temperature" min="0" max="2" step="0.1" value="0.7"
                             class="w-full rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-300" />
                         </div>
 
                         <!-- Max Tokens -->
                         <div>
-                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Max Tokens
-                            (Optional)</label>
+                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('llm.chat.maxTokens') }}</label>
                           <input type="number" id="llm-max-tokens" min="1" step="1"
                             class="w-full rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-300"
-                            placeholder="Leave empty for default" />
+                            placeholder="{{ t('llm.chat.maxTokensPlaceholder') }}" />
                         </div>
 
                         <div id="llm-config-status" class="hidden text-sm col-span-3"></div>
@@ -1618,7 +1613,7 @@
                     <span id="llm-connection-status"
                       class="hidden inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
                       <span class="w-1.5 h-1.5 bg-green-600 rounded-full mr-1 animate-pulse"></span>
-                      Connected
+                      {{ t('llm.chat.connected') }}
                     </span>
 
                     <!-- Active Tools Badge -->
@@ -1647,14 +1642,14 @@
                               </path>
                             </svg>
                             <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                              Available Tools
+                              {{ t('llm.chat.availableTools') }}
                             </h4>
                           </div>
 
                           <!-- Tools list container -->
                           <div id="llm-tool-list"
                             class="flex flex-wrap gap-2 max-h-64 overflow-y-auto custom-scrollbar">
-                            <span class="text-xs text-gray-500 dark:text-gray-400">Loading tools...</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">{{ t('llm.chat.loadingTools') }}</span>
                           </div>
                         </div>
 
@@ -1675,7 +1670,7 @@
                           d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
                         </path>
                       </svg>
-                      <span id="llmchat-model-name">Model</span>
+                      <span id="llmchat-model-name">{{ t('llm.chat.modelBadge') }}</span>
                     </span>
                   </div>
                 </div>
@@ -1689,7 +1684,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
-                    Connect
+                    {{ t('llm.chat.connect') }}
                   </button>
 
                   <button type="button" id="llm-disconnect-btn" data-action-click="disconnectLLMChat"
@@ -1698,7 +1693,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                     </svg>
-                    Disconnect
+                    {{ t('llm.chat.disconnect') }}
                   </button>
                 </div>
               </div>
@@ -1721,11 +1716,10 @@
                       </svg>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                      Start a Conversation
+                      {{ t('llm.chat.startTitle') }}
                     </h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                      Select a virtual server from the toolbar and configure
-                      your LLM settings to begin chatting
+                      {{ t('llm.chat.startHint') }}
                     </p>
                     <div class="flex items-center justify-center space-x-2 text-xs text-gray-500 dark:text-gray-500">
                       <span class="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
@@ -1743,12 +1737,12 @@
                   <div class="flex items-end space-x-3">
                     <div class="flex-1 relative">
                       <textarea id="chat-input" rows="1"
-                        placeholder="Type your message here... (Shift+Enter for new line)"
+                        placeholder="{{ t('llm.chat.inputPlaceholder') }}"
                         class="w-full rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-3 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-300 resize-none transition-all"
                         data-action-keydown="handleChatInputKeydown" data-action-input="autoResizeTextarea" disabled></textarea>
                       <div
                         class="absolute bottom-2 right-2 text-xs text-gray-400 dark:text-gray-500 pointer-events-none">
-                        Press Enter to send
+                        {{ t('llm.chat.pressEnter') }}
                       </div>
                     </div>
                     <button type="submit" id="chat-send-btn"
