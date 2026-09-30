@@ -2232,7 +2232,7 @@
   "passwordChange.js.samePassword": "New password must be different from current password",
   "passwordChange.js.mismatch": "Password confirmation does not match",
   "login.submitting": "Signing in…",
-  "login.securedBy": "Secured by AI Gateway Authentication",
+  "login.securedBy": "Provided by Beijing Shangyun Shuzhi Technology Co., Ltd.",
 
   "login.hero.tagline": "MCP & AI Gateway",
   "login.hero.subtitle": "MCP, A2A and REST gateway with advanced security & observability",
