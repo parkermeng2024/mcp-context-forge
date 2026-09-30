@@ -6035,7 +6035,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
         <div class="bg-white shadow rounded-lg mb-6 dark:bg-gray-800">
           <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Create New User
+              {{ t('users.form.title') }}
             </h3>
             <!-- User Creation Messages -->
             <div id="user-creation-messages" class="mb-4"></div>
@@ -6052,7 +6052,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    Email Address *
+                    {{ t('users.form.email') }} *
                   </label>
                   <input
                     type="email"
@@ -6067,7 +6067,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    Full Name *
+                    {{ t('users.form.fullName') }} *
                   </label>
                   <input
                     type="text"
@@ -6084,7 +6084,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    Password *
+                    {{ t('users.form.password') }} *
                   </label>
                   <input
                     type="password"
@@ -6095,7 +6095,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     autocomplete="new-password"
                     data-action-input="validateNewUserPassword"
                     class="mt-1 px-3 py-2 block w-full border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
-                    placeholder="Strong password"
+                    placeholder="{{ t('users.form.passwordPlaceholder') }}"
                   />
                   <!-- Password policy guidance (visible below password field) -->
                   {% if password_policy_enabled %}
@@ -6105,7 +6105,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                         <svg class="h-5 w-5 text-blue-600 dark:text-blue-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-9-1h2v5H9V9zm0-3h2v2H9V6z"/></svg>
                       </div>
                       <div class="ml-3 text-sm text-blue-800 dark:text-blue-100">
-                        <div class="font-semibold">Password Requirements</div>
+                        <div class="font-semibold">{{ t('users.form.passwordRequirements') }}</div>
                         <ul class="mt-2 space-y-1">
                           <li id="req-length" class="flex items-start">
                             <i class="fas fa-circle text-gray-400 mr-2"></i>
@@ -6179,7 +6179,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     for="is_admin"
                     class="ml-2 block text-sm text-gray-900 dark:text-gray-300"
                   >
-                    Administrator privileges
+                    {{ t('users.form.adminPrivileges') }}
                   </label>
                 </div>
               </div>
@@ -6189,7 +6189,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   id="create_user_submit"
                   class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  Create User
+                  {{ t('users.form.submit') }}
                 </button>
               </div>
             </form>
@@ -6201,7 +6201,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
         <div class="bg-white shadow rounded-lg dark:bg-gray-800">
           <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              System Users
+              {{ t('users.list.title') }}
             </h3>
 
             <!-- Loading indicator -->
@@ -6241,7 +6241,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
             {{ t('tokens.panel.title') }}
           </h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Create and manage personal API tokens with scoped access controls
+            {{ t('tokens.panel.hint') }}
           </p>
           <div class="flex items-center">
             <input
@@ -6261,7 +6261,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
             <label
               for="show-inactive-tokens"
               class="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >Show Inactive</label
+              >{{ t('common.field.showInactive') }}</label
             >
           </div>
         </div>
@@ -6270,7 +6270,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
          {% if user_permissions.can_create_token %}
         <div class="bg-white shadow rounded-lg p-6 mb-8 dark:bg-gray-800">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            Create New API Token
+            {{ t('tokens.form.title') }}
           </h3>
           <form id="create-token-form" class="space-y-7">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -6279,7 +6279,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   for="api-token-name"
                 >
-                  Token Name *
+                  {{ t('tokens.form.name') }} *
                 </label>
                 <input
                   type="text"
@@ -6290,13 +6290,13 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   class="mt-1 px-3 py-2 block w-full border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
                   placeholder="Production API Access"
                 />
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">Token Name is required.</p>
+                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('tokens.form.nameRequired') }}</p>
               </div>
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Expires In (Days)
+                  {{ t('tokens.form.expiresIn') }}
                   {% if require_token_expiration %}
                   <span class="text-red-500">*</span>
                   {% endif %}
@@ -6316,11 +6316,11 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 />
                 {% if require_token_expiration %}
                 <p class="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
-                  Token expiration is required by server policy (REQUIRE_TOKEN_EXPIRATION=true).
+                  {{ t('tokens.form.expirationRequired') }}
                 </p>
                 {% else %}
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Leave empty for tokens that never expire
+                  {{ t('tokens.form.neverExpire') }}
                 </p>
                 {% endif %}
               </div>
@@ -6329,13 +6329,13 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               <label
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Description
+                {{ t('common.field.description') }}
               </label>
               <textarea
                 name="description"
                 rows="2"
                 class="mt-1 px-3 py-2 block w-full border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
-                placeholder="Brief description of token usage"
+                placeholder="{{ t('tokens.form.descriptionPlaceholder') }}"
               ></textarea>
             </div>
 
@@ -6350,24 +6350,23 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                             <div class="space-y-2">
                                 <div class="flex items-center">
                                     <h3 class="text-sm font-bold text-yellow-800 dark:text-yellow-200">
-                                        ⚠️ <span class="font-semibold">Token Scope</span>
+                                        ⚠️ <span class="font-semibold">{{ t('tokens.form.scope') }}</span>
                                     </h3>
                                 </div>
                                 <div class="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
                                     <p class="mb-1">
-                                        Tokens created without selecting a team are <span class="font-semibold">not scoped to any team</span>.
-                                        Admin users retain full access; non-admin users can only see <span class="font-semibold">public resources</span>.
+                                        {{ t('tokens.form.noTeamWarning') }}
                                     </p>
-                                    <p class="mb-1"><span class="font-semibold">✅ This token CAN access:</span></p>
+                                    <p class="mb-1"><span class="font-semibold">{{ t('tokens.form.canAccess') }}</span></p>
                                     <ul class="list-disc list-inside ml-4 space-y-1">
-                                        <li>Public servers (virtual servers marked as public)</li>
-                                        <li>Public tools, resources, and prompts</li>
-                                        <li>All resources (admin users only)</li>
+                                        <li>{{ t('tokens.form.canPublicServers') }}</li>
+                                        <li>{{ t('tokens.form.canPublicResources') }}</li>
+                                        <li>{{ t('tokens.form.canAllResources') }}</li>
                                     </ul>
-                                    <p class="mt-2 mb-1"><span class="font-semibold">❌ Non-admin tokens CANNOT access:</span></p>
+                                    <p class="mt-2 mb-1"><span class="font-semibold">{{ t('tokens.form.cannotAccess') }}</span></p>
                                     <ul class="list-disc list-inside ml-4 space-y-1">
-                                        <li>Your own private or team-scoped resources</li>
-                                        <li>Team-scoped servers, tools, resources, and prompts</li>
+                                        <li>{{ t('tokens.form.cannotOwnResources') }}</li>
+                                        <li>{{ t('tokens.form.cannotTeamResources') }}</li>
                                     </ul>
                                 </div>
                             </div>
@@ -6376,11 +6375,11 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                             <div class="mt-4 bg-yellow-50 dark:bg-yellow-900 p-2 rounded-md border border-yellow-200 dark:border-yellow-600 flex items-center">
                                 <span class="text-yellow-600 dark:text-yellow-400 text-lg">💡</span>
                                 <p class="ml-2 text-sm font-semibold text-yellow-700 dark:text-yellow-300">
-                                    For team-level access, select a specific team from the header above before creating a token.
+                                    {{ t('tokens.form.teamTip') }}
                                 </p>
                             </div>
                             <p class="mt-2 text-xs text-yellow-700 dark:text-yellow-300 ml-8">
-                                The header team selector is global. It filters tools, servers, prompts, and other tabs to that team context.
+                                {{ t('tokens.form.teamSelectorHint') }}
                             </p>
                         </div>
                     </div>
@@ -6395,11 +6394,11 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                         </svg>
                         <p class="text-sm font-medium text-blue-800 dark:text-blue-200">
-                            <span class="font-semibold">Team-level scoping enabled.</span> This token will be scoped to: <span id="selected-team-name" class="font-bold"></span>
+                            <span class="font-semibold">{{ t('tokens.form.teamScopingEnabled') }}</span> <span id="selected-team-name" class="font-bold"></span>
                         </p>
                     </div>
                     <p class="text-xs text-blue-700 dark:text-blue-300 mt-2 ml-7">
-                        Token can access all resources (public, team, and private) within this team.
+                        {{ t('tokens.form.teamScopingHint') }}
                     </p>
                 </div>
             </div>
@@ -6410,14 +6409,14 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               <h4
                 class="text-md font-medium text-gray-900 dark:text-white mb-3"
               >
-                Token Scoping (Optional)
+                {{ t('tokens.form.scopingTitle') }}
               </h4>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    Server ID (Limit to specific server)
+                    {{ t('tokens.form.serverId') }}
                   </label>
                   <input
                     type="text"
@@ -6430,7 +6429,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    IP Restrictions (CIDR format)
+                    {{ t('tokens.form.ipRestrictions') }}
                   </label>
                   <input
                     type="text"
@@ -6444,7 +6443,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Permissions (comma-separated)
+                  {{ t('tokens.form.permissions') }}
                 </label>
                 <input
                   type="text"
@@ -6460,7 +6459,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 type="submit"
                 class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
-                Create Token
+                {{ t('tokens.form.submit') }}
               </button>
             </div>
             <!-- Inline error/status display for token creation; populated by createToken() on failure -->
@@ -6473,7 +6472,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
         <div class="bg-white shadow rounded-lg dark:bg-gray-800">
           <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Your API Tokens
+              {{ t('tokens.list.title') }}
             </h3>
 
             <!-- Search Bar -->
@@ -6482,7 +6481,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 <input
                   type="text"
                   id="tokens-search-input"
-                  placeholder="Search tokens by name..."
+                  placeholder="{{ t('common.search.tokens') }}"
                   class="w-80 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -6490,7 +6489,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 id="tokens-clear-search"
                 data-action-click="clearSearch" data-arg0="tokens"
                 class="px-2 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors">
-                Clear
+                {{ t('common.actions.clear') }}
               </button>
             </div>
 
