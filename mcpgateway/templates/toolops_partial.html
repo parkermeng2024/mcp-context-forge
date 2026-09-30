@@ -23,15 +23,15 @@
                     <td class="px-2 py-4 whitespace-nowrap text-sm w-12">
                         {% if tool.enabled and tool.reachable %}
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                            Online
+                            {{ t('common.states.online') }}
                         </span>
                         {% elif tool.enabled %}
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                            Offline
+                            {{ t('common.states.offline') }}
                         </span>
                         {% else %}
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                            Inactive
+                            {{ t('common.states.inactive') }}
                         </span>
                         {% endif %}
                     </td>
@@ -40,25 +40,25 @@
                             {% if can_modify %}
                             <button data-action="enrich-tool" data-tool-id="{{ tool.id }}"
                                     class="col-span-2 px-2 py-1 text-xs font-medium rounded-md text-teal-600 hover:bg-teal-50">
-                                Enrich
+                                {{ t('common.actions.enrich') }}
                             </button>
                             <button data-action="generate-tool-tests" data-tool-id="{{ tool.id }}"
                                     class="col-span-2 px-2 py-1 text-[11px] font-small rounded-md text-purple-600 hover:bg-purple-50">
-                                Generate Test Cases
+                                {{ t('tools.testcase.title') }}
                             </button>
                             <button data-action="validate-tool" data-tool-id="{{ tool.id }}"
                                     class="col-span-2 px-2 py-1 text-xs font-medium rounded-md text-yellow-600 hover:bg-yellow-50">
-                                Validate
+                                {{ t('common.actions.validate') }}
                             </button>
                             {% endif %}
                             <button data-action="view-tool" data-tool-id="{{ tool.id }}"
                                     class="px-2 py-1 text-xs font-medium rounded-md text-indigo-600 hover:bg-indigo-50">
-                                View
+                                {{ t('common.actions.view') }}
                             </button>
                             {% if can_modify %}
                             <button data-action="edit-tool" data-tool-id="{{ tool.id }}"
                                     class="px-2 py-1 text-xs font-medium rounded-md text-green-600 hover:bg-green-50">
-                                Edit
+                                {{ t('common.actions.edit') }}
                             </button>
                             {% endif %}
                         </div>

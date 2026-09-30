@@ -17,7 +17,7 @@
     <div class="flex items-center gap-3">
       <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
         <input type="checkbox" x-model="autoRefresh" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-        Auto-refresh
+        {{ t('perf.autoRefresh') }}
       </label>
       <button
         hx-get="{{ root_path }}/admin/performance/stats"
@@ -27,7 +27,7 @@
         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
-        Refresh
+        {{ t('common.actions.refresh') }}
       </button>
     </div>
   </div>
@@ -36,22 +36,22 @@
   <div class="border-b border-gray-200 dark:border-gray-700">
     <nav class="flex flex-wrap -mb-px text-sm font-medium" aria-label="Performance Tabs">
       <button @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="py-3 px-4 border-b-2 transition-colors">
-        Overview
+        {{ t('perf.tab.overview') }}
       </button>
       <button @click="activeTab = 'system'" :class="activeTab === 'system' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="py-3 px-4 border-b-2 transition-colors">
-        System
+        {{ t('perf.tab.system') }}
       </button>
       <button @click="activeTab = 'workers'" :class="activeTab === 'workers' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="py-3 px-4 border-b-2 transition-colors">
-        Workers
+        {{ t('perf.tab.workers') }}
       </button>
       <button @click="activeTab = 'requests'" :class="activeTab === 'requests' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="py-3 px-4 border-b-2 transition-colors">
-        Requests
+        {{ t('perf.tab.requests') }}
       </button>
       <button @click="activeTab = 'database'" :class="activeTab === 'database' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="py-3 px-4 border-b-2 transition-colors">
-        Database
+        {{ t('perf.tab.database') }}
       </button>
       <button @click="activeTab = 'cache'" :class="activeTab === 'cache' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="py-3 px-4 border-b-2 transition-colors">
-        Cache
+        {{ t('perf.tab.cache') }}
       </button>
     </nav>
   </div>

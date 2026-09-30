@@ -6,7 +6,7 @@
       <svg class="h-8 w-8 mr-3 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
       </svg>
-      System Overview
+      {{ t('overview.title') }}
     </h2>
     <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
       <span class="flex items-center">
@@ -27,7 +27,7 @@
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
       <div>
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          MCP Runtime
+          {{ t('about.runtime.title') }}
         </div>
         <div class="mt-2 flex flex-wrap items-center gap-2">
           <span
@@ -50,14 +50,14 @@
             class="px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200"
             title="Rust sidecar is present, but the public MCP path is still using Python semantics"
           >
-            Shadow / safe fallback
+            {{ t('overview.runtime.shadowFallback') }}
           </span>
           {% elif mcp_runtime.mode == 'python-rust-built-disabled' %}
           <span
             class="px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200"
             title="Rust binaries are included in the image, but the MCP runtime is disabled"
           >
-            Rust build available
+            {{ t('overview.runtime.rustBuildAvailable') }}
           </span>
           {% endif %}
         </div>
@@ -66,7 +66,7 @@
       <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2">
         <div class="rounded-lg bg-gray-50 dark:bg-gray-700 px-3 py-2">
           <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Public MCP
+            {{ t('overview.runtime.publicMcp') }}
           </div>
           <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {% if mcp_runtime.mounted == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
@@ -74,7 +74,7 @@
         </div>
         <div class="rounded-lg bg-gray-50 dark:bg-gray-700 px-3 py-2">
           <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Session
+            {{ t('overview.runtime.session') }}
           </div>
           <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {% if mcp_runtime.session_core_mode == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
@@ -82,7 +82,7 @@
         </div>
         <div class="rounded-lg bg-gray-50 dark:bg-gray-700 px-3 py-2">
           <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Replay
+            {{ t('overview.runtime.replay') }}
           </div>
           <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {% if mcp_runtime.resume_core_mode == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
@@ -90,7 +90,7 @@
         </div>
         <div class="rounded-lg bg-gray-50 dark:bg-gray-700 px-3 py-2">
           <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Live Stream
+            {{ t('about.runtime.liveStream') }}
           </div>
           <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {% if mcp_runtime.live_stream_core_mode == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
@@ -98,7 +98,7 @@
         </div>
         <div class="rounded-lg bg-gray-50 dark:bg-gray-700 px-3 py-2">
           <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Affinity
+            {{ t('about.runtime.affinity') }}
           </div>
           <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {% if mcp_runtime.affinity_core_mode == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
@@ -106,7 +106,7 @@
         </div>
         <div class="rounded-lg bg-gray-50 dark:bg-gray-700 px-3 py-2">
           <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Auth Reuse
+            {{ t('overview.runtime.authReuse') }}
           </div>
           <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {% if mcp_runtime.session_auth_reuse_mode == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
