@@ -1,10 +1,11 @@
 import { AppState } from "./appState.js";
 import { loadAuthHeaders, updateAuthHeadersJSON } from "./auth.js";
-import { escapeAttrValue } from "./security.js";
 import { updateEditToolRequestTypes } from "./formFieldHandlers.js";
 import { getSelectedGatewayIds } from "./gateways.js";
+import { t } from "./i18n.js";
 import { closeModal, openModal } from "./modals.js";
 import {
+  escapeAttrValue,
   escapeHtml,
   safeSetInnerHTML,
   validateInputName,
@@ -157,19 +158,19 @@ export const viewTool = async function (toolId) {
     let authHTML = "";
     if (tool.auth?.username && tool.auth?.password) {
       authHTML = `
-        <span class="font-medium text-gray-700 dark:text-gray-300">Authentication Type:</span>
+        <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("common.detail.authenticationType"))}</span>
         <div class="mt-1 text-sm">
-        <div class="text-gray-600 dark:text-gray-400">Basic Authentication</div>
-        <div class="mt-1">Username: <span class="auth-username font-medium"></span></div>
-        <div>Password: <span class="font-medium">********</span></div>
+        <div class="text-gray-600 dark:text-gray-400">${escapeHtml(t("tools.auth.basic"))}</div>
+        <div class="mt-1">${escapeHtml(t("common.detail.username"))} <span class="auth-username font-medium"></span></div>
+        <div>${escapeHtml(t("common.detail.password"))} <span class="font-medium">********</span></div>
         </div>
     `;
     } else if (tool.auth?.token) {
       authHTML = `
-        <span class="font-medium text-gray-700 dark:text-gray-300">Authentication Type:</span>
+        <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("common.detail.authenticationType"))}</span>
         <div class="mt-1 text-sm">
-        <div class="text-gray-600 dark:text-gray-400">Bearer Token</div>
-        <div class="mt-1">Token: <span class="font-medium">********</span></div>
+        <div class="text-gray-600 dark:text-gray-400">${escapeHtml(t("tools.auth.bearerToken"))}</div>
+        <div class="mt-1">${escapeHtml(t("tools.auth.token"))} <span class="font-medium">********</span></div>
         </div>
     `;
     } else if (
@@ -185,33 +186,33 @@ export const viewTool = async function (toolId) {
         )
         .join("");
       authHTML = `
-        <span class="font-medium text-gray-700 dark:text-gray-300">Authentication Type:</span>
+        <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("common.detail.authenticationType"))}</span>
         <div class="mt-1 text-sm">
-          <div class="text-gray-600 dark:text-gray-400">Custom Headers</div>
+          <div class="text-gray-600 dark:text-gray-400">${escapeHtml(t("tools.auth.customHeaders"))}</div>
           ${headerRows}
         </div>
       `;
     } else if (tool.auth?.authHeaderKey && tool.auth?.authHeaderValue) {
       // Legacy single-header format (backward compatibility)
       authHTML = `
-        <span class="font-medium text-gray-700 dark:text-gray-300">Authentication Type:</span>
+        <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("common.detail.authenticationType"))}</span>
         <div class="mt-1 text-sm">
-        <div class="text-gray-600 dark:text-gray-400">Custom Headers</div>
-        <div class="mt-1">Header: <span class="auth-header-key font-medium"></span></div>
-        <div>Value: <span class="font-medium">********</span></div>
+        <div class="text-gray-600 dark:text-gray-400">${escapeHtml(t("tools.auth.customHeaders"))}</div>
+        <div class="mt-1">${escapeHtml(t("tools.auth.header"))} <span class="auth-header-key font-medium"></span></div>
+        <div>${escapeHtml(t("common.detail.value"))} <span class="font-medium">********</span></div>
         </div>
     `;
     } else {
       authHTML = `
-        <span class="font-medium text-gray-700 dark:text-gray-300">Authentication Type:</span>
-        <div class="mt-1 text-sm">None</div>
+        <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("common.detail.authenticationType"))}</span>
+        <div class="mt-1 text-sm">${escapeHtml(t("common.states.none"))}</div>
     `;
     }
 
     // Create annotation badges safely - NO ESCAPING since we're using textContent
     const renderAnnotations = (annotations) => {
       if (!annotations || Object.keys(annotations).length === 0) {
-        return '<p><strong>Annotations:</strong> <span class="text-gray-600 dark:text-gray-300">None</span></p>';
+        return `<p><strong>${escapeHtml(t("common.detail.annotations"))}</strong> <span class="text-gray-600 dark:text-gray-300">${escapeHtml(t("common.states.none"))}</span></p>`;
       }
 
       const badges = [];
@@ -226,25 +227,25 @@ export const viewTool = async function (toolId) {
       // Show behavior hints with appropriate colors
       if (annotations.readOnlyHint === true) {
         badges.push(
-          '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-1 mb-1">📖 Read-Only</span>'
+          '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-1 mb-1">📖 ' + escapeHtml(t("tools.annotation.readOnly")) + "</span>"
         );
       }
 
       if (annotations.destructiveHint === true) {
         badges.push(
-          '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mr-1 mb-1">⚠️ Destructive</span>'
+          '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mr-1 mb-1">⚠️ ' + escapeHtml(t("tools.annotation.destructive")) + "</span>"
         );
       }
 
       if (annotations.idempotentHint === true) {
         badges.push(
-          '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-1 mb-1">🔄 Idempotent</span>'
+          '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-1 mb-1">🔄 ' + escapeHtml(t("tools.annotation.idempotent")) + "</span>"
         );
       }
 
       if (annotations.openWorldHint === true) {
         badges.push(
-          '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mr-1 mb-1">🌐 External Access</span>'
+          '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mr-1 mb-1">🌐 ' + escapeHtml(t("tools.annotation.externalAccess")) + "</span>"
         );
       }
 
