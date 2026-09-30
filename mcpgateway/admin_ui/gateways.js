@@ -92,7 +92,7 @@ export const viewGateway = async function (gatewayId) {
           tagsP.appendChild(tagSpan);
         });
       } else {
-        tagsP.appendChild(document.createTextNode("No tags"));
+        tagsP.appendChild(document.createTextNode(t("a2a.detail.noTags")));
       }
       container.appendChild(tagsP);
 
@@ -157,32 +157,32 @@ export const viewGateway = async function (gatewayId) {
 
       const metadataFields = [
         {
-          label: "Created By",
-          value: gateway.created_by || gateway.createdBy || "Legacy Entity",
+          label: t("a2a.detail.createdBy"),
+          value: gateway.created_by || gateway.createdBy || t("a2a.detail.legacyEntity"),
         },
         {
-          label: "Created At",
+          label: t("a2a.detail.createdAt"),
           value:
             gateway.created_at || gateway.createdAt
               ? new Date(
                 gateway.created_at || gateway.createdAt
               ).toLocaleString()
-              : "Pre-metadata",
+              : t("a2a.detail.preMetadata"),
         },
         {
-          label: "Created From IP",
-          value: gateway.created_from_ip || gateway.createdFromIp || "Unknown",
+          label: t("a2a.detail.createdFromIp"),
+          value: gateway.created_from_ip || gateway.createdFromIp || t("common.unknown"),
         },
         {
-          label: "Created Via",
-          value: gateway.created_via || gateway.createdVia || "Unknown",
+          label: t("a2a.detail.createdVia"),
+          value: gateway.created_via || gateway.createdVia || t("common.unknown"),
         },
         {
-          label: "Last Modified By",
+          label: t("a2a.detail.lastModifiedBy"),
           value: gateway.modified_by || gateway.modifiedBy || "N/A",
         },
         {
-          label: "Last Modified At",
+          label: t("a2a.detail.lastModifiedAt"),
           value:
             gateway.updated_at || gateway.updatedAt
               ? new Date(
@@ -191,16 +191,16 @@ export const viewGateway = async function (gatewayId) {
               : "N/A",
         },
         {
-          label: "Modified From IP",
+          label: t("a2a.detail.modifiedFromIp"),
           value: gateway.modified_from_ip || gateway.modifiedFromIp || "N/A",
         },
         {
-          label: "Modified Via",
+          label: t("a2a.detail.modifiedVia"),
           value: gateway.modified_via || gateway.modifiedVia || "N/A",
         },
-        { label: "Version", value: gateway.version || "1" },
+        { label: t("a2a.detail.version"), value: gateway.version || "1" },
         {
-          label: "Import Batch",
+          label: t("a2a.detail.importBatch"),
           value: gateway.importBatchId || "N/A",
         },
       ];
@@ -672,7 +672,7 @@ export const initGatewaySelect = function (
         selectId,
         noMsgId,
         searchQuerySpanId,
-        "MCP server"
+        t("gateways.test.entityServer")
       );
 
       if (query && visibleCount === 0) {
@@ -1708,7 +1708,7 @@ const handleGatewayTestSubmit = async function (e) {
       result.statusCode && result.statusCode >= 200 && result.statusCode < 300;
 
     const alertType = isSuccess ? "success" : "error";
-    const title = isSuccess ? "Connection Successful" : "Connection Failed";
+    const title = isSuccess ? t("gateways.test.connectionSuccessful") : t("llm.chat.connectionFailed");
     const statusCode = result.statusCode || "Unknown";
     const latency = result.latencyMs != null ? `${result.latencyMs}ms` : "NA";
     const body = result.body
@@ -1947,7 +1947,7 @@ export const refreshToolsForSelectedGateways = async function(buttonEl) {
   const deltaMsg =
     added || updated || removed
       ? `${added} added, ${updated} updated, ${removed} removed`
-      : "No changes detected";
+      : t("gateways.test.noChanges");
   if (failed) {
     showErrorMessage(
       t("gateways.test.bulkPartial", { failed, message: deltaMsg })

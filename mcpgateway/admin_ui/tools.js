@@ -549,7 +549,7 @@ export const viewTool = async function (toolId) {
       // Set metadata fields safely with appropriate fallbacks for legacy entities
       setTextSafely(
         ".metadata-created-by",
-        tool.created_by || tool.createdBy || "Legacy Entity"
+        tool.created_by || tool.createdBy || t("a2a.detail.legacyEntity")
       );
       setTextSafely(
         ".metadata-created-at",
@@ -557,7 +557,7 @@ export const viewTool = async function (toolId) {
           ? new Date(tool.created_at).toLocaleString()
           : tool.createdAt
             ? new Date(tool.createdAt).toLocaleString()
-            : "Pre-metadata"
+            : t("a2a.detail.preMetadata")
       );
       setTextSafely(
         ".metadata-created-from",
@@ -740,19 +740,19 @@ export const editTool = async function (toolId) {
     // Handle JSON fields safely with validation
     const headersValidation = validateJson(
       JSON.stringify(tool.headers || {}),
-      "Headers"
+      t("tools.schema.headers")
     );
     const schemaValidation = validateJson(
       JSON.stringify(tool.inputSchema || {}),
-      "Schema"
+      t("tools.schema.schema")
     );
     const outputSchemaValidation = validateJson(
       tool.outputSchema ? JSON.stringify(tool.outputSchema) : "",
-      "Output Schema"
+      t("tools.schema.outputSchema")
     );
     const annotationsValidation = validateJson(
       JSON.stringify(tool.annotations || {}),
-      "Annotations"
+      t("tools.schema.annotations")
     );
 
     const headersField = safeGetElement("edit-tool-headers");
@@ -2049,7 +2049,7 @@ export const enrichTool = async function (toolId) {
         );
       } else if (response.status === 429) {
         throw new Error(
-          "Too many requests. Please wait a moment before validating again."
+          t("tools.validation.tooManyRequests")
         );
       } else if (response.status >= 500) {
         throw new Error(
@@ -2430,15 +2430,15 @@ export const validateTool = async function (toolId) {
         validationStatus = validationStatus[0].status;
         if (validationStatus === "not-initiated") {
           showErrorMessage(
-            "Please generate test cases before running validation."
+            t("tools.validation.generateFirst")
           );
         } else if (validationStatus === "in-progress") {
           showErrorMessage(
-            "Test case generation is in progress. Please try validation once it is complete."
+            t("tools.validation.generationInProgress")
           );
         } else if (validationStatus === "failed") {
           showErrorMessage(
-            "Test case generation failed. Please check your LLM connection and try again."
+            t("tools.validation.generationFailed")
           );
           console.log(
             "Previous error while generating test cases: ",
@@ -2864,7 +2864,7 @@ export const validateTool = async function (toolId) {
         }
       } else {
         showErrorMessage(
-          "Test case generation failed. Please check your LLM connection and try again."
+          t("tools.validation.generationFailed")
         );
       }
     }
@@ -3068,7 +3068,7 @@ export const runToolValidation = async function (testIndex) {
             }
           } else if (colonIndex === -1) {
             showErrorMessage(
-              `Invalid header format: "${trimmedLine}". Expected format: "Header-Name: Value"`
+              t("tools.validation.invalidHeaderFormat", { line: trimmedLine })
             );
             return;
           }
@@ -3229,7 +3229,7 @@ export const runToolAgentValidation = async function (testIndex) {
             }
           } else if (colonIndex === -1) {
             showErrorMessage(
-              `Invalid header format: "${trimmedLine}". Expected format: "Header-Name: Value"`
+              t("tools.validation.invalidHeaderFormat", { line: trimmedLine })
             );
             return;
           }
@@ -3480,7 +3480,7 @@ export const runToolTest = async function () {
             }
           } else if (colonIndex === -1) {
             showErrorMessage(
-              `Invalid header format: "${trimmedLine}". Expected format: "Header-Name: Value"`
+              t("tools.validation.invalidHeaderFormat", { line: trimmedLine })
             );
             return;
           }
