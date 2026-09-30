@@ -21,34 +21,34 @@
           d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
         />
       </svg>
-      Application Information
+      {{ t('about.overview.title') }}
     </h2>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="text-center">
         <div class="text-2xl font-bold">{{ payload.app.name }}</div>
-        <div class="text-blue-100 text-sm">Application</div>
+        <div class="text-blue-100 text-sm">{{ t('about.overview.application') }}</div>
       </div>
       <div class="text-center">
         <div class="text-2xl font-bold">{{ payload.host }}</div>
-        <div class="text-blue-100 text-sm">Host</div>
+        <div class="text-blue-100 text-sm">{{ t('about.overview.host') }}</div>
       </div>
       <div class="text-center">
         <div class="text-2xl font-bold">
           {{ payload.app.mcp_protocol_version }}
         </div>
-        <div class="text-blue-100 text-sm">MCP Protocol</div>
+        <div class="text-blue-100 text-sm">{{ t('about.overview.mcpProtocol') }}</div>
       </div>
       <div class="text-center">
         <div class="text-2xl font-bold">{{ payload.uptime_seconds }}s</div>
-        <div class="text-blue-100 text-sm">Uptime</div>
+        <div class="text-blue-100 text-sm">{{ t('about.overview.uptime') }}</div>
       </div>
     </div>
 
     {% if payload.app.version %}
     <div class="mt-4 pt-4 border-t border-blue-300">
       <div class="text-center">
-        <div class="text-lg font-medium">Version</div>
+        <div class="text-lg font-medium">{{ t('about.overview.version') }}</div>
         <div class="text-blue-100 font-mono text-sm">
           {{ payload.app.version }}
         </div>
@@ -73,12 +73,12 @@
           d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
         ></path>
       </svg>
-      Platform &amp; Runtime
+      {{ t('about.platform.title') }}
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-gray-50 rounded p-4 dark:bg-gray-700">
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Python Version
+          {{ t('about.platform.python') }}
         </div>
         <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {{ payload.platform.python }}
@@ -86,7 +86,7 @@
       </div>
       <div class="bg-gray-50 rounded p-4 dark:bg-gray-700">
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          FastAPI Version
+          {{ t('about.platform.fastapi') }}
         </div>
         <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {{ payload.platform.fastapi }}
@@ -94,7 +94,7 @@
       </div>
       <div class="bg-gray-50 rounded p-4 dark:bg-gray-700">
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Operating System
+          {{ t('about.platform.os') }}
         </div>
         <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {{ payload.platform.os }}
@@ -111,10 +111,10 @@
           <span class="text-2xl mr-2" aria-hidden="true">
             {% if payload.mcp_runtime.mounted == 'rust' %}🦀{% else %}🐍{% endif %}
           </span>
-          MCP Runtime
+          {{ t('about.runtime.title') }}
         </h3>
         <p class="text-sm text-gray-600 dark:text-gray-400">
-          Active MCP transport and core ownership for this gateway instance.
+          {{ t('about.runtime.hint') }}
         </p>
       </div>
       <div class="flex flex-wrap gap-2">
@@ -122,7 +122,7 @@
           id="version-mcp-core-badge"
           class="px-3 py-1 rounded-full text-sm font-medium {% if payload.mcp_runtime.mounted == 'rust' %}bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200{% else %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}"
         >
-          {% if payload.mcp_runtime.mounted == 'rust' %}🦀 Rust MCP Core{% else %}🐍 Python MCP Core{% endif %}
+          {% if payload.mcp_runtime.mounted == 'rust' %}🦀 {{ t('about.runtime.rustCore') }}{% else %}🐍 {{ t('about.runtime.pythonCore') }}{% endif %}
         </span>
         <span
           id="version-mcp-runtime-mode-badge"
@@ -136,77 +136,77 @@
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
       <div class="bg-gray-50 rounded p-4 dark:bg-gray-700">
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Public Transport
+          {{ t('about.runtime.publicTransport') }}
         </div>
         <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {% if payload.mcp_runtime.mounted == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
+          {% if payload.mcp_runtime.mounted == 'rust' %}🦀 {{ t('about.rust') }}{% else %}🐍 {{ t('about.python') }}{% endif %}
         </div>
       </div>
       <div class="bg-gray-50 rounded p-4 dark:bg-gray-700">
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Session Core
+          {{ t('about.runtime.sessionCore') }}
         </div>
         <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {% if payload.mcp_runtime.session_core_mode == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
+          {% if payload.mcp_runtime.session_core_mode == 'rust' %}🦀 {{ t('about.rust') }}{% else %}🐍 {{ t('about.python') }}{% endif %}
         </div>
       </div>
       <div class="bg-gray-50 rounded p-4 dark:bg-gray-700">
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Event Store
+          {{ t('about.runtime.eventStore') }}
         </div>
         <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {% if payload.mcp_runtime.event_store_mode == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
+          {% if payload.mcp_runtime.event_store_mode == 'rust' %}🦀 {{ t('about.rust') }}{% else %}🐍 {{ t('about.python') }}{% endif %}
         </div>
       </div>
       <div class="bg-gray-50 rounded p-4 dark:bg-gray-700">
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Replay / Resume
+          {{ t('about.runtime.replayResume') }}
         </div>
         <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {% if payload.mcp_runtime.resume_core_mode == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
+          {% if payload.mcp_runtime.resume_core_mode == 'rust' %}🦀 {{ t('about.rust') }}{% else %}🐍 {{ t('about.python') }}{% endif %}
         </div>
       </div>
       <div class="bg-gray-50 rounded p-4 dark:bg-gray-700">
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Live Stream
+          {{ t('about.runtime.liveStream') }}
         </div>
         <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {% if payload.mcp_runtime.live_stream_core_mode == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
+          {% if payload.mcp_runtime.live_stream_core_mode == 'rust' %}🦀 {{ t('about.rust') }}{% else %}🐍 {{ t('about.python') }}{% endif %}
         </div>
       </div>
       <div class="bg-gray-50 rounded p-4 dark:bg-gray-700">
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Affinity
+          {{ t('about.runtime.affinity') }}
         </div>
         <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {% if payload.mcp_runtime.affinity_core_mode == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
+          {% if payload.mcp_runtime.affinity_core_mode == 'rust' %}🦀 {{ t('about.rust') }}{% else %}🐍 {{ t('about.python') }}{% endif %}
         </div>
       </div>
       <div class="bg-gray-50 rounded p-4 dark:bg-gray-700">
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Session Auth Reuse
+          {{ t('about.runtime.sessionAuthReuse') }}
         </div>
         <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {% if payload.mcp_runtime.session_auth_reuse_mode == 'rust' %}🦀 Rust{% else %}🐍 Python{% endif %}
+          {% if payload.mcp_runtime.session_auth_reuse_mode == 'rust' %}🦀 {{ t('about.rust') }}{% else %}🐍 {{ t('about.python') }}{% endif %}
         </div>
       </div>
       <div class="bg-gray-50 rounded p-4 dark:bg-gray-700">
         <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Rust Build Included
+          {{ t('about.runtime.rustBuildIncluded') }}
         </div>
         <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {% if payload.mcp_runtime.rust_build_included %}Yes{% else %}No{% endif %}
+          {% if payload.mcp_runtime.rust_build_included %}{{ t('common.yes') }}{% else %}{{ t('common.no') }}{% endif %}
         </div>
       </div>
     </div>
 
     {% if payload.mcp_runtime.mode == 'rust-managed' and payload.mcp_runtime.mounted == 'python' %}
     <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-200">
-      Public MCP traffic is still on the Python path. The Rust sidecar is present internally for managed rollout or safe fallback operation.
+      {{ t('about.runtime.managedWarning') }}
     </div>
     {% elif payload.mcp_runtime.mode == 'python-rust-built-disabled' %}
     <div class="mt-4 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800 dark:border-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-200">
-      This image includes Rust MCP artifacts, but the runtime is currently disabled and the public MCP path remains Python-only.
+      {{ t('about.runtime.disabledWarning') }}
     </div>
     {% endif %}
   </div>
@@ -227,7 +227,7 @@
           d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
         ></path>
       </svg>
-      Services Status
+      {{ t('about.services.title') }}
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Database Status -->
@@ -239,7 +239,7 @@
             <h4
               class="font-medium {% if payload.database.reachable %}text-green-800 dark:text-green-300{% else %}text-red-800 dark:text-red-300{% endif %}"
             >
-              Database
+              {{ t('about.services.database') }}
             </h4>
             <p
               class="text-sm {% if payload.database.reachable %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %}"
@@ -283,8 +283,8 @@
           <span
             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if payload.database.reachable %}bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200{% else %}bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200{% endif %}"
           >
-            {% if payload.database.reachable %}✅ Reachable{% else %}❌
-            Unreachable{% endif %}
+            {% if payload.database.reachable %}✅ {{ t('about.services.reachable') }}{% else %}❌
+            {{ t('about.services.unreachable') }}{% endif %}
           </span>
         </div>
       </div>
@@ -297,12 +297,12 @@
             <h4
               class="font-medium {% if payload.settings.cache_type == 'redis' and payload.redis.reachable %} text-green-800 dark:text-green-300 {% elif payload.settings.cache_type == 'redis' and not payload.redis.reachable %} text-red-800 dark:text-red-300 {% else %} text-gray-800 dark:text-gray-300 {% endif %}"
             >
-              Cache
+              {{ t('about.services.cache') }}
             </h4>
             <p
               class="text-sm {% if payload.settings.cache_type == 'redis' and payload.redis.reachable %} text-green-600 dark:text-green-400 {% elif payload.settings.cache_type == 'redis' and not payload.redis.reachable %} text-red-600 dark:text-red-400 {% else %} text-gray-600 dark:text-gray-400 {% endif %}"
             >
-              {{ payload.settings.cache_type | capitalize }} Cache
+              {{ t('about.services.cacheType', type=(payload.settings.cache_type | capitalize)) }}
             </p>
           </div>
           <div class="flex items-center">
