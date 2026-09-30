@@ -2190,7 +2190,7 @@
             <label
               for="show-inactive-servers"
               class="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >{{ t('servers.list.showInactive') }}</label
+              >{{ t('common.label.showInactive') }}</label
             >
           </div>
         </div>
@@ -4759,11 +4759,10 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
       <div id="gateways-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold dark:text-gray-200">
-            MCP Servers & Federated Gateways (MCP Registry)
+            {{ t('gateways.list.title') }}
           </h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Register external MCP Servers (SSE/HTTP) to retrieve their
-            tools/resources/prompts.
+            {{ t('gateways.list.intro') }}
           </p>
           <div class="flex items-center">
             <input
@@ -4786,7 +4785,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
             <label
               for="show-inactive-gateways"
               class="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >Show Inactive</label
+              >{{ t('common.label.showInactive') }}</label
             >
           </div>
         </div>
@@ -4800,7 +4799,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 <input
                   type="text"
                   id="gateways-search-input"
-                  placeholder="Search gateways..."
+                  placeholder="{{ t('gateways.list.searchPlaceholder') }}"
                   class="w-64 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -4808,7 +4807,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 id="gateways-clear-search"
                 data-action-click="clearSearch" data-arg0="gateways"
                 class="px-2 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors">
-                Clear
+                {{ t('common.actions.clear') }}
               </button>
               <span id="gateways-filter-status" class="text-sm text-gray-500 dark:text-gray-400" aria-live="polite" role="status"></span>
             </div>
@@ -4837,7 +4836,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span class="ml-2 text-gray-600 dark:text-gray-400">Loading gateways...</span>
+              <span class="ml-2 text-gray-600 dark:text-gray-400">{{ t('gateways.states.loading') }}</span>
             </div>
           </div>
 
