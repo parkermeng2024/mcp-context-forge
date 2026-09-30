@@ -1,3 +1,4 @@
+import { t } from "./i18n.js";
 import { escapeHtml } from "./security.js";
 import { fetchWithTimeout, handleFetchError, safeGetElement } from "./utils.js";
 
@@ -212,21 +213,21 @@ export const showMetricsError = function (error) {
       error.name === "AbortError";
 
     const helpText = isNetworkError
-      ? "This usually happens when the server is slow to respond or there's a network issue."
-      : "There may be an issue with the metrics calculation on the server.";
+      ? t("metrics.error.helpNetwork")
+      : t("metrics.error.helpCalculation");
 
     errorDiv.innerHTML = `
             <div class="text-red-600 mb-4">
                 <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <h3 class="text-lg font-medium mb-2">Failed to Load Aggregated Metrics</h3>
+                <h3 class="text-lg font-medium mb-2">${t("metrics.error.title")}</h3>
                 <p class="text-sm mb-2">${escapeHtml(errorMessage)}</p>
                 <p class="text-xs text-gray-500 mb-4">${helpText}</p>
                 <button
                     data-action="retry-metrics"
                     class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">
-                    Try Again
+                    ${t("metrics.error.retry")}
                 </button>
             </div>
         `;
@@ -260,7 +261,7 @@ export const showMetricsPlaceholder = function () {
     const placeholderDiv = document.createElement("div");
     placeholderDiv.className = "text-gray-600 p-4 text-center";
     placeholderDiv.textContent =
-      "Aggregated metrics endpoint not available. This feature may not be implemented yet.";
+      t("metrics.placeholder.unavailable");
     aggregatedSection.innerHTML = "";
     aggregatedSection.appendChild(placeholderDiv);
   }
@@ -378,31 +379,31 @@ export const displayMetrics = function (data, retryCount = 0) {
 
       // Tools metrics
       if (data.tools) {
-        const toolsCard = createMetricsCard("Tools", data.tools);
+        const toolsCard = createMetricsCard(t("metrics.card.tools"), data.tools);
         metricsContainer.appendChild(toolsCard);
       }
 
       // Resources metrics
       if (data.resources) {
-        const resourcesCard = createMetricsCard("Resources", data.resources);
+        const resourcesCard = createMetricsCard(t("metrics.card.resources"), data.resources);
         metricsContainer.appendChild(resourcesCard);
       }
 
       // Prompts metrics
       if (data.prompts) {
-        const promptsCard = createMetricsCard("Prompts", data.prompts);
+        const promptsCard = createMetricsCard(t("metrics.card.prompts"), data.prompts);
         metricsContainer.appendChild(promptsCard);
       }
 
       // Gateways metrics
       if (data.gateways) {
-        const gatewaysCard = createMetricsCard("Gateways", data.gateways);
+        const gatewaysCard = createMetricsCard(t("metrics.card.gateways"), data.gateways);
         metricsContainer.appendChild(gatewaysCard);
       }
 
       // Servers metrics
       if (data.servers) {
-        const serversCard = createMetricsCard("Servers", data.servers);
+        const serversCard = createMetricsCard(t("metrics.card.servers"), data.servers);
         metricsContainer.appendChild(serversCard);
       }
 
@@ -497,7 +498,7 @@ export const createSystemSummaryCard = function (systemData) {
     // Card title
     const title = document.createElement("h2");
     title.className = "text-2xl font-bold mb-4";
-    title.textContent = "System Overview";
+    title.textContent = t("metrics.system.title");
     card.appendChild(title);
 
     // Statistics grid
@@ -508,42 +509,42 @@ export const createSystemSummaryCard = function (systemData) {
     const systemStats = [
       {
         key: "uptime",
-        label: "Uptime",
+        label: t("metrics.stat.uptime"),
         suffix: "",
       },
       {
         key: "totalRequests",
-        label: "Total Requests",
+        label: t("metrics.stat.totalRequests"),
         suffix: "",
       },
       {
         key: "activeConnections",
-        label: "Active Connections",
+        label: t("metrics.stat.activeConnections"),
         suffix: "",
       },
       {
         key: "memoryUsage",
-        label: "Memory Usage",
+        label: t("metrics.stat.memoryUsage"),
         suffix: "%",
       },
       {
         key: "cpuUsage",
-        label: "CPU Usage",
+        label: t("metrics.stat.cpuUsage"),
         suffix: "%",
       },
       {
         key: "diskUsage",
-        label: "Disk Usage",
+        label: t("metrics.stat.diskUsage"),
         suffix: "%",
       },
       {
         key: "networkIn",
-        label: "Network In",
+        label: t("metrics.stat.networkIn"),
         suffix: " MB",
       },
       {
         key: "networkOut",
-        label: "Network Out",
+        label: t("metrics.stat.networkOut"),
         suffix: " MB",
       },
     ];
@@ -590,23 +591,23 @@ export const createKPISection = function (kpiData) {
     const kpis = [
       {
         key: "totalExecutions",
-        label: "Total Executions",
+        label: t("metrics.kpi.totalExecutions"),
         icon: "🎯",
         color: "blue",
       },
       {
         key: "successRate",
-        label: "Success Rate",
+        label: t("metrics.kpi.successRate"),
         icon: "✅",
         color: "green",
       },
       {
         key: "avgResponseTime",
-        label: "Avg Response Time",
+        label: t("metrics.kpi.avgResponseTime"),
         icon: "⚡",
         color: "yellow",
       },
-      { key: "errorRate", label: "Error Rate", icon: "❌", color: "red" },
+      { key: "errorRate", label: t("metrics.kpi.errorRate"), icon: "❌", color: "red" },
     ];
 
     kpis.forEach((kpi) => {
@@ -1018,10 +1019,10 @@ export const formatLastUsed = function (timestamp) {
   const diff = now - date.getTime();
 
   if (diff < 60 * 1000) {
-    return "Just now";
+    return t("metrics.time.justNow");
   }
   if (diff < 60 * 60 * 1000) {
-    return `${Math.floor(diff / 60000)} min ago`;
+    return t("metrics.time.minutesAgo", { count: Math.floor(diff / 60000) });
   }
 
   return date.toLocaleString(undefined, {
@@ -1331,7 +1332,7 @@ export const createStandardPaginationControls = function (
                 :disabled="!hasPrev"
                 :class="hasPrev ? 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20' : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'"
                 class="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 transition-colors"
-                title="First Page"
+                title="${t("metrics.pagination.first")}"
             >
                 ⏮️
             </button>
@@ -1342,7 +1343,7 @@ export const createStandardPaginationControls = function (
                 :disabled="!hasPrev"
                 :class="hasPrev ? 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20' : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'"
                 class="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 transition-colors"
-                title="Previous Page"
+                title="${t("metrics.pagination.previous")}"
             >
                 ◀️ Prev
             </button>
@@ -1412,9 +1413,9 @@ export const createStandardPaginationControls = function (
                 :disabled="!hasNext"
                 :class="hasNext ? 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20' : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'"
                 class="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 transition-colors"
-                title="Next Page"
+                title="${t("metrics.pagination.next")}"
             >
-                Next ▶️
+                ${t("metrics.pagination.nextLabel")} ▶️
             </button>
 
             <!-- Last Page Button -->
@@ -1423,7 +1424,7 @@ export const createStandardPaginationControls = function (
                 :disabled="!hasNext"
                 :class="hasNext ? 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20' : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'"
                 class="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 transition-colors"
-                title="Last Page"
+                title="${t("metrics.pagination.last")}"
             >
                 ⏭️
             </button>
@@ -1628,7 +1629,7 @@ export const createPerformanceCard = function (performanceData) {
 
     const titleElement = document.createElement("h3");
     titleElement.className = "text-lg font-medium mb-4 dark:text-gray-200";
-    titleElement.textContent = "Performance Metrics";
+    titleElement.textContent = t("metrics.performance.title");
     card.appendChild(titleElement);
 
     const metricsList = document.createElement("div");
@@ -1636,12 +1637,12 @@ export const createPerformanceCard = function (performanceData) {
 
     // Define performance metrics with safe structure
     const performanceMetrics = [
-      { key: "memoryUsage", label: "Memory Usage" },
-      { key: "cpuUsage", label: "CPU Usage" },
-      { key: "diskIo", label: "Disk I/O" },
-      { key: "networkThroughput", label: "Network Throughput" },
-      { key: "cacheHitRate", label: "Cache Hit Rate" },
-      { key: "activeThreads", label: "Active Threads" },
+      { key: "memoryUsage", label: t("metrics.performance.memoryUsage") },
+      { key: "cpuUsage", label: t("metrics.performance.cpuUsage") },
+      { key: "diskIo", label: t("metrics.performance.diskIo") },
+      { key: "networkThroughput", label: t("metrics.performance.networkThroughput") },
+      { key: "cacheHitRate", label: t("metrics.performance.cacheHitRate") },
+      { key: "activeThreads", label: t("metrics.performance.activeThreads") },
     ];
 
     performanceMetrics.forEach((metric) => {
@@ -1684,7 +1685,7 @@ export const createRecentActivitySection = function (activityData) {
 
     const title = document.createElement("h3");
     title.className = "text-lg font-medium mb-4 dark:text-gray-200";
-    title.textContent = "Recent Activity";
+    title.textContent = t("metrics.activity.title");
     section.appendChild(title);
 
     if (Array.isArray(activityData) && activityData.length > 0) {
@@ -1702,7 +1703,7 @@ export const createRecentActivitySection = function (activityData) {
         const actionSpan = document.createElement("span");
         actionSpan.className = "font-medium dark:text-gray-200";
         actionSpan.textContent = escapeHtml(
-          activity.action || "Unknown Action"
+          activity.action || t("metrics.activity.unknownAction")
         );
 
         const targetSpan = document.createElement("span");
@@ -1726,7 +1727,7 @@ export const createRecentActivitySection = function (activityData) {
       const noActivity = document.createElement("p");
       noActivity.className =
         "text-gray-500 dark:text-gray-400 text-center py-4";
-      noActivity.textContent = "No recent activity to display";
+      noActivity.textContent = t("metrics.activity.empty");
       section.appendChild(noActivity);
     }
 
@@ -1743,19 +1744,19 @@ export const createMetricsCard = function (title, metrics) {
 
   const titleElement = document.createElement("h3");
   titleElement.className = "text-lg font-medium mb-4 dark:text-gray-200";
-  titleElement.textContent = `${title} Metrics`;
+  titleElement.textContent = t("metrics.card.title", { title });
   card.appendChild(titleElement);
 
   const metricsList = document.createElement("div");
   metricsList.className = "space-y-2";
 
   const metricsToShow = [
-    { key: "totalExecutions", label: "Total Executions" },
-    { key: "successfulExecutions", label: "Successful Executions" },
-    { key: "failedExecutions", label: "Failed Executions" },
-    { key: "failureRate", label: "Failure Rate" },
-    { key: "avgResponseTime", label: "Average Response Time" },
-    { key: "lastExecutionTime", label: "Last Execution Time" },
+    { key: "totalExecutions", label: t("metrics.kpi.totalExecutions") },
+    { key: "successfulExecutions", label: t("metrics.executions.successful") },
+    { key: "failedExecutions", label: t("metrics.executions.failed") },
+    { key: "failureRate", label: t("metrics.executions.failureRate") },
+    { key: "avgResponseTime", label: t("metrics.executions.avgResponseTime") },
+    { key: "lastExecutionTime", label: t("metrics.executions.lastExecutionTime") },
   ];
 
   metricsToShow.forEach((metric) => {
