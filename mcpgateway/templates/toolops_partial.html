@@ -4,10 +4,10 @@
         <thead class="bg-gray-50">
             <tr>
                 <th class="px-4 py-3"></th>
-                <th class="px-4 py-3 text-left font-medium text-gray-600">Name</th>
-                <th class="px-4 py-3 text-left font-medium text-gray-600">Type</th>
-                <th class="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-                <th class="px-4 py-3 text-left font-medium text-gray-600">Action</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-600">{{ t('common.table.name') }}</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-600">{{ t('common.detail.type') }}</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-600">{{ t('common.table.status') }}</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-600">{{ t('toolops.action') }}</th>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200" id="toolBody">
@@ -66,7 +66,7 @@
                 </tr>
             {% else %}
             <tr>
-                <td colspan="5" class="text-center py-4 text-gray-500">No tools found.</td>
+                <td colspan="5" class="text-center py-4 text-gray-500">{{ t('toolops.empty') }}</td>
             </tr>
             {% endfor %}
         </tbody>

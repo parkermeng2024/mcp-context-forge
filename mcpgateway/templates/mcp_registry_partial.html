@@ -71,15 +71,15 @@
     <div class="grid grid-cols-3 md:grid-cols-3 gap-4">
       <div class="text-center">
         <div class="text-3xl font-bold">{{ stats.total_servers }}</div>
-        <div class="text-blue-100 text-sm">Total Servers</div>
+        <div class="text-blue-100 text-sm">{{ t('registry.stat.totalServers') }}</div>
       </div>
       <div class="text-center">
         <div class="text-3xl font-bold">{{ stats.registered_servers }}</div>
-        <div class="text-blue-100 text-sm">Registered</div>
+        <div class="text-blue-100 text-sm">{{ t('registry.stat.registered') }}</div>
       </div>
       <div class="text-center">
         <div class="text-3xl font-bold">{{ stats.categories|length }}</div>
-        <div class="text-blue-100 text-sm">Categories</div>
+        <div class="text-blue-100 text-sm">{{ t('registry.filters.categories') }}</div>
       </div>
     </div>
   </div>
@@ -90,7 +90,7 @@
       <div>
         <label
           class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >Category</label
+          >{{ t('registry.filters.category') }}</label
         >
         <select
           id="category-filter"
@@ -101,7 +101,7 @@
           hx-target="#mcp-registry-servers"
           hx-include="[name='auth_type'],[name='search']"
         >
-          <option value="" {% if not filter_params.category %}selected{% endif %}>All Categories</option>
+          <option value="" {% if not filter_params.category %}selected{% endif %}>{{ t('registry.filters.allCategories') }}</option>
           {% for category in stats.categories %}
           {% set is_selected = (filter_params.category == category) %}
           <option value="{{ category }}" {% if is_selected %}selected{% endif %}>{{ category }}</option>
@@ -111,7 +111,7 @@
       <div>
         <label
           class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >Auth Type</label
+          >{{ t('registry.filters.authType') }}</label
         >
         <select
           id="auth-filter"
@@ -122,7 +122,7 @@
           hx-target="#mcp-registry-servers"
           hx-include="[name='category'],[name='search']"
         >
-          <option value="" {% if not filter_params.auth_type %}selected{% endif %}>All Auth Types</option>
+          <option value="" {% if not filter_params.auth_type %}selected{% endif %}>{{ t('registry.filters.allAuthTypes') }}</option>
           {% for auth_type in stats.auth_types %}
           {% set is_selected = (filter_params.auth_type == auth_type) %}
           <option value="{{ auth_type }}" {% if is_selected %}selected{% endif %}>{{ auth_type }}</option>
@@ -132,13 +132,13 @@
       <div class="md:col-span-2">
         <label
           class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >Search</label
+          >{{ t('common.actions.search') }}</label
         >
         <input
           type="text"
           id="search-input"
           name="search"
-          placeholder="Search servers via tags..."
+          placeholder="{{ t('registry.searchPlaceholder') }}"
           value="{{ filter_params.search or '' }}"
           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           hx-get="{{ root_path }}/admin/mcp-registry/partial"
@@ -230,7 +230,7 @@
         >
           <span
             class="text-sm font-medium {% if is_all_auth_selected %}text-blue-700 dark:text-blue-300{% else %}text-gray-700 dark:text-gray-300{% endif %}"
-            >All Auth Types</span
+            >{{ t('registry.filters.allAuthTypes') }}</span
           >
           <span
             class="{% if is_all_auth_selected %}bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100{% else %}bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-100{% endif %} text-xs font-medium px-2.5 py-0.5 rounded"
@@ -485,10 +485,10 @@
       <!-- Provider and URL -->
       <div class="text-xs text-gray-500 dark:text-gray-400 mb-3">
         <div class="truncate">
-          <span class="font-semibold">Provider:</span> {{ server.provider }}
+          <span class="font-semibold">{{ t('registry.apiKey.providerLabel') }}</span> {{ server.provider }}
         </div>
         <div class="truncate">
-          <span class="font-semibold">URL:</span> {{ server.url }}
+          <span class="font-semibold">{{ t('tools.detail.url') }}</span> {{ server.url }}
         </div>
       </div>
 
@@ -605,17 +605,17 @@
         />
         <label
           class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >Custom Name (Optional)</label
+          >{{ t('registry.apiKey.customName') }}</label
         >
         <input
           type="text"
           id="modal-custom-name"
           class="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          placeholder="Leave blank to use default name"
+          placeholder="{{ t('registry.apiKey.customNamePlaceholder') }}"
         />
         <label
           class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >API Key</label
+          >{{ t('registry.apiKey.apiKey') }}</label
         >
         <input
           type="password"
