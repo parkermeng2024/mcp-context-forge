@@ -2,20 +2,20 @@
 <table id="servers-table" class="min-w-full divide-y divide-gray-200">
   <thead class="bg-gray-50 dark:bg-gray-700">
     <tr>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Icon</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">S. No.</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Server ID</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Auth</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tools</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Resources</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Prompts</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tags</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Owner</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Team</th>
-      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Visibility</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.actions') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.icon') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.sNo') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('servers.table.serverId') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.name') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.auth') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.description') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.tools') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.resources') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.prompts') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.tags') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.owner') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.team') }}</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.visibility') }}</th>
     </tr>
   </thead>
   <tbody id="servers-table-body" data-testid="server-list" class="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
@@ -24,14 +24,14 @@
     <td colspan="14" class="px-6 py-8 text-center">
       <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
         {% if query_params is defined and query_params.get('team_id') %}
-        No servers found in the selected team.
+        {{ t('servers.empty.teamScoped') }}
         {% else %}
-        No servers found.
+        {{ t('servers.empty.none') }}
         {% endif %}
       </p>
       {% if query_params is defined and query_params.get('team_id') %}
       <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-        Switch the header selector back to <strong>All Teams</strong> to view servers outside this team scope.
+        {{ t('servers.empty.teamScopedHint', allTeams=t('common.teams.allTeams')) }}
       </p>
       {% endif %}
     </td>
@@ -53,8 +53,8 @@
           class="p-1.5 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 transition-colors"
           :aria-expanded="menuOpen"
           aria-haspopup="menu"
-          aria-label="Actions"
-          x-tooltip="'Actions'"
+          aria-label="{{ t('common.table.actions') }}"
+          x-tooltip="'{{ t('common.table.actions') }}'"
         >
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -85,7 +85,7 @@
             tabindex="0"
             @click="dispatch('viewServer', {{ server.id|tojson_attr }})"
             class="w-full flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-          >View</button>
+          >{{ t('common.actions.view') }}</button>
           {% if can_modify %}
           <button
             type="button"
@@ -93,7 +93,7 @@
             tabindex="0"
             @click="dispatch('editServer', {{ server.id|tojson_attr }})"
             class="w-full flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-          >Edit</button>
+          >{{ t('common.actions.edit') }}</button>
           {% endif %}
           <button
             type="button"
@@ -101,8 +101,8 @@
             tabindex="0"
             @click="dispatch('showConfigSelectionModal', {{ server.id|tojson_attr }}, {{ server.name|tojson_attr }})"
             class="w-full flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-            x-tooltip="'💡Generate client configuration files for this server'"
-          >Export Config</button>
+            x-tooltip="'💡{{ t('servers.actions.exportConfigTooltip') }}'"
+          >{{ t('servers.actions.exportConfig') }}</button>
           {% if can_modify %}
           <hr class="border-gray-200 dark:border-gray-600 my-1">
           <form method="POST" action="{{ root_path }}/admin/servers/{{ server.id }}/state" class="contents" @submit="menuOpen = false" data-action-submit="handleToggleSubmit" data-arg0="servers">
@@ -112,7 +112,7 @@
               role="menuitem"
               tabindex="0"
               class="w-full flex items-center px-4 py-2 text-sm {% if server.enabled %}text-yellow-600 dark:text-yellow-400{% else %}text-green-600 dark:text-green-400{% endif %} hover:bg-gray-100 dark:hover:bg-gray-700"
-            >{% if server.enabled %}Deactivate{% else %}Activate{% endif %}</button>
+            >{% if server.enabled %}{{ t('common.actions.deactivate') }}{% else %}{{ t('common.actions.activate') }}{% endif %}</button>
           </form>
           <form method="POST" action="{{ root_path }}/admin/servers/{{ server.id }}/delete" class="contents" @submit="menuOpen = false" data-action-submit="handleDeleteSubmit" data-arg0="server" data-arg1="{{ server_label|tojson_attr }}" data-arg2="servers">
             <button
@@ -120,7 +120,7 @@
               role="menuitem"
               tabindex="0"
               class="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Delete</button>
+            >{{ t('common.actions.delete') }}</button>
           </form>
           {% endif %}
         </div>
@@ -128,9 +128,9 @@
     </td>
     <td class="px-6 py-4 whitespace-nowrap">
       {% if server.icon %}
-      <img src="{{ server.icon }}" alt="{{ server.name }} Icon" class="h-8 w-8" />
+      <img src="{{ server.icon }}" alt="{{ t('servers.detail.iconAlt', name=server.name) }}" class="h-8 w-8" />
       {% else %}
-      <span class="text-gray-500 dark:text-gray-300">N/A</span>
+      <span class="text-gray-500 dark:text-gray-300">{{ t('common.na') }}</span>
       {% endif %}
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-300">{{ (pagination.page - 1) * pagination.per_page + loop.index }}</td>
@@ -146,23 +146,23 @@
     <td class="px-6 py-4 whitespace-normal break-words text-sm text-gray-500 dark:text-gray-300">{{ server.description | decode_html }}</td>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
       {% if server.associatedTools %}
-      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">{{ server.associatedTools | length }} tool{{ 's' if server.associatedTools | length != 1 else '' }}</span>
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">{{ t('servers.count.toolOne', count=server.associatedTools | length) if server.associatedTools | length == 1 else t('servers.count.tools', count=server.associatedTools | length) }}</span>
       {% else %}
-      <span class="text-gray-500 dark:text-gray-400 text-xs">0 tools</span>
+      <span class="text-gray-500 dark:text-gray-400 text-xs">{{ t('servers.count.tools', count=0) }}</span>
       {% endif %}
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
       {% if server.associatedResources %}
-      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">{{ server.associatedResources | length }} resource{{ 's' if server.associatedResources | length != 1 else '' }}</span>
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">{{ t('servers.count.resourceOne', count=server.associatedResources | length) if server.associatedResources | length == 1 else t('servers.count.resources', count=server.associatedResources | length) }}</span>
       {% else %}
-      <span class="text-gray-500 dark:text-gray-400 text-xs">0 resources</span>
+      <span class="text-gray-500 dark:text-gray-400 text-xs">{{ t('servers.count.resources', count=0) }}</span>
       {% endif %}
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
       {% if server.associatedPrompts %}
-      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">{{ server.associatedPrompts | length }} prompt{{ 's' if server.associatedPrompts | length != 1 else '' }}</span>
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">{{ t('servers.count.promptOne', count=server.associatedPrompts | length) if server.associatedPrompts | length == 1 else t('servers.count.prompts', count=server.associatedPrompts | length) }}</span>
       {% else %}
-      <span class="text-gray-500 dark:text-gray-400 text-xs">0 prompts</span>
+      <span class="text-gray-500 dark:text-gray-400 text-xs">{{ t('servers.count.prompts', count=0) }}</span>
       {% endif %}
     </td>
     <td class="px-6 py-4 whitespace-nowrap">
@@ -173,28 +173,28 @@
         </span>
         {% endfor %}
       {% else %}
-      <span class="text-gray-500 dark:text-gray-300 text-xs">None</span>
+      <span class="text-gray-500 dark:text-gray-300 text-xs">{{ t('common.states.none') }}</span>
       {% endif %}
     </td>
     <td class="px-6 py-4 whitespace-nowrap">
       {% if server.ownerEmail %}
       <span class="text-sm text-gray-900 dark:text-gray-100">{{ server.ownerEmail }}</span>
       {% else %}
-      <span class="text-gray-500 dark:text-gray-300 text-xs">N/A</span>
+      <span class="text-gray-500 dark:text-gray-300 text-xs">{{ t('common.na') }}</span>
       {% endif %}
     </td>
     <td class="px-2 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 w-20">
-      {% if server.team %}{{ server.team }}{% else %}<span class="text-gray-400 dark:text-gray-600 text-xs">None</span>{% endif %}
+      {% if server.team %}{{ server.team }}{% else %}<span class="text-gray-400 dark:text-gray-600 text-xs">{{ t('common.states.none') }}</span>{% endif %}
     </td>
     <td class="px-6 py-4 whitespace-nowrap">
       {% if server.visibility == 'private' %}
-      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Private</span>
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">{{ t('common.visibility.private') }}</span>
       {% elif server.visibility == 'team' %}
-      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Team</span>
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">{{ t('common.visibility.team') }}</span>
       {% elif server.visibility == 'public' %}
-      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Public</span>
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">{{ t('common.visibility.public') }}</span>
       {% else %}
-      <span class="text-gray-500 dark:text-gray-300 text-xs">N/A</span>
+      <span class="text-gray-500 dark:text-gray-300 text-xs">{{ t('common.na') }}</span>
       {% endif %}
     </td>
   </tr>

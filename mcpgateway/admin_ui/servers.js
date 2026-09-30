@@ -2,6 +2,7 @@ import { AppState } from "./appState.js";
 import { getCatalogUrl } from "./configExport.js";
 import { toggleViewPublic } from "./filters.js";
 import { initGatewaySelect } from "./gateways.js";
+import { getLocale, t } from "./i18n.js";
 import { openModal } from "./modals.js";
 import { initPromptSelect } from "./prompts.js";
 import { initResourceSelect } from "./resources.js";
@@ -47,7 +48,7 @@ export const viewServer = async function (serverId) {
       if (server.icon) {
         const iconImg = document.createElement("img");
         iconImg.src = server.icon;
-        iconImg.alt = `${server.name} icon`;
+        iconImg.alt = t("servers.detail.iconAlt", { name: server.name });
         iconImg.className = "w-12 h-12 rounded-lg object-cover";
         iconImg.onerror = function () {
           this.style.display = "none";
@@ -77,14 +78,14 @@ export const viewServer = async function (serverId) {
       basicInfoDiv.className = "space-y-2";
 
       const basicInfoTitle = document.createElement("strong");
-      basicInfoTitle.textContent = "Basic Information:";
+      basicInfoTitle.textContent = t("servers.detail.basicInfo");
       basicInfoTitle.className = "block text-gray-900 dark:text-gray-100 mb-3";
       basicInfoDiv.appendChild(basicInfoTitle);
 
       // Server ID field with copy button
       const serverIdP = document.createElement("p");
       const serverIdStrong = document.createElement("strong");
-      serverIdStrong.textContent = "Server ID: ";
+      serverIdStrong.textContent = t("servers.detail.serverId");
       serverIdP.appendChild(serverIdStrong);
       const serverIdSpan = document.createElement("span");
       serverIdSpan.className = "font-mono text-sm";
@@ -94,9 +95,18 @@ export const viewServer = async function (serverId) {
       basicInfoDiv.appendChild(serverIdP);
 
       const fields = [
-        { label: "URL", value: getCatalogUrl(server) || "N/A" },
-        { label: "Type", value: "Virtual Server" },
-        { label: "Visibility", value: server.visibility || "private" },
+        {
+          label: t("common.detail.url"),
+          value: getCatalogUrl(server) || t("common.na"),
+        },
+        {
+          label: t("common.detail.type"),
+          value: t("servers.detail.typeVirtual"),
+        },
+        {
+          label: t("common.table.visibility"),
+          value: t(`common.visibility.${server.visibility || "private"}`),
+        },
       ];
 
       fields.forEach((field) => {
@@ -123,7 +133,7 @@ export const viewServer = async function (serverId) {
       const tagsP = document.createElement("p");
       tagsP.className = "text-sm";
       const tagsStrong = document.createElement("strong");
-      tagsStrong.textContent = "Tags: ";
+      tagsStrong.textContent = t("servers.detail.tags");
       tagsStrong.className = "font-medium text-gray-700 dark:text-gray-300";
       tagsP.appendChild(tagsStrong);
 
@@ -139,7 +149,7 @@ export const viewServer = async function (serverId) {
         });
       } else {
         const noneSpan = document.createElement("span");
-        noneSpan.textContent = "None";
+        noneSpan.textContent = t("common.states.none");
         noneSpan.className = "text-gray-500 dark:text-gray-400";
         tagsP.appendChild(noneSpan);
       }
@@ -148,7 +158,7 @@ export const viewServer = async function (serverId) {
       const statusP = document.createElement("p");
       statusP.className = "text-sm";
       const statusStrong = document.createElement("strong");
-      statusStrong.textContent = "Status: ";
+      statusStrong.textContent = t("servers.detail.status");
       statusStrong.className = "font-medium text-gray-700 dark:text-gray-300";
       statusP.appendChild(statusStrong);
 
@@ -158,7 +168,9 @@ export const viewServer = async function (serverId) {
           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
           : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
       }`;
-      statusSpan.textContent = server.enabled ? "Active" : "Inactive";
+      statusSpan.textContent = t(
+        server.enabled ? "common.states.active" : "common.states.inactive"
+      );
       statusP.appendChild(statusSpan);
 
       tagsStatusDiv.appendChild(tagsP);
@@ -170,7 +182,7 @@ export const viewServer = async function (serverId) {
       associatedDiv.className = "mt-6 border-t pt-4";
 
       const associatedTitle = document.createElement("strong");
-      associatedTitle.textContent = "Associated Items:";
+      associatedTitle.textContent = t("servers.detail.associatedItems");
       associatedDiv.appendChild(associatedTitle);
 
       // Tools section
@@ -180,7 +192,7 @@ export const viewServer = async function (serverId) {
 
         const toolsLabel = document.createElement("p");
         const toolsStrong = document.createElement("strong");
-        toolsStrong.textContent = "Tools: ";
+        toolsStrong.textContent = t("servers.detail.tools");
         toolsLabel.appendChild(toolsStrong);
 
         const toolsList = document.createElement("div");
@@ -218,9 +230,9 @@ export const viewServer = async function (serverId) {
           const moreBadge = document.createElement("span");
           moreBadge.className =
             "inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full cursor-pointer dark:bg-green-900 dark:text-green-200";
-          moreBadge.title = "Total tools associated";
+          moreBadge.title = t("servers.detail.totalTools");
           const remaining = server.associatedTools.length - maxToShow;
-          moreBadge.textContent = `+${remaining} more`;
+          moreBadge.textContent = t("servers.detail.more", { count: remaining });
 
           // Expand inline to show full list when clicked
           moreBadge.addEventListener("click", () => {
@@ -263,7 +275,7 @@ export const viewServer = async function (serverId) {
 
         const resourcesLabel = document.createElement("p");
         const resourcesStrong = document.createElement("strong");
-        resourcesStrong.textContent = "Resources: ";
+        resourcesStrong.textContent = t("servers.detail.resources");
         resourcesLabel.appendChild(resourcesStrong);
 
         const resourcesList = document.createElement("div");
@@ -283,7 +295,7 @@ export const viewServer = async function (serverId) {
             window.Admin.resourceMapping &&
             window.Admin.resourceMapping[resourceId]
               ? window.Admin.resourceMapping[resourceId]
-              : `Resource ${resourceId}`;
+              : t("servers.detail.resourceLabel", { id: resourceId });
 
           const resourceIdSpan = document.createElement("span");
           resourceIdSpan.className = "text-xs text-gray-500 dark:text-gray-400";
@@ -302,9 +314,9 @@ export const viewServer = async function (serverId) {
           const moreBadge = document.createElement("span");
           moreBadge.className =
             "inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full cursor-pointer dark:bg-blue-900 dark:text-blue-200";
-          moreBadge.title = "Total resources associated";
+          moreBadge.title = t("servers.detail.totalResources");
           const remaining = server.associatedResources.length - maxToShow;
-          moreBadge.textContent = `+${remaining} more`;
+          moreBadge.textContent = t("servers.detail.more", { count: remaining });
 
           moreBadge.addEventListener("click", () => {
             resourcesList.innerHTML = "";
@@ -318,7 +330,7 @@ export const viewServer = async function (serverId) {
               resourceBadge.textContent =
                 window.resourceMapping && window.resourceMapping[resourceId]
                   ? window.resourceMapping[resourceId]
-                  : `Resource ${resourceId}`;
+                  : t("servers.detail.resourceLabel", { id: resourceId });
 
               const resourceIdSpan = document.createElement("span");
               resourceIdSpan.className =
@@ -347,7 +359,7 @@ export const viewServer = async function (serverId) {
 
         const promptsLabel = document.createElement("p");
         const promptsStrong = document.createElement("strong");
-        promptsStrong.textContent = "Prompts: ";
+        promptsStrong.textContent = t("servers.detail.prompts");
         promptsLabel.appendChild(promptsStrong);
 
         const promptsList = document.createElement("div");
@@ -385,9 +397,9 @@ export const viewServer = async function (serverId) {
           const moreBadge = document.createElement("span");
           moreBadge.className =
             "inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full cursor-pointer dark:bg-purple-900 dark:text-purple-200";
-          moreBadge.title = "Total prompts associated";
+          moreBadge.title = t("servers.detail.totalPrompts");
           const remaining = server.associatedPrompts.length - maxToShow;
-          moreBadge.textContent = `+${remaining} more`;
+          moreBadge.textContent = t("servers.detail.more", { count: remaining });
 
           moreBadge.addEventListener("click", () => {
             promptsList.innerHTML = "";
@@ -401,7 +413,7 @@ export const viewServer = async function (serverId) {
               promptBadge.textContent =
                 window.promptMapping && window.promptMapping[promptId]
                   ? window.promptMapping[promptId]
-                  : `Prompt ${promptId}`;
+                  : t("servers.detail.promptLabel", { id: promptId });
 
               const promptIdSpan = document.createElement("span");
               promptIdSpan.className =
@@ -430,7 +442,7 @@ export const viewServer = async function (serverId) {
 
         const agentsLabel = document.createElement("p");
         const agentsStrong = document.createElement("strong");
-        agentsStrong.textContent = "A2A Agents: ";
+        agentsStrong.textContent = t("servers.detail.a2aAgents");
         agentsLabel.appendChild(agentsStrong);
 
         const agentsList = document.createElement("div");
@@ -443,7 +455,9 @@ export const viewServer = async function (serverId) {
           const agentBadge = document.createElement("span");
           agentBadge.className =
             "inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full dark:bg-orange-900 dark:text-orange-200";
-          agentBadge.textContent = `Agent ${agentId}`;
+          agentBadge.textContent = t("servers.detail.agentLabel", {
+            id: agentId,
+          });
 
           const agentIdSpan = document.createElement("span");
           agentIdSpan.className = "text-xs text-gray-500 dark:text-gray-400";
@@ -469,8 +483,7 @@ export const viewServer = async function (serverId) {
       ) {
         const noItemsP = document.createElement("p");
         noItemsP.className = "mt-2 text-sm text-gray-500 dark:text-gray-400";
-        noItemsP.textContent =
-          "No tools, resources, prompts, or A2A agents are currently associated with this server.";
+        noItemsP.textContent = t("servers.detail.noAssociations");
         associatedDiv.appendChild(noItemsP);
       }
 
@@ -482,7 +495,7 @@ export const viewServer = async function (serverId) {
         oauthDiv.className = "mt-6 border-t pt-4";
 
         const oauthTitle = document.createElement("strong");
-        oauthTitle.textContent = "OAuth 2.0 Configuration:";
+        oauthTitle.textContent = t("servers.detail.oauthTitle");
         oauthTitle.className = "block text-gray-900 dark:text-gray-100 mb-3";
         oauthDiv.appendChild(oauthTitle);
 
@@ -501,7 +514,7 @@ export const viewServer = async function (serverId) {
             const authServersP = document.createElement("p");
             authServersP.className = "text-sm";
             const authServersStrong = document.createElement("strong");
-            authServersStrong.textContent = "Authorization Servers: ";
+            authServersStrong.textContent = t("servers.detail.authServers");
             authServersStrong.className =
               "font-medium text-gray-700 dark:text-gray-300";
             authServersP.appendChild(authServersStrong);
@@ -523,7 +536,7 @@ export const viewServer = async function (serverId) {
             const tokenEndpointP = document.createElement("p");
             tokenEndpointP.className = "text-sm";
             const tokenEndpointStrong = document.createElement("strong");
-            tokenEndpointStrong.textContent = "Token Endpoint: ";
+            tokenEndpointStrong.textContent = t("servers.detail.tokenEndpoint");
             tokenEndpointStrong.className =
               "font-medium text-gray-700 dark:text-gray-300";
             tokenEndpointP.appendChild(tokenEndpointStrong);
@@ -544,7 +557,7 @@ export const viewServer = async function (serverId) {
             const scopesP = document.createElement("p");
             scopesP.className = "text-sm";
             const scopesStrong = document.createElement("strong");
-            scopesStrong.textContent = "Supported Scopes: ";
+            scopesStrong.textContent = t("servers.detail.scopes");
             scopesStrong.className =
               "font-medium text-gray-700 dark:text-gray-300";
             scopesP.appendChild(scopesStrong);
@@ -560,8 +573,7 @@ export const viewServer = async function (serverId) {
         } else {
           const noConfigP = document.createElement("p");
           noConfigP.className = "mt-2 text-sm text-gray-500 dark:text-gray-400";
-          noConfigP.textContent =
-            "OAuth is enabled but no configuration details are available.";
+          noConfigP.textContent = t("servers.detail.oauthNoConfig");
           oauthDiv.appendChild(noConfigP);
         }
 
@@ -573,7 +585,7 @@ export const viewServer = async function (serverId) {
       metadataDiv.className = "mt-6 border-t pt-4";
 
       const metadataTitle = document.createElement("strong");
-      metadataTitle.textContent = "Metadata:";
+      metadataTitle.textContent = t("common.metadata.title");
       metadataDiv.appendChild(metadataTitle);
 
       const metadataGrid = document.createElement("div");
@@ -581,47 +593,54 @@ export const viewServer = async function (serverId) {
 
       const metadataFields = [
         {
-          label: "Created By",
-          value: server.createdBy || "Legacy Entity",
+          label: t("common.metadata.createdBy"),
+          value: server.createdBy || t("common.legacyEntity"),
         },
         {
-          label: "Created At",
+          label: t("common.metadata.createdAt"),
           value: server.createdAt
-            ? new Date(server.createdAt).toLocaleString()
-            : "Pre-metadata",
+            ? new Date(server.createdAt).toLocaleString(getLocale())
+            : t("common.preMetadata"),
         },
         {
-          label: "Created From IP",
-          value: server.created_from_ip || server.createdFromIp || "Unknown",
+          label: t("common.metadata.createdFromIp"),
+          value:
+            server.created_from_ip ||
+            server.createdFromIp ||
+            t("common.states.unknown"),
         },
         {
-          label: "Created Via",
-          value: server.created_via || server.createdVia || "Unknown",
+          label: t("common.metadata.createdVia"),
+          value:
+            server.created_via ||
+            server.createdVia ||
+            t("common.states.unknown"),
         },
         {
-          label: "Last Modified By",
-          value: server.modified_by || server.modifiedBy || "N/A",
+          label: t("common.metadata.modifiedBy"),
+          value: server.modified_by || server.modifiedBy || t("common.na"),
         },
         {
-          label: "Last Modified At",
+          label: t("common.metadata.modifiedAt"),
           value: server.updated_at
-            ? new Date(server.updated_at).toLocaleString()
+            ? new Date(server.updated_at).toLocaleString(getLocale())
             : server.updatedAt
-              ? new Date(server.updatedAt).toLocaleString()
-              : "N/A",
+              ? new Date(server.updatedAt).toLocaleString(getLocale())
+              : t("common.na"),
         },
         {
-          label: "Modified From IP",
-          value: server.modified_from_ip || server.modifiedFromIp || "N/A",
+          label: t("common.metadata.modifiedFromIp"),
+          value:
+            server.modified_from_ip || server.modifiedFromIp || t("common.na"),
         },
         {
-          label: "Modified Via",
-          value: server.modified_via || server.modifiedVia || "N/A",
+          label: t("common.metadata.modifiedVia"),
+          value: server.modified_via || server.modifiedVia || t("common.na"),
         },
-        { label: "Version", value: server.version || "1" },
+        { label: t("common.metadata.version"), value: server.version || "1" },
         {
-          label: "Import Batch",
-          value: server.importBatchId || "N/A",
+          label: t("common.metadata.importBatch"),
+          value: server.importBatchId || t("common.na"),
         },
       ];
 
@@ -630,7 +649,7 @@ export const viewServer = async function (serverId) {
 
         const labelSpan = document.createElement("span");
         labelSpan.className = "font-medium text-gray-600 dark:text-gray-400";
-        labelSpan.textContent = field.label + ":";
+        labelSpan.textContent = field.label;
 
         const valueSpan = document.createElement("span");
         valueSpan.className = "ml-2";
@@ -652,7 +671,11 @@ export const viewServer = async function (serverId) {
     console.log("✓ Server details loaded successfully");
   } catch (error) {
     console.error("Error fetching server details:", error);
-    const errorMessage = handleFetchError(error, "load server details");
+    const errorMessage = handleFetchError(
+      error,
+      "load server details",
+      t("servers.ops.loadDetails")
+    );
     showErrorMessage(errorMessage);
   }
 };
@@ -1053,7 +1076,11 @@ export const editServer = async function (serverId) {
     console.log("✓ Server edit modal loaded successfully");
   } catch (error) {
     console.error("Error fetching server for editing:", error);
-    const errorMessage = handleFetchError(error, "load server for editing");
+    const errorMessage = handleFetchError(
+      error,
+      "load server for editing",
+      t("servers.ops.loadForEdit")
+    );
     showErrorMessage(errorMessage);
   }
 };
