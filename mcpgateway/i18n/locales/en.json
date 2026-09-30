@@ -24,6 +24,8 @@
 
   "common.states.loading": "Loading…",
   "common.states.rendering": "Rendering…",
+  "common.states.testing": "Testing…",
+  "common.states.enriching": "Enriching…",
   "common.states.saving": "Saving…",
   "common.states.saved": "Saved",
   "common.states.enabled": "Enabled",
@@ -62,6 +64,8 @@
   "common.actions.activate": "Activate",
   "common.actions.deactivate": "Deactivate",
   "common.actions.test": "Test",
+  "common.actions.enrich": "Enrich",
+  "common.actions.validate": "Validate",
   "common.actions.view": "View",
 
   "common.visibility.public": "Public",
@@ -211,6 +215,8 @@
   "tools.annotation.idempotent": "Idempotent",
   "tools.annotation.externalAccess": "External Access",
   "tools.states.loading": "Loading tools…",
+  "tools.states.empty": "No tools found.",
+  "tools.states.loadFailed": "Failed to load tools",
   "tools.select.tooltip": "Click to see all selected tools",
   "tools.select.selecting": "Selecting all tools…",
   "tools.select.allWithCount": "Select All ({count})",
@@ -237,6 +243,8 @@
   "tools.test.modalFailed": "Failed to open tool test modal: {error}",
   "tools.test.rateLimited": "Too many requests. Please wait a moment before testing again.",
   "tools.test.passthroughHeaders": "Passthrough Headers (Optional)",
+  "tools.test.passthroughHeadersDesc": "Additional headers to send with the request (format: \"Header-Name: Value\", one per line)",
+  "tools.test.running": "Running…",
   "tools.test.headerPlaceholder": "Header-Name: Value",
   "tools.test.valueMustBeObject": "Value must be an object",
   "tools.validation.generate": "Generate Test Cases",
@@ -254,6 +262,7 @@
   "tools.validation.runTest": "Run Test",
   "tools.validation.runWithAgent": "Run With Agent",
   "tools.validation.running": "Running validation for the Tool: {name}",
+  "tools.validation.waitBeforeRetry": "Please wait {seconds} more before testing again",
 
   "header.gatewayAdministration": "Gateway Administration",
   "header.search": "Search",

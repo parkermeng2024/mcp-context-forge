@@ -493,7 +493,7 @@ export const viewTool = async function (toolId) {
             })
             .join("");
         } else {
-          tagsElement.textContent = "None";
+          tagsElement.textContent = t("common.states.none");
         }
       }
 
@@ -1194,7 +1194,7 @@ export const initToolSelect = function (
           const span = document.createElement("span");
           span.className = pillClasses;
           span.textContent =
-            cb.nextElementSibling?.textContent?.trim() || "Unnamed";
+            cb.nextElementSibling?.textContent?.trim() || t("common.unnamed");
           pillsBox.appendChild(span);
         });
       }
@@ -1203,15 +1203,15 @@ export const initToolSelect = function (
       if (count > maxPillsToShow) {
         const span = document.createElement("span");
         span.className = pillClasses + " cursor-pointer";
-        span.title = "Click to see all selected tools";
+        span.title = t("tools.select.tooltip");
         const remaining = count - maxPillsToShow;
-        span.textContent = `+${remaining} more`;
+        span.textContent = t("tools.select.more", { count: remaining });
         pillsBox.appendChild(span);
       }
 
       // Warning when > max
       if (count > max) {
-        warnBox.textContent = `Selected ${count} tools. Selecting more than ${max} tools can degrade agent performance with the server.`;
+        warnBox.textContent = t("tools.select.summary", { count, max });
       } else {
         warnBox.textContent = "";
       }
@@ -1222,9 +1222,11 @@ export const initToolSelect = function (
         const currentSelectBtn = document.getElementById(selectBtnId);
         if (currentSelectBtn) {
           if (count > 0) {
-            currentSelectBtn.textContent = `Select All (${count})`;
+            currentSelectBtn.textContent = t("tools.select.allWithCount", {
+              count,
+            });
           } else {
-            currentSelectBtn.textContent = "Select All";
+            currentSelectBtn.textContent = t("common.actions.selectAll");
           }
         }
       }
@@ -1272,7 +1274,7 @@ export const initToolSelect = function (
     newSelectBtn.addEventListener("click", async () => {
       // Disable button and show loading state
       newSelectBtn.disabled = true;
-      newSelectBtn.textContent = "Selecting all tools...";
+      newSelectBtn.textContent = t("tools.select.selecting");
 
       try {
         // Prefer full-set selection when pagination/infinite-scroll is present
@@ -1370,7 +1372,7 @@ export const initToolSelect = function (
         update();
       } catch (error) {
         console.error("Error in Select All:", error);
-        alert("Failed to select all tools. Please try again.");
+        alert(t("tools.select.failed"));
         newSelectBtn.disabled = false;
       } finally {
         newSelectBtn.disabled = false;
@@ -1531,7 +1533,7 @@ export const testTool = async function (toolId) {
         return;
       }
       testButton.disabled = true;
-      testButton.textContent = "Testing...";
+      testButton.textContent = t("common.states.testing");
       testButton.classList.add("opacity-50", "cursor-not-allowed");
     }
 
@@ -1568,7 +1570,7 @@ export const testTool = async function (toolId) {
         );
       } else if (response.status === 429) {
         throw new Error(
-          "Too many requests. Please wait a moment before testing again."
+          t("tools.test.rateLimited")
         );
       } else if (response.status >= 500) {
         throw new Error(
@@ -1593,7 +1595,9 @@ export const testTool = async function (toolId) {
     const descElement = safeGetElement("tool-test-modal-description");
 
     if (titleElement) {
-      titleElement.textContent = "Test Tool: " + (tool.name || "Unknown");
+      titleElement.textContent = t("tools.test.title", {
+        name: tool.name || t("common.unknown"),
+      });
     }
     if (descElement) {
       if (tool.description) {
@@ -1601,7 +1605,7 @@ export const testTool = async function (toolId) {
         const decodedDesc = decodeHtml(tool.description);
         descElement.innerHTML = escapeHtml(decodedDesc).replace(/\n/g, "<br/>");
       } else {
-        descElement.textContent = "No description available.";
+        descElement.textContent = t("tools.test.noDescription");
       }
     }
 
@@ -1630,7 +1634,10 @@ export const testTool = async function (toolId) {
         const prop = schema.properties[key];
 
         // Validate the property name
-        const keyValidation = validateInputName(key, "schema property");
+        const keyValidation = validateInputName(
+          key,
+          t("tools.test.schemaProperty")
+        );
         if (!keyValidation.valid) {
           console.warn(`Skipping invalid schema property: ${key}`);
           continue;
@@ -1704,7 +1711,7 @@ export const testTool = async function (toolId) {
             delBtn.type = "button";
             delBtn.className =
               "ml-2 text-red-600 hover:text-red-800 focus:outline-none";
-            delBtn.title = "Delete";
+            delBtn.title = t("common.actions.delete");
             delBtn.textContent = "×";
             delBtn.addEventListener("click", () => {
               arrayContainer.removeChild(wrapper);
@@ -1728,7 +1735,7 @@ export const testTool = async function (toolId) {
           addBtn.type = "button";
           addBtn.className =
             "mt-2 px-2 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 focus:outline-none";
-          addBtn.textContent = "Add items";
+          addBtn.textContent = t("tools.test.addItems");
           addBtn.addEventListener("click", () => {
             arrayContainer.appendChild(createArrayInput());
           });
@@ -1832,21 +1839,19 @@ export const testTool = async function (toolId) {
 
     // Enhanced error handling for rapid clicking scenarios
     if (error.name === "AbortError") {
-      errorMessage = "Request was cancelled. Please try again.";
+      errorMessage = t("tools.test.cancelled");
     } else if (
       error.message.includes("Failed to fetch") ||
       error.message.includes("NetworkError")
     ) {
-      errorMessage =
-        "Unable to connect to the server. Please wait a moment and try again.";
+      errorMessage = t("tools.test.networkError");
     } else if (
       error.message.includes("empty response") ||
       error.message.includes("ERR_EMPTY_RESPONSE")
     ) {
-      errorMessage =
-        "The server returned an empty response. Please wait a moment and try again.";
+      errorMessage = t("tools.test.emptyResponse");
     } else if (error.message.includes("timeout")) {
-      errorMessage = "Request timed out. Please try again in a few seconds.";
+      errorMessage = t("tools.test.timeout");
     }
 
     showErrorMessage(errorMessage);
@@ -1857,7 +1862,7 @@ export const testTool = async function (toolId) {
     );
     if (testButton) {
       testButton.disabled = false;
-      testButton.textContent = "Test";
+      testButton.textContent = t("common.actions.test");
       testButton.classList.remove("opacity-50", "cursor-not-allowed");
     }
   }
@@ -1874,7 +1879,7 @@ export const loadTools = async function () {
     if (toolBody !== null) {
       toolBody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="text-center py-4 text-gray-500">Loading tools...</td>
+                    <td colspan="5" class="text-center py-4 text-gray-500">${escapeHtml(t("tools.states.loading"))}</td>
                 </tr>
                 `;
       const response = await fetch(`${window.ROOT_PATH}/admin/tools`, {
@@ -1882,7 +1887,7 @@ export const loadTools = async function () {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to load tools");
+        throw new Error(t("tools.states.loadFailed"));
       }
       let tools = await response.json();
       if ("data" in tools) {
@@ -1892,7 +1897,7 @@ export const loadTools = async function () {
 
       if (!tools.length) {
         toolBody.innerHTML = `
-                <tr><td colspan="5" class="text-center py-4 text-gray-500">No tools found.</td></tr>
+                <tr><td colspan="5" class="text-center py-4 text-gray-500">${escapeHtml(t("tools.states.empty"))}</td></tr>
                 `;
         return;
       }
@@ -2005,7 +2010,7 @@ export const enrichTool = async function (toolId) {
         return;
       }
       enrichButton.disabled = true;
-      enrichButton.textContent = "Enriching...";
+      enrichButton.textContent = t("common.states.enriching");
       enrichButton.classList.add("opacity-50", "cursor-not-allowed");
     }
 
@@ -2058,7 +2063,7 @@ export const enrichTool = async function (toolId) {
     const data = await response.json();
     if (enrichButton) {
       enrichButton.disabled = false;
-      enrichButton.textContent = "Enrich";
+      enrichButton.textContent = t("common.actions.enrich");
       enrichButton.classList.remove("opacity-50", "cursor-not-allowed");
     }
     console.log(`Tool ${toolId} enriched successfully`, data);
@@ -2085,7 +2090,7 @@ export const enrichTool = async function (toolId) {
     );
     if (testButton) {
       testButton.disabled = false;
-      testButton.textContent = "Enrich";
+      testButton.textContent = t("common.actions.enrich");
       testButton.classList.remove("opacity-50", "cursor-not-allowed");
     }
   }
@@ -2124,7 +2129,7 @@ export const generateToolTestCases = async function (toolId) {
         return;
       }
       tcgButton.disabled = true;
-      tcgButton.textContent = "Generating Test Cases...";
+      tcgButton.textContent = t("tools.validation.generating");
       tcgButton.classList.add("opacity-50", "cursor-not-allowed");
     }
 
@@ -2152,7 +2157,7 @@ export const generateToolTestCases = async function (toolId) {
 
     if (tcgButton) {
       tcgButton.disabled = false;
-      tcgButton.textContent = "Generate Test Cases";
+      tcgButton.textContent = t("tools.validation.generate");
       tcgButton.classList.remove("opacity-50", "cursor-not-allowed");
     }
   } catch (error) {
@@ -2164,7 +2169,7 @@ export const generateToolTestCases = async function (toolId) {
     );
     if (testButton) {
       testButton.disabled = false;
-      testButton.textContent = "Generate Test Cases";
+      testButton.textContent = t("tools.validation.generate");
       testButton.classList.remove("opacity-50", "cursor-not-allowed");
     }
   }
@@ -2184,9 +2189,7 @@ export const generateTestCases = async function () {
   );
 
   try {
-    showSuccessMessage(
-      "Test case generation started successfully for the tool."
-    );
+    showSuccessMessage(t("tools.validation.started"));
     closeModal("testcase-gen-modal");
     const response = await fetch(
       `/toolops/validation/generate_testcases?tool_id=${toolId}&number_of_test_cases=${testCases}&number_of_nl_variations=${variations}&mode=generate`,
@@ -2207,9 +2210,7 @@ export const generateTestCases = async function () {
           `Tool with ID ${toolId} not found. It may have been deleted.`
         );
       } else if (response.status === 429) {
-        throw new Error(
-          "Too many requests. Please wait a moment before validating again."
-        );
+        throw new Error(t("tools.validation.rateLimited"));
       } else if (response.status >= 500) {
         throw new Error(
           `Server error (${response.status}). The server may be overloaded. Please try again in a few seconds.`
@@ -2230,7 +2231,7 @@ export const generateTestCases = async function () {
     );
     if (testButton) {
       testButton.disabled = false;
-      testButton.textContent = "Generate Test Cases";
+      testButton.textContent = t("tools.validation.generate");
       testButton.classList.remove("opacity-50", "cursor-not-allowed");
     }
   }
@@ -2275,7 +2276,7 @@ export const validateTool = async function (toolId) {
         return;
       }
       validateButton.disabled = true;
-      validateButton.textContent = "Generating Test Cases...";
+      validateButton.textContent = t("tools.validation.generating");
       validateButton.classList.add("opacity-50", "cursor-not-allowed");
     }
 
@@ -2311,9 +2312,7 @@ export const validateTool = async function (toolId) {
           `Tool with ID ${toolId} not found. It may have been deleted.`
         );
       } else if (response.status === 429) {
-        throw new Error(
-          "Too many requests. Please wait a moment before validating again."
-        );
+        throw new Error(t("tools.validation.rateLimited"));
       } else if (response.status >= 500) {
         throw new Error(
           `Server error (${response.status}). The server may be overloaded. Please try again in a few seconds.`
@@ -2336,7 +2335,9 @@ export const validateTool = async function (toolId) {
     const descElement = safeGetElement("tool-validation-modal-description");
 
     if (titleElement) {
-      titleElement.textContent = "Test Tool: " + (tool.name || "Unknown");
+      titleElement.textContent = t("tools.test.title", {
+        name: tool.name || t("common.unknown"),
+      });
     }
     if (descElement) {
       if (tool.description) {
@@ -2350,7 +2351,7 @@ export const validateTool = async function (toolId) {
         const decodedDesc = decodeHtml(cleanDesc);
         descElement.innerHTML = escapeHtml(decodedDesc).replace(/\n/g, "<br/>");
       } else {
-        descElement.textContent = "No description available.";
+        descElement.textContent = t("tools.test.noDescription");
       }
     }
 
@@ -2377,10 +2378,12 @@ export const validateTool = async function (toolId) {
     const title = safeGetElement("tool-validation-modal-title");
     const desc = safeGetElement("tool-validation-modal-description");
     if (title) {
-      title.textContent = `Test Tool: ${tool.name || "Unknown"}`;
+      title.textContent = t("tools.test.title", {
+        name: tool.name || t("common.unknown"),
+      });
     }
     if (desc) {
-      desc.textContent = tool.description || "No description available.";
+      desc.textContent = tool.description || t("tools.test.noDescription");
     }
     if (!container) {
       return;
@@ -2400,8 +2403,8 @@ export const validateTool = async function (toolId) {
 
     // Example validat cases (you can replace this with API-provided cases)
     let testCases = tool.testCases || [
-      { id: "t1", name: "Test Case 1", input_parameters: {} },
-      { id: "t2", name: "Test Case 2", input_parameters: {} },
+      { id: "t1", name: t("tools.validation.testCase", { n: 1 }), input_parameters: {} },
+      { id: "t2", name: t("tools.validation.testCase", { n: 2 }), input_parameters: {} },
     ];
 
     const validationStatusResponse = await fetchWithTimeout(
@@ -2505,7 +2508,10 @@ export const validateTool = async function (toolId) {
                 const prop = schema.properties[key];
 
                 // Validate the property name
-                const keyValidation = validateInputName(key, "schema property");
+                const keyValidation = validateInputName(
+                  key,
+                  t("tools.test.schemaProperty")
+                );
                 if (!keyValidation.valid) {
                   console.warn(`Skipping invalid schema property: ${key}`);
                   continue;
@@ -2597,7 +2603,7 @@ export const validateTool = async function (toolId) {
                     delBtn.type = "button";
                     delBtn.className =
                       "ml-2 text-red-600 hover:text-red-800 focus:outline-none";
-                    delBtn.title = "Delete";
+                    delBtn.title = t("common.actions.delete");
                     delBtn.textContent = "×";
                     delBtn.addEventListener("click", () => {
                       arrayContainer.removeChild(wrapper);
@@ -2621,7 +2627,7 @@ export const validateTool = async function (toolId) {
                   addBtn.type = "button";
                   addBtn.className =
                     "mt-2 px-2 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 focus:outline-none";
-                  addBtn.textContent = "Add items";
+                  addBtn.textContent = t("tools.test.addItems");
                   addBtn.addEventListener("click", () => {
                     arrayContainer.appendChild(createArrayInput());
                   });
@@ -2707,12 +2713,11 @@ export const validateTool = async function (toolId) {
             label.setAttribute("for", "validation-passthrough-headers");
             label.className =
               "block text-sm font-medium text-gray-700 dark:text-gray-400";
-            label.textContent = "Passthrough Headers (Optional)";
+            label.textContent = t("tools.test.passthroughHeaders");
 
             const small = document.createElement("small");
             small.className = "text-gray-500 dark:text-gray-400 block mb-2";
-            small.textContent =
-              'Additional headers to send with the request (format: "Header-Name: Value", one per line)';
+            small.textContent = t("tools.test.passthroughHeadersDesc");
 
             const textarea = document.createElement("textarea");
             textarea.id = "validation-passthrough-headers";
@@ -2738,13 +2743,12 @@ export const validateTool = async function (toolId) {
             );
             nlUtterancelabel.className =
               "block text-sm font-bold text-green-700 dark:text-green-400";
-            nlUtterancelabel.textContent = "Generated Test Utterance";
+            nlUtterancelabel.textContent = t("tools.validation.generatedUtterance");
 
             const nlUtterancesmall = document.createElement("small");
             nlUtterancesmall.className =
               "text-gray-500 dark:text-gray-400 block mb-2";
-            nlUtterancesmall.textContent =
-              "Modify or add new utterances to test using the agent.";
+            nlUtterancesmall.textContent = t("tools.validation.modifyUtterances");
 
             const nlutextarea = document.createElement("textarea");
             nlutextarea.id = `validation-passthrough-nlUtterances-${index}`;
@@ -2767,7 +2771,7 @@ export const validateTool = async function (toolId) {
 
             // Run button
             const runBtn = document.createElement("button");
-            runBtn.textContent = "Run Test";
+            runBtn.textContent = t("tools.validation.runTest");
             runBtn.className =
               "mt-2 mr-2 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700";
             // Added: mr-2 for spacing
@@ -2777,7 +2781,7 @@ export const validateTool = async function (toolId) {
 
             // Run Agent button
             const runAgentBtn = document.createElement("button");
-            runAgentBtn.textContent = "Run With Agent";
+            runAgentBtn.textContent = t("tools.validation.runWithAgent");
             runAgentBtn.className =
               "mt-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700";
             // Changed color to blue
@@ -2873,7 +2877,7 @@ export const validateTool = async function (toolId) {
     );
     if (testButton) {
       testButton.disabled = false;
-      testButton.textContent = "Validate";
+      testButton.textContent = t("common.actions.validate");
       testButton.classList.remove("opacity-50", "cursor-not-allowed");
     }
   }
@@ -2891,7 +2895,7 @@ export const runToolValidation = async function (testIndex) {
 
   if (!form || !AppState.currentTestTool) {
     console.error("Tool test form or current tool not found");
-    showErrorMessage("Tool test form not available");
+    showErrorMessage(t("tools.test.formUnavailable"));
     return;
   }
 
@@ -2905,7 +2909,7 @@ export const runToolValidation = async function (testIndex) {
     // Disable run button
     if (runButton) {
       runButton.disabled = true;
-      runButton.textContent = "Running...";
+      runButton.textContent = t("tools.test.running");
       runButton.classList.add("opacity-50");
     }
 
@@ -3130,7 +3134,7 @@ export const runToolValidation = async function (testIndex) {
     }
     if (runButton) {
       runButton.disabled = false;
-      runButton.textContent = "Run Tool";
+      runButton.textContent = t("tools.test.runButton");
       runButton.classList.remove("opacity-50");
     }
   }
@@ -3148,7 +3152,7 @@ export const runToolAgentValidation = async function (testIndex) {
 
   if (!form || !AppState.currentTestTool) {
     console.error("Tool test form or current tool not found");
-    showErrorMessage("Tool test form not available");
+    showErrorMessage(t("tools.test.formUnavailable"));
     return;
   }
 
@@ -3162,7 +3166,7 @@ export const runToolAgentValidation = async function (testIndex) {
     // Disable run button
     if (runButton) {
       runButton.disabled = true;
-      runButton.textContent = "Running...";
+      runButton.textContent = t("tools.test.running");
       runButton.classList.add("opacity-50");
     }
 
@@ -3293,7 +3297,7 @@ export const runToolAgentValidation = async function (testIndex) {
     }
     if (runButton) {
       runButton.disabled = false;
-      runButton.textContent = "Run Tool";
+      runButton.textContent = t("tools.test.runButton");
       runButton.classList.remove("opacity-50");
     }
   }
@@ -3310,7 +3314,7 @@ export const runToolTest = async function () {
       form: !!form,
       currentTestTool: AppState.currentTestTool,
     });
-    showErrorMessage("Tool test form not available");
+    showErrorMessage(t("tools.test.formUnavailable"));
     return;
   }
 
@@ -3323,7 +3327,7 @@ export const runToolTest = async function () {
     // Disable run button
     if (runButton) {
       runButton.disabled = true;
-      runButton.textContent = "Running...";
+      runButton.textContent = t("tools.test.running");
       runButton.classList.add("opacity-50");
     }
 
@@ -3542,7 +3546,7 @@ export const runToolTest = async function () {
     }
     if (runButton) {
       runButton.disabled = false;
-      runButton.textContent = "Run Tool";
+      runButton.textContent = t("tools.test.runButton");
       runButton.classList.remove("opacity-50");
     }
   }
@@ -3713,7 +3717,7 @@ export function generateToolFormFields(tool) {
   if (!tool.input_schema || !tool.input_schema.properties) {
     const noParams = document.createElement("p");
     noParams.className = "text-sm text-gray-500 dark:text-gray-400";
-    noParams.textContent = "This tool has no input parameters.";
+    noParams.textContent = t("tools.test.noParams");
     formFields.appendChild(noParams);
     return;
   }

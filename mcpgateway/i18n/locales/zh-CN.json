@@ -24,6 +24,8 @@
 
   "common.states.loading": "加载中…",
   "common.states.rendering": "渲染中…",
+  "common.states.testing": "测试中…",
+  "common.states.enriching": "正在增强…",
   "common.states.saving": "保存中…",
   "common.states.saved": "已保存",
   "common.states.enabled": "已启用",
@@ -62,6 +64,8 @@
   "common.actions.activate": "启用",
   "common.actions.deactivate": "停用",
   "common.actions.test": "测试",
+  "common.actions.enrich": "增强",
+  "common.actions.validate": "校验",
   "common.actions.view": "查看",
 
   "common.visibility.public": "公开",
@@ -211,6 +215,8 @@
   "tools.annotation.idempotent": "幂等",
   "tools.annotation.externalAccess": "外部访问",
   "tools.states.loading": "正在加载工具…",
+  "tools.states.empty": "未找到工具。",
+  "tools.states.loadFailed": "加载工具失败",
   "tools.select.tooltip": "点击查看所有已选工具",
   "tools.select.selecting": "正在全选工具…",
   "tools.select.allWithCount": "全选（{count}）",
@@ -237,6 +243,8 @@
   "tools.test.modalFailed": "打开工具测试弹窗失败：{error}",
   "tools.test.rateLimited": "请求过于频繁，请稍后再试。",
   "tools.test.passthroughHeaders": "透传请求头（可选）",
+  "tools.test.passthroughHeadersDesc": "随请求额外发送的请求头（格式：\"首部名: 值\"，每行一个）",
+  "tools.test.running": "运行中…",
   "tools.test.headerPlaceholder": "请求头名: 值",
   "tools.test.valueMustBeObject": "值必须是对象",
   "tools.validation.generate": "生成测试用例",
@@ -254,6 +262,7 @@
   "tools.validation.runTest": "运行测试",
   "tools.validation.runWithAgent": "用智能体运行",
   "tools.validation.running": "正在验证工具：{name}",
+  "tools.validation.waitBeforeRetry": "请等待 {seconds} 后再进行测试",
 
   "header.gatewayAdministration": "网关管理",
   "header.search": "搜索",
