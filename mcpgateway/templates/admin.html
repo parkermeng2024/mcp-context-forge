@@ -1002,7 +1002,7 @@
               <h2
                 class="text-lg font-medium text-gray-900 dark:text-white mb-6"
               >
-                Configuration Export & Import
+                {{ t('config.title') }}
               </h2>
 
               <!-- Export Section -->
@@ -1010,7 +1010,7 @@
                 <h3
                   class="text-md font-medium text-gray-900 dark:text-white mb-4"
                 >
-                  📤 Export Configuration
+                  📤 {{ t('config.export.title') }}
                 </h3>
 
                 <!-- Export Options -->
@@ -1020,7 +1020,7 @@
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                       >
-                        Entity Types
+                        {{ t('config.export.entityTypes') }}
                       </label>
                       <div class="space-y-2">
                         <label class="flex items-center">
@@ -1031,7 +1031,7 @@
                             class="mr-2"
                           />
                           <span class="text-sm text-gray-600 dark:text-gray-300"
-                            >Tools</span
+                            >{{ t('common.table.tools') }}</span
                           >
                         </label>
                         <label class="flex items-center">
@@ -1042,7 +1042,7 @@
                             class="mr-2"
                           />
                           <span class="text-sm text-gray-600 dark:text-gray-300"
-                            >Gateways</span
+                            >{{ t('common.table.gateways') }}</span
                           >
                         </label>
                         <label class="flex items-center">
@@ -1053,7 +1053,7 @@
                             class="mr-2"
                           />
                           <span class="text-sm text-gray-600 dark:text-gray-300"
-                            >Servers</span
+                            >{{ t('common.table.servers') }}</span
                           >
                         </label>
                         <label class="flex items-center">
@@ -1064,7 +1064,7 @@
                             class="mr-2"
                           />
                           <span class="text-sm text-gray-600 dark:text-gray-300"
-                            >Prompts</span
+                            >{{ t('common.table.prompts') }}</span
                           >
                         </label>
                         <label class="flex items-center">
@@ -1075,7 +1075,7 @@
                             class="mr-2"
                           />
                           <span class="text-sm text-gray-600 dark:text-gray-300"
-                            >Resources</span
+                            >{{ t('common.table.resources') }}</span
                           >
                         </label>
                         {% if 'roots' not in hidden_sections %}
@@ -1087,7 +1087,7 @@
                             class="mr-2"
                           />
                           <span class="text-sm text-gray-600 dark:text-gray-300"
-                          >Roots</span
+                          >{{ t('common.table.roots') }}</span
                           >
                         </label>
                         {% endif %}
@@ -1098,7 +1098,7 @@
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                       >
-                        Filter Options
+                        {{ t('config.export.filterOptions') }}
                       </label>
                       <div class="space-y-2">
                         <label class="flex items-center">
@@ -1108,7 +1108,7 @@
                             class="mr-2"
                           />
                           <span class="text-sm text-gray-600 dark:text-gray-300"
-                            >Include Inactive</span
+                            >{{ t('config.export.includeInactive') }}</span
                           >
                         </label>
                         <label class="flex items-center">
@@ -1119,7 +1119,7 @@
                             class="mr-2"
                           />
                           <span class="text-sm text-gray-600 dark:text-gray-300"
-                            >Include Dependencies</span
+                            >{{ t('config.export.includeDependencies') }}</span
                           >
                         </label>
                       </div>
@@ -1128,7 +1128,7 @@
                         <label
                           class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                         >
-                          Filter by Tags
+                          {{ t('config.export.filterByTags') }}
                         </label>
                         <input
                           type="text"
@@ -1139,7 +1139,7 @@
                         <p
                           class="text-xs text-gray-500 dark:text-gray-400 mt-1"
                         >
-                          Comma-separated tags
+                          {{ t('config.export.tagsHint') }}
                         </p>
                       </div>
                     </div>
@@ -1148,20 +1148,20 @@
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                       >
-                        Export Actions
+                        {{ t('config.export.actions') }}
                       </label>
                       <div class="space-y-2">
                         <button
                           id="export-all-btn"
                           class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                         >
-                          📥 Export All Configuration
+                          📥 {{ t('config.export.exportAll') }}
                         </button>
                         <button
                           id="export-selected-btn"
                           class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                         >
-                          📋 Export Selected Types
+                          📋 {{ t('config.export.exportSelected') }}
                         </button>
                       </div>
 
@@ -1170,7 +1170,7 @@
                           <div
                             class="text-sm text-gray-600 dark:text-gray-300 mb-1"
                           >
-                            Exporting...
+                            {{ t('config.export.exporting') }}
                           </div>
                           <div
                             class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2"
@@ -1193,7 +1193,7 @@
                 <h3
                   class="text-md font-medium text-gray-900 dark:text-white mb-4"
                 >
-                  📥 Import Configuration
+                  📥 {{ t('config.import.title') }}
                 </h3>
 
                 <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
@@ -1202,7 +1202,7 @@
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >
-                      Import File
+                      {{ t('config.import.file') }}
                     </label>
                     <div
                       id="import-drop-zone"
@@ -1225,12 +1225,12 @@
                         <div class="text-sm text-gray-600 dark:text-gray-300">
                           <span
                             class="font-medium text-blue-600 dark:text-blue-400"
-                            >Click to upload</span
+                            >{{ t('config.import.clickToUpload') }}</span
                           >
-                          or drag and drop
+                          {{ t('config.import.orDragDrop') }}
                         </div>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                          JSON export files only
+                          {{ t('config.import.jsonOnly') }}
                         </p>
                       </div>
                       <input
@@ -1248,16 +1248,16 @@
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                       >
-                        Conflict Strategy
+                        {{ t('config.import.conflictStrategy') }}
                       </label>
                       <select
                         id="import-conflict-strategy"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       >
-                        <option value="update">Update existing items</option>
-                        <option value="skip">Skip conflicting items</option>
-                        <option value="rename">Rename conflicting items</option>
-                        <option value="fail">Fail on conflicts</option>
+                        <option value="update">{{ t('config.import.conflict.update') }}</option>
+                        <option value="skip">{{ t('config.import.conflict.skip') }}</option>
+                        <option value="rename">{{ t('config.import.conflict.rename') }}</option>
+                        <option value="fail">{{ t('config.import.conflict.fail') }}</option>
                       </select>
                     </div>
 
@@ -1265,7 +1265,7 @@
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                       >
-                        Options
+                        {{ t('config.import.options') }}
                       </label>
                       <div class="space-y-2">
                         <label class="flex items-center">
@@ -1275,7 +1275,7 @@
                             class="mr-2"
                           />
                           <span class="text-sm text-gray-600 dark:text-gray-300"
-                            >Dry Run (validate only)</span
+                            >{{ t('config.import.dryRun') }}</span
                           >
                         </label>
                       </div>
@@ -1285,13 +1285,13 @@
                           type="password"
                           id="import-rekey-secret"
                           autocomplete="off"
-                          placeholder="New encryption secret (optional)"
+                          placeholder="{{ t('config.import.rekeyPlaceholder') }}"
                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         />
                         <p
                           class="text-xs text-gray-500 dark:text-gray-400 mt-1"
                         >
-                          For cross-environment imports
+                          {{ t('config.import.rekeyHint') }}
                         </p>
                       </div>
                     </div>
@@ -1305,21 +1305,21 @@
                       disabled
                       data-action-click="previewImport"
                     >
-                      📋 Selective Import
+                      📋 {{ t('config.import.selective') }}
                     </button>
                     <button
                       id="import-validate-btn"
                       class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50"
                       disabled
                     >
-                      🔍 Validate Import
+                      🔍 {{ t('config.import.validate') }}
                     </button>
                     <button
                       id="import-execute-btn"
                       class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50"
                       disabled
                     >
-                      ⚡ Execute Import
+                      ⚡ {{ t('config.import.execute') }}
                     </button>
                   </div>
                 </div>
