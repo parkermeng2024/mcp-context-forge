@@ -9583,7 +9583,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               class="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
             >
               <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Gateway Details
+                {{ t('gateways.detail.title') }}
               </h3>
               <div
                 class="mt-4 space-y-4 bg-white dark:bg-gray-400"
@@ -9598,7 +9598,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 data-action-click="closeModal" data-arg0="gateway-modal"
                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:text-gray-300"
               >
-                Close
+                {{ t('common.actions.close') }}
               </button>
             </div>
           </div>
@@ -9614,7 +9614,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
           class="bg-white dark:bg-gray-900 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg shadow-lg p-6"
         >
           <h2 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">
-            Test Gateway Connectivity
+            {{ t('gateways.test.title') }}
           </h2>
           <form
             id="gateway-test-form"
@@ -9625,7 +9625,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               <label
                 for="gateway-test-url"
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >Server URL</label
+                >{{ t('gateways.test.serverUrl') }}</label
               >
               <input
                 required
@@ -9637,14 +9637,14 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               <p
                 data-error-message-for="url"
                 class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible"
-                >Server URL is required.</p
+                >{{ t('gateways.test.serverUrlRequired') }}</p
               >
             </div>
             <div>
               <label
                 for="gateway-test-method"
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >Method</label
+                >{{ t('gateways.test.method') }}</label
               >
               <select
                 required
@@ -9663,7 +9663,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               <label
                 for="gateway-test-path"
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >Path</label
+                >{{ t('gateways.test.path') }}</label
               >
               <input
                 id="gateway-test-path"
@@ -9677,12 +9677,12 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               <label
                 for="gateway-test-headers"
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >Headers (JSON)</label
+                >{{ t('gateways.test.headers') }}</label
               >
               <textarea
                 id="gateway-test-headers"
                 class="mt-1 px-3 py-2 block w-full rounded-md shadow-sm p-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-300 placeholder-gray-600 dark:placeholder-gray-400"
-                placeholder="Enter request headers as JSON"
+                placeholder="{{ t('gateways.test.headersPlaceholder') }}"
               ></textarea>
             </div>
 
@@ -9690,7 +9690,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               <label
                 for="gateway-test-content-type"
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >Content-Type</label
+                >{{ t('gateways.test.contentType') }}</label
               >
               <select
                 id="gateway-test-content-type"
@@ -9708,13 +9708,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 for="gateway-test-body"
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 id="gateway-test-body-label"
-                >Body (JSON)</label
+                >{{ t('gateways.test.body') }}</label
               >
               <textarea
                 id="gateway-test-body"
                 name="body"
                 class="mt-1 px-3 py-2 block w-full rounded-md shadow-sm p-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-300 placeholder-gray-600 dark:placeholder-gray-400"
-                placeholder="Enter request body as JSON"
+                placeholder="{{ t('gateways.test.bodyPlaceholder') }}"
               ></textarea>
             </div>
 
@@ -9724,7 +9724,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 id="gateway-test-submit"
                 class="w-full text-center px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
               >
-                Test
+                {{ t('common.actions.test') }}
               </button>
               <p class="p-1"></p>
               <button
@@ -9732,7 +9732,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 type="button"
                 class="w-full text-center px-3 py-1 border border-blue-600 rounded bg-white text-gray-700 hover:bg-gray-200"
               >
-                Close
+                {{ t('common.actions.close') }}
               </button>
             </div>
 
@@ -9747,7 +9747,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
 
             <div id="gateway-test-result" class="hidden">
               <label class="block text-sm font-medium text-gray-700"
-                >Response</label
+                >{{ t('gateways.test.response') }}</label
               >
               <div
                 id="gateway-test-response-json"
@@ -9775,7 +9775,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               class="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
             >
               <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Edit Gateway
+                {{ t('gateways.form.editTitle') }}
               </h3>
               <div class="mt-4">
                 <form id="edit-gateway-form" method="POST">
@@ -9784,7 +9784,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       <label
                         for="edit-gateway-name"
                         class="block text-sm font-medium text-gray-700"
-                        >Name</label
+                        >{{ t('common.table.name') }}</label
                       >
                       <input
                         type="text"
@@ -9793,13 +9793,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         id="edit-gateway-name"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
-                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">Name is required.</p>
+                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('gateways.form.nameRequired') }}</p>
                     </div>
                     <div class="relative">
                       <label
                         for="edit-gateway-url"
                         class="block text-sm font-medium text-gray-700"
-                        >URL</label
+                        >{{ t('common.detail.url') }}</label
                       >
                       <input
                         type="url"
@@ -9808,11 +9808,11 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         id="edit-gateway-url"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
-                      <p data-error-message-for="url" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">URL is required.</p>
+                      <p data-error-message-for="url" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('gateways.form.urlRequired') }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >Description</label
+                        >{{ t('common.table.description') }}</label
                       >
                       <textarea
                         name="description"
@@ -9822,18 +9822,17 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >Tags</label
+                        >{{ t('common.table.tags') }}</label
                       >
                       <input
                         type="text"
                         name="tags"
                         id="edit-gateway-tags"
-                        placeholder="e.g., production,external,api-gateway (comma-separated)"
+                        placeholder="{{ t('gateways.form.tagsEditPlaceholder') }}"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
                       <p class="mt-1 text-sm text-gray-500">
-                        Separate multiple tags with commas. Tags will be
-                        automatically normalized.
+                        {{ t('gateways.form.tagsEditHint') }}
                       </p>
                     </div>
 
@@ -9841,7 +9840,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     <div id="edit-gateway-visibility" class="mt-4">
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                        >Visibility</label
+                        >{{ t('common.table.visibility') }}</label
                       >
                       <div class="flex gap-x-6 mt-2">
                         <!-- Add gap-x-6 for more space between radio options -->
@@ -9857,7 +9856,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             for="edit-gateway-visibility-public"
                             class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                            >🌍Public</label
+                            >{{ t('common.visibility.radio.public') }}</label
                           >
                         </div>
 
@@ -9872,7 +9871,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             for="edit-gateway-visibility-team"
                             class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                            >👥Team</label
+                            >{{ t('common.visibility.radio.team') }}</label
                           >
                         </div>
                         <div class="flex items-center">
@@ -9886,7 +9885,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             for="edit-gateway-visibility-private"
                             class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                            >🔒Private</label
+                            >{{ t('common.visibility.radio.private') }}</label
                           >
                         </div>
                       </div>
@@ -9894,7 +9893,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
 
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >Transport Type</label
+                        >{{ t('gateways.form.transportType') }}</label
                       >
                       <select
                         name="transport"
@@ -9902,36 +9901,35 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       >
                         <option value="SSE" selected>SSE</option>
-                        <option value="STREAMABLEHTTP">Streamable HTTP</option>
+                        <option value="STREAMABLEHTTP">{{ t('gateways.form.transportStreamable') }}</option>
                       </select>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >Authentication Type</label
+                        >{{ t('gateways.form.authType') }}</label
                       >
                       <select
                         name="auth_type"
                         id="auth-type-gw-edit"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       >
-                        <option value="">None</option>
-                        <option value="basic">Basic</option>
-                        <option value="bearer">Bearer Token</option>
-                        <option value="authheaders">Custom Headers</option>
-                        <option value="oauth">OAuth 2.0</option>
-                        <option value="query_param">Query Parameter (INSECURE)</option>
+                        <option value="">{{ t('common.states.none') }}</option>
+                        <option value="basic">{{ t('gateways.form.authBasic') }}</option>
+                        <option value="bearer">{{ t('gateways.form.authBearer') }}</option>
+                        <option value="authheaders">{{ t('gateways.form.authHeaders') }}</option>
+                        <option value="oauth">{{ t('gateways.form.authOauth') }}</option>
+                        <option value="query_param">{{ t('gateways.form.authQueryParam') }}</option>
                       </select>
                     </div>
                     <div id="auth-query_param-fields-gw-edit" style="display: none">
                       <div class="p-3 mb-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-md">
                         <p class="text-xs text-amber-700 dark:text-amber-400">
-                          <strong>Security Warning:</strong> API keys in URLs may appear in proxy logs, browser history, and server access logs.
-                          Only use when the upstream server requires this authentication method.
+                          <strong>{{ t('gateways.form.queryParamWarningTitle') }}</strong> {{ t('gateways.form.queryParamWarning') }}
                         </p>
                       </div>
                       <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                          >Query Parameter Name</label
+                          >{{ t('gateways.form.queryParamName') }}</label
                         >
                         <input
                           type="text"
@@ -9942,7 +9940,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       </div>
                       <div class="mt-2">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                          >API Key Value</label
+                          >{{ t('gateways.form.apiKeyValue') }}</label
                         >
                         <div class="relative">
                           <input
@@ -9959,7 +9957,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     <div id="auth-basic-fields-gw-edit" style="display: none">
                       <div>
                         <label class="block text-sm font-medium text-gray-700"
-                          >Username</label
+                          >{{ t('common.field.username') }}</label
                         >
                         <input
                           type="text"
@@ -9970,7 +9968,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >Password</label
+                        >{{ t('common.field.password') }}</label
                       >
                       <div class="relative">
                         <input
@@ -9987,7 +9985,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   <div id="auth-bearer-fields-gw-edit" style="display: none">
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >Token</label
+                        >{{ t('common.field.token') }}</label
                       >
                       <div class="relative">
                         <input
@@ -10007,7 +10005,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Custom Headers
+                            {{ t('gateways.form.authHeaders') }}
                           </label>
                           <button
                             type="button"
@@ -10027,7 +10025,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                               ></path>
                             </svg>
-                            Add Header
+                            {{ t('gateways.form.addHeader') }}
                           </button>
                         </div>
                         <div
@@ -10074,7 +10072,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Issuer URL
+                            {{ t('gateways.form.issuerUrl') }}
                           </label>
                           <div class="mt-1 flex gap-2">
                             <input
@@ -10088,11 +10086,11 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               type="button"
                               data-action-click="discoverOAuthEndpoints" data-arg0="this"
                               class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-md border border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors"
-                              title="Auto-discover token &amp; authorization endpoints from issuer metadata"
-                            >🔍 Discover</button>
+                              title="{{ t('gateways.form.discoverTooltip') }}"
+                            >{{ t('gateways.form.discover') }}</button>
                           </div>
                           <p class="mt-1 text-sm text-gray-500">
-                            The OAuth Authorization Server issuer URL. Required for DCR.
+                            {{ t('gateways.form.issuerHintEdit') }}
                           </p>
                         <div class="oauth-discover-status mt-1 hidden"></div>
                         </div>
@@ -10167,7 +10165,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Username <span class="text-red-500">*</span> <span class="text-gray-500">(for password grant)</span>
+                            {{ t('common.field.username') }} <span class="text-red-500">*</span> <span class="text-gray-500">{{ t('gateways.form.forPasswordGrant') }}</span>
                           </label>
                           <input
                             type="text"
@@ -10205,7 +10203,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Token URL
+                            {{ t('gateways.form.tokenUrl') }}
                           </label>
                           <input
                             type="url"
