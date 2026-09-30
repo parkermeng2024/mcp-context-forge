@@ -218,18 +218,18 @@
           <text x="80" y="235" class="fill-blue-600 dark:fill-blue-400 text-xs" text-anchor="middle">{{ t('common.active') }}</text>
         </g>
 
-        <!-- CENTER SECTION - ContextForge -->
+        <!-- CENTER SECTION - AI Gateway -->
         <g class="center-section">
           <!-- Section Label -->
           <text x="450" y="30" class="fill-gray-500 dark:fill-gray-400 text-xs font-semibold" text-anchor="middle">{{ t('overview.architecture.gateway') }}</text>
 
-          <!-- Main ContextForge Box -->
+          <!-- Main AI Gateway Box -->
           <rect x="320" y="60" width="260" height="260" rx="12" class="fill-indigo-50 dark:fill-indigo-900/20 stroke-indigo-400 dark:stroke-indigo-600" stroke-width="3"/>
 
-          <!-- ContextForge Header -->
+          <!-- AI Gateway Header -->
           <rect x="320" y="60" width="260" height="50" rx="12" class="fill-indigo-500"/>
           <rect x="320" y="90" width="260" height="20" class="fill-indigo-500"/>
-          <text x="450" y="92" class="fill-white text-base font-bold" text-anchor="middle">ContextForge</text>
+          <text x="450" y="92" class="fill-white text-base font-bold" text-anchor="middle">AI Gateway</text>
 
           <!-- Plugins Section -->
           <text x="340" y="140" class="fill-indigo-700 dark:fill-indigo-300 text-sm font-semibold">{{ t('overview.architecture.middleware') }}</text>
@@ -257,7 +257,7 @@
           </g>
         </g>
 
-        <!-- INFRASTRUCTURE SECTION - Below ContextForge -->
+        <!-- INFRASTRUCTURE SECTION - Below AI Gateway -->
         <g class="infrastructure-section">
           <!-- Section Label -->
           <text x="450" y="345" class="fill-gray-500 dark:fill-gray-400 text-xs font-semibold" text-anchor="middle">{{ t('overview.architecture.infrastructure') }}</text>
@@ -272,7 +272,7 @@
           <text x="510" y="375" class="{% if cache_type == 'redis' %}{% if redis_reachable %}fill-green-700 dark:fill-green-300{% else %}fill-red-700 dark:fill-red-300{% endif %}{% else %}fill-gray-700 dark:fill-gray-300{% endif %} text-xs font-semibold" text-anchor="middle">{{ cache_type | capitalize }}</text>
           <text x="510" y="392" class="{% if cache_type == 'redis' %}{% if redis_reachable %}fill-green-600 dark:fill-green-400{% else %}fill-red-600 dark:fill-red-400{% endif %}{% else %}fill-gray-500 dark:fill-gray-400{% endif %} text-xs" text-anchor="middle">{% if cache_type == 'redis' %}{% if redis_reachable %}{{ t('overview.architecture.connected') }}{% else %}{{ t('overview.architecture.disconnected') }}{% endif %}{% else %}{{ t('overview.architecture.inMemory') }}{% endif %}</text>
 
-          <!-- Connection line from ContextForge to Infrastructure -->
+          <!-- Connection line from AI Gateway to Infrastructure -->
           <line x1="450" y1="320" x2="450" y2="355" class="stroke-gray-300 dark:stroke-gray-600" stroke-width="2" stroke-dasharray="4,4"/>
         </g>
 
