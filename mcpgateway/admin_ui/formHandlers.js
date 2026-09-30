@@ -7,8 +7,9 @@ import { buildTableUrl, getCookie, isInactiveChecked } from "./utils.js";
 // ENTITY TYPE DISPLAY NAMES
 // ===================================================================
 // Maps entity type keys (plural/kebab-case) to the catalog key that holds the
-// lowercase singular noun for UI messages.
-const ENTITY_DISPLAY_NAMES = {
+// lowercase singular noun for UI messages. Exported so the import wizard can
+// render the backend's entity type keys in the active locale.
+export const ENTITY_DISPLAY_NAMES = {
   tools: "common.entityLower.tool",
   resources: "common.entityLower.resource",
   prompts: "common.entityLower.prompt",

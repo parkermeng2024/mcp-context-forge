@@ -11,6 +11,18 @@ import {
 
 import { safeGetElement, showNotification } from "./utils.js";
 import { t } from "./i18n.js";
+import { ENTITY_DISPLAY_NAMES } from "./formHandlers.js";
+
+/**
+ * Render a backend entity type key in the active locale.
+ *
+ * The API reports types as plural kebab-case keys such as `a2a-agents`. Fall back
+ * to the raw key so an unmapped type stays visible instead of blank.
+ *
+ * @param {string} type - Entity type key from the API.
+ * @returns {string} Localized lowercase singular noun.
+ */
+const entityLabel = (type) => t(ENTITY_DISPLAY_NAMES[type] || type);
 
 /**
  * Display import preview with selective import options
@@ -33,7 +45,7 @@ export const displayImportPreview = function (preview) {
 
   previewContainer.innerHTML = `
             <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                📋 Selective Import - Choose What to Import
+                ${t("tools.import.selective.title")}
             </h4>
 
             <!-- Summary -->
@@ -41,11 +53,11 @@ export const displayImportPreview = function (preview) {
                 <div class="flex items-center">
                     <div class="ml-3">
                         <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
-                            Found ${preview.summary.total_items} items in import file
+                            ${t("tools.import.selective.foundItems", { count: preview.summary.total_items })}
                         </h3>
                         <div class="mt-1 text-sm text-blue-600 dark:text-blue-300">
                             ${Object.entries(preview.summary.by_type)
-    .map(([type, count]) => `${type}: ${count}`)
+    .map(([type, count]) => `${entityLabel(type)}: ${count}`)
     .join(", ")}
                         </div>
                     </div>
@@ -57,20 +69,20 @@ export const displayImportPreview = function (preview) {
                 <div class="space-x-4">
                     <button data-action="select-all"
                             class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline">
-                        Select All
+                        ${t("tools.import.selective.selectAll")}
                     </button>
                     <button data-action="select-none"
                             class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 underline">
-                        Select None
+                        ${t("tools.import.selective.selectNone")}
                     </button>
                     <button data-action="select-custom"
                             class="text-sm text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 underline">
-                        Custom Items Only
+                        ${t("tools.import.selective.customOnly")}
                     </button>
                 </div>
 
                 <div class="text-sm text-gray-500 dark:text-gray-400">
-                    <span id="selection-count">0 items selected</span>
+                    <span id="selection-count">${t("tools.import.selective.selectionCount", { total: 0, gateways: 0, items: 0 })}</span>
                 </div>
             </div>
 
@@ -80,7 +92,7 @@ export const displayImportPreview = function (preview) {
     ? `
                 <div class="mb-6">
                     <h5 class="text-md font-medium text-gray-900 dark:text-white mb-3">
-                        🌐 Gateway Bundles (Gateway + Auto-discovered Items)
+                        ${t("tools.import.selective.bundlesTitle")}
                     </h5>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         ${Object.entries(preview.bundles)
@@ -100,7 +112,7 @@ export const displayImportPreview = function (preview) {
                                             ${bundle.gateway.description || t("common.noDescription")}
                                         </div>
                                         <div class="text-xs text-blue-600 dark:text-blue-400">
-                                            Bundle includes: ${bundle.total_items} items
+                                            ${t("tools.import.selective.bundleIncludes", { count: bundle.total_items })}
                                             (${Object.entries(bundle.items)
     .filter(
       ([type, items]) =>
@@ -108,7 +120,7 @@ export const displayImportPreview = function (preview) {
     )
     .map(
       ([type, items]) =>
-        `${items.length} ${type}`
+        `${items.length} ${entityLabel(type)}`
     )
     .join(", ")})
                                         </div>
@@ -132,7 +144,7 @@ export const displayImportPreview = function (preview) {
         ? `
                     <div class="mb-6">
                         <h5 class="text-md font-medium text-gray-900 dark:text-white mb-3 capitalize">
-                            🛠️ Custom ${entityType}
+                            ${t("tools.import.selective.customHeading", { type: entityLabel(entityType) })}
                         </h5>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             ${customItems
@@ -150,12 +162,12 @@ export const displayImportPreview = function (preview) {
                                                 ${item.name}
                                                 ${
   item.conflicts_with
-    ? '<span class="text-orange-600 text-xs ml-1">⚠️ Conflict</span>'
+    ? `<span class="text-orange-600 text-xs ml-1">${t("tools.import.selective.conflict")}</span>`
     : ""
 }
                                             </div>
                                             <div class="text-xs text-gray-500 dark:text-gray-400">
-                                                ${item.description || `Custom ${entityType} item`}
+                                                ${item.description || t("tools.import.selective.customItem", { type: entityLabel(entityType) })}
                                             </div>
                                         </div>
                                     </label>
@@ -184,10 +196,10 @@ export const displayImportPreview = function (preview) {
                             </div>
                             <div class="ml-3">
                                 <h3 class="text-sm font-medium text-orange-800 dark:text-orange-200">
-                                    Naming conflicts detected
+                                    ${t("tools.import.selective.conflictsTitle")}
                                 </h3>
                                 <div class="mt-1 text-sm text-orange-600 dark:text-orange-300">
-                                    Some items have the same names as existing items. Use conflict strategy to resolve.
+                                    ${t("tools.import.selective.conflictsHint")}
                                 </div>
                             </div>
                         </div>
@@ -201,17 +213,17 @@ export const displayImportPreview = function (preview) {
             <div class="flex justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
                 <button data-action="reset-selection"
                         class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
-                    🔄 Reset Selection
+                    ${t("tools.import.selective.reset")}
                 </button>
 
                 <div class="space-x-3">
                     <button data-action="preview-selected"
                             class="px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-800 rounded-md hover:bg-blue-100 dark:hover:bg-blue-800">
-                        🧪 Preview Selected
+                        ${t("tools.import.selective.previewSelected")}
                     </button>
                     <button data-action="import-selected"
                             class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700">
-                        ✅ Import Selected Items
+                        ${t("tools.import.selective.importSelected")}
                     </button>
                 </div>
             </div>
@@ -253,7 +265,7 @@ export const handleSelectiveImport = async function (dryRun = false) {
   console.log(`🎯 Starting selective import (dry_run=${dryRun})`);
 
   if (!window.Admin.currentImportData) {
-    showNotification("❌ Please select an import file first", "error");
+    showNotification(t("tools.import.selective.noFile"), "error");
     return;
   }
 
@@ -265,7 +277,7 @@ export const handleSelectiveImport = async function (dryRun = false) {
 
     if (Object.keys(selectedEntities).length === 0) {
       showNotification(
-        "❌ Please select at least one item to import",
+        t("tools.import.selective.nothingSelected"),
         "warning"
       );
       showImportProgress(false);
@@ -298,7 +310,7 @@ export const handleSelectiveImport = async function (dryRun = false) {
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
-        errorData.detail || `Import failed: ${response.statusText}`
+        errorData.detail || t("tools.import.selective.requestFailed", { status: response.statusText })
       );
     }
 
@@ -308,15 +320,15 @@ export const handleSelectiveImport = async function (dryRun = false) {
     if (!dryRun) {
       refreshCurrentTabData();
       showNotification(
-        "✅ Selective import completed successfully",
+        t("tools.import.selective.completed"),
         "success"
       );
     } else {
-      showNotification("✅ Import preview completed", "success");
+      showNotification(t("tools.import.selective.previewCompleted"), "success");
     }
   } catch (error) {
     console.error("Selective import error:", error);
-    showNotification(`❌ Import failed: ${error.message}`, "error");
+    showNotification(t("tools.import.selective.failed", { error: error.message }), "error");
   } finally {
     showImportProgress(false);
   }
@@ -366,7 +378,7 @@ export const updateSelectionCount = function () {
 
   const countElement = safeGetElement("selection-count");
   if (countElement) {
-    countElement.textContent = `${totalCount} items selected (${gatewayCount} gateways, ${itemCount} individual items)`;
+    countElement.textContent = t("tools.import.selective.selectionCount", { total: totalCount, gateways: gatewayCount, items: itemCount });
   }
 };
 
