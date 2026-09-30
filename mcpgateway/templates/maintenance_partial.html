@@ -24,10 +24,10 @@
           d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
         />
       </svg>
-      Platform Maintenance
+      {{ t('maint.title') }}
     </h2>
     <p class="text-amber-100">
-      Administrative tools for platform maintenance and data management. These operations are restricted to platform administrators.
+      {{ t('maint.hint') }}
     </p>
   </div>
 
@@ -51,11 +51,10 @@
           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
         ></path>
       </svg>
-      Metrics Maintenance
+      {{ t('maint.metrics.title') }}
     </h3>
     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-      Manage metrics data retention and aggregation. Cleanup removes old raw metrics,
-      rollup creates hourly summaries for efficient historical queries.
+      {{ t('maint.metrics.hint') }}
     </p>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -65,13 +64,13 @@
           <svg class="h-4 w-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
           </svg>
-          Metrics Cleanup
+          {{ t('maint.cleanup.title') }}
         </h4>
 
         <!-- Retention Days Input -->
         <div class="mb-3">
           <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-            Delete metrics older than:
+            {{ t('maint.cleanup.olderThan') }}
           </label>
           <div class="flex items-center gap-2">
             <input
@@ -82,7 +81,7 @@
               max="365"
               class="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-800 dark:text-gray-200 disabled:opacity-50"
             />
-            <span class="text-xs text-gray-500 dark:text-gray-400">days</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">{{ t('maint.cleanup.days') }}</span>
           </div>
         </div>
 
@@ -95,7 +94,7 @@
               @change="if(deleteAll) retentionDays = 0"
               class="mr-2 rounded border-gray-300 dark:border-gray-600 text-red-600 focus:ring-red-500"
             />
-            <span class="font-medium text-red-600 dark:text-red-400">Delete ALL metrics (ignores retention)</span>
+            <span class="font-medium text-red-600 dark:text-red-400">{{ t('maint.cleanup.deleteAll') }}</span>
           </label>
         </div>
 
@@ -107,7 +106,7 @@
               x-model="includeRollupData"
               class="mr-2 rounded border-gray-300 dark:border-gray-600 text-red-600 focus:ring-red-500"
             />
-            <span>Also delete hourly rollup data</span>
+            <span>{{ t('maint.cleanup.alsoRollup') }}</span>
           </label>
         </div>
 
@@ -123,7 +122,7 @@
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </template>
-          <span x-text="cleanupLoading ? 'Deleting...' : (deleteAll ? 'Delete All Metrics' : 'Run Cleanup')"></span>
+          <span x-text="cleanupLoading ? '{{ t('maint.cleanup.deleting') }}' : (deleteAll ? '{{ t('maint.cleanup.deleteAllBtn') }}' : '{{ t('maint.cleanup.run') }}')"></span>
         </button>
 
         <!-- Cleanup Confirmation Dialog -->
@@ -134,36 +133,36 @@
                 <svg class="h-6 w-6 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                 </svg>
-                <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100">Confirm Metrics Cleanup</h4>
+                <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ t('maint.cleanup.confirmTitle') }}</h4>
               </div>
               <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
                 <template x-if="deleteAll">
                   <p class="text-red-600 dark:text-red-400 font-medium">
-                    WARNING: This will permanently delete ALL metrics data!
+                    {{ t('maint.cleanup.warning') }}
                   </p>
                 </template>
                 <template x-if="!deleteAll">
                   <p>
-                    This will delete all metrics older than <span class="font-medium" x-text="retentionDays"></span> days.
+                    {{ t('maint.cleanup.confirmBody') }} <span class="font-medium" x-text="retentionDays"></span> {{ t('maint.cleanup.days') }}
                   </p>
                 </template>
                 <p class="mt-2" x-show="includeRollupData">
-                  Hourly rollup data will also be deleted.
+                  {{ t('maint.cleanup.alsoRollup') }}
                 </p>
-                <p class="mt-2 font-medium">This action cannot be undone.</p>
+                <p class="mt-2 font-medium">{{ t('maint.cleanup.cannotUndo') }}</p>
               </div>
               <div class="flex justify-end gap-3">
                 <button
                   @click="showCleanupConfirm = false"
                   class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md"
                 >
-                  Cancel
+                  {{ t('common.actions.cancel') }}
                 </button>
                 <button
                   @click="runCleanup()"
                   class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md"
                 >
-                  Yes, Delete
+                  {{ t('maint.cleanup.confirm') }}
                 </button>
               </div>
             </div>
@@ -175,7 +174,7 @@
           <div class="mt-3 p-2 rounded text-xs" :class="cleanupResult.error ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'">
             <template x-if="!cleanupResult.error">
               <div>
-                <span class="font-medium">Deleted:</span> <span x-text="cleanupResult.total_deleted"></span> records
+                <span class="font-medium">{{ t('maint.cleanup.deleted') }}</span> <span x-text="cleanupResult.total_deleted"></span> {{ t('maint.cleanup.records') }}
                 <span class="text-gray-500 dark:text-gray-400 ml-2">(<span x-text="cleanupDuration"></span>s)</span>
               </div>
             </template>
@@ -192,34 +191,34 @@
           <svg class="h-4 w-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
           </svg>
-          Metrics Rollup
+          {{ t('maint.rollup.title') }}
         </h4>
 
         <!-- Hours Back Input -->
         <div class="mb-3">
           <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-            Process metrics from last:
+            {{ t('maint.rollup.fromLast') }}
           </label>
           <div class="flex items-center gap-2">
             <select
               x-model="rollupHoursBack"
               class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-800 dark:text-gray-200"
             >
-              <option value="1">1 hour</option>
-              <option value="4">4 hours</option>
-              <option value="12">12 hours</option>
-              <option value="24">24 hours (1 day)</option>
-              <option value="72">72 hours (3 days)</option>
-              <option value="168">168 hours (7 days)</option>
-              <option value="720">720 hours (30 days)</option>
-              <option value="2160">2160 hours (90 days)</option>
-              <option value="8760">8760 hours (365 days)</option>
+              <option value="1">{{ t('maint.rollup.hourOption', count=1) }}</option>
+              <option value="4">{{ t('maint.rollup.hoursOption', count=4) }}</option>
+              <option value="12">{{ t('maint.rollup.hoursOption', count=12) }}</option>
+              <option value="24">{{ t('maint.rollup.hoursDaysOption', count=24, days=1) }}</option>
+              <option value="72">{{ t('maint.rollup.hoursDaysOption', count=72, days=3) }}</option>
+              <option value="168">{{ t('maint.rollup.hoursDaysOption', count=168, days=7) }}</option>
+              <option value="720">{{ t('maint.rollup.hoursDaysOption', count=720, days=30) }}</option>
+              <option value="2160">{{ t('maint.rollup.hoursDaysOption', count=2160, days=90) }}</option>
+              <option value="8760">{{ t('maint.rollup.hoursDaysOption', count=8760, days=365) }}</option>
             </select>
           </div>
         </div>
 
         <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
-          Aggregates raw metrics into hourly summaries with percentiles (p50, p95, p99).
+          {{ t('maint.rollup.hint') }}
         </p>
 
         <!-- Run Rollup Button -->
@@ -234,7 +233,7 @@
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </template>
-          <span x-text="rollupLoading ? 'Processing...' : 'Run Rollup Now'"></span>
+          <span x-text="rollupLoading ? '{{ t('maint.rollup.processing') }}' : '{{ t('maint.rollup.run') }}'"></span>
         </button>
 
         <!-- Rollup Confirmation Dialog -->
@@ -245,14 +244,14 @@
                 <svg class="h-6 w-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
-                <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100">Confirm Metrics Rollup</h4>
+                <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ t('maint.rollup.confirmTitle') }}</h4>
               </div>
               <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
                 <p>
-                  This will aggregate raw metrics from the last <span class="font-medium" x-text="rollupHoursBack"></span> hours into hourly summaries.
+                  {{ t('maint.rollup.confirmBody') }} <span class="font-medium" x-text="rollupHoursBack"></span> {{ t('maint.rollup.confirmBodyAfter') }}
                 </p>
                 <p class="mt-2">
-                  Existing rollups for those hours will be updated with current data.
+                  {{ t('maint.rollup.confirmNote') }}
                 </p>
               </div>
               <div class="flex justify-end gap-3">
@@ -260,13 +259,13 @@
                   @click="showRollupConfirm = false"
                   class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md"
                 >
-                  Cancel
+                  {{ t('common.actions.cancel') }}
                 </button>
                 <button
                   @click="runRollup()"
                   class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
                 >
-                  Yes, Run Rollup
+                  {{ t('maint.rollup.confirm') }}
                 </button>
               </div>
             </div>
@@ -278,8 +277,8 @@
           <div class="mt-3 p-2 rounded text-xs" :class="rollupResult.error ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'">
             <template x-if="!rollupResult.error">
               <div>
-                <span class="font-medium">New:</span> <span x-text="rollupResult.total_rollups_created"></span>,
-                <span class="font-medium">Updated:</span> <span x-text="rollupResult.total_rollups_updated"></span> rollups
+                <span class="font-medium">{{ t('maint.rollup.new') }}</span> <span x-text="rollupResult.total_rollups_created"></span>,
+                <span class="font-medium">{{ t('maint.rollup.updated') }}</span> <span x-text="rollupResult.total_rollups_updated"></span> {{ t('maint.rollup.rollups') }}
                 <span class="text-gray-500 dark:text-gray-400 ml-2">(<span x-text="rollupDuration"></span>s)</span>
               </div>
             </template>
@@ -297,7 +296,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
       <div class="text-sm text-blue-700 dark:text-blue-300">
-        Both operations run automatically in the background. Manual triggers are for immediate execution.
+        {{ t('maint.info') }}
       </div>
     </div>
   </div>
@@ -318,17 +317,16 @@
           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
         ></path>
       </svg>
-      Metrics Maintenance
+      {{ t('maint.metrics.title') }}
     </h3>
     <div class="flex items-start bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
       <svg class="h-5 w-5 text-gray-500 dark:text-gray-400 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
       <div class="text-sm text-gray-600 dark:text-gray-400">
-        <p class="font-medium text-gray-700 dark:text-gray-300">Metrics maintenance is disabled</p>
+        <p class="font-medium text-gray-700 dark:text-gray-300">{{ t('maint.disabled.title') }}</p>
         <p class="mt-1">
-          To enable metrics cleanup and rollup, set <code class="bg-gray-200 dark:bg-gray-600 px-1 rounded">METRICS_CLEANUP_ENABLED=true</code>
-          and/or <code class="bg-gray-200 dark:bg-gray-600 px-1 rounded">METRICS_ROLLUP_ENABLED=true</code> in your environment.
+          {{ t('maint.disabled.hint') }}
         </p>
       </div>
     </div>
@@ -351,34 +349,34 @@
           d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
         ></path>
       </svg>
-      System Health
+      {{ t('maint.health.title') }}
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-        <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Database</div>
+        <div class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('maint.health.database') }}</div>
         <div class="text-lg font-semibold text-green-600 dark:text-green-400 flex items-center mt-1">
           <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          Healthy
+          {{ t('maint.health.healthy') }}
         </div>
       </div>
       <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-        <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Cache</div>
+        <div class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('maint.health.cache') }}</div>
         <div class="text-lg font-semibold text-green-600 dark:text-green-400 flex items-center mt-1">
           <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          Operational
+          {{ t('maint.health.operational') }}
         </div>
       </div>
       <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-        <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Background Jobs</div>
+        <div class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('maint.health.backgroundJobs') }}</div>
         <div class="text-lg font-semibold text-green-600 dark:text-green-400 flex items-center mt-1">
           <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          Running
+          {{ t('maint.health.running') }}
         </div>
       </div>
     </div>
