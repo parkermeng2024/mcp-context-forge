@@ -694,7 +694,7 @@
                     role="none"
                   >
                     <div class="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
-                      Loading teams...
+                      {{ t('teams.loading') }}
                     </div>
                   </div>
                 </div>
@@ -713,12 +713,12 @@
 
               <!-- Logout -->
               {% if 'logout' not in hidden_header_items %}
-              <form method="post" action="{{ root_path }}/admin/logout" class="inline" data-action-submit="confirmAction" data-arg0="Are you sure you want to logout?" data-prevent-default="false">
+              <form method="post" action="{{ root_path }}/admin/logout" class="inline" data-action-submit="confirmAction" data-arg0="{{ t('nav.confirmLogout') }}" data-prevent-default="false">
                 <button
                   type="submit"
                   class="px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-300 dark:border-red-600 hover:border-red-500 dark:hover:border-red-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
-                  Logout
+                  {{ t('nav.logout') }}
                 </button>
               </form>
               {% endif %}
@@ -735,7 +735,7 @@
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
               </svg>
               <p class="text-sm font-semibold text-red-800 dark:text-red-200">
-                ⚠ Since you are not a member of this team, team content won't be visible. Defaulting to All Teams.
+                {{ t('nav.nonMemberTeamBanner') }}
               </p>
             </div>
           </div>
@@ -756,14 +756,14 @@
                 <input
                   type="text"
                   id="global-search-input"
-                  placeholder="Search across servers, gateways, tools, resources, prompts, agents, and roots..."
+                  placeholder="{{ t('nav.globalSearchPlaceholder') }}"
                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   autocomplete="off"
                 />
               </div>
               <div id="global-search-results" class="max-h-[28rem] overflow-y-auto">
                 <div class="p-4 text-sm text-gray-500 dark:text-gray-400">
-                  Start typing to search all entities.
+                  {{ t('nav.globalSearchHint') }}
                 </div>
               </div>
             </div>
@@ -781,7 +781,7 @@
               <h2
                 class="text-lg font-medium text-gray-900 dark:text-white mb-4"
               >
-                📋 System Logs
+                📋 {{ t('logs.title') }}
               </h2>
 
               <!-- Quick Actions -->
@@ -790,31 +790,31 @@
                   data-action-click="searchStructuredLogs"
                   class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 >
-                  🔍 Search Logs
+                  🔍 {{ t('logs.actions.search') }}
                 </button>
                 <button
                   data-action-click="showCorrelationTrace"
                   class="px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
                 >
-                  🔗 Trace Correlation ID
+                  🔗 {{ t('logs.actions.trace') }}
                 </button>
                 <button
                   data-action-click="showSecurityEvents"
                   class="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
                 >
-                  🛡️ Security Events
+                  🛡️ {{ t('logs.actions.security') }}
                 </button>
                 <button
                   data-action-click="showAuditTrail"
                   class="px-3 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
                 >
-                  📝 Audit Trail
+                  📝 {{ t('logs.actions.audit') }}
                 </button>
                 <button
                   data-action-click="showPerformanceMetrics"
                   class="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                 >
-                  ⚡ Performance
+                  ⚡ {{ t('logs.actions.performance') }}
                 </button>
               </div>
 
@@ -824,7 +824,7 @@
                   for="performance-aggregation-select"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Performance aggregation level
+                  {{ t('logs.aggregationLevel') }}
                 </label>
                 <div class="mt-1 max-w-xs">
                   <select
@@ -832,8 +832,8 @@
                     class="px-3 py-2 block w-full border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
                     data-action-change="handlePerformanceAggregationChange"
                   >
-                    <option value="5m">5 minutes</option>
-                    <option value="24h">24 hours</option>
+                    <option value="5m">{{ t('logs.minutes5') }}</option>
+                    <option value="24h">{{ t('logs.hours24') }}</option>
                   </select>
                 </div>
               </div>
@@ -843,14 +843,14 @@
                 <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >Level</label
+                    >{{ t('logs.filter.level') }}</label
                   >
                   <select
                     id="log-level-filter"
                     class="mt-1 px-3 py-2 block w-full border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
                     data-action-change="searchStructuredLogs"
                   >
-                    <option value="">All Levels</option>
+                    <option value="">{{ t('logs.level.all') }}</option>
                     <option value="DEBUG">Debug</option>
                     <option value="INFO">Info</option>
                     <option value="WARNING">Warning</option>
@@ -862,14 +862,14 @@
                 <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >Component</label
+                    >{{ t('logs.filter.component') }}</label
                   >
                   <select
                     id="log-component-filter"
                     class="mt-1 px-3 py-2 block w-full border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
                     data-action-change="searchStructuredLogs"
                   >
-                    <option value="">All Components</option>
+                    <option value="">{{ t('logs.component.all') }}</option>
                     <option value="http_gateway">HTTP Gateway</option>
                     <option value="gateway_service">Gateway Service</option>
                     <option value="tool_service">Tool Service</option>
@@ -884,12 +884,12 @@
                 <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >Search / Correlation ID</label
+                    >{{ t('logs.filter.search') }}</label
                   >
                   <input
                     type="text"
                     id="log-search"
-                    placeholder="Search or paste correlation ID..."
+                    placeholder="{{ t('logs.filter.searchPlaceholder') }}"
                     class="mt-1 px-3 py-2 block w-full border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
                   />
                 </div>
@@ -905,7 +905,7 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span class="ml-2 text-gray-600 dark:text-gray-400">Loading logs...</span>
+                  <span class="ml-2 text-gray-600 dark:text-gray-400">{{ t('logs.loading') }}</span>
                 </div>
               </div>
 
@@ -919,37 +919,37 @@
                       <th
                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
-                        Time
+                        {{ t('logs.table.time') }}
                       </th>
                       <th
                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
-                        Level
+                        {{ t('logs.table.level') }}
                       </th>
                       <th
                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
-                        Component
+                        {{ t('logs.table.component') }}
                       </th>
                       <th
                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
-                        Message
+                        {{ t('logs.table.message') }}
                       </th>
                       <th
                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
-                        User
+                        {{ t('logs.table.user') }}
                       </th>
                       <th
                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
-                        Duration
+                        {{ t('logs.table.duration') }}
                       </th>
                       <th
                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
-                        Correlation ID
+                        {{ t('logs.table.correlationId') }}
                       </th>
                     </tr>
                   </thead>
@@ -978,14 +978,14 @@
                     class="px-3 py-1 bg-gray-300 dark:bg-gray-600 rounded disabled:opacity-50"
                     disabled
                   >
-                    Previous
+                    {{ t('common.actions.previous') }}
                   </button>
                   <button
                     data-action-click="nextLogPage"
                     id="next-page"
                     class="px-3 py-1 bg-gray-300 dark:bg-gray-600 rounded disabled:opacity-50"
                   >
-                    Next
+                    {{ t('common.actions.next') }}
                   </button>
                 </div>
               </div>
