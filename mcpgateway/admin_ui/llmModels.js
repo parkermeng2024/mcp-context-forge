@@ -1,5 +1,6 @@
 import { AppState } from "./appState.js";
 import { getAuthHeaders } from "./auth.js";
+import { t } from "./i18n.js";
 import { showCopyableModal } from "./modals.js";
 import { parseErrorResponse } from "./security.js";
 import { safeGetElement, showToast } from "./utils.js";
@@ -259,7 +260,7 @@ const renderProviderSpecificFields = async function (
         // Add empty option
         const emptyOption = document.createElement("option");
         emptyOption.value = "";
-        emptyOption.textContent = "Select...";
+        emptyOption.textContent = t("llm.select.empty");
         inputElement.appendChild(emptyOption);
 
         // Add options
@@ -371,23 +372,23 @@ export const fetchLLMProviderModels = async function (providerId) {
 
     if (result.success) {
       const modelList = result.models
-        .map((m) => `- ${m.id} (${m.owned_by || "unknown"})`)
+        .map((m) => `- ${m.id} (${m.owned_by || t("common.unknown")})`)
         .join("\n");
       showCopyableModal(
-        `Found ${result.count} Models`,
-        modelList || "No models found",
+        t("llm.models.found", { count: result.count }),
+        modelList || t("llm.models.none"),
         "success",
       );
     } else {
-      showCopyableModal("Failed to Fetch Models", result.error, "error");
+      showCopyableModal(t("llm.models.fetchFailed"), result.error, "error");
     }
 
     return result;
   } catch (error) {
     console.error("Error fetching models:", error);
     showCopyableModal(
-      "Failed to Fetch Models",
-      `Error: ${error.message}`,
+      t("llm.models.fetchFailed"),
+      `${t("common.label.error")} ${error.message}`,
       "error",
     );
     return { success: false, error: error.message, models: [] };
@@ -413,21 +414,21 @@ export const syncLLMProviderModels = async function (providerId) {
 
     if (result.success) {
       showCopyableModal(
-        "Models Synced Successfully",
+        t("llm.models.syncSuccess"),
         `${result.message}\n\nTotal available: ${result.total || 0}`,
         "success",
       );
       // Refresh the models list
       refreshLLMModels();
     } else {
-      showCopyableModal("Failed to Sync Models", result.error, "error");
+      showCopyableModal(t("llm.models.syncFailed"), result.error, "error");
     }
 
     return result;
   } catch (error) {
     console.error("Error syncing models:", error);
     showCopyableModal(
-      "Failed to Sync Models",
+      t("llm.models.syncFailed"),
       `Error: ${error.message}`,
       "error",
     );
@@ -484,11 +485,11 @@ export const editLLMProvider = async function (providerId) {
     }
 
     safeGetElement("llm-provider-modal-title").textContent =
-      "Edit LLM Provider";
+      t("llm.providers.modalEditTitle");
     document.getElementById("llm-provider-modal").classList.remove("hidden");
   } catch (error) {
     console.error("Error fetching provider:", error);
-    showToast("Failed to load provider details", "error");
+    showToast(t("llm.providers.loadFailed"), "error");
   }
 };
 
@@ -566,7 +567,7 @@ export const saveLLMProvider = async function (event) {
     if (!response.ok) {
       const errorMsg = await parseErrorResponse(
         response,
-        "Failed to save provider",
+        t("llm.providers.saveFailed"),
       );
       throw new Error(errorMsg);
     }
@@ -574,8 +575,8 @@ export const saveLLMProvider = async function (event) {
     closeLLMProviderModal();
     showToast(
       isUpdate
-        ? "Provider updated successfully"
-        : "Provider created successfully",
+        ? t("llm.providers.updated")
+        : t("llm.providers.created"),
       "success",
     );
     refreshLLMProviders();
@@ -609,7 +610,7 @@ export const deleteLLMProvider = async function (providerId, providerName) {
     if (!response.ok) {
       const errorMsg = await parseErrorResponse(
         response,
-        "Failed to delete provider",
+        t("llm.providers.deleteFailed"),
       );
       throw new Error(errorMsg);
     }
@@ -664,7 +665,7 @@ export const checkLLMProviderHealth = async function (providerId) {
     // Show result message with details using copyable modal
     if (result.status === "healthy") {
       const message = `Status: ${result.status}\nLatency: ${result.latency_ms}ms`;
-      showCopyableModal("Health Check Passed", message, "success");
+      showCopyableModal(t("llm.health.passed"), message, "success");
     } else {
       // Show error details for unhealthy status
       let message = `Status: ${result.status}`;
@@ -674,7 +675,7 @@ export const checkLLMProviderHealth = async function (providerId) {
       if (result.error) {
         message += `\n\nError:\n${result.error}`;
       }
-      showCopyableModal("Health Check Failed", message, "error");
+      showCopyableModal(t("llm.health.failed"), message, "error");
     }
 
     // Refresh providers to update status
@@ -682,7 +683,7 @@ export const checkLLMProviderHealth = async function (providerId) {
   } catch (error) {
     console.error("Error checking provider health:", error);
     showCopyableModal(
-      "Health Check Request Failed",
+      t("llm.health.requestFailed"),
       `Error: ${error.message}`,
       "error",
     );
@@ -793,7 +794,7 @@ export const fetchModelsForModelModal = async function () {
 
   const seq = ++AppState.llmFetchSeq;
 
-  statusEl.textContent = "Fetching models...";
+  statusEl.textContent = t("llm.models.fetching");
   statusEl.classList.remove("hidden");
 
   try {
@@ -820,7 +821,7 @@ export const fetchModelsForModelModal = async function () {
       AppState.resetLlmModels();
       AppState.llmModelsFetched = true;
       statusEl.textContent =
-          result.error || "No models found. Enter model ID manually.";
+          result.error || t("llm.models.noneManual");
       statusEl.classList.remove("hidden");
     }
   } catch (error) {
@@ -829,7 +830,7 @@ export const fetchModelsForModelModal = async function () {
     AppState.resetLlmModels();
     AppState.llmModelsFetched = true;
     statusEl.textContent =
-      "Failed to fetch models. Enter model ID manually.";
+      t("llm.models.fetchFailedManual");
     statusEl.classList.remove("hidden");
   }
 };
@@ -928,14 +929,14 @@ export const saveLLMModel = async function (event) {
     if (!response.ok) {
       const errorMsg = await parseErrorResponse(
         response,
-        "Failed to save model",
+        t("llm.models.saveFailed"),
       );
       throw new Error(errorMsg);
     }
 
     closeLLMModelModal();
     showToast(
-      isUpdate ? "Model updated successfully" : "Model created successfully",
+      isUpdate ? t("llm.models.updated") : t("llm.models.created"),
       "success",
     );
     refreshLLMModels();
@@ -962,7 +963,7 @@ export const deleteLLMModel = async function (modelId, modelName) {
     if (!response.ok) {
       const errorMsg = await parseErrorResponse(
         response,
-        "Failed to delete model",
+        t("llm.models.deleteFailed"),
       );
       throw new Error(errorMsg);
     }
@@ -1033,7 +1034,7 @@ export const llmApiInfoApp = function () {
   return {
     testType: "models",
     testModel: "",
-    testMessage: "Hello! Please respond with a short greeting.",
+    testMessage: t("llm.test.defaultMessage"),
     testing: false,
     testResult: null,
     testSuccess: false,
@@ -1078,7 +1079,7 @@ export const llmApiInfoApp = function () {
         if (this.testType === "chat") {
           if (!this.testModel) {
             this.testResult = JSON.stringify(
-              { error: "Please select a model" },
+              { error: t("llm.test.selectModel") },
               null,
               2,
             );
@@ -1279,7 +1280,7 @@ export const renderLLMModelDropdown = function (models) {
   if (!models.length) {
     const li = document.createElement("li");
     li.className = "px-3 py-2 text-xs text-gray-400 dark:text-gray-500";
-    li.textContent = "No models found. Enter ID manually.";
+    li.textContent = t("llm.models.noneManualShort");
     ul.appendChild(li);
     return;
   }
