@@ -1606,6 +1606,8 @@
   "teams.empty.title": "未找到团队。请使用上方按钮创建第一个团队。",
   "users.badge.admin": "管理员",
   "users.badge.you": "你",
+  "users.detail.loading": "正在加载用户详情…",
+  "users.detail.loadFailed": "加载用户详情失败。",
   "users.badge.lastAdmin": "最后一位管理员",
   "users.badge.locked": "已锁定",
   "users.badge.passwordChangeRequired": "需要修改密码",

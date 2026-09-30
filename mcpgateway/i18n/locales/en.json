@@ -1606,6 +1606,8 @@
   "teams.empty.title": "No teams found. Create your first team using the button above.",
   "users.badge.admin": "Admin",
   "users.badge.you": "You",
+  "users.detail.loading": "Loading user details...",
+  "users.detail.loadFailed": "Failed to load user details.",
   "users.badge.lastAdmin": "Last Admin",
   "users.badge.locked": "Locked",
   "users.badge.passwordChangeRequired": "Password Change Required",

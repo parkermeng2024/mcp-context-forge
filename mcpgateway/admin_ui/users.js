@@ -27,7 +27,7 @@ export const showUserEditModal = async function (userEmail) {
 
   modalContent.innerHTML = `
         <div class="flex items-center justify-center py-8 text-sm text-gray-500 dark:text-gray-400">
-            Loading user details...
+            ${t('users.detail.loading')}
         </div>
     `;
 
@@ -60,7 +60,7 @@ export const showUserEditModal = async function (userEmail) {
     console.error("Error loading user edit form:", error);
     modalContent.innerHTML = `
             <div class="p-4 text-sm text-red-600 dark:text-red-400">
-                Failed to load user details.
+                ${t('users.detail.loadFailed')}
             </div>
         `;
   }
