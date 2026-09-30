@@ -621,6 +621,15 @@
             case "password_reset_disabled":
               errorMessage = t("error.passwordResetDisabled");
               break;
+            case "session_expired":
+              errorMessage = t("error.sessionExpired");
+              break;
+            case "sso_required":
+              errorMessage = t("error.ssoRequired");
+              break;
+            case "user_creation_failed":
+              errorMessage = t("error.userCreationFailed");
+              break;
             default:
               errorMessage = error
                 .replace(/_/g, " ")
