@@ -14076,7 +14076,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
           <div>
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                Create New Team
+                {{ t('teams.create.title') }}
               </h3>
               <button
                 data-action-click="closeCreateTeamModal"
@@ -14111,7 +14111,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                   >
-                    Team Name <span class="text-red-500">*</span>
+                    {{ t('teams.create.name') }} <span class="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -14120,10 +14120,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     required
                     maxlength="100"
                     class="block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    placeholder="Development Team"
+                    placeholder="{{ t('teams.create.namePlaceholder') }}"
                   />
                   <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Letters, numbers, spaces, underscores, periods, and dashes only
+                    {{ t('teams.create.nameHint') }}
                   </p>
                 </div>
 
@@ -14131,7 +14131,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                   >
-                    Description
+                    {{ t('common.field.description') }}
                   </label>
                   <textarea
                     name="description"
@@ -14139,10 +14139,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     rows="3"
                     maxlength="500"
                     class="block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    placeholder="Brief description of the team's purpose..."
+                    placeholder="{{ t('teams.create.descriptionPlaceholder') }}"
                   ></textarea>
                   <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Optional, maximum 500 characters
+                    {{ t('teams.create.descriptionHint') }}
                   </p>
                 </div>
 
@@ -14150,7 +14150,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                   >
-                    Team Visibility
+                    {{ t('teams.create.visibility') }}
                   </label>
                   <div class="space-y-2">
                     <label class="flex items-center">
@@ -14165,10 +14165,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         <div
                           class="text-sm font-medium text-gray-700 dark:text-gray-300"
                         >
-                          Private
+                          {{ t('teams.create.private') }}
                         </div>
                         <div class="text-xs text-gray-500 dark:text-gray-400">
-                          Only visible to members, invitation required to join
+                          {{ t('teams.create.privateHint') }}
                         </div>
                       </div>
                     </label>
@@ -14183,10 +14183,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         <div
                           class="text-sm font-medium text-gray-700 dark:text-gray-300"
                         >
-                          Public
+                          {{ t('teams.create.public') }}
                         </div>
                         <div class="text-xs text-gray-500 dark:text-gray-400">
-                          Discoverable by all users, others can request to join
+                          {{ t('teams.create.publicHint') }}
                         </div>
                       </div>
                     </label>
@@ -14197,7 +14197,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                   >
-                    Maximum Members
+                    {{ t('teams.create.maxMembers') }}
                   </label>
                   <input
                     type="number"
@@ -14209,9 +14209,9 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   />
                   <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     {% if is_admin %}
-                    Optional. Leave empty to use global default ({{ max_members_per_team }}). Admins can set any limit.
+                    {{ t('teams.create.maxMembersHintAdmin', max=max_members_per_team) }}
                     {% else %}
-                    Optional. Leave empty to use global default ({{ max_members_per_team }}).
+                    {{ t('teams.create.maxMembersHint', max=max_members_per_team) }}
                     {% endif %}
                   </p>
                 </div>
@@ -14223,13 +14223,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   data-action-click="closeCreateTeamModal"
                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  Cancel
+                  {{ t('common.actions.cancel') }}
                 </button>
                 <button
                   type="submit"
                   class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  Create Team
+                  {{ t('teams.create.submit') }}
                 </button>
               </div>
             </form>
@@ -14284,7 +14284,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
         >
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-              Team Join Requests
+              {{ t('teams.joinRequests.title') }}
             </h3>
             <button
               data-action-click="hideElement" data-arg0="team-join-requests-modal"
@@ -14333,14 +14333,14 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
         >
           <div>
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Invite User to Team
+              {{ t('teams.invite.title') }}
             </h3>
             <form id="invite-user-form" data-action-submit="submitUserInvitation">
               <div class="mb-4">
                 <label
                   for="invite-user-select"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >Select Existing User</label
+                  >{{ t('teams.invite.selectExisting') }}</label
                 >
                 <select
                   id="invite-user-select"
@@ -14348,7 +14348,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                   data-action-change="toggleEmailInput"
                 >
-                  <option value="">Select existing user...</option>
+                  <option value="">{{ t('teams.invite.selectExistingPlaceholder') }}</option>
                 </select>
               </div>
               <div class="mb-4">
@@ -14357,7 +14357,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     class="flex-1 border-t border-gray-300 dark:border-gray-600"
                   ></div>
                   <span class="px-3 text-sm text-gray-500 dark:text-gray-400"
-                    >or</span
+                    >{{ t('teams.invite.or') }}</span
                   >
                   <div
                     class="flex-1 border-t border-gray-300 dark:border-gray-600"
@@ -14366,7 +14366,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 <label
                   for="invite-email"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >Invite New User by Email</label
+                  >{{ t('teams.invite.byEmail') }}</label
                 >
                 <input
                   type="email"
@@ -14381,7 +14381,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 <label
                   for="invite-team"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >Select Team</label
+                  >{{ t('teams.invite.selectTeam') }}</label
                 >
                 <select
                   id="invite-team"
@@ -14389,14 +14389,14 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   required
                   class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                 >
-                  <option value="">Select a team...</option>
+                  <option value="">{{ t('teams.invite.selectTeamPlaceholder') }}</option>
                 </select>
               </div>
               <div class="mb-4">
                 <label
                   for="invite-role"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >Role</label
+                  >{{ t('teams.invite.role') }}</label
                 >
                 <select
                   id="invite-role"
@@ -14404,9 +14404,9 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   required
                   class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                 >
-                  <option value="member">Member</option>
-                  <option value="admin">Admin</option>
-                  <option value="owner">Owner</option>
+                  <option value="member">{{ t('teams.roles.member') }}</option>
+                  <option value="admin">{{ t('teams.roles.admin') }}</option>
+                  <option value="owner">{{ t('teams.roles.owner') }}</option>
                 </select>
               </div>
               <div class="flex justify-end space-x-3">
@@ -14415,13 +14415,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   data-action-click="closeInviteUserModal"
                   class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
-                  Cancel
+                  {{ t('common.actions.cancel') }}
                 </button>
                 <button
                   type="submit"
                   class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  Send Invitation
+                  {{ t('teams.invite.send') }}
                 </button>
               </div>
             </form>
@@ -14450,7 +14450,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
         >
           <div>
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Assign Role to User
+              {{ t('teams.assign.title') }}
             </h3>
             <form
               id="role-assignment-form"
@@ -14460,7 +14460,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 <label
                   for="assign-user"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >Select User</label
+                  >{{ t('teams.assign.selectUser') }}</label
                 >
                 <select
                   id="assign-user"
@@ -14468,14 +14468,14 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   required
                   class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                 >
-                  <option value="">Select a user...</option>
+                  <option value="">{{ t('teams.assign.selectUserPlaceholder') }}</option>
                 </select>
               </div>
               <div class="mb-4">
                 <label
                   for="assign-team"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >Select Team</label
+                  >{{ t('teams.invite.selectTeam') }}</label
                 >
                 <select
                   id="assign-team"
@@ -14483,14 +14483,14 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   required
                   class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                 >
-                  <option value="">Select a team...</option>
+                  <option value="">{{ t('teams.invite.selectTeamPlaceholder') }}</option>
                 </select>
               </div>
               <div class="mb-4">
                 <label
                   for="assign-role"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >New Role</label
+                  >{{ t('teams.assign.newRole') }}</label
                 >
                 <select
                   id="assign-role"
@@ -14498,9 +14498,9 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   required
                   class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                 >
-                  <option value="member">Member</option>
-                  <option value="admin">Admin</option>
-                  <option value="owner">Owner</option>
+                  <option value="member">{{ t('teams.roles.member') }}</option>
+                  <option value="admin">{{ t('teams.roles.admin') }}</option>
+                  <option value="owner">{{ t('teams.roles.owner') }}</option>
                 </select>
               </div>
               <div class="flex justify-end space-x-3">
@@ -14509,13 +14509,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   data-action-click="closeRoleAssignmentModal"
                   class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
-                  Cancel
+                  {{ t('common.actions.cancel') }}
                 </button>
                 <button
                   type="submit"
                   class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 >
-                  Assign Role
+                  {{ t('teams.assign.submit') }}
                 </button>
               </div>
             </form>
