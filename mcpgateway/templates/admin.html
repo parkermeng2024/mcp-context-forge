@@ -7119,7 +7119,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >
-                        Token Management
+                        {{ t('gateways.form.tokenManagement') }}
                       </label>
                       <div class="mt-2 space-y-2">
                         <label class="flex items-center">
@@ -7132,7 +7132,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                           <span
                             class="ml-2 text-sm text-gray-700 dark:text-gray-300"
                           >
-                            Store access tokens for reuse
+                            {{ t('gateways.form.storeTokens') }}
                           </span>
                         </label>
                         <label class="flex items-center">
@@ -7145,12 +7145,12 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                           <span
                             class="ml-2 text-sm text-gray-700 dark:text-gray-300"
                           >
-                            Automatically refresh expired tokens
+                            {{ t('a2a.form.autoRefresh') }}
                           </span>
                         </label>
                       </div>
                       <p class="mt-1 text-sm text-gray-500">
-                        Token management options for Authorization Code flow
+                        {{ t('gateways.form.tokenManagementHint') }}
                       </p>
                     </div>
 
@@ -7175,29 +7175,25 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                           <h3
                             class="text-sm font-medium text-blue-800 dark:text-blue-200"
                           >
-                            Authorization Code Flow Setup
+                            {{ t('gateways.form.authCodeSetup') }}
                           </h3>
                           <div
                             class="mt-2 text-sm text-blue-700 dark:text-blue-300"
                           >
-                            <p>After creating this gateway, you'll need to:</p>
+                            <p>{{ t('a2a.form.authCodeSetupIntro') }}</p>
                             <ol class="list-decimal list-inside mt-1 space-y-1">
                               <li>
-                                Click the "🔐 Authorize" button in the gateway
-                                list
+                                {{ t('a2a.form.authCodeStep1') }}
                               </li>
                               <li>
-                                Complete the OAuth consent flow with your
-                                provider
+                                {{ t('a2a.form.authCodeStep2') }}
                               </li>
                               <li>
-                                Return to the admin panel to see authorization
-                                status
+                                {{ t('a2a.form.authCodeStep3') }}
                               </li>
                             </ol>
                             <p class="mt-2 font-medium">
-                              Note: The Agent will be created but tools won't
-                              work until OAuth authorization is completed.
+                              {{ t('a2a.form.authCodeNote') }}
                             </p>
                           </div>
                         </div>
@@ -7209,7 +7205,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      Scopes
+                      {{ t('gateways.form.scopes') }}
                     </label>
                     <input
                       type="text"
@@ -7218,8 +7214,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       placeholder="repo read:user (space-separated)"
                     />
                     <p class="mt-1 text-sm text-gray-500">
-                      Space-separated list of OAuth scopes (e.g., "repo
-                      read:user")
+                      {{ t('gateways.form.scopesHint') }}
                     </p>
                   </div>
 
@@ -7228,7 +7223,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       for="oauth_audience_edit"
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      Audience
+                      {{ t('gateways.form.audience') }}
                     </label>
                     <input
                       id="oauth_audience_edit"
@@ -7238,7 +7233,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       placeholder="api.atlassian.com"
                     />
                     <p class="mt-1 text-sm text-gray-500">
-                      OAuth audience parameter (for Atlassian, Auth0, etc.)
+                      {{ t('gateways.form.audienceHint') }}
                     </p>
                   </div>
                 </div>
@@ -7267,13 +7262,13 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 <label
                   for="a2a-agent-description"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Description</label
+                  >{{ t('common.field.description') }}</label
                 >
                 <textarea
                   id="a2a-agent-description"
                   name="description"
                   rows="2"
-                  placeholder="Description of the agent's capabilities"
+                  placeholder="{{ t('a2a.form.descriptionPlaceholder') }}"
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 ></textarea>
               </div>
@@ -7283,13 +7278,13 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 <label
                   for="a2a-agent-tags"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Tags</label
+                  >{{ t('common.table.tags') }}</label
                 >
                 <input
                   type="text"
                   id="a2a-agent-tags"
                   name="tags"
-                  placeholder="ai,assistant,production (comma-separated)"
+                  placeholder="{{ t('a2a.form.tagsPlaceholder') }}"
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 />
               </div>
@@ -7297,7 +7292,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               <!-- UAID (Universal Agent ID) Section -->
               <div class="sm:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-6">
                 <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                  Universal Agent ID (UAID) Settings
+                  {{ t('a2a.form.uaidSettings') }}
                 </h4>
 
                 <!-- Generate UAID Checkbox -->
@@ -7311,9 +7306,9 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     data-action-change="toggleUAIDFieldsFromEvent" data-arg0="a2a"
                   />
                   <label for="a2a-generate-uaid" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                    Generate UAID for cross-gateway routing
+                    {{ t('a2a.form.generateUaid') }}
                     <span class="text-xs text-gray-500 dark:text-gray-400 block mt-1">
-                      Enables zero-config federation without manual peer setup. The UAID embeds endpoint URL, protocol, and registry for automatic discovery.
+                      {{ t('a2a.form.generateUaidHint') }}
                     </span>
                   </label>
                 </div>
@@ -7324,7 +7319,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   <!-- UAID Registry -->
                   <div>
                     <label for="a2a-uaid-registry" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-                      Registry Name
+                      {{ t('a2a.form.registryName') }}
                     </label>
                     <input
                       type="text"
@@ -7335,14 +7330,14 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                     />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Registry identifier (e.g., "context-forge", "hol-registry")
+                      {{ t('a2a.form.registryHint') }}
                     </p>
                   </div>
 
                   <!-- UAID Protocol -->
                   <div>
                     <label for="a2a-uaid-protocol" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-                      Protocol
+                      {{ t('a2a.form.protocol') }}
                     </label>
                     <select
                       id="a2a-uaid-protocol"
@@ -7355,14 +7350,14 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       <option value="grpc">gRPC</option>
                     </select>
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Agent communication protocol
+                      {{ t('a2a.form.protocolHint') }}
                     </p>
                   </div>
 
                   <!-- UAID Native ID Override -->
                   <div>
                     <label for="a2a-uaid-native-id-override" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-                      Native ID Override (Optional)
+                      {{ t('a2a.form.nativeIdOverride') }}
                     </label>
                     <input
                       type="text"
@@ -7372,17 +7367,17 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                     />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Override the routing address in UAID. Leave empty to use endpoint URL. Use when gateway address differs from agent endpoint (e.g., gateway proxies to agent).
+                      {{ t('a2a.form.nativeIdOverrideHint') }}
                     </p>
                   </div>
 
                   <!-- Info Box -->
                   <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
                     <p class="text-xs text-blue-700 dark:text-blue-300">
-                      <strong>ℹ️ About UAIDs:</strong> Universal Agent IDs enable cross-gateway routing without manual configuration.
-                      The UAID embeds the endpoint URL, protocol, and registry info for automatic discovery.
+                      <strong>ℹ️ {{ t('a2a.form.aboutUaids') }}</strong> {{ t('a2a.form.aboutUaidsBody') }}
+                      {{ t('a2a.form.uaidHint') }}
                       <br/><br/>
-                      <strong>Domain Allowlist:</strong> Set <code class="px-1 py-0.5 bg-blue-100 dark:bg-blue-800 rounded">UAID_ALLOWED_DOMAINS</code> in .env to control which domains can be used.
+                      <strong>{{ t('a2a.form.domainAllowlist') }}</strong> {{ t('a2a.form.domainAllowlistHint') }}
                     </p>
                   </div>
 
@@ -7393,7 +7388,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               <div class="sm:col-span-2">
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Visibility</label
+                  >{{ t('a2a.form.visibility') }}</label
                 >
                 <div class="flex gap-x-6 mt-2">
 
@@ -7409,7 +7404,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       for="a2a-visibility-public"
                       class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                      >🌍 Public</label
+                      >{{ t('common.visibility.radio.public') }}</label
                     >
                   </div>
 
@@ -7424,7 +7419,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       for="a2a-visibility-team"
                       class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                      >👥 Team</label
+                      >{{ t('common.visibility.radio.team') }}</label
                     >
                   </div>
                   <div class="flex items-center">
@@ -7438,7 +7433,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       for="a2a-visibility-private"
                       class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                      >🔒 Private</label
+                      >{{ t('common.visibility.radio.private') }}</label
                     >
                   </div>
                 </div>
@@ -7449,7 +7444,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   for="passthrough_headers"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Passthrough Headers
+                  {{ t('gateways.form.passthroughHeaders') }}
                 </label>
                 <input
                   type="text"
@@ -7459,8 +7454,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                         focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 />
                 <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  List of headers to pass through from client requests (comma-separated, e.g.,
-                  "Authorization, X-Tenant-Id, X-Trace-Id").
+                  {{ t('a2a.form.passthroughHint') }}
                 </small>
               </div>
 
@@ -7476,7 +7470,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 id="add-a2a-loading"
                 class="hidden sm:col-span-2 text-sm text-gray-500 mt-2"
               >
-                Submitting...
+                {{ t('a2a.form.submitting') }}
               </div>
 
               <!-- Submit -->
@@ -7485,7 +7479,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   type="submit"
                   class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  Add A2A Agent
+                  {{ t('a2a.form.submit') }}
                 </button>
               </div>
             </div>
