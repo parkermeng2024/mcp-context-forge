@@ -2158,16 +2158,15 @@
       <div id="catalog-panel" class="tab-panel hidden">
         {% if not catalog_enabled %}
         <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 dark:bg-yellow-800 dark:border-yellow-400 dark:text-yellow-200">
-          <p class="font-bold">Catalog is currently disabled</p>
-          <p class="text-sm">Set <code>MCPGATEWAY_CATALOG_ENABLED=true</code> to enable catalog-backed server operations.</p>
+          <p class="font-bold">{{ t('servers.list.catalogDisabled') }}</p>
+          <p class="text-sm">Set <code>MCPGATEWAY_CATALOG_ENABLED=true</code> {{ t('servers.list.catalogDisabledHintTail') }}</p>
         </div>
         {% endif %}
         <div class="flex justify-between items-center mb-4">
           <div class="flex items-center space-x-10">
-            <h2 class="text-2xl font-bold dark:text-gray-200">Virtual MCP Servers</h2>
+            <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('servers.list.title') }}</h2>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Virtual Servers let you combine Tools, Resources, and Prompts into
-              an MCP Server with its own API key (see API Tokens).
+              {{ t('servers.list.intro') }}
             </p>
           </div>
           <div class="flex items-center">
@@ -2191,7 +2190,7 @@
             <label
               for="show-inactive-servers"
               class="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >Show Inactive</label
+              >{{ t('servers.list.showInactive') }}</label
             >
           </div>
         </div>
@@ -2208,7 +2207,7 @@
                   type="text"
                   id="servers-search-input"
                   data-testid="search-input"
-                  placeholder="Search servers..."
+                  placeholder="{{ t('servers.list.searchPlaceholder') }}"
                   class="w-64 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   data-action-input="filterServerTable"
                 />
@@ -2219,7 +2218,7 @@
                 id="catalog-clear-search"
                 data-action-click="clearSearch" data-arg0="catalog"
                 class="px-2 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors">
-                Clear
+                {{ t('common.actions.clear') }}
               </button>
               <span id="servers-filter-status" class="text-sm text-gray-500 dark:text-gray-400" aria-live="polite" role="status"></span>
             </div>
@@ -2261,7 +2260,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span class="ml-2 text-gray-600 dark:text-gray-400">Loading servers...</span>
+              <span class="ml-2 text-gray-600 dark:text-gray-400">{{ t('servers.states.loading') }}</span>
             </div>
           </div>
 
@@ -2616,7 +2615,7 @@
         {% if user_permissions.can_create_server %}
         <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
           <h3 class="text-lg font-bold mb-4 dark:text-gray-200">
-            Add New Server
+            {{ t('servers.form.addTitle') }}
           </h3>
           <form
             method="POST"
@@ -2627,24 +2626,23 @@
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Custom UUID (optional)</label
+                  >{{ t('servers.form.customUuid') }}</label
                 >
                 <input
                   type="text"
                   name="id"
-                  placeholder="Leave blank to auto-generate"
+                  placeholder="{{ t('servers.form.customUuidPlaceholder') }}"
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 />
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Provide a custom UUID if you need to preserve an existing
-                  server ID
+                  {{ t('servers.form.customUuidHint') }}
                 </p>
               </div>
               <div class="relative">
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
                   for="server-name"
-                  >Name</label
+                  >{{ t('common.table.name') }}</label
                 >
                 <input
                   type="text"
@@ -2653,12 +2651,12 @@
                   id="server-name"
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 />
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">Name is required.</p>
+                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('servers.form.nameRequired') }}</p>
               </div>
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Description</label
+                  >{{ t('common.table.description') }}</label
                 >
                 <textarea
                   name="description"
@@ -2668,7 +2666,7 @@
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Icon URL</label
+                  >{{ t('servers.form.iconUrl') }}</label
                 >
                 <input
                   type="url"
@@ -2684,12 +2682,12 @@
                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                     for="associatedGateways"
                   >
-                    MCP Servers
+                    {{ t('servers.form.mcpServers') }}
                   </label>
                   <input
                     type="text"
                     id="searchGateways"
-                    placeholder="Search for MCP servers..."
+                    placeholder="{{ t('servers.form.searchMcpServers') }}"
                     class="mb-4 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 dark:bg-gray-900 dark:text-gray-300"
                   />
                   <div
@@ -2701,7 +2699,7 @@
                   >
                     <!-- Gateway checkboxes will be loaded here via HTMX -->
                     <div class="flex items-center justify-center p-4">
-                      <span class="text-gray-500 dark:text-gray-400 text-sm">Loading MCP servers...</span>
+                      <span class="text-gray-500 dark:text-gray-400 text-sm">{{ t('servers.states.loadingMcpServers') }}</span>
                     </div>
                   </div>
                   <p
@@ -2709,30 +2707,30 @@
                     class="text-gray-700 dark:text-gray-300 mt-2"
                     style="display: none"
                   >
-                    No MCP server found containing "<span id="searchQueryServers"></span>"
+                    {{ t('servers.form.noMcpServerMatch') }} "<span id="searchQueryServers"></span>"
                   </p>
                   <div class="flex justify-end mt-3 gap-2">
                     <button
                       type="button"
                       id="selectAllGatewayBtn"
                       class="px-3 py-1 text-sm font-semibold text-green-600 border border-green-600 rounded-md hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-1"
-                      aria-label="Select all MCP servers"
+                      aria-label="{{ t('servers.form.selectAllMcpServersAria') }}"
                     >
-                      Select All
+                      {{ t('common.actions.selectAll') }}
                     </button>
 
                     <button
                       type="button"
                       id="clearAllGatewayBtn"
                       class="px-3 py-1 text-sm font-semibold text-red-600 border border-red-600 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
-                      aria-label="Clear all selected MPC servers"
+                      aria-label="{{ t('servers.form.clearAllMcpServersAria') }}"
                     >
-                      Clear All
+                      {{ t('common.actions.clearAll') }}
                     </button>
                   </div>
 
                   <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                    Choose an MCP server, then select the tools, resources, and prompts to configure your virtual server.
+                    {{ t('servers.form.mcpServerHint') }}
                   </p>
 
                   <!-- Selected pills -->
@@ -2757,19 +2755,19 @@
                       class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
                       for="associatedTools"
                     >
-                      Associated Tools
+                      {{ t('servers.form.associatedTools') }}
                     </label>
                     <button
                       type="button"
                       data-action-click="refreshToolsForSelectedGateways" data-arg0="this"
                       class="px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400 border border-green-600 dark:border-green-500 rounded-md hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
-                      x-tooltip="'Re-fetch tools from selected MCP gateways and reload this list'"
-                    >Refresh from MCPs</button>
+                      x-tooltip="'{{ t('servers.form.refreshFromMcpsTooltip') }}'"
+                    >{{ t('servers.form.refreshFromMcps') }}</button>
                   </div>
                   <input
                     type="text"
                     id="searchTools"
-                    placeholder="Search for tools..."
+                    placeholder="{{ t('servers.form.searchTools') }}"
                     class="mb-4 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 dark:bg-gray-900 dark:text-gray-300"
                   />
                   <div
@@ -2785,7 +2783,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      <span class="ml-2">Loading tools...</span>
+                      <span class="ml-2">{{ t('tools.states.loading') }}</span>
                     </div>
                   </div>
                   <p
@@ -2793,25 +2791,25 @@
                     class="text-gray-700 dark:text-gray-300 mt-2"
                     style="display: none"
                   >
-                    No tool found containing "<span id="searchQueryTools"></span>"
+                    {{ t('servers.form.noToolMatch') }} "<span id="searchQueryTools"></span>"
                   </p>
                   <div class="flex justify-end mt-3 gap-2">
                     <button
                       type="button"
                       id="selectAllToolsBtn"
                       class="px-3 py-1 text-sm font-semibold text-green-600 border border-green-600 rounded-md hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-1"
-                      aria-label="Select all tools"
+                      aria-label="{{ t('servers.form.selectAllToolsAria') }}"
                     >
-                      Select All
+                      {{ t('common.actions.selectAll') }}
                     </button>
 
                     <button
                       type="button"
                       id="clearAllToolsBtn"
                       class="px-3 py-1 text-sm font-semibold text-red-600 border border-red-600 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
-                      aria-label="Clear all selected tools"
+                      aria-label="{{ t('servers.form.clearAllToolsAria') }}"
                     >
-                      Clear All
+                      {{ t('common.actions.clearAll') }}
                     </button>
                   </div>
 
@@ -2835,12 +2833,12 @@
                   class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                   for="associatedResources"
                 >
-                  Associated Resources
+                  {{ t('servers.form.associatedResources') }}
                 </label>
                 <input
                   type="text"
                   id="searchResources"
-                  placeholder="Search for resources..."
+                  placeholder="{{ t('servers.form.searchResources') }}"
                   class="mb-4 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 dark:bg-gray-900 dark:text-gray-300"
                 />
                 <div
@@ -2856,7 +2854,7 @@
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span class="ml-2">Loading resources...</span>
+                    <span class="ml-2">{{ t('resources.states.loading') }}</span>
                   </div>
                 </div>
                 <p
@@ -2871,17 +2869,17 @@
                     type="button"
                     id="selectAllResourcesBtn"
                     class="px-3 py-1 text-sm font-semibold text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1"
-                    aria-label="Select all resources"
+                    aria-label="{{ t('servers.form.selectAllResourcesAria') }}"
                   >
-                    Select All
+                    {{ t('common.actions.selectAll') }}
                   </button>
                   <button
                     type="button"
                     id="clearAllResourcesBtn"
                     class="px-3 py-1 text-sm font-semibold text-red-600 border border-red-600 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
-                    aria-label="Clear all selected resources"
+                    aria-label="{{ t('servers.form.clearAllResourcesAria') }}"
                   >
-                    Clear All
+                    {{ t('common.actions.clearAll') }}
                   </button>
                 </div>
                 <!-- Selected pills -->
@@ -2901,12 +2899,12 @@
                   class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                   for="associatedPrompts"
                 >
-                  Associated Prompts
+                  {{ t('servers.form.associatedPrompts') }}
                 </label>
                 <input
                   type="text"
                   id="searchPrompts"
-                  placeholder="Search for prompts..."
+                  placeholder="{{ t('servers.form.searchPrompts') }}"
                   class="mb-4 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 dark:bg-gray-900 dark:text-gray-300"
                 />
                 <div
@@ -2922,7 +2920,7 @@
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span class="ml-2">Loading prompts...</span>
+                    <span class="ml-2">{{ t('prompts.states.loading') }}</span>
                   </div>
                 </div>
                 <p
@@ -2937,17 +2935,17 @@
                     type="button"
                     id="selectAllPromptsBtn"
                     class="px-3 py-1 text-sm font-semibold text-purple-600 border border-purple-600 rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-offset-1"
-                    aria-label="Select all prompts"
+                    aria-label="{{ t('servers.form.selectAllPromptsAria') }}"
                   >
-                    Select All
+                    {{ t('common.actions.selectAll') }}
                   </button>
                   <button
                     type="button"
                     id="clearAllPromptsBtn"
                     class="px-3 py-1 text-sm font-semibold text-red-600 border border-red-600 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
-                    aria-label="Clear all selected prompts"
+                    aria-label="{{ t('servers.form.clearAllPromptsAria') }}"
                   >
-                    Clear All
+                    {{ t('common.actions.clearAll') }}
                   </button>
                 </div>
                 <!-- Selected pills -->
@@ -2975,30 +2973,29 @@
               id="add-server-loading"
               class="hidden text-sm text-gray-500 mt-2"
             >
-              Submitting...
+              {{ t('servers.form.submitting') }}
             </div>
 
             <div>
               <label
                 class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                >Tags</label
+                >{{ t('common.table.tags') }}</label
               >
               <input
                 type="text"
                 name="tags"
-                placeholder="e.g., development,production,api-gateway (comma-separated)"
+                placeholder="{{ t('servers.form.tagsPlaceholder') }}"
                 class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
               />
               <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Enter tags separated by commas. Tags help categorize and filter
-                servers.
+                {{ t('servers.form.tagsHint') }}
               </p>
             </div>
             <!-- Visibility options -->
             <div class="mt-4">
               <label
                 class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                >Visibility</label
+                >{{ t('common.table.visibility') }}</label
               >
               <div class="flex gap-x-6 mt-2">
                 <!-- Add gap-x-6 for more space between radio options -->
@@ -3015,7 +3012,7 @@
                   <label
                     for="server-visibility-public"
                     class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >🌍Public</label
+                    >{{ t('servers.form.visibilityPublic') }}</label
                   >
                 </div>
 
@@ -3030,7 +3027,7 @@
                   <label
                     for="server-visibility-team"
                     class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >👥Team</label
+                    >{{ t('servers.form.visibilityTeam') }}</label
                   >
                 </div>
                 <div class="flex items-center">
@@ -3044,7 +3041,7 @@
                   <label
                     for="server-visibility-private"
                     class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >🔒Private</label
+                    >{{ t('servers.form.visibilityPrivate') }}</label
                   >
                 </div>
               </div>
@@ -3062,11 +3059,11 @@
                 <label
                   for="add-server-view-public"
                   class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >View Public &mdash; Include publicly available MCP servers, tools, resources, and prompts</label
+                  >{{ t('servers.form.viewPublic') }}</label
                 >
               </div>
               <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                When enabled, public items from across the platform are shown alongside your team's items in the selectors below.
+                {{ t('servers.form.viewPublicHint') }}
               </p>
             </div>
             {% endif %}
@@ -3084,11 +3081,11 @@
                 <label
                   for="server-oauth-enabled"
                   class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Enable OAuth 2.0 for MCP Client Authentication</label
+                  >{{ t('servers.form.enableOauth') }}</label
                 >
               </div>
               <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                When enabled, MCP clients can authenticate using browser-based OAuth/SSO per RFC 9728.
+                {{ t('servers.form.enableOauthHint') }}
               </p>
 
               <!-- OAuth Configuration Fields (hidden by default) -->
@@ -3097,7 +3094,7 @@
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-400"
                     for="server-oauth-authorization-server"
-                    >Authorization Server URL</label
+                    >{{ t('servers.form.authServerUrl') }}</label
                   >
                   <input
                     type="url"
@@ -3107,14 +3104,14 @@
                     class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                   />
                   <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    The OAuth 2.0 authorization server URL (e.g., your Identity Provider)
+                    {{ t('servers.form.authServerUrlHint') }}
                   </p>
                 </div>
                 <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-400"
                     for="server-oauth-scopes"
-                    >Scopes (space-separated)</label
+                    >{{ t('servers.form.scopes') }}</label
                   >
                   <input
                     type="text"
@@ -3124,14 +3121,14 @@
                     class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                   />
                   <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    OAuth scopes to request (e.g., openid profile email)
+                    {{ t('servers.form.scopesHint') }}
                   </p>
                 </div>
                 <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-400"
                     for="server-oauth-token-endpoint"
-                    >Token Endpoint URL (optional)</label
+                    >{{ t('servers.form.tokenEndpointUrl') }}</label
                   >
                   <input
                     type="url"
@@ -3141,7 +3138,7 @@
                     class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                   />
                   <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Leave blank to use standard discovery from authorization server
+                    {{ t('servers.form.tokenEndpointHint') }}
                   </p>
                 </div>
               </div>
@@ -3150,10 +3147,10 @@
             <div class="mt-6">
               <button
                 type="submit"
-                x-tooltip="'💡Creates a new Virtual Server by combining Tools, Resources & Prompts from global catalogs.'"
+                x-tooltip="'💡{{ t('servers.form.submitTooltip') }}'"
                 class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                Add Server
+                {{ t('servers.form.submit') }}
               </button>
             </div>
           </form>
