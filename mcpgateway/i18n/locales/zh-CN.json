@@ -2232,7 +2232,7 @@
   "passwordChange.js.samePassword": "新密码不能与当前密码相同",
   "passwordChange.js.mismatch": "两次输入的密码不一致",
   "login.submitting": "正在登录…",
-  "login.securedBy": "由 AI Gateway 认证提供安全保障",
+  "login.securedBy": "由北京尚云数智科技有限公司提供",
 
   "login.hero.tagline": "MCP 与 AI 网关",
   "login.hero.subtitle": "集安全与可观测性于一体的 MCP、A2A 与 REST 网关",
