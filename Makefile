@@ -482,13 +482,13 @@ dev:
 	@trap 'echo "🛑 Stopping background processes..."; jobs -p | xargs $(XARGS_FLAGS) kill 2>/dev/null || true' EXIT; \
 	$(MAKE) js-build watch-css & \
 	WATCH_CSS_PID=$$!; \
-	TEMPLATES_AUTO_RELOAD=true $(VENV_DIR)/bin/uvicorn mcpgateway.main:app --host 0.0.0.0 --port 8000 --reload --reload-exclude='public/' || { kill $$WATCH_CSS_PID 2>/dev/null || true; exit 1; }
+	TEMPLATES_AUTO_RELOAD=true $(VENV_DIR)/bin/uvicorn mcpgateway.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir mcpgateway || { kill $$WATCH_CSS_PID 2>/dev/null || true; exit 1; }
 
 .PHONY: dev-echo
 dev-echo: js-build               ## Run dev server with SQL query logging enabled
 	@echo "🔍 Starting dev server with SQL query logging (N+1 detection)"
 	@echo "   Docs: docs/docs/development/db-performance.md"
-	@SQLALCHEMY_ECHO=true TEMPLATES_AUTO_RELOAD=true $(VENV_DIR)/bin/uvicorn mcpgateway.main:app --host 0.0.0.0 --port 8000 --reload --reload-exclude='public/'
+	@SQLALCHEMY_ECHO=true TEMPLATES_AUTO_RELOAD=true $(VENV_DIR)/bin/uvicorn mcpgateway.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir mcpgateway
 
 dev-remote: DEBUG_IP = 127.0.0.1
 dev-remote: DEBUG_WAIT = --wait-for-client
@@ -497,13 +497,13 @@ dev-remote: js-build             ## Run dev server with remote debugging (debugp
 		--listen $(DEBUG_IP):5678 \
 		$(DEBUG_WAIT) \
 		$(VENV_DIR)/bin/uvicorn mcpgateway.main:app \
-		--host 0.0.0.0 --port 8000 --reload --reload-exclude='public/'
+		--host 0.0.0.0 --port 8000 --reload --reload-dir mcpgateway
 
 stop:                            ## Stop all mcpgateway server processes
 	@echo "Stopping all mcpgateway processes..."
 	@if [ -f /tmp/mcpgateway-gunicorn.lock ]; then kill -9 $$(cat /tmp/mcpgateway-gunicorn.lock) 2>/dev/null || true; rm -f /tmp/mcpgateway-gunicorn.lock; fi
 	@lsof -ti:8000 2>/dev/null | xargs $(XARGS_FLAGS) kill -9 || true
-	@lsof -ti:4444 2>/dev/null | xargs $(XARGS_FLAGS) kill -9 || true
+	@pkill -9 -f 'gunicorn.*mcpgateway.main:app' 2>/dev/null || true
 	@echo "Done."
 # -----------------------------------------------------------------------------
 # 🎨 CSS BUILD TARGETS
@@ -536,7 +536,7 @@ stop-dev:                        ## Stop uvicorn dev server (port 8000)
 
 stop-serve:                      ## Stop gunicorn production server (port 4444)
 	@if [ -f /tmp/mcpgateway-gunicorn.lock ]; then kill -9 $$(cat /tmp/mcpgateway-gunicorn.lock) 2>/dev/null || true; rm -f /tmp/mcpgateway-gunicorn.lock; fi
-	@lsof -ti:4444 2>/dev/null | xargs $(XARGS_FLAGS) kill -9 || true
+	@pkill -9 -f 'gunicorn.*mcpgateway.main:app' 2>/dev/null || true
 
 run: js-build
 	./run.sh

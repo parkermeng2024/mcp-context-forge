@@ -87,6 +87,39 @@ tls_args() {
     [[ "$output" != *"FATAL"* ]]
 }
 
+# --- Environment selection ---------------------------------------------------
+
+@test "a VIRTUAL_ENV that does not resolve is ignored, not trusted" {
+    # A venv copied from another machine (e.g. a devcontainer at /workspaces/...)
+    # leaves VIRTUAL_ENV set to a path that does not exist here. The launcher
+    # must fall back to its own .venv rather than export that broken path onto
+    # PATH, which would make `command -v gunicorn` fail.
+    #
+    # The launcher is copied next to a stub .venv so the fallback target is the
+    # stub, not the repository's real environment - which would shadow the stub
+    # gunicorn and start a real server.
+    cp "${REPO_ROOT}/run-gunicorn.sh" "${TMP_DIR}/run-gunicorn.sh"
+    mkdir -p "${TMP_DIR}/.venv/bin"
+    ln -s "$(command -v python3)" "${TMP_DIR}/.venv/bin/python"
+    cat > "${TMP_DIR}/.venv/bin/activate" <<EOF
+VIRTUAL_ENV="${TMP_DIR}/.venv"
+export VIRTUAL_ENV
+EOF
+
+    run env \
+        PATH="${TMP_DIR}/bin:${PATH}" \
+        VIRTUAL_ENV="/workspaces/some-other-machine/OME/.venv/mcpgateway" \
+        LOCK_FILE="${TMP_DIR}/gunicorn.lock" \
+        GUNICORN_WORKERS=2 \
+        "${TMP_DIR}/run-gunicorn.sh"
+
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"does not resolve to a working environment"* ]]
+    [[ "$output" == *"Activating virtual environment in script directory"* ]]
+    [[ "$output" == *"STUB_GUNICORN_ARGS:"* ]]
+    [[ "$output" != *"gunicorn command not found"* ]]
+}
+
 # --- Happy path --------------------------------------------------------------
 
 @test "CA_CERTS with CERT_REQS=2 passes both flags to gunicorn" {
