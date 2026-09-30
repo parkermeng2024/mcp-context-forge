@@ -11610,7 +11610,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               class="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
             >
               <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Agent Details
+                {{ t('a2a.detail.title') }}
               </h3>
               <div
                 class="mt-4 space-y-4 bg-white dark:bg-gray-400"
@@ -11625,7 +11625,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 data-action-click="closeModal" data-arg0="agent-modal"
                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:text-gray-300"
               >
-                Close
+                {{ t('common.actions.close') }}
               </button>
             </div>
           </div>
@@ -11641,7 +11641,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
           class="bg-white dark:bg-gray-900 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg shadow-lg p-6"
         >
           <h2 id="a2a-test-modal-title" class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">
-            Test A2A Agent
+            {{ t('a2a.test.title') }}
           </h2>
           <p id="a2a-test-modal-description" class="text-sm text-gray-600 dark:text-gray-400 mb-4"></p>
 
@@ -11653,18 +11653,18 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               <label
                 for="a2a-test-query"
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >Query</label>
+              >{{ t('a2a.test.query') }}</label>
               <textarea
                 required
                 name="query"
                 id="a2a-test-query"
                 rows="4"
                 class="mt-1 px-3 py-2 block w-full rounded-md shadow-sm p-2 bg-gray-200 dark:bg-gray-800"
-                placeholder="Enter your query (e.g., calc: 5*10+2 or weather: Dallas)"
+                placeholder="{{ t('a2a.test.queryPlaceholder') }}"
                 aria-describedby="a2a-test-query-help"
-              >Hello from ContextForge Admin UI test!</textarea>
+              >{{ t('a2a.test.queryDefault') }}</textarea>
               <p id="a2a-test-query-help" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Enter the message/query to send to the A2A agent
+                {{ t('a2a.test.queryHint') }}
               </p>
             </div>
 
@@ -11674,14 +11674,14 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 id="a2a-test-submit"
                 class="flex-1 text-center px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
               >
-                Test Agent
+                {{ t('a2a.test.submit') }}
               </button>
               <button
                 id="a2a-test-close"
                 type="button"
                 class="flex-1 text-center px-3 py-2 border border-blue-600 rounded bg-white text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300"
               >
-                Close
+                {{ t('common.actions.close') }}
               </button>
             </div>
 
@@ -11692,12 +11692,12 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               <div
                 class="spinner border-t-4 border-blue-600 w-6 h-6 rounded-full animate-spin"
                 role="status"
-                aria-label="Testing agent, please wait"
+                aria-label="{{ t('a2a.test.loadingAria') }}"
               ></div>
             </div>
 
             <div id="a2a-test-result" class="hidden mt-4">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Response</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('a2a.test.response') }}</label>
               <div
                 id="a2a-test-response-json"
                 class="bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto text-sm text-gray-800 dark:text-gray-100 max-h-64"
@@ -11727,10 +11727,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               <h3
                 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4"
               >
-                Export Configuration for <span id="server-name-display"></span>
+                {{ t('a2a.config.exportFor') }} <span id="server-name-display"></span>
               </h3>
               <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                Choose the configuration format for your MCP client:
+                {{ t('a2a.config.chooseFormat') }}
               </p>
 
               <div class="space-y-3">
@@ -11742,10 +11742,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   <span class="text-2xl mr-3">🌐</span>
                   <div>
                     <div class="font-medium text-gray-900 dark:text-gray-100">
-                      SSE (LangChain, LlamaIndex)
+                      {{ t('a2a.config.sseLabel') }}
                     </div>
                     <div class="text-sm text-gray-500 dark:text-gray-400">
-                      For frameworks supporting Server-Sent Events transport
+                      {{ t('a2a.config.sseHint') }}
                     </div>
                   </div>
                 </button>
@@ -11758,10 +11758,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   <span class="text-2xl mr-3">🔗</span>
                   <div>
                     <div class="font-medium text-gray-900 dark:text-gray-100">
-                      HTTP (REST clients)
+                      {{ t('a2a.config.httpLabel') }}
                     </div>
                     <div class="text-sm text-gray-500 dark:text-gray-400">
-                      For REST clients and HTTP-based MCP integrations
+                      {{ t('a2a.config.httpHint') }}
                     </div>
                   </div>
                 </button>
@@ -11775,7 +11775,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 data-action-click="closeModal" data-arg0="config-selection-modal"
                 class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:w-auto sm:text-sm dark:text-gray-300"
               >
-                Cancel
+                {{ t('common.actions.cancel') }}
               </button>
             </div>
           </div>
@@ -11803,13 +11803,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 <h3
                   class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                  <span id="config-display-title">Client Configuration</span>
+                  <span id="config-display-title">{{ t('a2a.config.title') }}</span>
                 </h3>
                 <button
                   data-action-click="copyConfigToClipboard"
                   class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  📋 Copy to Clipboard
+                  📋 {{ t('a2a.config.copy') }}
                 </button>
               </div>
 
@@ -11820,7 +11820,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 <div
                   class="bg-gray-100 dark:bg-gray-800 rounded p-2 text-xs text-gray-600 dark:text-gray-400"
                 >
-                  <strong>Usage:</strong> <span id="config-usage"></span>
+                  <strong>{{ t('a2a.config.usage') }}</strong> <span id="config-usage"></span>
                 </div>
               </div>
 
@@ -11828,7 +11828,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  Configuration JSON:
+                  {{ t('a2a.config.jsonLabel') }}
                 </label>
                 <div class="relative">
                   <textarea
@@ -11847,20 +11847,20 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 data-action-click="downloadConfig"
                 class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
               >
-                💾 Download JSON
+                💾 {{ t('a2a.config.download') }}
               </button>
               <button
                 data-action-click="goBackToSelection"
                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:text-gray-300"
               >
-                ← Back
+                ← {{ t('common.actions.back') }}
               </button>
               <button
                 type="button"
                 data-action-click="closeModal" data-arg0="config-display-modal"
                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:text-gray-300"
               >
-                Close
+                {{ t('common.actions.close') }}
               </button>
             </div>
           </div>
