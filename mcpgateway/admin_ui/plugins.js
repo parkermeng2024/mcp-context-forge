@@ -1,15 +1,16 @@
 import { safeGetElement } from "./utils.js";
+import { t } from "./i18n.js";
 
 const MODE_LABEL = {
-  enforce: "Sequential (Enforce)",
-  sequential: "Sequential (Enforce)",
-  enforce_ignore_error: "Sequential (Ignore Error)",
-  permissive: "Transform (Permissive)",
-  transform: "Transform (Permissive)",
-  concurrent: "Concurrent",
-  audit: "Audit",
-  fire_and_forget: "Fire And Forget",
-  disabled: "Disabled",
+  enforce: t("plugins.mode.enforce"),
+  sequential: t("plugins.mode.enforce"),
+  enforce_ignore_error: t("plugins.mode.enforceIgnoreError"),
+  permissive: t("plugins.mode.transform"),
+  transform: t("plugins.mode.transform"),
+  concurrent: t("plugins.mode.concurrent"),
+  audit: t("plugins.mode.audit"),
+  fire_and_forget: t("plugins.mode.fireAndForget"),
+  disabled: t("plugins.mode.disabled"),
 };
 
 const MODE_CSS = {
@@ -68,7 +69,7 @@ const appendBadgeListSection = function (
 const getModeLabel = function (mode) {
   return (
     MODE_LABEL[mode] ||
-    (mode || "unknown")
+    (mode || t("plugins.mode.unknown"))
       .replace(/_/g, " ")
       .replace(/\b\w/g, (c) => c.toUpperCase())
   );
@@ -359,7 +360,7 @@ export const showPluginDetails = async function (pluginName) {
   modalContent.textContent = "";
   const loading = document.createElement("div");
   loading.className = "text-center py-4";
-  loading.textContent = "Loading...";
+  loading.textContent = t("plugins.details.loading");
   modalContent.appendChild(loading);
   modal.classList.remove("hidden");
 
@@ -390,21 +391,29 @@ export const showPluginDetails = async function (pluginName) {
 
     appendTextSection(
       content,
-      "Description",
-      plugin.description || "No description available"
+      t("plugins.details.description"),
+      plugin.description || t("plugins.details.noDescription")
     );
 
     const authorVersionGrid = document.createElement("div");
     authorVersionGrid.className = "grid grid-cols-2 gap-4";
-    appendTextSection(authorVersionGrid, "Author", plugin.author || "Unknown");
-    appendTextSection(authorVersionGrid, "Version", plugin.version || "0.0.0");
+    appendTextSection(
+      authorVersionGrid,
+      t("plugins.details.author"),
+      plugin.author || t("common.unknown")
+    );
+    appendTextSection(
+      authorVersionGrid,
+      t("plugins.details.version"),
+      plugin.version || "0.0.0"
+    );
     content.appendChild(authorVersionGrid);
 
     const modePriorityGrid = document.createElement("div");
     modePriorityGrid.className = "grid grid-cols-2 gap-4";
 
     const modeSection = document.createElement("div");
-    appendHeading(modeSection, "Mode");
+    appendHeading(modeSection, t("plugins.details.mode"));
     const modeText = document.createElement("p");
     modeText.className = "mt-1";
     const modeBadge = document.createElement("span");
@@ -416,25 +425,25 @@ export const showPluginDetails = async function (pluginName) {
     modeSection.appendChild(modeText);
     modePriorityGrid.appendChild(modeSection);
 
-    appendTextSection(modePriorityGrid, "Priority", plugin.priority);
+    appendTextSection(modePriorityGrid, t("plugins.details.priority"), plugin.priority);
     content.appendChild(modePriorityGrid);
 
     appendBadgeListSection(
       content,
-      "Hooks",
+      t("plugins.details.hooks"),
       plugin.hooks,
       "px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded"
     );
     appendBadgeListSection(
       content,
-      "Tags",
+      t("plugins.details.tags"),
       plugin.tags,
       "px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded"
     );
 
     if (plugin.config && Object.keys(plugin.config).length > 0) {
       const configSection = document.createElement("div");
-      appendHeading(configSection, "Configuration");
+      appendHeading(configSection, t("plugins.details.configuration"));
       const config = document.createElement("pre");
       config.className =
         "mt-1 p-2 bg-gray-50 dark:bg-gray-800 rounded text-xs overflow-x-auto";
@@ -452,7 +461,7 @@ export const showPluginDetails = async function (pluginName) {
       "bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded";
     const label = document.createElement("strong");
     label.className = "font-bold";
-    label.textContent = "Error:";
+    label.textContent = t("plugins.details.error");
     const message = document.createElement("span");
     message.className = "block sm:inline";
     message.textContent = error.message;

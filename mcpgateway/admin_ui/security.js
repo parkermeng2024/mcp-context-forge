@@ -278,13 +278,13 @@ export function validateUrl(url, label = "") {
     if (!allowedProtocols.includes(urlObj.protocol)) {
       return {
         valid: false,
-        error: "Use http or https for the URL.",
+        error: t("security.url.protocol"),
       };
     }
 
     return { valid: true, value: url };
   } catch (error) {
-    return { valid: false, error: "Enter a complete URL, for example https://example.com." };
+    return { valid: false, error: t("security.url.incomplete") };
   }
 }
 

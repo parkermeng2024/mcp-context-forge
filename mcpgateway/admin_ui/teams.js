@@ -536,7 +536,7 @@ export const rejectJoinRequest = async function (teamId, requestId) {
     }
 
     // Show success message
-    showSuccessMessage("Join request rejected.");
+    showSuccessMessage(t("teams.joinRequest.rejected"));
 
     // Refresh teams list
     const teamsList = safeGetElement("unified-teams-list");

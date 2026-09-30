@@ -558,10 +558,10 @@ const showTokenCreatedModal = function (tokenData) {
                             </div>
                             <div class="ml-3">
                                 <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                                    Important: Save your token now!
+                                    ${t("tokens.created.important")}
                                 </h3>
                                 <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                                    This is the only time you will be able to see this token. Make sure to save it in a secure location.
+                                    ${t("tokens.created.saveWarning")}
                                 </div>
                             </div>
                         </div>
@@ -598,7 +598,7 @@ const showTokenCreatedModal = function (tokenData) {
                             data-dismiss-token-modal
                             class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         >
-                            I've Saved It
+                            ${t("tokens.created.saved")}
                         </button>
                     </div>
                 </div>
@@ -772,7 +772,7 @@ export const showUsageStatsModal = function (stats) {
                         data-action="close-stats-modal"
                         class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
                     >
-                        Close
+                        ${t("common.actions.close")}
                     </button>
                 </div>
             </div>
@@ -833,14 +833,14 @@ export const getTeamNameById = function (teamId) {
 export const showTokenDetailsModal = function (token) {
   const formatDate = (dateStr) => {
     if (!dateStr) {
-      return "Never";
+      return t("common.never");
     }
     return new Date(dateStr).toLocaleString();
   };
 
   const formatList = (list) => {
     if (!list || list.length === 0) {
-      return "None";
+      return t("common.none");
     }
     return list
       .map((item) => `<li class="ml-4">• ${escapeHtml(item)}</li>`)
@@ -849,7 +849,7 @@ export const showTokenDetailsModal = function (token) {
 
   const formatJson = (obj) => {
     if (!obj || Object.keys(obj).length === 0) {
-      return "None";
+      return t("common.none");
     }
     return `<pre class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-xs overflow-x-auto">${escapeHtml(JSON.stringify(obj, null, 2))}</pre>`;
   };
@@ -858,7 +858,7 @@ export const showTokenDetailsModal = function (token) {
   const statusClass = token.is_active
     ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
     : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100";
-  const statusText = token.is_active ? "Active" : "Inactive";
+  const statusText = token.is_active ? t("common.active") : t("common.inactive");
 
   const modal = document.createElement("div");
   modal.className =
@@ -1010,7 +1010,7 @@ export const showTokenDetailsModal = function (token) {
                         data-action="close-modal"
                         class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
                     >
-                        Close
+                        ${t("common.actions.close")}
                     </button>
                 </div>
             </div>

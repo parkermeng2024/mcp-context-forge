@@ -582,7 +582,7 @@ export const saveLLMProvider = async function (event) {
     refreshLLMProviders();
   } catch (error) {
     console.error("Error saving provider:", error);
-    showToast(error.message || "Failed to save provider", "error");
+    showToast(error.message || t("llm.providers.saveFailed"), "error");
   }
 };
 
@@ -619,7 +619,7 @@ export const deleteLLMProvider = async function (providerId, providerName) {
     refreshLLMProviders();
   } catch (error) {
     console.error("Error deleting provider:", error);
-    showToast(error.message || "Failed to delete provider", "error");
+    showToast(error.message || t("llm.providers.deleteFailed"), "error");
   }
 };
 
@@ -942,7 +942,7 @@ export const saveLLMModel = async function (event) {
     refreshLLMModels();
   } catch (error) {
     console.error("Error saving model:", error);
-    showToast(error.message || "Failed to save model", "error");
+    showToast(error.message || t("llm.models.saveFailed"), "error");
   }
 };
 
@@ -972,7 +972,7 @@ export const deleteLLMModel = async function (modelId, modelName) {
     refreshLLMModels();
   } catch (error) {
     console.error("Error deleting model:", error);
-    showToast(error.message || "Failed to delete model", "error");
+    showToast(error.message || t("llm.models.deleteFailed"), "error");
   }
 };
 
@@ -1086,7 +1086,7 @@ export const llmApiInfoApp = function () {
             this.testSuccess = false;
             this.testMetrics = {
               httpStatus: 400,
-              httpStatusText: "Bad Request",
+              httpStatusText: t("llm.models.http.badRequest"),
             };
             return;
           }
@@ -1137,7 +1137,7 @@ export const llmApiInfoApp = function () {
         this.testSuccess = false;
         this.testMetrics = {
           httpStatus: 0,
-          httpStatusText: "Network Error",
+          httpStatusText: t("llm.models.http.networkError"),
         };
       } finally {
         this.testing = false;

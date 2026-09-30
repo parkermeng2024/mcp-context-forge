@@ -190,7 +190,7 @@ export const renderGlobalSearchResults = function (payload) {
   );
 
   if (visibleGroups.length === 0) {
-    renderGlobalSearchMessage("No matching results.");
+    renderGlobalSearchMessage(t("search.noResults"));
     return;
   }
 
@@ -254,11 +254,11 @@ export const runGlobalSearch = async function (query) {
   const requestId = ++globalSearchRequestId;
 
   if (!normalizedQuery) {
-    renderGlobalSearchMessage("Start typing to search all entities.");
+    renderGlobalSearchMessage(t("search.startTyping"));
     return;
   }
 
-  renderGlobalSearchMessage("Searching...");
+  renderGlobalSearchMessage(t("search.searching"));
   const params = new URLSearchParams();
   params.set("q", normalizedQuery);
   params.set("limit_per_type", "8");
@@ -280,7 +280,7 @@ export const runGlobalSearch = async function (query) {
     return !getUiHiddenSections().has(entityType);
   });
   if (visibleEntityTypes.length === 0) {
-    renderGlobalSearchMessage("No searchable sections are visible.");
+    renderGlobalSearchMessage(t("search.noSections"));
     return;
   }
   params.set("entity_types", visibleEntityTypes.join(","));
@@ -311,7 +311,7 @@ export const runGlobalSearch = async function (query) {
       return;
     }
     console.error("Error running global search:", error);
-    renderGlobalSearchMessage("Search failed. Please try again.");
+    renderGlobalSearchMessage(t("search.failed"));
   }
 };
 
@@ -328,7 +328,7 @@ export const openGlobalSearchModal = function () {
   if (input.value.trim()) {
     runGlobalSearch(input.value);
   } else {
-    renderGlobalSearchMessage("Start typing to search all entities.");
+    renderGlobalSearchMessage(t("search.startTyping"));
   }
 };
 

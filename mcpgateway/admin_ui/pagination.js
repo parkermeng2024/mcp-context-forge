@@ -14,6 +14,7 @@
 
 import { AppState } from "./appState";
 import { safeReplaceState } from "./security";
+import { t } from "./i18n.js";
 
 export function paginationData() {
   return {
@@ -246,14 +247,18 @@ export function paginationData() {
 
     // Returns a plain string for x-text binding (avoids template literals in CSP build).
     pageInfoText() {
-      if (this.totalItems === 0) return "No items found";
-      if (this.pageItems === 0) return "No items on this page";
+      if (this.totalItems === 0) return t("pagination.noItems");
+      if (this.pageItems === 0) return t("pagination.noItemsOnPage");
       const start = Math.min((this.currentPage - 1) * this.perPage + 1, this.totalItems);
       const end =
         this.pageItems !== null
           ? Math.min((this.currentPage - 1) * this.perPage + this.pageItems, this.totalItems)
           : Math.min(this.currentPage * this.perPage, this.totalItems);
-      return "Showing " + start + " - " + end + " of " + this.totalItems.toLocaleString() + " items";
+      return t("pagination.showing", {
+        start,
+        end,
+        total: this.totalItems.toLocaleString(),
+      });
     },
   };
 }

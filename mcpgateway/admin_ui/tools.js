@@ -3790,6 +3790,8 @@ export const invokeTool = async function (toolName) {
     }
   } catch (error) {
     console.error("Error invoking tool:", error);
-    showErrorMessage("Failed to open tool test modal: " + error.message);
+    showErrorMessage(
+      t("tools.test.openFailed", { error: error.message })
+    );
   }
 };

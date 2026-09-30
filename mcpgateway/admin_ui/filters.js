@@ -1,6 +1,7 @@
 import { PANEL_SEARCH_CONFIG } from "./constants.js";
 import { getSelectedGatewayIds } from "./gateways.js";
 import { safeGetElement } from "./utils.js";
+import { t } from "./i18n.js";
 
 // ===================================================================
 // SEARCH & FILTERING FUNCTIONS
@@ -430,6 +431,6 @@ export const updateFilterStatus = function () {
     const hasInactive = params.get(prefix + "inactive") === "true";
 
     statusEl.textContent =
-      hasQuery || hasTags || hasInactive ? "Filters active" : "";
+      hasQuery || hasTags || hasInactive ? t("filters.active") : "";
   });
 };

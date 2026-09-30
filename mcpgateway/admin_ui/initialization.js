@@ -766,7 +766,7 @@ export const initializeGlobalSearch = function () {
       if (event.key === "Enter") {
         const currentValue = (input.value || "").trim();
         if (!currentValue) {
-          renderGlobalSearchMessage("Please enter a search term.");
+          renderGlobalSearchMessage(t("search.enterTerm"));
           event.preventDefault();
           return;
         }
@@ -858,7 +858,7 @@ export const initializeTabState = function () {
             console.error("Failed to preload version info:", err);
             const errorDiv = document.createElement("div");
             errorDiv.className = "text-red-600 p-4";
-            errorDiv.textContent = "Failed to load version info.";
+            errorDiv.textContent = t("init.versionLoadFailed");
             panel.innerHTML = "";
             panel.appendChild(errorDiv);
           });
@@ -889,7 +889,7 @@ export const initializeTabState = function () {
             const errorDiv = document.createElement("div");
             errorDiv.className = "text-red-600 p-4";
             errorDiv.textContent =
-              err.message || "Failed to load maintenance panel.";
+              err.message || t("init.maintenanceLoadFailed");
             panel.innerHTML = "";
             panel.appendChild(errorDiv);
           });
@@ -1235,7 +1235,7 @@ export const setupBulkImportModal = function () {
           resultEl.innerHTML = `
                             <div class="mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                                 <p class="font-semibold">${t("importExport.error")}</p>
-                                <p class="text-sm mt-1">${escapeHtml(error.message || "An unexpected error occurred")}</p>
+                                <p class="text-sm mt-1">${escapeHtml(error.message || t("common.error.unexpected"))}</p>
                             </div>
                         `;
         }

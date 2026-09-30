@@ -261,7 +261,7 @@ export const copyConfigToClipboard = async function () {
     console.error("execCommand fallback failed:", error);
   }
 
-  showErrorMessage("Please copy the selected text manually (Ctrl+C)");
+  showErrorMessage(t("common.copyManually"));
 };
 
 /**

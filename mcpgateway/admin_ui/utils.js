@@ -460,7 +460,7 @@ export const copyJsonToClipboard = function (sourceId) {
     () => {
       console.info("JSON copied to clipboard ✔️");
       if (el.dataset.toast !== "off") {
-        showSuccessMessage("Copied!");
+        showSuccessMessage(t("common.actions.copied"));
       }
     },
     (err) => {

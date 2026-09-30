@@ -1208,7 +1208,7 @@ export const cleanupResourceTestModal = function () {
     if (resultBox) {
       resultBox.innerHTML = `
                 <div class="text-gray-500 dark:text-gray-400 italic">
-                    Fill the fields and click Invoke Resource
+                    ${t("resources.test.fillFields")}
                 </div>
             `;
     }

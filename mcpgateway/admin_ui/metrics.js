@@ -333,7 +333,7 @@ export const displayMetrics = function (data, retryCount = 0) {
                 <h3 class="text-lg font-medium mb-2">${t("metrics.empty.title")}</h3>
                 <p class="text-sm">${t("metrics.empty.hint")}</p>
                 <button data-action="retry-metrics" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">
-                    Refresh Metrics
+                    ${t("metrics.empty.refresh")}
                 </button>
             `;
       const refreshBtn = emptyStateDiv.querySelector(
