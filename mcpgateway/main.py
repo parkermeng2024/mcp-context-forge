@@ -106,7 +106,7 @@ from mcpgateway.db import refresh_slugs_on_startup, SessionLocal
 from mcpgateway.db import Tool as DbTool
 from mcpgateway.deprecations import RUST_MCP_RUNTIME_DEPRECATION_MESSAGE, VALIDATION_MIDDLEWARE_DEPRECATION_MESSAGE
 from mcpgateway.handlers.sampling import SamplingError, SamplingHandler
-from mcpgateway.i18n import get_locale as i18n_get_locale, LOCALE_COOKIE_NAME as I18N_LOCALE_COOKIE_NAME, locale_display_names as i18n_locale_display_names, namespace_catalog as i18n_namespace_catalog, t as i18n_t, translated_catalog as i18n_translated_catalog
+from mcpgateway.i18n import locale_display_names as i18n_locale_display_names, register_jinja_globals
 from mcpgateway.middleware.auth_context_stack import register_auth_context_middleware
 from mcpgateway.middleware.client_disconnect import ClientDisconnectMiddleware
 from mcpgateway.middleware.compression import SSEAwareCompressMiddleware
@@ -3669,15 +3669,9 @@ jinja_env.globals["csp_nonce"] = get_csp_nonce_from_request
 # variable that LocaleMiddleware sets, so templates never thread a locale
 # through their context. `i18n_catalog` is embedded once per page and drives the
 # admin UI JavaScript runtime from the same source as the server-rendered text.
-jinja_env.globals["t"] = i18n_t
-jinja_env.globals["current_locale"] = i18n_get_locale
-jinja_env.globals["supported_locales"] = i18n_locale_display_names
-jinja_env.globals["i18n_catalog"] = i18n_translated_catalog
-jinja_env.globals["i18n_ns"] = i18n_namespace_catalog
-
-# The switcher partial renders the cookie name from this constant, so Python and
-# the template cannot drift apart on it.
-jinja_env.globals["locale_cookie_name"] = I18N_LOCALE_COOKIE_NAME
+# Every other environment that renders these templates must call the same
+# helper, or a template that calls `t()` fails with `'t' is undefined`.
+register_jinja_globals(jinja_env)
 
 templates = Jinja2Templates(env=jinja_env)
 if not settings.templates_auto_reload:

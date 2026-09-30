@@ -22610,6 +22610,13 @@ class TestTemplateButtonGating:
             return s
 
         env.filters["tojson_attr"] = tojson_attr
+
+        # Register the i18n globals (same as in main.py) so templates that call
+        # t() render on this standalone environment.
+        # First-Party
+        from mcpgateway.i18n import register_jinja_globals
+
+        register_jinja_globals(env)
         return env
 
     def _render_tools_partial(self, jinja_env, tool_data, current_user_email, is_admin=False, user_team_roles=None):
@@ -25292,6 +25299,11 @@ class TestPaginationSwapStyle:
             return s
 
         env.filters["tojson_attr"] = tojson_attr
+
+        # First-Party
+        from mcpgateway.i18n import register_jinja_globals
+
+        register_jinja_globals(env)
         template = env.get_template("pagination_controls.html")
         ctx = {
             "pagination": {

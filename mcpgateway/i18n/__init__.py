@@ -22,6 +22,9 @@ from contextvars import ContextVar
 import logging
 from typing import Dict, Optional
 
+# Third-Party
+from jinja2 import Environment
+
 # First-Party
 from mcpgateway.i18n.catalog import (  # noqa: F401  (re-exported public names)
     DEFAULT_LOCALE,
@@ -50,6 +53,7 @@ __all__ = [
     "namespace_catalog",
     "normalize_locale",
     "parse_accept_language",
+    "register_jinja_globals",
     "reset_locale",
     "resolve_locale",
     "set_locale",
@@ -209,3 +213,38 @@ def namespace_catalog(prefix: str) -> Dict[str, str]:
         {}
     """
     return {key[len(prefix) :]: value for key, value in translated_catalog().items() if key.startswith(prefix)}
+
+
+def register_jinja_globals(env: Environment) -> None:
+    """Register the i18n helpers as globals on a Jinja environment.
+
+    Every Jinja environment that renders a ContextForge template must call this
+    function, because a template calls ``t()`` unconditionally. The application
+    environment registers the globals at import time. A module that builds its
+    own environment -- the version partial fallback, the email renderer, or a
+    test fixture -- must call this function or the render fails with
+    ``'t' is undefined``.
+
+    Args:
+        env: The ``jinja2.Environment`` to register the globals on.
+
+    Examples:
+        >>> from jinja2 import Environment
+        >>> reset_locale()
+        >>> env = Environment()
+        >>> register_jinja_globals(env)
+        >>> env.globals["t"]("common.actions.save")
+        'Save'
+        >>> set_locale("zh-CN")
+        >>> env.globals["t"]("common.actions.save")
+        '保存'
+        >>> reset_locale()
+    """
+    env.globals["t"] = t
+    env.globals["current_locale"] = get_locale
+    env.globals["supported_locales"] = locale_display_names
+    env.globals["i18n_catalog"] = translated_catalog
+    env.globals["i18n_ns"] = namespace_catalog
+    # The locale switcher renders the cookie name from this value, so Python
+    # and the template cannot drift apart on it.
+    env.globals["locale_cookie_name"] = LOCALE_COOKIE_NAME

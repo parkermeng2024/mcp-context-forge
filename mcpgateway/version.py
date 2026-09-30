@@ -1385,6 +1385,7 @@ async def version_endpoint(
         templates = getattr(request.app.state, "templates", None)
         if templates is None:
             # First-Party
+            from mcpgateway.i18n import register_jinja_globals
             from mcpgateway.utils.csp_nonce import get_csp_nonce_from_request
 
             jinja_env = Environment(
@@ -1395,6 +1396,9 @@ async def version_endpoint(
 
             # Register csp_nonce global for CSP nonce support in templates
             jinja_env.globals["csp_nonce"] = get_csp_nonce_from_request
+            # The partial calls `t()`, so this environment needs the i18n
+            # helpers too. Without them the render fails with 't' is undefined.
+            register_jinja_globals(jinja_env)
             templates = Jinja2Templates(env=jinja_env)
         return templates.TemplateResponse(request, "version_info_partial.html", {"request": request, "payload": payload})
     wants_html = fmt == "html" or "text/html" in request.headers.get("accept", "")
