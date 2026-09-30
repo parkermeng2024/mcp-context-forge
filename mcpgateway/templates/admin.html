@@ -6820,7 +6820,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               <div id="auth-basic-fields-a2a" style="display: none">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >Username</label
+                    >{{ t('common.field.username') }}</label
                   >
                   <input
                     type="text"
@@ -6831,7 +6831,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >Password</label
+                    >{{ t('common.field.password') }}</label
                   >
                   <input
                     type="password"
@@ -6845,7 +6845,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               <div id="auth-bearer-fields-a2a" style="display: none">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >Token</label
+                    >{{ t('common.field.token') }}</label
                   >
                   <input
                     type="password"
@@ -6862,7 +6862,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      Custom Headers
+                      {{ t('a2a.form.customHeaders') }}
                     </label>
                     <button
                       type="button"
@@ -6882,7 +6882,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                           d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                         ></path>
                       </svg>
-                      Add Header
+                      {{ t('gateways.form.addHeader') }}
                     </button>
                   </div>
                   <div id="auth-headers-container-a2a" class="space-y-2">
@@ -6900,15 +6900,14 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               <div id="auth-query_param-fields-a2a" style="display: none">
                 <div class="p-3 mb-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-md">
                   <p class="text-xs text-amber-700 dark:text-amber-400">
-                    <strong>Security Warning:</strong> API keys in URLs may appear in proxy logs, browser history, and server access logs.
-                    Consider using bearer tokens or headers instead (CWE-598).
+                    <strong>{{ t('gateways.form.queryParamWarningTitle') }}</strong> {{ t('gateways.form.queryParamWarning') }}
                   </p>
                 </div>
                 <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    Query Parameter Name
+                    {{ t('gateways.form.queryParamName') }}
                   </label>
                   <input
                     type="text"
@@ -6921,7 +6920,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    Query Parameter Value
+                    {{ t('gateways.form.queryParamValue') }}
                   </label>
                   <div class="relative">
                     <input
@@ -6943,7 +6942,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      Grant Type
+                      {{ t('gateways.form.grantType') }}
                     </label>
                     <select
                       name="oauth_grant_type"
@@ -6951,13 +6950,13 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                     >
                       <option value="authorization_code" selected>
-                        Authorization Code (User Delegation)
+                        {{ t('gateways.form.grantAuthorizationCode') }}
                       </option>
                       <option value="client_credentials">
-                        Client Credentials (Machine-to-Machine)
+                        {{ t('gateways.form.grantClientCredentials') }}
                       </option>
                       <option value="password">
-                        Resource Owner Password Credentials (Keycloak/Legacy)
+                        {{ t('gateways.form.grantPassword') }}
                       </option>
                     </select>
                   </div>
@@ -6966,7 +6965,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      Issuer URL
+                      {{ t('gateways.form.issuerUrl') }}
                     </label>
                     <div class="mt-1 flex gap-2">
                       <input
@@ -6979,11 +6978,11 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                         type="button"
                         data-action-click="discoverOAuthEndpoints" data-arg0="this"
                         class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-md border border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors"
-                        title="Auto-discover token &amp; authorization endpoints from issuer metadata"
-                      >🔍 Discover</button>
+                        title="{{ t('gateways.form.discoverTooltip') }}"
+                      >🔍 {{ t('gateways.form.discover') }}</button>
                     </div>
                     <p class="mt-1 text-sm text-gray-500">
-                      The OAuth Authorization Server issuer URL. Required for DCR (Dynamic Client Registration).
+                      {{ t('gateways.form.issuerHint') }}
                     </p>
                   <div class="oauth-discover-status mt-1 hidden"></div>
                   </div>
@@ -6992,16 +6991,16 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      Client ID <span class="text-gray-500">(optional for DCR)</span>
+                      {{ t('gateways.form.clientId') }} <span class="text-gray-500">{{ t('gateways.form.optionalForDcr') }}</span>
                     </label>
                     <input
                       type="text"
                       name="oauth_client_id"
                       class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      placeholder="Leave empty for auto-registration via DCR"
+                      placeholder="{{ t('gateways.form.dcrPlaceholder') }}"
                     />
                     <p class="mt-1 text-sm text-blue-600">
-                      💡 Leave empty if the server supports DCR - credentials will be auto-registered
+                      💡 {{ t('gateways.form.dcrHint') }}
                     </p>
                   </div>
 
@@ -7009,17 +7008,17 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      Client Secret <span class="text-gray-500">(optional for DCR)</span>
+                      {{ t('gateways.form.clientSecret') }} <span class="text-gray-500">{{ t('gateways.form.optionalForDcr') }}</span>
                     </label>
                     <input
                       type="password"
                       name="oauth_client_secret"
                       autocomplete="off"
                       class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      placeholder="Leave empty for auto-registration via DCR"
+                      placeholder="{{ t('gateways.form.dcrPlaceholder') }}"
                     />
                     <p class="mt-1 text-sm text-blue-600">
-                      💡 Leave empty if the server supports DCR - credentials will be auto-registered
+                      💡 {{ t('gateways.form.dcrHint') }}
                     </p>
                   </div>
 
@@ -7027,7 +7026,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      Username <span class="text-red-500">*</span> <span class="text-gray-500">(for password grant)</span>
+                      {{ t('common.field.username') }} <span class="text-red-500">*</span> <span class="text-gray-500">{{ t('gateways.form.forPasswordGrant') }}</span>
                     </label>
                     <input
                       type="text"
@@ -7038,7 +7037,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       placeholder="systemadmin@system.com"
                     />
                     <p class="mt-1 text-sm text-gray-500">
-                      Required for Resource Owner Password Credentials grant type (Keycloak).
+                      {{ t('gateways.form.passwordGrantHint') }}
                     </p>
                   </div>
 
@@ -7046,7 +7045,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      Password <span class="text-red-500">*</span> <span class="text-gray-500">(for password grant)</span>
+                      {{ t('common.field.password') }} <span class="text-red-500">*</span> <span class="text-gray-500">{{ t('gateways.form.forPasswordGrant') }}</span>
                     </label>
                     <input
                       type="password"
@@ -7054,10 +7053,10 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       id="oauth-password-a2a"
                       autocomplete="off"
                       class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      placeholder="Enter password"
+                      placeholder="{{ t('gateways.form.enterPassword') }}"
                     />
                     <p class="mt-1 text-sm text-gray-500">
-                      Required for Resource Owner Password Credentials grant type (Keycloak).
+                      {{ t('gateways.form.passwordGrantHint') }}
                     </p>
                   </div>
 
@@ -7065,7 +7064,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      Token URL
+                      {{ t('gateways.form.tokenUrl') }}
                     </label>
                     <input
                       type="url"
@@ -7080,7 +7079,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >
-                        Authorization URL
+                        {{ t('gateways.form.authorizationUrl') }}
                       </label>
                       <input
                         type="url"
@@ -7089,7 +7088,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                         placeholder="https://oauth.example.com/authorize"
                       />
                       <p class="mt-1 text-sm text-gray-500">
-                        The OAuth provider's authorization endpoint URL
+                        {{ t('gateways.form.authorizationUrlHint') }}
                       </p>
                     </div>
 
@@ -7097,7 +7096,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >
-                        Redirect URI
+                        {{ t('gateways.form.redirectUri') }}
                       </label>
                       <input
                         type="url"
@@ -7106,8 +7105,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                         placeholder="https://a2aagent.example.com/oauth/callback"
                       />
                       <p class="mt-1 text-sm text-gray-500">
-                        This must match the redirect URI configured in your
-                        OAuth application
+                        {{ t('gateways.form.redirectUriHint') }}
                       </p>
                       <p class="mt-1 text-sm text-blue-600 font-medium">
                         💡 Use:
