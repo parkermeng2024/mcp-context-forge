@@ -5,6 +5,7 @@ import { loadRecentImports } from "./fileTransfer.js";
 import { initializeExportImport } from "./initialization.js";
 import { loadFeature } from "./lazy-loader.js";
 import { searchStructuredLogs } from "./logging.js";
+import { t } from "./i18n.js";
 import { dispatchPluginAction, filterPlugins, populatePluginFilters } from "./plugins.js";
 import { getPanelSearchConfig, getPanelSearchStateFromUrl, queueSearchablePanelReload } from "./search.js";
 import { escapeHtml, safeReplaceState, safeSetInnerHTML } from "./security.js";
@@ -433,7 +434,7 @@ export const showTab = function (tabName) {
           } catch (error) {
             console.error(`Failed to load feature for tab ${tabName}:`, error);
             hideTabLoadingIndicator(tabName);
-            showErrorMessage(`Failed to load ${tabName} features`);
+            showErrorMessage(t("tabs.loadFailed", { tab: tabName }));
             return;
           }
         }
@@ -442,9 +443,9 @@ export const showTab = function (tabName) {
           // Load overview content if not already loaded
           const overviewPanel = safeGetElement("overview-panel");
           if (overviewPanel) {
-            const hasLoadingMessage =
-              overviewPanel.innerHTML.includes("Loading overview");
-            if (hasLoadingMessage) {
+            const hasLoadingIndicator =
+              overviewPanel.querySelector("#overview-loading") !== null;
+            if (hasLoadingIndicator) {
               // Trigger HTMX load manually if HTMX is available
               if (window.htmx && window.htmx.trigger) {
                 window.htmx.trigger(overviewPanel, "load");
@@ -744,7 +745,7 @@ export const showTab = function (tabName) {
                 const errorDiv = document.createElement("div");
                 errorDiv.className = "text-red-600 p-4";
                 errorDiv.textContent =
-                  "Failed to load version info. Please try again.";
+                  t("tabs.versionLoadFailed");
                 versionPanel.innerHTML = "";
                 versionPanel.appendChild(errorDiv);
               });
@@ -778,7 +779,7 @@ export const showTab = function (tabName) {
                 errorDiv.className = "text-red-600 p-4";
                 errorDiv.textContent =
                   err.message ||
-                  "Failed to load maintenance panel. Please try again.";
+                  t("tabs.maintenanceLoadFailed");
                 maintenancePanel.innerHTML = "";
                 maintenancePanel.appendChild(errorDiv);
               });

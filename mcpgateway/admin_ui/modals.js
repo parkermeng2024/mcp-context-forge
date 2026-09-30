@@ -11,6 +11,7 @@ import { escapeHtml } from "./security.js";
 import { resetEditSelections } from "./servers.js";
 import { cleanupToolTestModal } from "./tools.js";
 import { getCookie, safeGetElement } from "./utils.js";
+import { t } from "./i18n.js";
 
 export function openModal(modalId) {
   try {
@@ -376,7 +377,7 @@ export const viewGrpcMethods = function (serviceId) {
         alert(methodsList);
       } else {
         alert(
-          "No methods discovered for this service. Try re-reflecting the service."
+          t("grpc.noMethods")
         );
       }
     })

@@ -6,6 +6,7 @@ import {
   showSuccessMessage,
   showErrorMessage,
 } from "./utils.js";
+import { t } from "./i18n.js";
 
 // ===================================================================
 // MULTI-HEADER AUTHENTICATION MANAGEMENT
@@ -35,7 +36,7 @@ export function toggleInputMask(inputOrId, button) {
   if (hasStoredSecret && !hasRevealableValue) {
     // Stored secret with no revealable value - show tooltip/message
     button.title =
-      "Stored secrets cannot be revealed. Enter a new value to replace.";
+      t("auth.secret.cannotReveal");
     button.classList.add("cursor-not-allowed", "opacity-50");
     return;
   }
@@ -106,7 +107,7 @@ export function addAuthHeader(containerId, options = {}) {
                 <input
                     type="password"
                     id="${valueInputId}"
-                    placeholder="Header Value"
+                    placeholder="{{ t('auth.header.valuePlaceholder') }}"
                     data-sensitive-label="header value"
                     class="auth-header-value block w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300 text-sm pr-16"
                 />
@@ -115,7 +116,7 @@ export function addAuthHeader(containerId, options = {}) {
                     class="absolute inset-y-0 right-0 flex items-center px-2 text-xs font-medium text-indigo-600 hover:text-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:text-indigo-300"
                     data-action="toggle-mask"
                     aria-pressed="false"
-                    aria-label="Show header value"
+                    aria-label="{{ t('auth.header.showValue') }}"
                 >
                     Show
                 </button>
@@ -125,7 +126,7 @@ export function addAuthHeader(containerId, options = {}) {
             type="button"
             data-action="remove-header"
             class="inline-flex items-center px-2 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
-            title="Remove header"
+            title="{{ t('auth.header.remove') }}"
         >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -251,7 +252,7 @@ export function updateAuthHeadersJSON(containerId) {
 
       // Require key but allow empty values
       if (!key) {
-        keyInput.setCustomValidity("Header key is required");
+        keyInput.setCustomValidity(t("auth.header.keyRequired"));
         keyInput.reportValidity();
         hasValidationErrors = true;
         return;
@@ -260,7 +261,7 @@ export function updateAuthHeadersJSON(containerId) {
       // Validate header key format (letters, numbers, hyphens, underscores)
       if (!/^[a-zA-Z0-9\-_]+$/.test(key)) {
         keyInput.setCustomValidity(
-          "Header keys should contain only letters, numbers, hyphens, and underscores",
+          t("auth.header.keyInvalid"),
         );
         keyInput.reportValidity();
         hasValidationErrors = true;

@@ -10,6 +10,7 @@ import {
   MAX_NAME_LENGTH,
 } from "./constants.js";
 import { AppState } from "./appState.js";
+import { t } from "./i18n.js";
 
 // ===================================================================
 // SECURITY: HTML-escape function to prevent XSS attacks
@@ -60,7 +61,7 @@ export function escapeAttrValue(value) {
  * @param {string} fallback - Fallback message if no detail found
  * @returns {string} Human-readable error message
  */
-export function extractApiError(error, fallback = "An error occurred") {
+export function extractApiError(error, fallback = t("common.error.generic")) {
   if (!error || (!error.detail && !error.message)) {
     return fallback;
   }
@@ -93,7 +94,7 @@ export function extractApiError(error, fallback = "An error occurred") {
  */
 export async function parseErrorResponse(
   response,
-  fallback = "An error occurred"
+  fallback = t("common.error.generic")
 ) {
   try {
     const contentType = response.headers.get("content-type") || "";
@@ -134,7 +135,7 @@ export async function parseErrorResponse(
  */
 export async function safeParseJsonResponse(
   response,
-  fallbackError = "Request failed"
+  fallbackError = t("common.error.requestFailed")
 ) {
   const contentType = response.headers.get("content-type") || "";
 
@@ -151,7 +152,7 @@ export async function safeParseJsonResponse(
   if (!contentType.includes("application/json")) {
     throw new Error(
       "The server returned an unexpected response. " +
-        "Please verify you are authenticated and the server is responding correctly."
+        t("common.error.authHint")
     );
   }
 
@@ -177,7 +178,7 @@ export function validatePassthroughHeader(name, value) {
   if (value.includes("\n") || value.includes("\r")) {
     return {
       valid: false,
-      error: "Header value cannot contain newline characters",
+      error: t("security.header.newline"),
     };
   }
 
@@ -198,7 +199,7 @@ export function validatePassthroughHeader(name, value) {
   if (hasControlChars) {
     return {
       valid: false,
-      error: "Header value contains invalid control characters",
+      error: t("security.header.controlChars"),
     };
   }
 
@@ -254,7 +255,7 @@ export function validateInputName(name, type = "input") {
       return {
         valid: false,
         error:
-          "Prompt name can only contain letters, numbers, spaces, underscores, and hyphens",
+          t("security.promptName.invalid"),
       };
     }
   }

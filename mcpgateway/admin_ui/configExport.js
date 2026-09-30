@@ -10,6 +10,7 @@ import {
   showErrorMessage,
   showSuccessMessage,
 } from "./utils.js";
+import { t } from "./i18n.js";
 
 /**
  * Global variables to store current config data
@@ -194,13 +195,13 @@ export const generateConfig = function (server, configType) {
  */
 export const showConfigDisplayModal = function (server, configType, config) {
   const descriptions = {
-    sse: "Configuration for LangChain, LlamaIndex, and other SSE-based frameworks",
-    http: "Configuration for REST clients and HTTP-based MCP integrations",
+    sse: t("configExport.desc.sse"),
+    http: t("configExport.desc.http"),
   };
 
   const usageInstructions = {
-    sse: "Use with MCP client libraries that support Server-Sent Events transport",
-    http: "Use with HTTP clients or REST API wrappers for MCP protocol",
+    sse: t("configExport.usage.sse"),
+    http: t("configExport.usage.http"),
   };
 
   // Update modal content
@@ -234,14 +235,14 @@ export const showConfigDisplayModal = function (server, configType, config) {
 export const copyConfigToClipboard = async function () {
   const contentEl = safeGetElement("config-content");
   if (!contentEl) {
-    showErrorMessage("Config content not found");
+    showErrorMessage(t("configExport.error.contentMissing"));
     return;
   }
 
   if (navigator.clipboard?.writeText) {
     try {
       await navigator.clipboard.writeText(contentEl.value);
-      showSuccessMessage("Configuration copied to clipboard!");
+      showSuccessMessage(t("configExport.toast.copied"));
       return;
     } catch (error) {
       console.error("Clipboard API failed, trying execCommand fallback:", error);
@@ -253,7 +254,7 @@ export const copyConfigToClipboard = async function () {
     contentEl.select();
     contentEl.setSelectionRange(0, 99999);
     if (document.execCommand("copy")) {
-      showSuccessMessage("Configuration copied to clipboard!");
+      showSuccessMessage(t("configExport.toast.copied"));
       return;
     }
   } catch (error) {
@@ -268,7 +269,7 @@ export const copyConfigToClipboard = async function () {
  */
 export const downloadConfig = function () {
   if (!currentConfigData || !currentConfigType || !currentServerName) {
-    showErrorMessage("No configuration data available");
+    showErrorMessage(t("configExport.error.noData"));
     return;
   }
 
@@ -288,7 +289,7 @@ export const downloadConfig = function () {
     showSuccessMessage(`Configuration downloaded as ${a.download}`);
   } catch (error) {
     console.error("Error downloading config:", error);
-    showErrorMessage("Failed to download configuration");
+    showErrorMessage(t("configExport.error.downloadFailed"));
   }
 };
 

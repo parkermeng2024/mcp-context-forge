@@ -166,7 +166,7 @@ export async function fetchWithTimeout(
       if (response.status === 0) {
         // Status 0 often indicates a network error or CORS issue
         throw new Error(
-          "Network error or server is not responding. Please ensure the server is running and accessible."
+          t("common.error.network")
         );
       }
 
@@ -205,14 +205,14 @@ export async function fetchWithTimeout(
         error.message.includes("NetworkError")
       ) {
         throw new Error(
-          "Unable to connect to server. Please check if the server is running on the correct port."
+          t("common.error.connect")
         );
       } else if (
         error.message.includes("empty response") ||
         error.message.includes("ERR_EMPTY_RESPONSE")
       ) {
         throw new Error(
-          "Server returned an empty response. This endpoint may not be implemented yet or the server crashed."
+          t("common.error.emptyResponse")
         );
       }
 
@@ -295,7 +295,7 @@ export function showSkippedToolsWarning(skippedTools) {
 
     const title = document.createElement("h2");
     title.className = "text-lg font-semibold text-yellow-700 mb-3";
-    title.textContent = "Some tools were skipped";
+    title.textContent = t("common.notice.toolsSkipped");
 
     const intro = document.createElement("p");
     intro.className = "text-sm text-gray-600 mb-3";
@@ -317,7 +317,7 @@ export function showSkippedToolsWarning(skippedTools) {
     for (const entry of skippedTools) {
       const colonIdx = entry.indexOf(": ");
       const toolName = colonIdx !== -1 ? entry.slice(0, colonIdx) : entry;
-      const reason = colonIdx !== -1 ? entry.slice(colonIdx + 2) : "Unknown error";
+      const reason = colonIdx !== -1 ? entry.slice(colonIdx + 2) : t("common.error.unknown");
       const tr = document.createElement("tr");
       tr.className = "border-b border-gray-100 last:border-0";
       const toolNameCell = document.createElement("td");
@@ -361,7 +361,7 @@ export function handleDeleteUserError(event) {
   if (!event.detail.successful) {
     const d = document.createElement("div");
     d.innerHTML = event.detail.xhr.responseText;
-    showErrorMessage(d.textContent.trim() || "Error deleting user");
+    showErrorMessage(d.textContent.trim() || t("common.error.deleteUser"));
   }
 }
 
@@ -418,7 +418,7 @@ export const copyToClipboard = async function (elementId) {
   };
 
   if (!textToCopy) {
-    showNotification("No token available to copy", "error");
+    showNotification(t("common.error.noTokenToCopy"), "error");
     return;
   }
 
@@ -430,7 +430,7 @@ export const copyToClipboard = async function (elementId) {
   if (hasClipboardApi) {
     try {
       await navigator.clipboard.writeText(textToCopy);
-      showNotification("Token copied to clipboard", "success");
+      showNotification(t("common.toast.tokenCopied"), "success");
       return;
     } catch (error) {
       console.warn("Clipboard API copy failed, trying fallback", error);
@@ -438,11 +438,11 @@ export const copyToClipboard = async function (elementId) {
   }
 
   if (fallbackCopy()) {
-    showNotification("Token copied to clipboard", "success");
+    showNotification(t("common.toast.tokenCopied"), "success");
     return;
   }
 
-  showNotification("Failed to copy token. Please copy it manually.", "error");
+  showNotification(t("common.error.tokenCopyFailed"), "error");
 };
 
 export const copyJsonToClipboard = function (sourceId) {
@@ -465,7 +465,7 @@ export const copyJsonToClipboard = function (sourceId) {
     },
     (err) => {
       console.error("Clipboard write failed:", err);
-      showErrorMessage("Unable to copy to clipboard");
+      showErrorMessage(t("common.error.copyFailed"));
     }
   );
 };
@@ -809,7 +809,7 @@ export const updateInactiveUrlState = function (tableName, checked) {
 export const makeCopyIdButton = function (id) {
   const btn = document.createElement("button");
   btn.type = "button";
-  btn.title = "Copy ID to clipboard";
+  btn.title = t("common.tooltip.copyId");
   btn.className =
     "ml-2 inline-flex items-center px-1.5 py-0.5 text-xs rounded border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors";
   btn.textContent = "📋 Copy";

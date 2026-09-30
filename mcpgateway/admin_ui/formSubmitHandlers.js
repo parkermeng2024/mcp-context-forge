@@ -10,6 +10,7 @@ import {
 } from "./security";
 import { getEditSelections } from "./servers";
 import { isInactiveChecked, safeGetElement, showErrorMessage, showSkippedToolsWarning } from "./utils";
+import { t } from "./i18n.js";
 
 // ===================================================================
 // ENHANCED FORM HANDLERS with Input Validation
@@ -118,7 +119,7 @@ export const handleGatewayFormSubmit = async function (e) {
     });
     const result = await safeParseJsonResponse(
       response,
-      "Failed to add Gateway"
+      t("common.error.addEntityFailed", { entity: t("common.entity.gateway") })
     );
 
     if (!result || !result.success) {
@@ -141,7 +142,7 @@ export const handleGatewayFormSubmit = async function (e) {
   } catch (error) {
     console.error("Error:", error);
     if (status) {
-      status.textContent = error.message || "An error occurred!";
+      status.textContent = error.message || t("common.error.generic");
       status.classList.add("error-status");
     }
     showErrorMessage(error.message);
@@ -270,7 +271,7 @@ export const handleResourceFormSubmit = async function (e) {
     });
     const result = await safeParseJsonResponse(
       response,
-      "Failed to add Resource"
+      t("common.error.addEntityFailed", { entity: t("common.entity.resource") })
     );
     if (!result || !result.success) {
       throw new Error(result?.message || "Failed to add Resource");
@@ -290,7 +291,7 @@ export const handleResourceFormSubmit = async function (e) {
   } catch (error) {
     console.error("Error:", error);
     if (status) {
-      status.textContent = error.message || "An error occurred!";
+      status.textContent = error.message || t("common.error.generic");
       status.classList.add("error-status");
     }
     // A duplicate URI is the one server-side conflict the user can act on, and
@@ -343,7 +344,7 @@ export const handlePromptFormSubmit = async function (e) {
     });
     const result = await safeParseJsonResponse(
       response,
-      "Failed to add Prompt"
+      t("common.error.addEntityFailed", { entity: t("common.entity.prompt") })
     );
     if (!result || !result.success) {
       throw new Error(result?.message || "Failed to add Prompt");
@@ -361,7 +362,7 @@ export const handlePromptFormSubmit = async function (e) {
   } catch (error) {
     console.error("Error:", error);
     if (status) {
-      status.textContent = error.message || "An error occurred!";
+      status.textContent = error.message || t("common.error.generic");
       status.classList.add("error-status");
     }
     showErrorMessage(error.message);
@@ -413,7 +414,7 @@ export const handleEditPromptFormSubmit = async function (e) {
 
     const result = await safeParseJsonResponse(
       response,
-      "Failed to edit Prompt"
+      t("common.error.editEntityFailed", { entity: t("common.entity.prompt") })
     );
     if (!result || !result.success) {
       throw new Error(result?.message || "Failed to edit Prompt");
@@ -522,7 +523,7 @@ export const handleServerFormSubmit = async function (e) {
     });
     const result = await safeParseJsonResponse(
       response,
-      "Failed to add Server"
+      t("common.error.addEntityFailed", { entity: t("common.entity.server") })
     );
     if (!result || !result.success) {
       throw new Error(result?.message || "Failed to add Server.");
@@ -543,7 +544,7 @@ export const handleServerFormSubmit = async function (e) {
   } catch (error) {
     console.error("Add Server Error:", error);
     if (status) {
-      status.textContent = error.message || "An error occurred.";
+      status.textContent = error.message || t("common.error.generic");
       status.classList.add("error-status");
     }
     showErrorMessage(error.message); // Optional if you use global popup/snackbar
@@ -670,7 +671,7 @@ export const handleA2AFormSubmit = async function (e) {
   } catch (error) {
     console.error("Add A2A Agent Error:", error);
     if (status) {
-      status.textContent = error.message || "An error occurred.";
+      status.textContent = error.message || t("common.error.generic");
       status.classList.add("error-status");
     }
     showErrorMessage(error.message); // global popup/snackbar if available
@@ -712,7 +713,7 @@ export const handleToolFormSubmit = async function (event) {
         const generatedSchema = generateSchema();
         const schemaValidation = validateJson(
           generatedSchema,
-          "Generated Schema"
+          t("common.generatedSchema")
         );
         if (!schemaValidation.valid) {
           throw new Error(schemaValidation.error);
@@ -747,7 +748,7 @@ export const handleToolFormSubmit = async function (event) {
       method: "POST",
       body: formData,
     });
-    const result = await safeParseJsonResponse(response, "Failed to add Tool");
+    const result = await safeParseJsonResponse(response, t("common.error.addEntityFailed", { entity: t("common.entity.tool") }));
     if (!result || !result.success) {
       throw new Error(result?.message || "Failed to add Tool");
     } else {
@@ -814,7 +815,7 @@ export const handleEditToolFormSubmit = async function (event) {
       headers: { "X-Requested-With": "XMLHttpRequest" },
     });
 
-    const result = await safeParseJsonResponse(response, "Failed to edit Tool");
+    const result = await safeParseJsonResponse(response, t("common.error.editEntityFailed", { entity: t("common.entity.tool") }));
     if (!result || !result.success) {
       throw new Error(result?.message || "Failed to edit Tool");
     } else {
@@ -903,7 +904,7 @@ export const handleEditGatewayFormSubmit = async function (e) {
     });
     const result = await safeParseJsonResponse(
       response,
-      "Failed to edit Gateway"
+      t("common.error.editEntityFailed", { entity: t("common.entity.gateway") })
     );
     if (!result || !result.success) {
       throw new Error(result?.message || "Failed to edit Gateway");
@@ -1105,7 +1106,7 @@ export const handleEditServerFormSubmit = async function (e) {
     });
     const result = await safeParseJsonResponse(
       response,
-      "Failed to edit Server"
+      t("common.error.editEntityFailed", { entity: t("common.entity.server") })
     );
     if (!result || !result.success) {
       throw new Error(result?.message || "Failed to edit Server");
@@ -1192,7 +1193,7 @@ export const handleEditResFormSubmit = async function (e) {
 
     const result = await safeParseJsonResponse(
       response,
-      "Failed to edit Resource"
+      t("common.error.editEntityFailed", { entity: t("common.entity.resource") })
     );
     if (!result || !result.success) {
       throw new Error(result?.message || "Failed to edit Resource");
@@ -1312,7 +1313,7 @@ export const handleGrpcServiceFormSubmit = async function (e) {
     if (status) {
       status.textContent =
         error.message ||
-        "An error occurred while registering the gRPC service.";
+        t("grpc.registerFailed");
       status.classList.remove("hidden");
     }
     showErrorMessage(error.message);

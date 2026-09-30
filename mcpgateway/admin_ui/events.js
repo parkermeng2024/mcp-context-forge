@@ -18,6 +18,7 @@ import {
   setupBulkImportModal,
   setupTooltipsWithAlpine,
 } from "./initialization.js";
+import { t } from "./i18n.js";
 import { llmModelComboboxSelect } from "./llmModels.js";
 import { closeModal } from "./modals.js";
 import { initializeRealTimeMonitoring } from "./monitoring.js";
@@ -129,7 +130,7 @@ import {
     } catch (error) {
       console.error("❌ Initialization failed:", error);
       showErrorMessage(
-        "Failed to initialize the application. Please refresh the page."
+        t("common.error.initFailed")
       );
     }
   });
@@ -149,7 +150,7 @@ import {
     const updateSelectedList = function () {
       selectedList.innerHTML = "";
       if (selectedTools.length === 0) {
-        selectedList.textContent = "No tools selected";
+        selectedList.textContent = t("tools.selected.none");
       } else {
         selectedTools.forEach((tool) => {
           const item = document.createElement("div");
@@ -232,7 +233,7 @@ import {
             body: JSON.stringify({ tool_id: toolId }),
           });
         });
-        showSuccessMessage("Tool description enrichment has started.");
+        showSuccessMessage(t("tools.toast.enrichStarted"));
         // Uncheck all checkboxes
         document.querySelectorAll(".tool-checkbox").forEach((cb) => {
           cb.checked = false;
@@ -281,7 +282,7 @@ import {
           );
         }
         showSuccessMessage(
-          "Test case generation for tool validation has started."
+          t("tools.toast.testcaseStarted")
         );
         // Reset selections
         document.querySelectorAll(".tool-checkbox").forEach((cb) => {
@@ -819,7 +820,7 @@ import {
       '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" ' +
       'd="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">' +
       "</path></svg>" +
-      "Request Failed - Click to Retry";
+      t("common.error.requestFailedRetry");
     elt.disabled = false;
   });
 
@@ -835,7 +836,7 @@ import {
   window.addEventListener("unhandledrejection", (e) => {
     console.error("Unhandled promise rejection:", e.reason);
     // Show user error for unhandled promises as they're often more serious
-    showErrorMessage("An unexpected error occurred. Please refresh the page.");
+    showErrorMessage(t("common.error.unexpected"));
   });
 
   // Enhanced cleanup function for page unload

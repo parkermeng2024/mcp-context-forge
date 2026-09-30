@@ -4,6 +4,7 @@
 
 import { escapeHtml } from "./security.js";
 import { isValidBase64, safeGetElement } from "./utils.js";
+import { t } from "./i18n.js";
 
 /**
  * Validate CA certificate file on upload (supports multiple files)
@@ -14,7 +15,7 @@ export const validateCACertFiles = async function (event) {
   const feedbackEl = safeGetElement("ca-certificate-feedback");
 
   if (!files.length) {
-    feedbackEl.textContent = "No files selected.";
+    feedbackEl.textContent = t("caCert.noFiles");
     return;
   }
 
@@ -117,7 +118,7 @@ const readFileAsync = function (file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => resolve(e.target.result);
-    reader.onerror = () => reject(new Error("Error reading file"));
+    reader.onerror = () => reject(new Error(t("common.error.readFile")));
     reader.readAsText(file);
   });
 };
@@ -375,6 +376,6 @@ export const updateBodyLabel = function () {
     bodyLabel.innerHTML =
       contentType === "application/x-www-form-urlencoded"
         ? 'Body (JSON)<br><small class="text-gray-500">Auto-converts to form data</small>'
-        : "Body (JSON)";
+        : t("caCert.bodyJson");
   }
 };

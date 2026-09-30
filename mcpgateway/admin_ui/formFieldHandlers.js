@@ -5,6 +5,7 @@
 import { AppState } from "./appState.js";
 import { validateInputName } from "./security.js";
 import { safeGetElement } from "./utils.js";
+import { t } from "./i18n.js";
 
 
 export const generateSchema = function () {
@@ -99,7 +100,7 @@ export const createParameterForm = function (parameterCount) {
   deleteBtn.type = "button";
   deleteBtn.className =
   "delete-param text-red-600 hover:text-red-800 focus:outline-none text-xl";
-  deleteBtn.title = "Delete Parameter";
+  deleteBtn.title = t("common.actions.deleteParameter");
   deleteBtn.textContent = "×";
 
   header.appendChild(title);
@@ -115,7 +116,7 @@ export const createParameterForm = function (parameterCount) {
   const nameLabel = document.createElement("label");
   nameLabel.className =
   "block text-sm font-medium text-gray-700 dark:text-gray-300";
-  nameLabel.textContent = "Parameter Name";
+  nameLabel.textContent = t("common.field.parameterName");
 
   const nameInput = document.createElement("input");
   nameInput.type = "text";

@@ -3,6 +3,7 @@ import {
   PERFORMANCE_HISTORY_HOURS,
 } from "./constants.js";
 import { filterGatewaysTable } from "./filters.js";
+import { t } from "./i18n.js";
 import { escapeHtml } from "./security.js";
 import { fetchWithAuth, getAuthToken } from "./tokens.js";
 import {
@@ -1261,6 +1262,6 @@ export const downloadLogFile = async function(filename) {
     showSuccessMessage(`Downloaded: ${filename}`);
   } catch (error) {
     console.error("Error downloading log file:", error);
-    showErrorMessage(error.message || "Failed to download log file");
+    showErrorMessage(error.message || t("logs.downloadFailed"));
   }
 }

@@ -10,6 +10,7 @@ import {
 // ===================================================================
 
 import { safeGetElement, showNotification } from "./utils.js";
+import { t } from "./i18n.js";
 
 /**
  * Display import preview with selective import options
@@ -96,7 +97,7 @@ export const displayImportPreview = function (preview) {
                                             ${bundle.gateway.name}
                                         </div>
                                         <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                                            ${bundle.gateway.description || "No description"}
+                                            ${bundle.gateway.description || t("common.noDescription")}
                                         </div>
                                         <div class="text-xs text-blue-600 dark:text-blue-400">
                                             Bundle includes: ${bundle.total_items} items
