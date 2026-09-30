@@ -1,4 +1,5 @@
 import { getAuthHeaders } from "./auth.js";
+import { t } from "./i18n.js";
 import {
   escapeHtml,
   logRestrictedContext,
@@ -271,10 +272,10 @@ export const setupCreateTokenForm = function () {
           evt.detail && evt.detail.xhr ? evt.detail.xhr.status : "error";
         tokensTable.innerHTML =
           '<div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded dark:bg-red-900 dark:border-red-600 dark:text-red-200">' +
-          "<strong>Failed to load tokens.</strong> The backend may be temporarily unavailable (HTTP " +
+          `<strong>${t("tokens.error.loadFailedTitle")}</strong> ${t("tokens.error.backendUnavailable")} (HTTP ` +
           status +
           "). " +
-          '<button type="button" data-action="retry-tokens" class="underline font-medium">Retry</button></div>';
+          `<button type="button" data-action="retry-tokens" class="underline font-medium">${t("tokens.actions.retry")}</button></div>`;
         const retryBtn = tokensTable.querySelector(
           '[data-action="retry-tokens"]',
         );
@@ -290,8 +291,8 @@ export const setupCreateTokenForm = function () {
       if (tokensTable) {
         tokensTable.innerHTML =
           '<div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded dark:bg-red-900 dark:border-red-600 dark:text-red-200">' +
-          "<strong>Failed to load tokens.</strong> Network error — check your connection and " +
-          '<button type="button" data-action="retry-tokens" class="underline font-medium">retry</button>.</div>';
+          `<strong>${t("tokens.error.loadFailedTitle")}</strong> ${t("tokens.error.networkCheck")} ` +
+          `<button type="button" data-action="retry-tokens" class="underline font-medium">${t("tokens.actions.retry")}</button>.</div>`;
         const retryBtn = tokensTable.querySelector(
           '[data-action="retry-tokens"]',
         );
@@ -382,7 +383,7 @@ const createToken = async function (form) {
   const originalText = submitButton.textContent;
 
   try {
-    submitButton.textContent = "Creating...";
+    submitButton.textContent = t("tokens.actions.creating");
     submitButton.disabled = true;
 
     // Get current team ID (null means "All Teams" — admin bypass for admins, public-only for non-admins)
@@ -476,9 +477,9 @@ const createToken = async function (form) {
         "Unable to complete the operation. Please try again.";
       if (response.status === 409 && errorMsg === genericCreateTokenError) {
         const scopeLabel = currentTeamId
-          ? "the selected team"
-          : "All Teams";
-        errorMsg = `Token name already exists in ${scopeLabel}. Choose a different token name.`;
+          ? t("tokens.scope.selectedTeam")
+          : t("common.allTeams");
+        errorMsg = t("tokens.error.nameExists", { scope: scopeLabel });
       }
       if (
         response.status === 400 &&
@@ -486,7 +487,7 @@ const createToken = async function (form) {
         errorMsg.startsWith("Team not found:")
       ) {
         errorMsg =
-          "Selected team is no longer available. Switch the header selector to All Teams and try again.";
+        errorMsg = t("tokens.error.teamUnavailable");
       }
       throw new Error(errorMsg);
     }
@@ -516,7 +517,7 @@ const createToken = async function (form) {
     if (inlineMessages) {
       inlineMessages.innerHTML =
         '<div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded dark:bg-red-900 dark:border-red-600 dark:text-red-200">' +
-        "<strong>Failed to create token:</strong> " +
+        `<strong>${t("tokens.error.createFailed")}</strong> ` +
         escapeHtml(error.message) +
         "</div>";
       setTimeout(function () {
@@ -540,7 +541,7 @@ const showTokenCreatedModal = function (tokenData) {
             <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-lg shadow-lg rounded-md bg-white dark:bg-gray-800">
                 <div class="mt-3">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Token Created Successfully</h3>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">${t("tokens.created.title")}</h3>
                         <button data-dismiss-token-modal class="text-gray-400 hover:text-gray-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -568,7 +569,7 @@ const showTokenCreatedModal = function (tokenData) {
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Your API Token:
+                            ${t("tokens.created.yourToken")}
                         </label>
                         <div class="flex">
                             <input
@@ -582,14 +583,14 @@ const showTokenCreatedModal = function (tokenData) {
                                 data-copy-token-target="new-token-value"
                                 class="px-3 py-2 bg-indigo-600 text-white text-sm rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             >
-                                Copy
+                                ${t("common.actions.copy")}
                             </button>
                         </div>
                     </div>
 
                     <div class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        <strong>Token Name:</strong> ${escapeHtml(tokenData.token.name || "Unnamed Token")}<br/>
-                        <strong>Expires:</strong> ${tokenData.token.expires_at ? new Date(tokenData.token.expires_at).toLocaleDateString() : "Never"}
+                        <strong>${t("tokens.created.name")}</strong> ${escapeHtml(tokenData.token.name || t("tokens.unnamed"))}<br/>
+                        <strong>${t("tokens.detail.expires")}</strong> ${tokenData.token.expires_at ? new Date(tokenData.token.expires_at).toLocaleDateString() : t("common.never")}
                     </div>
 
                     <div class="flex justify-end">
@@ -656,7 +657,7 @@ const revokeToken = async function (tokenId, tokenName) {
         method: "DELETE",
         headers: requestHeaders,
         body: JSON.stringify({
-          reason: "Revoked by user via admin interface",
+          reason: t("tokens.revoke.reason"),
         }),
       }
     );
@@ -669,7 +670,7 @@ const revokeToken = async function (tokenId, tokenName) {
       throw new Error(errorMsg);
     }
 
-    showNotification("Token revoked successfully", "success");
+    showNotification(t("tokens.revoke.success"), "success");
     loadTokensList(true);
   } catch (error) {
     console.error("Error revoking token:", error);
@@ -712,7 +713,7 @@ export const showUsageStatsModal = function (stats) {
   modal.innerHTML = `
             <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white dark:bg-gray-800">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Token Usage Statistics (Last ${stats.period_days} Days)</h3>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">${t("tokens.usage.title", { days: stats.period_days })}</h3>
                     <button data-action="close-stats-modal" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -723,24 +724,24 @@ export const showUsageStatsModal = function (stats) {
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
                         <div class="text-2xl font-bold text-blue-600 dark:text-blue-300">${stats.total_requests}</div>
-                        <div class="text-sm text-blue-600 dark:text-blue-400">Total Requests</div>
+                        <div class="text-sm text-blue-600 dark:text-blue-400">${t("tokens.usage.totalRequests")}</div>
                     </div>
                     <div class="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
                         <div class="text-2xl font-bold text-green-600 dark:text-green-300">${stats.successful_requests}</div>
-                        <div class="text-sm text-green-600 dark:text-green-400">Successful</div>
+                        <div class="text-sm text-green-600 dark:text-green-400">${t("tokens.usage.successful")}</div>
                     </div>
                     <div class="bg-red-50 dark:bg-red-900 p-4 rounded-lg">
                         <div class="text-2xl font-bold text-red-600 dark:text-red-300">${stats.blocked_requests}</div>
-                        <div class="text-sm text-red-600 dark:text-red-400">Blocked</div>
+                        <div class="text-sm text-red-600 dark:text-red-400">${t("tokens.usage.blocked")}</div>
                     </div>
                     <div class="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg">
                         <div class="text-2xl font-bold text-purple-600 dark:text-purple-300">${Math.round(stats.success_rate * 100)}%</div>
-                        <div class="text-sm text-purple-600 dark:text-purple-400">Success Rate</div>
+                        <div class="text-sm text-purple-600 dark:text-purple-400">${t("tokens.usage.successRate")}</div>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">Average Response Time</h4>
+                    <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">${t("metrics.executions.avgResponseTime")}</h4>
                     <div class="text-lg text-gray-700 dark:text-gray-300">${stats.average_response_time_ms}ms</div>
                 </div>
 
@@ -748,14 +749,14 @@ export const showUsageStatsModal = function (stats) {
   stats.top_endpoints && stats.top_endpoints.length > 0
     ? `
                     <div class="mb-4">
-                        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">Top Endpoints</h4>
+                        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">${t("tokens.usage.topEndpoints")}</h4>
                         <div class="space-y-2">
                             ${stats.top_endpoints
     .map(
       ([endpoint, count]) => `
                                 <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                                     <span class="font-mono text-sm">${escapeHtml(endpoint)}</span>
-                                    <span class="text-sm font-medium">${count} requests</span>
+                                    <span class="text-sm font-medium">${t("tokens.usage.requests", { count })}</span>
                                 </div>
                             `
     )
@@ -865,7 +866,7 @@ export const showTokenDetailsModal = function (token) {
   modal.innerHTML = `
             <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white dark:bg-gray-800 mb-10">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Token Details</h3>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">${t("tokens.detail.title")}</h3>
                     <button data-action="close-modal" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -875,46 +876,46 @@ export const showTokenDetailsModal = function (token) {
 
                 <!-- Basic Information -->
                 <div class="mb-6">
-                    <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">Basic Information</h4>
+                    <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">${t("tokens.detail.basicInfo")}</h4>
                     <div class="grid grid-cols-1 gap-2 text-sm">
                         <div class="flex items-center">
-                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">ID:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">${t("tokens.detail.id")}</span>
                             <code class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs flex-1 overflow-hidden text-ellipsis">${escapeHtml(token.id)}</code>
                             <button data-action="copy-id" data-copy-value="${escapeHtml(token.id)}"
                                     class="ml-2 px-2 py-0.5 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 border border-blue-300 dark:border-blue-600 rounded">
-                                Copy
+                                ${t("common.actions.copy")}
                             </button>
                         </div>
                         <div class="flex">
-                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">Name:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">${t("tokens.detail.name")}</span>
                             <span class="text-gray-900 dark:text-white">${escapeHtml(token.name)}</span>
                         </div>
                         <div class="flex">
-                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">Description:</span>
-                            <span class="text-gray-600 dark:text-gray-400">${token.description ? escapeHtml(token.description) : "None"}</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">${t("tokens.detail.description")}</span>
+                            <span class="text-gray-600 dark:text-gray-400">${token.description ? escapeHtml(token.description) : t("common.none")}</span>
                         </div>
                         <div class="flex">
-                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">Created by:</span>
-                            <span class="text-gray-900 dark:text-white">${escapeHtml(token.user_email || "Unknown")}</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">${t("tokens.detail.createdBy")}</span>
+                            <span class="text-gray-900 dark:text-white">${escapeHtml(token.user_email || t("common.unknown"))}</span>
                         </div>
                         <div class="flex">
-                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">Team:</span>
-                            <span class="text-gray-900 dark:text-white">${teamName ? `${escapeHtml(teamName)} <code class="text-xs text-gray-500">(${escapeHtml(token.team_id.substring(0, 8))}...)</code>` : "All Teams"}</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">${t("tokens.detail.team")}</span>
+                            <span class="text-gray-900 dark:text-white">${teamName ? `${escapeHtml(teamName)} <code class="text-xs text-gray-500">(${escapeHtml(token.team_id.substring(0, 8))}...)</code>` : t("common.allTeams")}</span>
                         </div>
                         <div class="flex">
-                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">Created:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">${t("tokens.detail.created")}</span>
                             <span class="text-gray-600 dark:text-gray-400">${formatDate(token.created_at)}</span>
                         </div>
                         <div class="flex">
-                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">Expires:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">${t("tokens.detail.expires")}</span>
                             <span class="text-gray-600 dark:text-gray-400">${formatDate(token.expires_at)}</span>
                         </div>
                         <div class="flex">
-                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">Last Used:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">${t("tokens.detail.lastUsed")}</span>
                             <span class="text-gray-600 dark:text-gray-400">${formatDate(token.last_used)}</span>
                         </div>
                         <div class="flex items-center">
-                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">Status:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300 w-28">${t("tokens.detail.status")}</span>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${statusText}</span>
                         </div>
                     </div>
@@ -922,36 +923,36 @@ export const showTokenDetailsModal = function (token) {
 
                 <!-- Scope & Restrictions -->
                 <div class="mb-6">
-                    <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">Scope & Restrictions</h4>
+                    <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">${t("tokens.detail.scopeRestrictions")}</h4>
                     <div class="grid grid-cols-1 gap-3 text-sm">
                         <div>
-                            <span class="font-medium text-gray-700 dark:text-gray-300">Server:</span>
-                            <span class="ml-2 text-gray-600 dark:text-gray-400">${token.server_id ? escapeHtml(token.server_id) : "All servers"}</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">${t("tokens.detail.server")}</span>
+                            <span class="ml-2 text-gray-600 dark:text-gray-400">${token.server_id ? escapeHtml(token.server_id) : t("tokens.detail.allServers")}</span>
                         </div>
                         <div>
-                            <span class="font-medium text-gray-700 dark:text-gray-300">Permissions:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">${t("tokens.detail.permissions")}</span>
                             ${
   token.resource_scopes &&
                               token.resource_scopes.length > 0
     ? `<ul class="mt-1 text-gray-600 dark:text-gray-400">${formatList(token.resource_scopes)}</ul>`
-    : '<span class="ml-2 text-gray-600 dark:text-gray-400">All (no restrictions)</span>'
+    : `<span class="ml-2 text-gray-600 dark:text-gray-400">${t("tokens.detail.allNoRestrictions")}</span>`
 }
                         </div>
                         <div>
-                            <span class="font-medium text-gray-700 dark:text-gray-300">IP Restrictions:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">${t("tokens.detail.ipRestrictions")}</span>
                             ${
   token.ip_restrictions &&
                               token.ip_restrictions.length > 0
     ? `<ul class="mt-1 text-gray-600 dark:text-gray-400">${formatList(token.ip_restrictions)}</ul>`
-    : '<span class="ml-2 text-gray-600 dark:text-gray-400">None</span>'
+    : `<span class="ml-2 text-gray-600 dark:text-gray-400">${t("common.none")}</span>`
 }
                         </div>
                         <div>
-                            <span class="font-medium text-gray-700 dark:text-gray-300">Time Restrictions:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">${t("tokens.detail.timeRestrictions")}</span>
                             <div class="mt-1">${formatJson(token.time_restrictions)}</div>
                         </div>
                         <div>
-                            <span class="font-medium text-gray-700 dark:text-gray-300">Usage Limits:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">${t("tokens.detail.usageLimits")}</span>
                             <div class="mt-1">${formatJson(token.usage_limits)}</div>
                         </div>
                     </div>
@@ -962,7 +963,7 @@ export const showTokenDetailsModal = function (token) {
   token.tags && token.tags.length > 0
     ? `
                 <div class="mb-6">
-                    <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">Tags</h4>
+                    <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">${t("tokens.detail.tags")}</h4>
                     <div class="flex flex-wrap gap-2">
                         ${token.tags
     .map((tag) => {
@@ -984,19 +985,19 @@ export const showTokenDetailsModal = function (token) {
   token.is_revoked
     ? `
                 <div class="mb-6">
-                    <h4 class="text-md font-semibold text-red-600 dark:text-red-400 mb-3 border-b border-red-200 dark:border-red-600 pb-2">Revocation Details</h4>
+                    <h4 class="text-md font-semibold text-red-600 dark:text-red-400 mb-3 border-b border-red-200 dark:border-red-600 pb-2">${t("tokens.detail.revocationDetails")}</h4>
                     <div class="grid grid-cols-1 gap-2 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded">
                         <div class="flex">
-                            <span class="font-medium text-red-700 dark:text-red-300 w-28">Revoked at:</span>
+                            <span class="font-medium text-red-700 dark:text-red-300 w-28">${t("tokens.detail.revokedAt")}</span>
                             <span class="text-red-600 dark:text-red-400">${formatDate(token.revoked_at)}</span>
                         </div>
                         <div class="flex">
-                            <span class="font-medium text-red-700 dark:text-red-300 w-28">Revoked by:</span>
-                            <span class="text-red-600 dark:text-red-400">${token.revoked_by ? escapeHtml(token.revoked_by) : "Unknown"}</span>
+                            <span class="font-medium text-red-700 dark:text-red-300 w-28">${t("tokens.detail.revokedBy")}</span>
+                            <span class="text-red-600 dark:text-red-400">${token.revoked_by ? escapeHtml(token.revoked_by) : t("common.unknown")}</span>
                         </div>
                         <div class="flex">
-                            <span class="font-medium text-red-700 dark:text-red-300 w-28">Reason:</span>
-                            <span class="text-red-600 dark:text-red-400">${token.revocation_reason ? escapeHtml(token.revocation_reason) : "No reason provided"}</span>
+                            <span class="font-medium text-red-700 dark:text-red-300 w-28">${t("tokens.detail.reason")}</span>
+                            <span class="text-red-600 dark:text-red-400">${token.revocation_reason ? escapeHtml(token.revocation_reason) : t("tokens.detail.noReason")}</span>
                         </div>
                     </div>
                 </div>
@@ -1031,9 +1032,9 @@ export const showTokenDetailsModal = function (token) {
       const value = button.dataset.copyValue;
       if (value) {
         navigator.clipboard.writeText(value).then(() => {
-          button.textContent = "Copied!";
+          button.textContent = t("common.actions.copied");
           setTimeout(() => {
-            button.textContent = "Copy";
+            button.textContent = t("common.actions.copy");
           }, 1500);
         });
       }
