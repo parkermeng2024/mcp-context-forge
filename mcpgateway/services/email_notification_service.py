@@ -24,6 +24,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNot
 # First-Party
 from mcpgateway.common.validators import SecurityValidator
 from mcpgateway.config import settings
+from mcpgateway.i18n import get_locale as i18n_get_locale, t as i18n_t
 from mcpgateway.schemas import EmailDeliveryStatus
 from mcpgateway.services.logging_service import LoggingService
 
@@ -71,6 +72,12 @@ class AuthEmailNotificationService:
         """Initialize template rendering for authentication emails."""
         template_dir = Path(__file__).resolve().parents[1] / "templates"
         self._jinja = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=select_autoescape(["html", "xml"]))
+        # Email templates render outside the request Jinja environment, so the
+        # i18n helpers are registered here too. Without a request context the
+        # active locale falls back to the default, which keeps notifications
+        # readable when no locale was resolved.
+        self._jinja.globals["t"] = i18n_t
+        self._jinja.globals["current_locale"] = i18n_get_locale
 
     @staticmethod
     def _smtp_password() -> Optional[str]:

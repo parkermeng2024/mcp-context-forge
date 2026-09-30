@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en">
   <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.5;">
-    <h2 style="margin-bottom: 0.5rem;">Account Temporarily Locked</h2>
-    <p>Hello {{ display_name }},</p>
+    <h2 style="margin-bottom: 0.5rem;">{{ t('email.lockout.title') }}</h2>
+    <p>{{ t('email.greeting', name=display_name) }}</p>
     <p>
-      Your ContextForge account was temporarily locked after repeated failed sign-in attempts.
+      {{ t('email.lockout.body') }}
     </p>
-    <p><strong>Automatic unlock time:</strong> {{ locked_until }}</p>
+    <p><strong>{{ t('email.lockout.unlockTime') }}</strong> {{ locked_until }}</p>
     <p>
-      If this was not you, reset your password immediately:
-      <a href="{{ reset_url }}" style="color: #2563eb;">Reset Password</a>
+      {{ t('email.lockout.advice') }}
+      <a href="{{ reset_url }}" style="color: #2563eb;">{{ t('email.action.resetPassword') }}</a>
     </p>
   </body>
 </html>
