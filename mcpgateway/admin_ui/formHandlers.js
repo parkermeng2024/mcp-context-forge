@@ -1,23 +1,25 @@
 import { PANEL_SEARCH_CONFIG, TOGGLE_FRAGMENT_MAP } from "./constants.js";
+import { t } from "./i18n.js";
 import { navigateAdmin } from "./navigation.js";
 import { buildTableUrl, getCookie, isInactiveChecked } from "./utils.js";
 
 // ===================================================================
 // ENTITY TYPE DISPLAY NAMES
 // ===================================================================
-// Maps entity type keys (plural/kebab-case) to singular display names for UI messages
+// Maps entity type keys (plural/kebab-case) to the catalog key that holds the
+// lowercase singular noun for UI messages.
 const ENTITY_DISPLAY_NAMES = {
-  tools: "tool",
-  resources: "resource",
-  prompts: "prompt",
-  gateways: "gateway",
-  catalog: "server",
-  "a2a-agents": "agent",
-  agent: "agent",
-  servers: "server",
-  teams: "team",
-  users: "user",
-  roots: "root",
+  tools: "common.entityLower.tool",
+  resources: "common.entityLower.resource",
+  prompts: "common.entityLower.prompt",
+  gateways: "common.entityLower.gateway",
+  catalog: "common.entityLower.server",
+  "a2a-agents": "common.entityLower.agent",
+  agent: "common.entityLower.agent",
+  servers: "common.entityLower.server",
+  teams: "common.entityLower.team",
+  users: "common.entityLower.user",
+  roots: "common.entityLower.root",
 };
 
 // ===================================================================
@@ -162,8 +164,8 @@ export const handleToggleSubmit = handleFormSubmitAndRefresh;
 export const handleSubmitWithConfirmation = function (event, type) {
   event.preventDefault();
 
-  const displayName = ENTITY_DISPLAY_NAMES[type] || type;
-  const confirmationMessage = `Are you sure you want to permanently delete this ${displayName}? (Deactivation is reversible, deletion is permanent)`;
+  const displayName = t(ENTITY_DISPLAY_NAMES[type] || type);
+  const confirmationMessage = t("common.confirm.deleteEntity", { entity: displayName });
   const confirmation = confirm(confirmationMessage);
   if (!confirmation) {
     return false;
@@ -180,16 +182,18 @@ export const handleDeleteSubmit = function (
 ) {
   event.preventDefault();
 
-  const displayName = ENTITY_DISPLAY_NAMES[type] || type;
-  const targetName = name ? `${displayName} "${name}"` : `this ${displayName}`;
-  const confirmationMessage = `Are you sure you want to permanently delete ${targetName}? (Deactivation is reversible, deletion is permanent)`;
+  const displayName = t(ENTITY_DISPLAY_NAMES[type] || type);
+  const targetName = name
+    ? t("common.confirm.entityQuoted", { entity: displayName, name })
+    : t("common.confirm.entityThis", { entity: displayName });
+  const confirmationMessage = t("common.confirm.deleteNamed", { target: targetName });
   const confirmation = confirm(confirmationMessage);
   if (!confirmation) {
     return false;
   }
 
   const purgeConfirmation = confirm(
-    `Also purge ALL metrics history for ${targetName}? This deletes raw metrics and hourly rollups and cannot be undone.`
+    t("common.confirm.purgeMetrics", { target: targetName })
   );
   if (purgeConfirmation) {
     const form = event.target;

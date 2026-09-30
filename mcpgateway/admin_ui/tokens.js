@@ -643,7 +643,7 @@ const showTokenCreatedModal = function (tokenData) {
 const revokeToken = async function (tokenId, tokenName) {
   if (
     !confirm(
-      `Are you sure you want to revoke the token "${tokenName}"? This action cannot be undone.`
+      t("tokens.confirmRevoke", { name: tokenName })
     )
   ) {
     return;

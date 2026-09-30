@@ -592,7 +592,7 @@ export const saveLLMProvider = async function (event) {
 export const deleteLLMProvider = async function (providerId, providerName) {
   if (
     !confirm(
-      `Are you sure you want to delete the provider "${providerName}"? This will also delete all associated models.`,
+      t("llm.providers.confirmDelete", { provider: providerName }),
     )
   ) {
     return;
@@ -950,7 +950,7 @@ export const saveLLMModel = async function (event) {
  * Delete LLM Model
  */
 export const deleteLLMModel = async function (modelId, modelName) {
-  if (!confirm(`Are you sure you want to delete the model "${modelName}"?`)) {
+  if (!confirm(t("llm.models.confirmDelete", { model: modelName }))) {
     return;
   }
 

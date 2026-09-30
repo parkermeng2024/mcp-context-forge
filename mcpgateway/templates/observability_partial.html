@@ -445,7 +445,7 @@ window.__obsExecAndStrip = function(html) {
         }
     },
     async deleteSavedQuery(queryId) {
-        if (!confirm('Are you sure you want to delete this saved query?')) return;
+        if (!confirm('{{ t('observability.savedQuery.confirmDelete') }}')) return;
         try {
             const response = await fetch(`{{ root_path }}/admin/observability/queries/${queryId}`, { method: 'DELETE' });
             if (response.ok) {

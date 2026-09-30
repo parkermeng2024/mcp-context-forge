@@ -14520,14 +14520,14 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
       function requestToJoinTeamSafe(button) {
         const teamId = button.getAttribute('data-team-id');
         const teamName = button.getAttribute('data-team-name');
-        if (confirm(`Request to join "${teamName}"?`)) {
+        if (confirm('{{ t('teams.confirm.requestJoin') }}'.replace('{team}', teamName))) {
           // HTMX call to create join request
           htmx.ajax('POST', window.ROOT_PATH + '/admin/teams/' + teamId + '/join-request', {
             target: button.parentElement,
             swap: 'innerHTML'
           }).catch(error => {
             // Handle network errors with toast notification
-            showToast('Failed to create join request. Please try again.', 'error');
+            showToast('{{ t('teams.toast.joinRequestFailed') }}', 'error');
           });
         }
       }
@@ -14535,7 +14535,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
       function leaveTeamSafe(button) {
         const teamId = button.getAttribute('data-team-id');
         const teamName = button.getAttribute('data-team-name');
-        if (confirm(`Leave team "${teamName}"? You will lose access to team resources.`)) {
+        if (confirm('{{ t('teams.confirm.leaveShort') }}'.replace('{team}', teamName))) {
           htmx.ajax('POST', window.ROOT_PATH + '/admin/teams/' + teamId + '/leave', {
             target: 'body',
             swap: 'none'
@@ -14589,7 +14589,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
       function deleteTeamSafe(button) {
         const teamId = button.getAttribute('data-team-id');
         const teamName = button.getAttribute('data-team-name');
-        if (confirm(`Delete team "${teamName}"? This action cannot be undone.`)) {
+        if (confirm('{{ t('teams.confirm.deleteTeam') }}'.replace('{team}', teamName))) {
           htmx.ajax('DELETE', window.ROOT_PATH + '/admin/teams/' + teamId, {
             target: 'body',
             swap: 'none'
@@ -14599,7 +14599,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
       }
 
       function cancelJoinRequest(teamId, requestId) {
-        if (confirm('Cancel your join request?')) {
+        if (confirm('{{ t('teams.confirm.cancelJoinRequest') }}')) {
           htmx.ajax('DELETE', window.ROOT_PATH + '/admin/teams/' + teamId + '/join-request/' + requestId, {
             target: 'body',
             swap: 'none'
@@ -14620,7 +14620,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
       }
 
       function approveJoinRequest(teamId, requestId) {
-        if (confirm('Approve this join request?')) {
+        if (confirm('{{ t('teams.confirm.approveJoinRequest') }}')) {
           htmx.ajax('POST', window.ROOT_PATH + '/admin/teams/' + teamId + '/join-requests/' + requestId + '/approve', {
             target: '#team-join-requests-modal-content',
             swap: 'innerHTML'
@@ -14629,7 +14629,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
       }
 
       function rejectJoinRequest(teamId, requestId) {
-        if (confirm('Reject this join request?')) {
+        if (confirm('{{ t('teams.confirm.rejectJoinRequest') }}')) {
           htmx.ajax('POST', window.ROOT_PATH + '/admin/teams/' + teamId + '/join-requests/' + requestId + '/reject', {
             target: '#team-join-requests-modal-content',
             swap: 'innerHTML'

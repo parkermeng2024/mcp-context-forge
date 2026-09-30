@@ -400,7 +400,7 @@ export const leaveTeam = async function (teamId, teamName) {
 
   // Show confirmation dialog
   const confirmed = confirm(
-    `Are you sure you want to leave the team "${teamName}"? This action cannot be undone.`
+    t("teams.confirm.leave", { team: teamName })
   );
   if (!confirmed) {
     return;
@@ -510,7 +510,7 @@ export const rejectJoinRequest = async function (teamId, requestId) {
   }
 
   const confirmed = confirm(
-    "Are you sure you want to reject this join request?"
+    t("teams.confirm.rejectJoinRequest")
   );
   if (!confirmed) {
     return;

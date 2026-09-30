@@ -1,8 +1,8 @@
 <!-- htmlhint doctype-first:false -->
 {%- set mode_label_map = {
-  'enforce': 'Enforce',
-  'permissive': 'Permissive',
-  'disabled': 'Disabled',
+  'enforce': t('plugins.bindings.mode.enforce'),
+  'permissive': t('plugins.bindings.mode.permissive'),
+  'disabled': t('plugins.bindings.mode.disabled'),
 } -%}
 {%- set mode_css_map = {
   'enforce': 'bg-red-100 text-red-800',
@@ -30,15 +30,15 @@
 
   {% if not plugin_ids %}
   <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
-    <p class="font-bold">No plugins available</p>
-    <p class="text-sm">Enable plugins via PLUGINS_ENABLED=true and configure them in your plugins config file.</p>
+    <p class="font-bold">{{ t('plugins.bindings.noPlugins') }}</p>
+    <p class="text-sm">{{ t('plugins.bindings.noPluginsHint') }}</p>
   </div>
   {% endif %}
 
   {% if not agent_names %}
   <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded">
-    <p class="font-bold">No A2A agents configured</p>
-    <p class="text-sm">Create A2A agents first, then configure plugin bindings for them.</p>
+    <p class="font-bold">{{ t('plugins.bindings.noAgents') }}</p>
+    <p class="text-sm">{{ t('plugins.bindings.noAgentsHint') }}</p>
   </div>
   {% endif %}
 
@@ -63,11 +63,11 @@
   <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-        Bindings ({{ bindings|length }})
+        {{ t('plugins.bindings.tableTitle', count=bindings|length) }}
       </h3>
       <button onclick="showAddBindingForm()"
               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-        + Add Binding
+        {{ t('plugins.bindings.add') }}
       </button>
     </div>
 
@@ -76,14 +76,14 @@
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Team</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Agent</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Plugin</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mode</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Priority</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">On Error</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Created By</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.team') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('plugins.bindings.table.agent') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('plugins.bindings.table.plugin') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('plugins.details.mode') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('plugins.details.priority') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('plugins.bindings.table.onError') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('plugins.bindings.table.createdBy') }}</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.actions') }}</th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -92,7 +92,7 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{{ binding.team_id[:8] }}…</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
               {% if binding.agent_name == '*' %}
-              <span class="text-indigo-600 dark:text-indigo-400">* (all agents)</span>
+              <span class="text-indigo-600 dark:text-indigo-400">{{ t('plugins.bindings.allAgents') }}</span>
               {% else %}
               {{ binding.agent_name }}
               {% endif %}
@@ -108,14 +108,14 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ binding.created_by }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <form method="post" action="{{ root_path }}/admin/a2a/plugin-bindings/{{ binding.id }}/delete"
-                    onsubmit="return confirm('Are you sure you want to delete this binding?')"
+                    onsubmit="return confirm('{{ t('plugins.bindings.confirmDelete') }}')"
                     hx-post="{{ root_path }}/admin/a2a/plugin-bindings/{{ binding.id }}/delete"
                     hx-target="#a2a-plugin-bindings-panel"
                     hx-swap="innerHTML"
                     class="inline">
                 <button type="submit"
                         class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                        title="Delete binding">
+                        title="{{ t('plugins.bindings.delete') }}">
                   <svg class="h-5 w-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
@@ -132,8 +132,8 @@
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
-      <p class="mt-2 text-lg">No bindings configured</p>
-      <p class="mt-1 text-sm">Add a binding to configure plugin policies for A2A agents.</p>
+      <p class="mt-2 text-lg">{{ t('plugins.bindings.empty') }}</p>
+      <p class="mt-1 text-sm">{{ t('plugins.bindings.emptyHint') }}</p>
     </div>
     {% endif %}
   </div>
@@ -150,66 +150,66 @@
               hx-swap="innerHTML"
               onsubmit="return validateBindingForm(event)">
           <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add Plugin Binding</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('plugins.bindings.addTitle') }}</h3>
           </div>
           <div class="px-6 py-4 space-y-4">
             <div>
-              <label for="new-binding-team" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Team</label>
+              <label for="new-binding-team" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('common.table.team') }}</label>
               <select id="new-binding-team" name="team_id" required
                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                <option value="">Select a team</option>
+                <option value="">{{ t('plugins.bindings.selectTeam') }}</option>
                 {% for team in teams %}
                 <option value="{{ team.id }}">{{ team.name }}</option>
                 {% endfor %}
               </select>
             </div>
             <div>
-              <label for="new-binding-agent" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Agent</label>
+              <label for="new-binding-agent" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('plugins.bindings.table.agent') }}</label>
               <select id="new-binding-agent" name="agent_name" required
                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                <option value="">Select an agent</option>
-                <option value="*">* (All Agents)</option>
+                <option value="">{{ t('plugins.bindings.selectAgent') }}</option>
+                <option value="*">{{ t('plugins.bindings.allAgentsOption') }}</option>
                 {% for name in agent_names %}
                 <option value="{{ name }}">{{ name }}</option>
                 {% endfor %}
               </select>
             </div>
             <div>
-              <label for="new-binding-plugin" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Plugin</label>
+              <label for="new-binding-plugin" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('plugins.bindings.table.plugin') }}</label>
               <select id="new-binding-plugin" name="plugin_id" required
                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                <option value="">Select a plugin</option>
+                <option value="">{{ t('plugins.bindings.selectPlugin') }}</option>
                 {% for pid in plugin_ids %}
                 <option value="{{ pid }}">{{ pid }}</option>
                 {% endfor %}
               </select>
             </div>
             <div>
-              <label for="new-binding-mode" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mode</label>
+              <label for="new-binding-mode" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('plugins.details.mode') }}</label>
               <select id="new-binding-mode" name="mode"
                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                <option value="enforce">Enforce</option>
-                <option value="permissive">Permissive</option>
-                <option value="disabled">Disabled</option>
+                <option value="enforce">{{ t('plugins.bindings.mode.enforce') }}</option>
+                <option value="permissive">{{ t('plugins.bindings.mode.permissive') }}</option>
+                <option value="disabled">{{ t('plugins.bindings.mode.disabled') }}</option>
               </select>
             </div>
             <div>
-              <label for="new-binding-priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
+              <label for="new-binding-priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('plugins.details.priority') }}</label>
               <input type="number" id="new-binding-priority" name="priority" value="50" min="0" max="999"
                      class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
             </div>
             <div>
-              <label for="new-binding-on-error" class="block text-sm font-medium text-gray-700 dark:text-gray-300">On Error</label>
+              <label for="new-binding-on-error" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('plugins.bindings.table.onError') }}</label>
               <select id="new-binding-on-error" name="on_error"
                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                <option value="">None (default)</option>
-                <option value="fail">Fail</option>
-                <option value="ignore">Ignore</option>
-                <option value="disable">Disable</option>
+                <option value="">{{ t('plugins.bindings.onError.none') }}</option>
+                <option value="fail">{{ t('plugins.bindings.onError.fail') }}</option>
+                <option value="ignore">{{ t('plugins.bindings.onError.ignore') }}</option>
+                <option value="disable">{{ t('plugins.bindings.onError.disable') }}</option>
               </select>
             </div>
             <div>
-              <label for="new-binding-config" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Config (JSON)</label>
+              <label for="new-binding-config" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('plugins.bindings.config') }}</label>
               <textarea id="new-binding-config" name="config" rows="3"
                         class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm font-mono"
                         placeholder="{}"></textarea>
@@ -258,7 +258,7 @@ function validateBindingForm(event) {
   const configRaw = document.getElementById('new-binding-config').value || '{}';
 
   if (!team || !agent || !plugin) {
-    alert('Please fill in Team, Agent, and Plugin fields.');
+    alert({{ t('plugins.bindings.validation.required') | tojson }});
     event.preventDefault();
     return false;
   }
@@ -266,7 +266,7 @@ function validateBindingForm(event) {
   try {
     JSON.parse(configRaw);
   } catch (e) {
-    alert('Invalid JSON in config field: ' + e.message);
+    alert({{ t('plugins.bindings.validation.invalidJson', error='') | tojson }} + e.message);
     event.preventDefault();
     return false;
   }
