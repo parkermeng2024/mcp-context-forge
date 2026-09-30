@@ -8370,7 +8370,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
     class="bg-white dark:bg-gray-900 w-full max-w-3xl rounded-lg shadow-lg p-6"
   >
     <h2 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">
-      View Descriptions
+      {{ t('tools.descriptions.title') }}
     </h2>
 
     <form id="description-view-form" class="space-y-4 text-gray-800 dark:text-gray-100">
@@ -8380,7 +8380,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
           for="view-old-description"
           class="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
-          Original Description
+          {{ t('tools.descriptions.original') }}
         </label>
         <textarea
           id="view-old-description"
@@ -8388,7 +8388,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
           rows="5"
           readonly
           class="mt-1 block w-full rounded-md shadow-sm p-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-          placeholder="Old description will appear here"
+          placeholder="{{ t('tools.descriptions.originalPlaceholder') }}"
         ></textarea>
       </div>
 
@@ -8398,7 +8398,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
           for="view-new-description"
           class="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
-          Enriched Description
+          {{ t('tools.descriptions.enriched') }}
         </label>
         <textarea
           id="view-new-description"
@@ -8406,7 +8406,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
           rows="5"
           readonly
           class="mt-1 block w-full rounded-md shadow-sm p-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-          placeholder="Enriched description will appear here"
+          placeholder="{{ t('tools.descriptions.enrichedPlaceholder') }}"
         ></textarea>
       </div>
 
@@ -8418,7 +8418,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
           id="close-description-view"
           class="w-1/2 px-4 py-2 border border-blue-600 rounded bg-white text-gray-700 hover:bg-gray-200"
         >
-          Close
+          {{ t('common.actions.close') }}
         </button>
       </div>
     </form>
@@ -8434,7 +8434,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
           id="tool-validation-modal-title"
           class="text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          Test Tool
+          {{ t('tools.test.modalTitle') }}
         </h2>
         <button
           data-action-click="closeModal" data-arg0="tool-validation-modal"
@@ -8458,7 +8458,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 data-action-click="closeModal" data-arg0="tool-validation-modal" data-arg1="tool-validation-result"
                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:text-gray-300"
               >
-                Close
+                {{ t('common.actions.close') }}
               </button>
     </div>
 
@@ -8486,7 +8486,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 id="tool-test-modal-title"
                 class="text-lg font-medium text-gray-900 dark:text-gray-100"
               >
-                Test Tool
+                {{ t('tools.test.modalTitle') }}
               </h3>
               <!-- New container to show the tool's description -->
               <div
@@ -8506,11 +8506,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       for="test-passthrough-headers"
                       class="block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Passthrough Headers (Optional)
+                      {{ t('tools.test.passthroughHeaders') }}
                     </label>
                     <small class="text-gray-500 dark:text-gray-400 block mb-2">
-                      Additional headers to send with the request (format:
-                      "Header-Name: Value", one per line)
+                      {{ t('tools.test.passthroughHeadersDesc') }}
                     </small>
                     <textarea
                       id="test-passthrough-headers"
@@ -8527,7 +8526,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     data-action-click="runToolTest"
                     class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
                   >
-                    Run Tool
+                    {{ t('tools.test.runButton') }}
                   </button>
                 </div>
                 <div id="tool-test-loading" style="display: none">
@@ -8549,7 +8548,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 data-action-click="closeModal" data-arg0="tool-test-modal" data-arg1="tool-test-result"
                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:text-gray-300"
               >
-                Close
+                {{ t('common.actions.close') }}
               </button>
             </div>
           </div>
