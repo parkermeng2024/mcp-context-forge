@@ -10049,7 +10049,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Grant Type
+                            {{ t('gateways.form.grantType') }}
                           </label>
                           <select
                             name="oauth_grant_type"
@@ -10057,13 +10057,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                           >
                             <option value="authorization_code" selected>
-                              Authorization Code (User Delegation)
+                              {{ t('gateways.form.grantAuthorizationCode') }}
                             </option>
                             <option value="client_credentials">
-                              Client Credentials (Machine-to-Machine)
+                              {{ t('gateways.form.grantClientCredentials') }}
                             </option>
                             <option value="password">
-                              Resource Owner Password Credentials (Keycloak/Legacy)
+                              {{ t('gateways.form.grantPassword') }}
                             </option>
                           </select>
                         </div>
@@ -10099,7 +10099,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Resource (Audience) <span class="text-gray-500">(optional)</span>
+                            {{ t('gateways.form.resource') }} <span class="text-gray-500">{{ t('common.label.optional') }}</span>
                           </label>
                           <input
                             type="text"
@@ -10109,15 +10109,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             placeholder="https://api.example.com or your-client-id"
                           />
                           <p class="mt-1 text-sm text-gray-500">
-                            RFC 8707 resource indicator sent to the IdP. When admins
-                            leave this blank, the gateway derives it from the gateway URL
-                            origin, and each user's actual token audience is auto-learned
-                            per-user on their own OAuth callback. Set explicitly here to
-                            force a global (all-user) audience — for example, when you
-                            need a specific Application ID URI in multi-tenant Entra ID.
-                            To make a stored value take effect again, users simply
-                            re-authenticate; to clear this admin-configured value,
-                            blank the field and save.
+                            {{ t('gateways.form.resourceHintAdmin') }}
                           </p>
                         </div>
 
@@ -10125,17 +10117,17 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Client ID <span class="text-gray-500">(optional for DCR)</span>
+                            {{ t('gateways.form.clientId') }} <span class="text-gray-500">{{ t('gateways.form.optionalForDcr') }}</span>
                           </label>
                           <input
                             type="text"
                             name="oauth_client_id"
                             id="oauth-client-id-gw-edit"
                             class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                            placeholder="Leave empty for auto-registration via DCR"
+                            placeholder="{{ t('gateways.form.dcrPlaceholder') }}"
                           />
                           <p class="mt-1 text-sm text-blue-600">
-                            💡 Leave empty if the server supports DCR - credentials will be auto-registered
+                            {{ t('gateways.form.dcrHint') }}
                           </p>
                         </div>
 
@@ -10143,7 +10135,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Client Secret <span class="text-gray-500">(optional for DCR)</span>
+                            {{ t('gateways.form.clientSecret') }} <span class="text-gray-500">{{ t('gateways.form.optionalForDcr') }}</span>
                           </label>
                           <input
                             type="password"
@@ -10151,13 +10143,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             id="oauth-client-secret-gw-edit"
                             autocomplete="off"
                             class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                            placeholder="Leave empty for auto-registration via DCR"
+                            placeholder="{{ t('gateways.form.dcrPlaceholder') }}"
                           />
                           <p class="mt-1 text-sm text-gray-500">
-                            Leave blank to retain the current secret (when editing).
+                            {{ t('gateways.form.secretRetainHint') }}
                           </p>
                           <p class="mt-1 text-sm text-blue-600">
-                            💡 Leave empty if the server supports DCR - credentials will be auto-registered
+                            {{ t('gateways.form.dcrHint') }}
                           </p>
                         </div>
 
@@ -10176,7 +10168,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             placeholder="systemadmin@system.com"
                           />
                           <p class="mt-1 text-sm text-gray-500">
-                            Required for Resource Owner Password Credentials grant type (Keycloak).
+                            {{ t('gateways.form.passwordGrantHint') }}
                           </p>
                         </div>
 
@@ -10184,7 +10176,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Password <span class="text-red-500">*</span> <span class="text-gray-500">(for password grant)</span>
+                            {{ t('common.field.password') }} <span class="text-red-500">*</span> <span class="text-gray-500">{{ t('gateways.form.forPasswordGrant') }}</span>
                           </label>
                           <input
                             type="password"
@@ -10192,10 +10184,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             id="oauth-password-gw-edit"
                             autocomplete="off"
                             class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                            placeholder="Enter password"
+                            placeholder="{{ t('gateways.form.enterPassword') }}"
                           />
                           <p class="mt-1 text-sm text-gray-500">
-                            Required for Resource Owner Password Credentials grant type (Keycloak).
+                            {{ t('gateways.form.passwordGrantHint') }}
                           </p>
                         </div>
 
@@ -10221,7 +10213,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             <label
                               class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                             >
-                              Authorization URL
+                              {{ t('gateways.form.authorizationUrl') }}
                             </label>
                             <input
                               type="url"
@@ -10231,7 +10223,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               placeholder="https://oauth.example.com/authorize"
                             />
                             <p class="mt-1 text-sm text-gray-500">
-                              The OAuth provider's authorization endpoint URL
+                              {{ t('gateways.form.authorizationUrlHint') }}
                             </p>
                           </div>
 
@@ -10239,7 +10231,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             <label
                               class="mt-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                             >
-                              Redirect URI
+                              {{ t('gateways.form.redirectUri') }}
                             </label>
                             <input
                               type="url"
@@ -10249,11 +10241,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               placeholder="https://gateway.example.com/oauth/callback"
                             />
                             <p class="mt-1 text-sm text-gray-500">
-                              This must match the redirect URI configured in
-                              your OAuth application
+                              {{ t('gateways.form.redirectUriHint') }}
                             </p>
                             <p class="mt-1 text-sm text-blue-600 font-medium">
-                              💡 Use:
+                              {{ t('gateways.form.useLabel') }}
                               <code class="bg-blue-100 px-1 rounded"
                                 >{{ request.base_url }}oauth/callback</code
                               >
@@ -10265,7 +10256,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Post-OAuth Redirect URL
+                            {{ t('gateways.form.postOauthRedirect') }}
                           </label>
                           <input
                             type="url"
@@ -10275,11 +10266,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             placeholder="{{ oauth_redirect_allowed_origin }}/oauth-complete"
                           />
                             <p class="mt-1 text-sm text-gray-500">
-                              Optional. After authorization, redirect the browser
-                              to this URL. Leave blank to use the built-in success page.
+                              {{ t('gateways.form.postOauthRedirectHint') }}
                             </p>
                             <p class="mt-1 text-sm text-blue-600 font-medium">
-                              Must use the origin configured by
+                              {{ t('gateways.form.postOauthRedirectMustUse') }}
                               <code class="bg-blue-100 px-1 rounded font-mono">OAUTH_REDIRECT_ALLOWED_ORIGIN</code>
                             </p>
                           </div>
@@ -10289,7 +10279,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             <label
                               class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                             >
-                              Scopes
+                              {{ t('gateways.form.scopes') }}
                             </label>
                             <input
                               type="text"
@@ -10299,8 +10289,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               placeholder="repo read:user (space-separated)"
                             />
                             <p class="mt-1 text-sm text-gray-500">
-                              Space-separated list of OAuth scopes (e.g., "repo
-                              read:user")
+                              {{ t('gateways.form.scopesHint') }}
                             </p>
                           </div>
                         </div>
@@ -10313,13 +10302,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           name="one_time_auth"
                           id="single-use-auth-gw-edit"
                           class="form-checkbox h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-800 dark:border-gray-600"
-                          x-tooltip="'💡This will not store the server credentials, Some features may not work.'"
+                          x-tooltip="'💡{{ t('gateways.form.oneTimeAuthTooltip') }}'"
                           data-action-change="toggleOneTimeAuthHint" data-arg0="single-use-auth-hint-gw-edit"
                         />
                         <span
                           class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
                         >
-                          Use one-time authentication
+                          {{ t('gateways.form.oneTimeAuth') }}
                         </span>
                       </label>
                       <p
@@ -10327,20 +10316,18 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         style="display: none"
                         class="mt-2 text-sm text-gray-700 dark:text-gray-300 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded-md p-2"
                       >
-                        ⚠️ NOTE: Authentication won't be stored in the gateway. Configure Passthrough headers for reuse. Health checks will be disabled.
+                        ⚠️ {{ t('gateways.form.oneTimeAuthHint') }}
                       </p>
                     </div>
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                        >Passthrough Headers</label
+                        >{{ t('gateways.form.passthroughHeaders') }}</label
                       >
                       <small
                         class="text-gray-500 dark:text-gray-400 block mb-2"
                       >
-                        List of headers to pass through from client requests
-                        (comma-separated, e.g., "Authorization, X-Tenant-Id,
-                        X-Trace-Id"). Leave empty to use global defaults.
+                        {{ t('gateways.form.passthroughHeadersHint') }}
                       </small>
                       <input
                         type="text"
@@ -10359,13 +10346,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       data-action-click="closeModal" data-arg0="gateway-edit-modal"
                       class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:text-gray-300"
                     >
-                      Cancel
+                      {{ t('common.actions.cancel') }}
                     </button>
                     <button
                       type="submit"
                       class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                      Save Changes
+                      {{ t('common.actions.saveChanges') }}
                     </button>
                   </div>
                 </form>
