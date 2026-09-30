@@ -5918,7 +5918,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
           <div class="flex justify-between items-center mb-8">
             <div>
               <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-200">
-                👥 My Teams
+                {{ t('teams.panel.title') }}
               </h2>
               <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Teams you own, are a member of, and can join
@@ -6024,9 +6024,9 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
       {% if email_auth_enabled and 'users' not in hidden_sections %}
       <div id="users-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold dark:text-gray-200">User Management</h2>
+          <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('users.panel.title') }}</h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Manage user accounts and permissions
+            {{ t('users.panel.hint') }}
           </p>
         </div>
 
@@ -6238,7 +6238,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
       <div id="tokens-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold dark:text-gray-200">
-            API Token Management
+            {{ t('tokens.panel.title') }}
           </h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Create and manage personal API tokens with scoped access controls
@@ -6577,7 +6577,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
        <div id="a2a-agents-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold dark:text-gray-200">
-            A2A Agents Catalog
+            {{ t('a2a.panel.title') }}
           </h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Manage Agent-to-Agent compatible agents that can be integrated as
@@ -7521,7 +7521,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
       <div id="grpc-services-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold dark:text-gray-200">
-            gRPC Services Registry
+            {{ t('grpc.panel.title') }}
           </h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Manage gRPC services exposed as MCP tools via automatic reflection
