@@ -8573,7 +8573,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               class="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
             >
               <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Edit Tool
+                {{ t('tools.edit.title') }}
               </h3>
               <div class="mt-4">
                 <form id="edit-tool-form" method="POST">
@@ -8584,7 +8584,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                         for="edit-tool-custom-name"
-                        >Name</label
+                        >{{ t('tools.edit.name') }}</label
                       >
                       <input
                         type="text"
@@ -8593,19 +8593,19 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         id="edit-tool-custom-name"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
-                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">Name is required.</p>
+                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('tools.edit.nameRequired') }}</p>
                     </div>
 
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Display Name</label
+                        >{{ t('tools.edit.displayName') }}</label
                       >
                       <input
                         type="text"
                         name="displayName"
                         id="edit-tool-display-name"
-                        placeholder="Custom display name for your UI"
+                        placeholder="{{ t('tools.edit.displayNamePlaceholder') }}"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
                     </div>
@@ -8614,7 +8614,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       <label
                         for="edit-tool-url"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >URL</label
+                        >{{ t('tools.edit.url') }}</label
                       >
                       <input
                         type="url"
@@ -8623,12 +8623,12 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         id="edit-tool-url"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
-                      <p data-error-message-for="url" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">URL is required.</p>
+                      <p data-error-message-for="url" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('tools.edit.urlRequired') }}</p>
                     </div>
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Description</label
+                        >{{ t('common.field.description') }}</label
                       >
                       <textarea
                         name="description"
@@ -8639,7 +8639,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Integration Type</label
+                        >{{ t('tools.edit.integrationType') }}</label
                       >
                       <select
                         name="integrationType"
@@ -8654,7 +8654,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Request Type</label
+                        >{{ t('tools.edit.requestType') }}</label
                       >
                       <select
                         name="requestType"
@@ -8665,7 +8665,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Headers (JSON)</label
+                        >{{ t('tools.edit.headers') }}</label
                       >
                       <textarea
                         name="headers"
@@ -8676,7 +8676,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Input Schema (JSON)</label
+                        >{{ t('tools.edit.inputSchema') }}</label
                       >
                       <textarea
                         name="input_schema"
@@ -8687,7 +8687,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Output Schema (JSON)</label
+                        >{{ t('tools.edit.outputSchema') }}</label
                       >
                       <textarea
                         name="output_schema"
@@ -8696,49 +8696,48 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         placeholder="{&quot;type&quot;: &quot;object&quot;, &quot;properties&quot;}"
                       ></textarea>
                       <p class="mt-1 text-xs text-gray-500 dark:text-indigo-300">
-                        Optional JSON Schema for validating structured tool output. Per MCP spec, servers should return structured results that conform to this schema.
+                        {{ t('tools.edit.outputSchemaHint') }}
                       </p>
                     </div>
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Annotations (JSON)</label
+                        >{{ t('tools.edit.annotations') }}</label
                       >
                       <textarea
                         name="annotations"
                         id="edit-tool-annotations"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm text-gray-900 placeholder-gray-600 dark:placeholder-gray-400 bg-white dark:bg-gray-800"
-                        placeholder="Annotations are generally provided by the MCP servers"
+                        placeholder="{{ t('tools.edit.annotationsPlaceholder') }}"
                       ></textarea>
                       <p
                         class="mt-1 text-xs text-gray-500 dark:text-indigo-300"
                       >
-                        Annotations like readOnlyHint, destructiveHint are
-                        generally provided by the MCP server.
+                        {{ t('tools.edit.annotationsHint') }}
                       </p>
                     </div>
                     <!-- Authentication Section -->
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Authentication Type</label
+                        >{{ t('common.field.authenticationType') }}</label
                       >
                       <select
                         name="auth_type"
                         id="edit-auth-type"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       >
-                        <option value="">None</option>
-                        <option value="basic">Basic</option>
-                        <option value="bearer">Bearer Token</option>
-                        <option value="authheaders">Custom Headers</option>
+                        <option value="">{{ t('a2a.form.authNone') }}</option>
+                        <option value="basic">{{ t('gateways.form.authBasic') }}</option>
+                        <option value="bearer">{{ t('gateways.form.authBearer') }}</option>
+                        <option value="authheaders">{{ t('a2a.form.customHeaders') }}</option>
                       </select>
                     </div>
                     <div id="edit-auth-basic-fields" style="display: none">
                       <div class="relative">
                         <label
                           class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                          >Username</label
+                          >{{ t('common.field.username') }}</label
                         >
                         <input
                           type="text"
@@ -8751,7 +8750,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       <div>
                         <label
                           class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                          >Password</label
+                          >{{ t('common.field.password') }}</label
                         >
                         <input
                           type="password"
@@ -8767,7 +8766,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       <div>
                         <label
                           class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                          >Token</label
+                          >{{ t('common.field.token') }}</label
                         >
                         <input
                           type="password"
@@ -8786,7 +8785,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         <label
                           class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                         >
-                          Custom Headers
+                          {{ t('a2a.form.customHeaders') }}
                         </label>
                         <button
                           type="button"
@@ -8823,25 +8822,24 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   <div>
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                      >Tags</label
+                      >{{ t('common.table.tags') }}</label
                     >
                     <input
                       type="text"
                       name="tags"
                       id="edit-tool-tags"
-                      placeholder="e.g., api,data-processing,external (comma-separated)"
+                      placeholder="{{ t('tools.edit.tagsPlaceholder') }}"
                       class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                     />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Enter tags separated by commas. Tags help categorize and
-                      filter tools.
+                      {{ t('tools.edit.tagsHint') }}
                     </p>
                   </div>
                   <!-- Visibility options -->
                   <div id="edit-tool-visibility" class="mt-4">
                     <label
                       class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                      >Visibility</label
+                      >{{ t('a2a.form.visibility') }}</label
                     >
                     <div class="flex gap-x-6 mt-2">
                       <!-- Add gap-x-6 for more space between radio options -->
@@ -8857,7 +8855,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         <label
                           for="edit-tool-visibility-public"
                           class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                          >🌍Public</label
+                          >{{ t('common.visibility.radio.public') }}</label
                         >
                       </div>
 
@@ -8872,7 +8870,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         <label
                           for="edit-tool-visibility-team"
                           class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                          >👥Team</label
+                          >{{ t('common.visibility.radio.team') }}</label
                         >
                       </div>
                       <div class="flex items-center">
@@ -8886,7 +8884,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         <label
                           for="edit-tool-visibility-private"
                           class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                          >🔒Private</label
+                          >{{ t('common.visibility.radio.private') }}</label
                         >
                       </div>
                     </div>
@@ -8899,13 +8897,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       data-action-click="closeModal" data-arg0="tool-edit-modal"
                       class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:text-gray-300"
                     >
-                      Cancel
+                      {{ t('common.actions.cancel') }}
                     </button>
                     <button
                       type="submit"
                       class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                      Save Changes
+                      {{ t('common.actions.saveChanges') }}
                     </button>
                   </div>
                 </form>
