@@ -560,22 +560,22 @@ window.createResourcesController = function() {
   <div class="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/30 p-4">
     <div class="flex flex-wrap gap-4 items-end">
       <div class="flex-1 min-w-[200px]">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time Range</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('obs.metrics.filter.timeRange') }}</label>
         <select x-model="timeRange" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
-          <option value="1">Last 1 Hour</option>
-          <option value="6">Last 6 Hours</option>
-          <option value="24">Last 24 Hours</option>
-          <option value="72">Last 3 Days</option>
-          <option value="168">Last 7 Days</option>
+          <option value="1">{{ t('obs.metrics.range.last1h') }}</option>
+          <option value="6">{{ t('obs.metrics.range.last6h') }}</option>
+          <option value="24">{{ t('obs.metrics.range.last24h') }}</option>
+          <option value="72">{{ t('obs.metrics.range.last3d') }}</option>
+          <option value="168">{{ t('obs.metrics.range.last7d') }}</option>
         </select>
       </div>
       <div class="flex-1 min-w-[200px]">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Results Limit</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('obs.metrics.filter.resultsLimit') }}</label>
         <select x-model="limit" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
-          <option value="10">Top 10</option>
-          <option value="20">Top 20</option>
-          <option value="50">Top 50</option>
-          <option value="100">Top 100</option>
+          <option value="10">{{ t('obs.metrics.topN.n10') }}</option>
+          <option value="20">{{ t('obs.metrics.topN.n20') }}</option>
+          <option value="50">{{ t('obs.metrics.topN.n50') }}</option>
+          <option value="100">{{ t('obs.metrics.topN.n100') }}</option>
         </select>
       </div>
       <div class="flex-shrink-0">
@@ -600,7 +600,7 @@ window.createResourcesController = function() {
     }">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Overall Health</p>
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ t('obs.metrics.health.overall') }}</p>
           <p class="mt-2 text-3xl font-bold" :class="{
             'text-green-600 dark:text-green-400': summaryCards.overallHealth === 'good',
             'text-yellow-600 dark:text-yellow-400': summaryCards.overallHealth === 'warning',
@@ -614,7 +614,7 @@ window.createResourcesController = function() {
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/30 p-6 border-l-4 border-green-500">
       <div class="flex items-center justify-between">
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Most Fetched</p>
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ t('obs.resources.mostFetched') }}</p>
           <p class="mt-2 text-lg font-semibold text-gray-900 dark:text-gray-100 truncate" x-text="summaryCards.mostUsed?.name || 'N/A'"></p>
           <p class="text-sm text-green-600 dark:text-green-400 font-medium" x-text="summaryCards.mostUsed ? `${summaryCards.mostUsed.value} ${summaryCards.mostUsed.metric}` : ''"></p>
         </div>
@@ -626,7 +626,7 @@ window.createResourcesController = function() {
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/30 p-6 border-l-4 border-orange-500">
       <div class="flex items-center justify-between">
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Slowest Resource</p>
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ t('obs.resources.slowest') }}</p>
           <p class="mt-2 text-lg font-semibold text-gray-900 dark:text-gray-100 truncate" x-text="summaryCards.slowest?.name || 'N/A'"></p>
           <p class="text-sm text-orange-600 dark:text-orange-400 font-medium" x-text="summaryCards.slowest ? `${summaryCards.slowest.value} ${summaryCards.slowest.metric}` : ''"></p>
         </div>
@@ -638,7 +638,7 @@ window.createResourcesController = function() {
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/30 p-6 border-l-4 border-red-500">
       <div class="flex items-center justify-between">
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Most Error-Prone</p>
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ t('obs.metrics.mostErrorProne') }}</p>
           <p class="mt-2 text-lg font-semibold text-gray-900 dark:text-gray-100 truncate" x-text="summaryCards.mostErrorProne?.name || 'None'"></p>
           <p class="text-sm text-red-600 dark:text-red-400 font-medium" x-text="summaryCards.mostErrorProne ? `${summaryCards.mostErrorProne.value}${summaryCards.mostErrorProne.metric}` : '0% errors'"></p>
         </div>
@@ -670,21 +670,21 @@ window.createResourcesController = function() {
 
   <!-- Resource Performance Table -->
   <div class="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/30 p-6">
-    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Resource Performance Metrics</h3>
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ t('obs.resources.metricsTitle') }}</h3>
     <div class="overflow-x-auto">
       <table id="resourcePerformanceTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead class="bg-gray-50 dark:bg-gray-700/50">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Resource URI</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Count</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Avg</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Min</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('obs.resources.table.uri') }}</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('obs.metrics.table.count') }}</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('obs.metrics.table.avg') }}</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('obs.metrics.table.min') }}</th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">p50</th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">p90</th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">p95</th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">p99</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Max</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('obs.metrics.table.max') }}</th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"></tbody>
