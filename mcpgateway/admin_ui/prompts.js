@@ -1,5 +1,6 @@
 import { AppState } from "./appState.js";
 import { getSelectedGatewayIds } from "./gateways.js";
+import { getLocale, t } from "./i18n.js";
 import { openModal } from "./modals.js";
 import { escapeAttrValue, escapeHtml, validateInputName, validateJson } from "./security.js";
 import { getEditSelections } from "./servers.js";
@@ -33,7 +34,7 @@ export const viewPrompt = async function (promptName) {
     const prompt = await response.json();
     const promptLabel =
       prompt.displayName || prompt.originalName || prompt.name || prompt.id;
-    const gatewayLabel = prompt.gatewaySlug || "Local";
+    const gatewayLabel = prompt.gatewaySlug || t("common.gatewayLocal");
 
     const promptDetailsDiv = safeGetElement("prompt-details");
     if (promptDetailsDiv) {
@@ -41,45 +42,45 @@ export const viewPrompt = async function (promptName) {
         <div class="grid grid-cols-2 gap-6 mb-6">
         <div class="space-y-3">
             <div>
-              <span id="prompt-id-label" class="font-medium text-gray-700 dark:text-gray-300">Prompt ID:</span>
+              <span id="prompt-id-label" class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("prompts.detail.promptId"))}</span>
               <div class="mt-1 prompt-id text-sm font-mono text-indigo-600 dark:text-indigo-400" aria-labelledby="prompt-id-label"></div>
             </div>
             <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">Display Name:</span>
+            <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("prompts.detail.displayName"))}</span>
             <div class="mt-1 prompt-display-name font-medium"></div>
             </div>
             <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">Technical Name:</span>
+            <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("prompts.detail.technicalName"))}</span>
             <div class="mt-1 prompt-name text-sm font-mono"></div>
             </div>
             <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">Original Name:</span>
+            <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("prompts.detail.originalName"))}</span>
             <div class="mt-1 prompt-original-name text-sm font-mono"></div>
             </div>
             <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">Custom Name:</span>
+            <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("prompts.detail.customName"))}</span>
             <div class="mt-1 prompt-custom-name text-sm font-mono"></div>
             </div>
             <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">Gateway Name:</span>
+            <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("prompts.detail.gatewayName"))}</span>
             <div class="mt-1 prompt-gateway text-sm"></div>
             </div>
             <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">Visibility:</span>
+            <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("prompts.detail.visibility"))}</span>
             <div class="mt-1 prompt-visibility text-sm"></div>
             </div>
         </div>
         <div class="space-y-3">
             <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">Description:</span>
+            <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("prompts.detail.description"))}</span>
             <div class="mt-1 prompt-description text-sm"></div>
             </div>
             <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">Tags:</span>
+            <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("prompts.detail.tags"))}</span>
             <div class="mt-1 prompt-tags text-sm"></div>
             </div>
             <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">Status:</span>
+            <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(t("prompts.detail.status"))}</span>
             <div class="mt-1 prompt-status text-sm"></div>
             </div>
         </div>
@@ -87,51 +88,51 @@ export const viewPrompt = async function (promptName) {
 
         <div class="space-y-4">
         <div>
-            <strong class="text-gray-700 dark:text-gray-300">Template:</strong>
+            <strong class="text-gray-700 dark:text-gray-300">${escapeHtml(t("common.detail.template"))}</strong>
             <pre class="mt-1 bg-gray-100 p-3 rounded text-xs dark:bg-gray-800 dark:text-gray-200 prompt-template overflow-x-auto"></pre>
         </div>
         <div>
-            <strong class="text-gray-700 dark:text-gray-300">Arguments:</strong>
+            <strong class="text-gray-700 dark:text-gray-300">${escapeHtml(t("common.detail.arguments"))}</strong>
             <pre class="mt-1 bg-gray-100 p-3 rounded text-xs dark:bg-gray-800 dark:text-gray-200 prompt-arguments overflow-x-auto"></pre>
         </div>
         </div>
 
         <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
-        <strong class="text-gray-700 dark:text-gray-300">Metrics:</strong>
+        <strong class="text-gray-700 dark:text-gray-300">${escapeHtml(t("common.metrics.title"))}</strong>
         <div class="grid grid-cols-2 gap-4 mt-3 text-sm">
             <div class="space-y-2">
             <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Total Executions:</span>
+                <span class="text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metrics.totalExecutions"))}</span>
                 <span class="metric-total font-medium"></span>
             </div>
             <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Successful Executions:</span>
+                <span class="text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metrics.successfulExecutions"))}</span>
                 <span class="metric-success font-medium text-green-600"></span>
             </div>
             <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Failed Executions:</span>
+                <span class="text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metrics.failedExecutions"))}</span>
                 <span class="metric-failed font-medium text-red-600"></span>
             </div>
             <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Failure Rate:</span>
+                <span class="text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metrics.failureRate"))}</span>
                 <span class="metric-failure-rate font-medium"></span>
             </div>
             </div>
             <div class="space-y-2">
             <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Min Response Time:</span>
+                <span class="text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metrics.minResponseTime"))}</span>
                 <span class="metric-min-time font-medium"></span>
             </div>
             <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Max Response Time:</span>
+                <span class="text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metrics.maxResponseTime"))}</span>
                 <span class="metric-max-time font-medium"></span>
             </div>
             <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Average Response Time:</span>
+                <span class="text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metrics.avgResponseTime"))}</span>
                 <span class="metric-avg-time font-medium"></span>
             </div>
             <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Last Execution Time:</span>
+                <span class="text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metrics.lastExecutionTime"))}</span>
                 <span class="metric-last-time font-medium"></span>
             </div>
             </div>
@@ -139,46 +140,46 @@ export const viewPrompt = async function (promptName) {
         </div>
 
         <div class="mt-6 border-t pt-4">
-        <strong>Metadata:</strong>
+        <strong>${escapeHtml(t("common.metadata.title"))}</strong>
         <div class="grid grid-cols-2 gap-4 mt-2 text-sm">
             <div>
-            <span class="font-medium text-gray-600 dark:text-gray-400">Created By:</span>
+            <span class="font-medium text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metadata.createdBy"))}</span>
             <span class="ml-2 metadata-created-by"></span>
             </div>
             <div>
-            <span class="font-medium text-gray-600 dark:text-gray-400">Created At:</span>
+            <span class="font-medium text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metadata.createdAt"))}</span>
             <span class="ml-2 metadata-created-at"></span>
             </div>
             <div>
-            <span class="font-medium text-gray-600 dark:text-gray-400">Created From IP:</span>
+            <span class="font-medium text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metadata.createdFromIp"))}</span>
             <span class="ml-2 metadata-created-from"></span>
             </div>
             <div>
-            <span class="font-medium text-gray-600 dark:text-gray-400">Created Via:</span>
+            <span class="font-medium text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metadata.createdVia"))}</span>
             <span class="ml-2 metadata-created-via"></span>
             </div>
             <div>
-            <span class="font-medium text-gray-600 dark:text-gray-400">Last Modified By:</span>
+            <span class="font-medium text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metadata.modifiedBy"))}</span>
             <span class="ml-2 metadata-modified-by"></span>
             </div>
             <div>
-            <span class="font-medium text-gray-600 dark:text-gray-400">Last Modified At:</span>
+            <span class="font-medium text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metadata.modifiedAt"))}</span>
             <span class="ml-2 metadata-modified-at"></span>
             </div>
             <div>
-            <span class="font-medium text-gray-600 dark:text-gray-400">Modified From IP:</span>
+            <span class="font-medium text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metadata.modifiedFromIp"))}</span>
             <span class="ml-2 metadata-modified-from"></span>
             </div>
             <div>
-            <span class="font-medium text-gray-600 dark:text-gray-400">Modified Via:</span>
+            <span class="font-medium text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metadata.modifiedVia"))}</span>
             <span class="ml-2 metadata-modified-via"></span>
             </div>
             <div>
-            <span class="font-medium text-gray-600 dark:text-gray-400">Version:</span>
+            <span class="font-medium text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metadata.version"))}</span>
             <span class="ml-2 metadata-version"></span>
             </div>
             <div>
-            <span class="font-medium text-gray-600 dark:text-gray-400">Import Batch:</span>
+            <span class="font-medium text-gray-600 dark:text-gray-400">${escapeHtml(t("common.metadata.importBatch"))}</span>
             <span class="ml-2 metadata-import-batch"></span>
             </div>
         </div>
@@ -250,7 +251,7 @@ export const viewPrompt = async function (promptName) {
       if (argsEl) {
         const args = prompt.arguments;
         if (!args || args.length === 0) {
-          argsEl.textContent = "No arguments";
+          argsEl.textContent = t("prompts.detail.noArguments");
         } else {
           argsEl.textContent = JSON.stringify(args, null, 2);
         }
@@ -261,10 +262,10 @@ export const viewPrompt = async function (promptName) {
         setText(".metric-success", prompt.metrics.successfulExecutions ?? 0);
         setText(".metric-failed", prompt.metrics.failedExecutions ?? 0);
         setText(".metric-failure-rate", prompt.metrics.failureRate ?? 0);
-        setText(".metric-min-time", prompt.metrics.minResponseTime ?? "N/A");
-        setText(".metric-max-time", prompt.metrics.maxResponseTime ?? "N/A");
-        setText(".metric-avg-time", prompt.metrics.avgResponseTime ?? "N/A");
-        setText(".metric-last-time", prompt.metrics.lastExecutionTime ?? "N/A");
+        setText(".metric-min-time", prompt.metrics.minResponseTime ?? t("common.na"));
+        setText(".metric-max-time", prompt.metrics.maxResponseTime ?? t("common.na"));
+        setText(".metric-avg-time", prompt.metrics.avgResponseTime ?? t("common.na"));
+        setText(".metric-last-time", prompt.metrics.lastExecutionTime ?? t("common.na"));
       } else {
         [
           ".metric-total",
@@ -275,7 +276,7 @@ export const viewPrompt = async function (promptName) {
           ".metric-max-time",
           ".metric-avg-time",
           ".metric-last-time",
-        ].forEach((selector) => setText(selector, "N/A"));
+        ].forEach((selector) => setText(selector, t("common.na")));
       }
 
       const createdAt = prompt.created_at || prompt.createdAt;
@@ -283,38 +284,38 @@ export const viewPrompt = async function (promptName) {
 
       setText(
         ".metadata-created-by",
-        prompt.created_by || prompt.createdBy || "Legacy Entity"
+        prompt.created_by || prompt.createdBy || t("common.legacyEntity")
       );
       setText(
         ".metadata-created-at",
-        createdAt ? new Date(createdAt).toLocaleString() : "Pre-metadata"
+        createdAt ? new Date(createdAt).toLocaleString(getLocale()) : t("common.preMetadata")
       );
       setText(
         ".metadata-created-from",
-        prompt.created_from_ip || prompt.createdFromIp || "Unknown"
+        prompt.created_from_ip || prompt.createdFromIp || t("common.unknown")
       );
       setText(
         ".metadata-created-via",
-        prompt.created_via || prompt.createdVia || "Unknown"
+        prompt.created_via || prompt.createdVia || t("common.unknown")
       );
       setText(
         ".metadata-modified-by",
-        prompt.modified_by || prompt.modifiedBy || "N/A"
+        prompt.modified_by || prompt.modifiedBy || t("common.na")
       );
       setText(
         ".metadata-modified-at",
-        updatedAt ? new Date(updatedAt).toLocaleString() : "N/A"
+        updatedAt ? new Date(updatedAt).toLocaleString(getLocale()) : t("common.na")
       );
       setText(
         ".metadata-modified-from",
-        prompt.modified_from_ip || prompt.modifiedFromIp || "N/A"
+        prompt.modified_from_ip || prompt.modifiedFromIp || t("common.na")
       );
       setText(
         ".metadata-modified-via",
-        prompt.modified_via || prompt.modifiedVia || "N/A"
+        prompt.modified_via || prompt.modifiedVia || t("common.na")
       );
       setText(".metadata-version", prompt.version || "1");
-      setText(".metadata-import-batch", prompt.importBatchId || "N/A");
+      setText(".metadata-import-batch", prompt.importBatchId || t("common.na"));
 
       // Content already injected via innerHTML; no extra wrapper needed.
     }
@@ -323,7 +324,11 @@ export const viewPrompt = async function (promptName) {
     console.log("✓ Prompt details loaded successfully");
   } catch (error) {
     console.error("Error fetching prompt details:", error);
-    const errorMessage = handleFetchError(error, "load prompt details");
+    const errorMessage = handleFetchError(
+      error,
+      "load prompt details",
+      t("prompts.ops.loadDetails")
+    );
     showErrorMessage(errorMessage);
   }
 };
@@ -641,7 +646,7 @@ export const initPromptSelect = function (
           const span = document.createElement("span");
           span.className = pillClasses;
           span.textContent =
-            cb.nextElementSibling?.textContent?.trim() || "Unnamed";
+            cb.nextElementSibling?.textContent?.trim() || t("common.unnamed");
           pillsBox.appendChild(span);
         });
       }
@@ -650,15 +655,18 @@ export const initPromptSelect = function (
       if (count > maxPillsToShow) {
         const span = document.createElement("span");
         span.className = pillClasses + " cursor-pointer";
-        span.title = "Click to see all selected prompts";
+        span.title = t("prompts.select.tooltip");
         const remaining = count - maxPillsToShow;
-        span.textContent = `+${remaining} more`;
+        span.textContent = t("prompts.select.more", { count: remaining });
         pillsBox.appendChild(span);
       }
 
       // Warning when > max
       if (count > max) {
-        warnBox.textContent = `Selected ${count} prompts. Selecting more than ${max} prompts can degrade agent performance with the server.`;
+        warnBox.textContent = t("prompts.select.summary", {
+          count,
+          max,
+        });
       } else {
         warnBox.textContent = "";
       }
@@ -668,9 +676,11 @@ export const initPromptSelect = function (
         const currentSelectBtn = document.getElementById(selectBtnId);
         if (currentSelectBtn) {
           if (count > 0) {
-            currentSelectBtn.textContent = `Select All (${count})`;
+            currentSelectBtn.textContent = t("prompts.select.allWithCount", {
+              count,
+            });
           } else {
-            currentSelectBtn.textContent = "Select All";
+            currentSelectBtn.textContent = t("common.actions.selectAll");
           }
         }
       }
@@ -716,7 +726,7 @@ export const initPromptSelect = function (
     selectBtn.parentNode.replaceChild(newSelectBtn, selectBtn);
     newSelectBtn.addEventListener("click", async () => {
       newSelectBtn.disabled = true;
-      newSelectBtn.textContent = "Selecting all prompts...";
+      newSelectBtn.textContent = t("prompts.select.selecting");
 
       try {
         // Prefer full-set selection when pagination/infinite-scroll is present
@@ -814,7 +824,7 @@ export const initPromptSelect = function (
         update();
       } catch (error) {
         console.error("Error selecting all prompts:", error);
-        alert("Failed to select all prompts. Please try again.");
+        alert(t("prompts.select.failed"));
         newSelectBtn.disabled = false;
         update(); // Reset button text via update()
       } finally {
@@ -957,7 +967,7 @@ export const testPrompt = async function (promptId) {
         return;
       }
       testButton.disabled = true;
-      testButton.textContent = "Loading...";
+      testButton.textContent = t("common.states.loading");
       testButton.classList.add("opacity-50", "cursor-not-allowed");
     }
 
@@ -1001,7 +1011,9 @@ export const testPrompt = async function (promptId) {
       const promptLabel =
         prompt.displayName || prompt.originalName || prompt.name || promptId;
       if (titleElement) {
-        titleElement.textContent = `Test Prompt: ${promptLabel}`;
+        titleElement.textContent = t("prompts.test.title", {
+          name: promptLabel,
+        });
       }
       if (descElement) {
         if (prompt.description) {
@@ -1012,7 +1024,7 @@ export const testPrompt = async function (promptId) {
             "<br/>"
           );
         } else {
-          descElement.textContent = "No description available.";
+          descElement.textContent = t("prompts.test.noDescription");
         }
       }
 
@@ -1023,8 +1035,7 @@ export const testPrompt = async function (promptId) {
         const placeholder = document.createElement("div");
         placeholder.className =
           "text-gray-500 dark:text-gray-400 text-sm italic";
-        placeholder.textContent =
-          'Click "Render Prompt" to see the rendered output';
+        placeholder.textContent = t("prompts.test.renderHint");
         resultContainer.appendChild(placeholder);
       }
       const promptLoading = safeGetElement("prompt-test-loading");
@@ -1042,16 +1053,16 @@ export const testPrompt = async function (promptId) {
 
       if (error.name === "AbortError") {
         console.warn("Request was cancelled (timeout or user action)");
-        showErrorMessage("Request timed out. Please try again.");
+        showErrorMessage(t("prompts.test.timeout"));
       } else {
         console.error("Error fetching prompt details:", error);
-        const errorMessage = error.message || "Failed to load prompt details";
-        showErrorMessage(`Error testing prompt: ${errorMessage}`);
+        const errorMessage = error.message || t("prompts.test.loadFailed");
+        showErrorMessage(t("prompts.test.error", { error: errorMessage }));
       }
     }
   } catch (error) {
     console.error("Error in testPrompt:", error);
-    showErrorMessage(`Error testing prompt: ${error.message}`);
+    showErrorMessage(t("prompts.test.error", { error: error.message }));
   } finally {
     // Always restore button state
     const testButton = document.querySelector(
@@ -1059,7 +1070,7 @@ export const testPrompt = async function (promptId) {
     );
     if (testButton) {
       testButton.disabled = false;
-      testButton.textContent = "Test";
+      testButton.textContent = t("common.actions.test");
       testButton.classList.remove("opacity-50", "cursor-not-allowed");
     }
 
@@ -1139,7 +1150,7 @@ export const runPromptTest = async function () {
 
   if (!form || !promptTestState.currentTestPrompt) {
     console.error("Prompt test form or current prompt not found");
-    showErrorMessage("Prompt test form not available");
+    showErrorMessage(t("prompts.test.formUnavailable"));
     return;
   }
 
@@ -1153,7 +1164,7 @@ export const runPromptTest = async function () {
     // Disable button and show loading
     if (runButton) {
       runButton.disabled = true;
-      runButton.textContent = "Rendering...";
+      runButton.textContent = t("common.states.rendering");
     }
     if (loadingElement) {
       loadingElement.classList.remove("hidden");
@@ -1220,7 +1231,7 @@ export const runPromptTest = async function () {
           resultHtml += `
                             <div class="mb-4 p-3 bg-white dark:bg-gray-700 rounded border">
                                 <div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
-                                    Message ${index + 1} (${message.role || "unknown"})
+                                    ${escapeHtml(t("common.message.label", { index: index + 1, role: message.role || t("common.unknown") }))}
                                 </div>
                                 <div class="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">${escapeHtml(message.content?.text || JSON.stringify(message.content) || "")}</div>
                             </div>
@@ -1242,12 +1253,12 @@ export const runPromptTest = async function () {
     if (resultContainer) {
       resultContainer.innerHTML = `
                     <div class="text-red-600 dark:text-red-400 text-sm">
-                        <strong>Error:</strong> ${escapeHtml(error.message)}
+                        <strong>${escapeHtml(t("common.error.label"))}</strong> ${escapeHtml(error.message)}
                     </div>
                 `;
     }
 
-    showErrorMessage(`Failed to render prompt: ${error.message}`);
+    showErrorMessage(t("prompts.test.renderFailed", { error: error.message }));
   } finally {
     // Hide loading and restore button
     if (loadingElement) {
@@ -1255,7 +1266,7 @@ export const runPromptTest = async function () {
     }
     if (runButton) {
       runButton.disabled = false;
-      runButton.textContent = "Render Prompt";
+      runButton.textContent = t("prompts.test.renderButton");
     }
   }
 };
@@ -1285,7 +1296,7 @@ export const cleanupPromptTestModal = function () {
     if (resultContainer) {
       resultContainer.innerHTML = `
                     <div class="text-gray-500 dark:text-gray-400 text-sm italic">
-                        Click "Render Prompt" to see the rendered output
+                        ${escapeHtml(t("prompts.test.renderHint"))}
                     </div>
                 `;
     }

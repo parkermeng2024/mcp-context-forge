@@ -2,6 +2,8 @@
 // UTILITY FUNCTIONS
 // ===================================================================
 
+import { t } from "./i18n.js";
+
 // ===================================================================
 // MEMOIZATION UTILITY - Generic pattern for initialization functions
 // ===================================================================
@@ -219,20 +221,24 @@ export async function fetchWithTimeout(
 }
 
 // Enhanced error handler for fetch operations
-export function handleFetchError(error, operation = "operation") {
+export function handleFetchError(error, operation = "operation", operationLabel = null) {
   console.error(`Error during ${operation}:`, error);
 
+  // ``operation`` stays in English for the log. ``operationLabel`` is its
+  // translated form and feeds the message the user sees.
+  const label = operationLabel || operation;
+
   if (error.name === "AbortError") {
-    return `Request timed out while trying to ${operation}. Please try again.`;
+    return t("common.fetchError.timeout", { operation: label });
   } else if (error.message.includes("HTTP")) {
-    return `Server error during ${operation}: ${error.message}`;
+    return t("common.fetchError.server", { operation: label, message: error.message });
   } else if (
     error.message.includes("NetworkError") ||
     error.message.includes("Failed to fetch")
   ) {
-    return `Network error during ${operation}. Please check your connection and try again.`;
+    return t("common.fetchError.network", { operation: label });
   } else {
-    return `Failed to ${operation}: ${error.message}`;
+    return t("common.fetchError.generic", { operation: label, message: error.message });
   }
 }
 
