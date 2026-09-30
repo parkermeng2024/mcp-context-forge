@@ -113,6 +113,7 @@ from mcpgateway.db import Server as DbServer
 from mcpgateway.db import SessionLocal
 from mcpgateway.db import Tool as DbTool
 from mcpgateway.db import utc_now
+from mcpgateway.i18n import t as i18n_t
 from mcpgateway.middleware.rbac import _ACCESS_DENIED_MSG, get_current_user_with_permissions, require_admin_permission, require_any_permission, require_permission
 from mcpgateway.routers.email_auth import create_access_token
 from mcpgateway.schemas import (
@@ -4483,7 +4484,7 @@ async def admin_login_page(request: Request) -> Response:
     # Only show secure cookie warning if there's a login error AND problematic config
     secure_cookie_warning = None
     if settings.secure_cookies and settings.environment == "development":
-        secure_cookie_warning = "Serving over HTTP with secure cookies enabled. If you have login issues, try disabling secure cookies in your configuration."
+        secure_cookie_warning = i18n_t("login.warning.secureCookies")
 
     # Preserve email from failed login attempt
     prefill_email = request.query_params.get("email", "")

@@ -1,0 +1,24 @@
+{#
+  Embeds the i18n configuration for the admin UI JavaScript runtime.
+
+  MUST be emitted before the admin UI bundle script tag: modules read
+  `window.__I18N__` at import time.
+
+  Set `i18n_prefix` before including this file to embed only one namespace, with
+  the prefix stripped. The login page uses `i18n_prefix = "login."` and reads
+  keys such as `error.invalidCredentials`.
+
+  Context:
+      request: Incoming request, used for the CSP nonce.
+      i18n_prefix: Optional key prefix to embed. Defaults to the whole catalog.
+#}
+{% set i18n_prefix_value = i18n_prefix | default('') %}
+<script nonce="{{ csp_nonce(request) }}">
+  // Keys are quoted so the payload is valid JSON as well as valid JavaScript:
+  // it can then be validated or parsed verbatim by tooling.
+  window.__I18N__ = {
+    "locale": {{ current_locale() | tojson }},
+    "catalog": {{ (i18n_ns(i18n_prefix_value) if i18n_prefix_value else i18n_catalog()) | tojson }},
+    "supported": {{ supported_locales() | tojson }}
+  };
+</script>

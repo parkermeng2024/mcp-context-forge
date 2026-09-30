@@ -106,6 +106,7 @@ from mcpgateway.db import refresh_slugs_on_startup, SessionLocal
 from mcpgateway.db import Tool as DbTool
 from mcpgateway.deprecations import RUST_MCP_RUNTIME_DEPRECATION_MESSAGE, VALIDATION_MIDDLEWARE_DEPRECATION_MESSAGE
 from mcpgateway.handlers.sampling import SamplingError, SamplingHandler
+from mcpgateway.i18n import get_locale as i18n_get_locale, LOCALE_COOKIE_NAME as I18N_LOCALE_COOKIE_NAME, locale_display_names as i18n_locale_display_names, namespace_catalog as i18n_namespace_catalog, t as i18n_t, translated_catalog as i18n_translated_catalog
 from mcpgateway.middleware.auth_context_stack import register_auth_context_middleware
 from mcpgateway.middleware.client_disconnect import ClientDisconnectMiddleware
 from mcpgateway.middleware.compression import SSEAwareCompressMiddleware
@@ -113,6 +114,7 @@ from mcpgateway.middleware.correlation_id import CorrelationIDMiddleware
 from mcpgateway.middleware.forwarded_host import ForwardedHostMiddleware
 from mcpgateway.middleware.header_size_middleware import HeaderSizeMiddleware
 from mcpgateway.middleware.http_auth_middleware import HttpAuthMiddleware, run_pre_request_hooks
+from mcpgateway.middleware.locale_middleware import LocaleMiddleware
 from mcpgateway.middleware.protocol_version import MCPProtocolVersionMiddleware
 from mcpgateway.middleware.rate_limit_middleware import RateLimitMiddleware
 from mcpgateway.middleware.rbac import _ACCESS_DENIED_MSG, get_current_user_with_permissions, PermissionChecker, require_permission
@@ -3580,6 +3582,13 @@ if settings.db_query_log_enabled:
 else:
     logger.debug("📊 Database query logging disabled (enable with DB_QUERY_LOG_ENABLED=true)")
 
+# Locale middleware — resolves the request language and stores it in the i18n
+# context variable, so `{{ t("key") }}` works in every template without the
+# routes having to pass a locale through their context. It must stay inside
+# ClientDisconnectMiddleware, which owns the outermost position.
+app.add_middleware(LocaleMiddleware)
+logger.info("🌐 Locale middleware enabled (supported: %s)", ", ".join(i18n_locale_display_names()))
+
 # Client disconnect middleware — MUST be outermost (added last, runs first).
 # Cancels in-flight request handlers when the client (nginx) closes the connection,
 # preventing CLOSE_WAIT accumulation and associated memory leaks.
@@ -3655,6 +3664,20 @@ jinja_env.filters["tojson_attr"] = tojson_attr
 
 
 jinja_env.globals["csp_nonce"] = get_csp_nonce_from_request
+
+# Internationalization helpers. `t` resolves the active locale from the context
+# variable that LocaleMiddleware sets, so templates never thread a locale
+# through their context. `i18n_catalog` is embedded once per page and drives the
+# admin UI JavaScript runtime from the same source as the server-rendered text.
+jinja_env.globals["t"] = i18n_t
+jinja_env.globals["current_locale"] = i18n_get_locale
+jinja_env.globals["supported_locales"] = i18n_locale_display_names
+jinja_env.globals["i18n_catalog"] = i18n_translated_catalog
+jinja_env.globals["i18n_ns"] = i18n_namespace_catalog
+
+# The switcher partial renders the cookie name from this constant, so Python and
+# the template cannot drift apart on it.
+jinja_env.globals["locale_cookie_name"] = I18N_LOCALE_COOKIE_NAME
 
 templates = Jinja2Templates(env=jinja_env)
 if not settings.templates_auto_reload:

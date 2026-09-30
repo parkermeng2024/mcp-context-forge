@@ -1,0 +1,45 @@
+{#
+  Language switcher.
+
+  Server-rendered, and self-contained: the wiring ships with the partial rather
+  than with the admin UI bundle, because pages without the bundle (the login
+  page) also render a switcher. Switching stores the choice in a cookie and
+  reloads, so the server re-renders everything in the new language. No request
+  endpoint and no CSRF token are involved.
+
+  The cookie name is rendered from the Python constant, so there is one source of
+  truth for it.
+
+  Context:
+      request: Incoming request, used for the CSP nonce.
+      locale_switcher_classes: Optional extra CSS classes for the select element.
+#}
+{% set locale_switcher_classes = locale_switcher_classes | default('') %}
+<label class="sr-only" for="locale-switcher">{{ t('language.label') }}</label>
+<select
+  id="locale-switcher"
+  data-locale-switcher
+  title="{{ t('language.switchTo') }}"
+  aria-label="{{ t('language.label') }}"
+  class="text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 {{ locale_switcher_classes }}"
+>
+  {% for code, name in supported_locales().items() %}
+  <option value="{{ code }}" {% if code == current_locale() %}selected{% endif %}>{{ name }}</option>
+  {% endfor %}
+</select>
+<script nonce="{{ csp_nonce(request) }}">
+  (function () {
+    var switcher = document.getElementById("locale-switcher");
+    if (!switcher || switcher.dataset.localeSwitcherBound === "true") return;
+    switcher.dataset.localeSwitcherBound = "true";
+    switcher.addEventListener("change", function () {
+      var secure = window.location.protocol === "https:" ? "; Secure" : "";
+      document.cookie =
+        "{{ locale_cookie_name }}=" +
+        encodeURIComponent(switcher.value) +
+        "; Path=/; Max-Age=31536000; SameSite=Lax" +
+        secure;
+      window.location.reload();
+    });
+  })();
+</script>

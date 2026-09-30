@@ -1,13 +1,13 @@
 <!doctype html>
 <html
-  lang="en"
+  lang="{{ current_locale() }}"
   x-data="appRoot"
   x-bind:class="darkMode ? 'dark' : ''"
 >
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ContextForge - Gateway Administration</title>
+    <title>ContextForge - {{ t('header.gatewayAdministration') }}</title>
 
     <!-- Security headers are set by middleware, not meta tags -->
     <!-- Favicon -->
@@ -160,6 +160,8 @@
       window.htmxConfig = window.htmxConfig || {};
       window.htmxConfig.inlineScriptNonce = "{{ csp_nonce(request) }}";
     </script>
+    {# Must precede the bundle: admin_ui modules read window.__I18N__ at import time. #}
+    {% include '_i18n_config.html' %}
     <script type="module" src="{{ root_path }}/static/{{ bundle_js }}"></script>
     {% if is_admin %}
     <script defer src="{{ root_path }}/static/gantt-chart.js?v=3"></script>
@@ -243,17 +245,17 @@
         <div class="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0"
              :class="sidebarCollapsed ? 'justify-center' : 'justify-between'">
           <a href="{{ root_path }}/admin" class="flex items-center" x-show="!sidebarCollapsed">
-            <img src="{{ root_path }}/static/contextforge-logo.png" alt="ContextForge logo" class="h-8 dark:hidden" />
-            <img src="{{ root_path }}/static/contextforge-logo-white.png" alt="ContextForge logo" class="h-8 hidden dark:block" />
+            <img src="{{ root_path }}/static/contextforge-logo.png" alt="{{ t('common.branding.logoAlt') }}" class="h-8 dark:hidden" />
+            <img src="{{ root_path }}/static/contextforge-logo-white.png" alt="{{ t('common.branding.logoAlt') }}" class="h-8 hidden dark:block" />
           </a>
-          <button @click="sidebarCollapsed = false" class="flex items-center justify-center" x-show="sidebarCollapsed" title="Expand sidebar">
-            <img src="{{ root_path }}/static/contextforge-icon.png" alt="ContextForge icon" class="h-8 w-8 dark:hidden" />
-            <img src="{{ root_path }}/static/contextforge-icon-white.png" alt="ContextForge icon" class="h-8 w-8 hidden dark:block" />
+          <button @click="sidebarCollapsed = false" class="flex items-center justify-center" x-show="sidebarCollapsed" title="{{ t('common.sidebar.expand') }}">
+            <img src="{{ root_path }}/static/contextforge-icon.png" alt="{{ t('common.branding.iconAlt') }}" class="h-8 w-8 dark:hidden" />
+            <img src="{{ root_path }}/static/contextforge-icon-white.png" alt="{{ t('common.branding.iconAlt') }}" class="h-8 w-8 hidden dark:block" />
           </button>
           <button
             @click="sidebarCollapsed = !sidebarCollapsed"
             class="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hidden lg:block"
-            :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+            :title="sidebarCollapsed ? '{{ t('common.sidebar.expand') }}' : '{{ t('common.sidebar.collapse') }}'"
             x-show="!sidebarCollapsed"
           >
             <svg class="w-5 h-5 transition-transform" :class="{ 'rotate-180': sidebarCollapsed }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,14 +274,14 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="overview">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">📊</span>
-              <span x-show="!sidebarCollapsed">Overview</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.overview') }}</span>
             </a>
             {% endif %}
           </div>
 
           <!-- MCP Section -->
           <div class="sidebar-section" x-show="!sidebarCollapsed">
-            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">MCP</span>
+            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ t('nav.section.mcp') }}</span>
           </div>
           <div class="space-y-1 px-2">
             {% if 'gateways' not in hidden_sections %}
@@ -288,7 +290,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="gateways">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">🖥️</span>
-              <span x-show="!sidebarCollapsed">MCP Servers</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.mcpServers') }}</span>
             </a>
             {% endif %}
             {% if 'servers' not in hidden_sections %}
@@ -297,7 +299,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="catalog">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">🔗</span>
-              <span x-show="!sidebarCollapsed">Virtual Servers</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.virtualServers') }}</span>
             </a>
             {% endif %}
             {% if 'tools' not in hidden_sections %}
@@ -306,7 +308,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="tools">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">🛠️</span>
-              <span x-show="!sidebarCollapsed">Tools</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.tools') }}</span>
             </a>
             {% if toolops_enabled %}
             <a href="#tool-ops" id="tab-tool-ops" data-testid="tool-ops-tab"
@@ -314,7 +316,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="tool-ops">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">⚙️</span>
-              <span x-show="!sidebarCollapsed">ToolOps</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.toolops') }}</span>
             </a>
             {% endif %}
             {% endif %}
@@ -324,7 +326,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="prompts">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">💬</span>
-              <span x-show="!sidebarCollapsed">Prompts</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.prompts') }}</span>
             </a>
             {% endif %}
             {% if 'resources' not in hidden_sections %}
@@ -333,7 +335,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="resources">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">📁</span>
-              <span x-show="!sidebarCollapsed">Resources</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.resources') }}</span>
             </a>
             {% endif %}
             {% if 'roots' not in hidden_sections %}
@@ -342,7 +344,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="roots">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">🌳</span>
-              <span x-show="!sidebarCollapsed">Roots</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.roots') }}</span>
             </a>
             {% endif %}
             {% if 'mcp-registry' not in hidden_sections %}
@@ -351,7 +353,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="mcp-registry">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">📦</span>
-              <span x-show="!sidebarCollapsed">MCP Registry</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.mcpRegistry') }}</span>
             </a>
             {% endif %}
           </div>
@@ -359,7 +361,7 @@
           <!-- Agents Section -->
           {% if (a2a_enabled and 'agents' not in hidden_sections) or (grpc_enabled and 'grpc-services' not in hidden_sections) %}
           <div class="sidebar-section mt-4" x-show="!sidebarCollapsed">
-            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Agents</span>
+            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ t('nav.section.agents') }}</span>
           </div>
           <div class="space-y-1 px-2">
             {% if a2a_enabled and 'agents' not in hidden_sections %}
@@ -368,7 +370,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="a2a-agents">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">🤖</span>
-              <span x-show="!sidebarCollapsed">Agents (A2A)</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.agentsA2a') }}</span>
             </a>
             {% endif %}
             {% if grpc_enabled and 'grpc-services' not in hidden_sections %}
@@ -377,7 +379,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="grpc-services">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">🔌</span>
-              <span x-show="!sidebarCollapsed">gRPC Services</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.grpcServices') }}</span>
             </a>
             {% endif %}
           </div>
@@ -386,7 +388,7 @@
           <!-- LLM Section -->
           {% if llmchat_enabled or 'settings' not in hidden_sections %}
           <div class="sidebar-section mt-4" x-show="!sidebarCollapsed">
-            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">LLM</span>
+            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ t('nav.section.llm') }}</span>
           </div>
           <div class="space-y-1 px-2">
             {% if llmchat_enabled %}
@@ -395,7 +397,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="llm-chat">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">👨‍💻</span>
-              <span x-show="!sidebarCollapsed">LLM Chat</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.llmChat') }}</span>
             </a>
             {% endif %}
             {% if 'settings' not in hidden_sections %}
@@ -404,7 +406,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="llm-settings">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">⚙️</span>
-              <span x-show="!sidebarCollapsed">LLM Settings</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.llmSettings') }}</span>
             </a>
             {% endif %}
           </div>
@@ -413,7 +415,7 @@
           {% if 'metrics' not in hidden_sections or performance_enabled or observability_enabled %}
           <!-- Monitoring Section -->
           <div class="sidebar-section mt-4" x-show="!sidebarCollapsed">
-            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Monitoring</span>
+            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ t('nav.section.monitoring') }}</span>
           </div>
           <div class="space-y-1 px-2">
             {% if 'metrics' not in hidden_sections %}
@@ -422,7 +424,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="metrics">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">📊</span>
-              <span x-show="!sidebarCollapsed">Metrics</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.metrics') }}</span>
             </a>
             {% endif %}
             {% if performance_enabled and is_admin %}
@@ -431,7 +433,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="performance">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">⚡</span>
-              <span x-show="!sidebarCollapsed">Performance</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.performance') }}</span>
             </a>
             {% endif %}
             {% if observability_enabled and is_admin %}
@@ -440,7 +442,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="observability">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">🔍</span>
-              <span x-show="!sidebarCollapsed">Observability</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.observability') }}</span>
             </a>
             {% endif %}
           </div>
@@ -449,7 +451,7 @@
           {% if 'plugins' not in hidden_sections %}
           <!-- Extensions Section -->
           <div class="sidebar-section mt-4" x-show="!sidebarCollapsed">
-            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Extensions</span>
+            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ t('nav.section.extensions') }}</span>
           </div>
           <div class="space-y-1 px-2">
             {% if 'plugins' not in hidden_sections %}
@@ -458,7 +460,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="plugins">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">🧩</span>
-              <span x-show="!sidebarCollapsed">Plugins</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.plugins') }}</span>
             </a>
             {% endif %}
             {% if a2a_enabled and 'a2a_agent_plugin_bindings' not in hidden_sections %}
@@ -467,7 +469,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="a2a-plugin-bindings">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">🔗</span>
-              <span x-show="!sidebarCollapsed">A2A Plugin Bindings</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.a2aPluginBindings') }}</span>
             </a>
             {% endif %}
           </div>
@@ -476,7 +478,7 @@
           <!-- Organization Section -->
           {% if email_auth_enabled and ('teams' not in hidden_sections or 'users' not in hidden_sections or 'tokens' not in hidden_sections) %}
           <div class="sidebar-section mt-4" x-show="!sidebarCollapsed">
-            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Organization</span>
+            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ t('nav.section.organization') }}</span>
           </div>
           <div class="space-y-1 px-2">
             {% if 'teams' not in hidden_sections %}
@@ -485,7 +487,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="teams">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">👥</span>
-              <span x-show="!sidebarCollapsed">Teams</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.teams') }}</span>
             </a>
             {% endif %}
             {% if 'users' not in hidden_sections %}
@@ -494,7 +496,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="users">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">👤</span>
-              <span x-show="!sidebarCollapsed">Users</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.users') }}</span>
             </a>
             {% endif %}
             {% if 'tokens' not in hidden_sections %}
@@ -503,7 +505,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="tokens">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">🎫</span>
-              <span x-show="!sidebarCollapsed">API Tokens</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.apiTokens') }}</span>
             </a>
             {% endif %}
           </div>
@@ -512,7 +514,7 @@
           {% if 'export-import' not in hidden_sections or 'logs' not in hidden_sections or 'version-info' not in hidden_sections or 'maintenance' not in hidden_sections %}
           <!-- Admin Section -->
           <div class="sidebar-section mt-4" x-show="!sidebarCollapsed">
-            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Admin</span>
+            <span class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ t('nav.section.admin') }}</span>
           </div>
           <div class="space-y-1 px-2">
             {% if 'export-import' not in hidden_sections %}
@@ -521,7 +523,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="export-import">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">📤</span>
-              <span x-show="!sidebarCollapsed">Export/Import</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.exportImport') }}</span>
             </a>
             {% endif %}
             {% if 'logs' not in hidden_sections %}
@@ -530,7 +532,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="logs">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">📋</span>
-              <span x-show="!sidebarCollapsed">System Logs</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.systemLogs') }}</span>
             </a>
             {% endif %}
             {% if 'version-info' not in hidden_sections %}
@@ -539,7 +541,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="version-info">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">ℹ️</span>
-              <span x-show="!sidebarCollapsed">Version Info</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.versionInfo') }}</span>
             </a>
             {% endif %}
             {% if 'maintenance' not in hidden_sections %}
@@ -548,7 +550,7 @@
                :class="{ 'justify-center': sidebarCollapsed }"
                data-action-click="showTab" data-arg0="maintenance">
               <span class="sidebar-icon text-lg" :class="{ 'mr-3': !sidebarCollapsed }">🔧</span>
-              <span x-show="!sidebarCollapsed">Maintenance</span>
+              <span x-show="!sidebarCollapsed">{{ t('nav.maintenance') }}</span>
             </a>
             {% endif %}
           </div>
@@ -563,23 +565,28 @@
             <button
               @click="darkMode = !darkMode"
               class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+              :title="darkMode ? '{{ t('common.theme.toLight') }}' : '{{ t('common.theme.toDark') }}'"
             >
               <span x-text="darkMode ? '☀️' : '🌙'" class="text-lg"></span>
             </button>
             {% endif %}
+            <!-- Language switcher (hidden when collapsed) -->
+            <div x-show="!sidebarCollapsed" class="mr-1">
+              {% set locale_switcher_classes = 'max-w-[7rem]' %}
+              {% include '_locale_switcher.html' %}
+            </div>
             <!-- Links (hidden when collapsed) -->
             <div x-show="!sidebarCollapsed" class="flex items-center space-x-2">
               <a href="https://ibm.github.io/mcp-context-forge/" target="_blank"
                  class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                 title="Documentation">
+                 title="{{ t('common.links.documentation') }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                 </svg>
               </a>
               <a href="https://github.com/IBM/mcp-context-forge" target="_blank"
                  class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                 title="GitHub">
+                 title="{{ t('common.links.github') }}">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
                 </svg>
@@ -605,7 +612,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
               </button>
-              <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-200 hidden sm:block">Gateway Administration</h1>
+              <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-200 hidden sm:block">{{ t('header.gatewayAdministration') }}</h1>
             </div>
 
             <!-- Right side: team selector, user, logout -->
@@ -615,9 +622,9 @@
                 id="global-search-trigger"
                 data-action-click="openGlobalSearchModal"
                 class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                title="Search across tools, prompts, resources, servers, gateways, agents, and roots (Ctrl/Cmd+K)"
+                title="{{ t('header.searchTooltip') }}"
               >
-                <span>Search</span>
+                <span>{{ t('header.search') }}</span>
                 <span class="hidden sm:inline text-xs text-gray-500 dark:text-gray-400">Ctrl/Cmd+K</span>
               </button>
 

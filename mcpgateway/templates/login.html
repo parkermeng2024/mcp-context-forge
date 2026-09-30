@@ -1,15 +1,18 @@
 <!doctype html>
-<html lang="en" class="h-full">
+<html lang="{{ current_locale() }}" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign In - ContextForge</title>
+    <title>{{ t('login.title') }}</title>
     <!-- Tailwind CSS - Using precompiled CSS for strict CSP compliance -->
     <link rel="stylesheet" href="{{ root_path }}/static/css/tailwind.min.css" />
     <!-- Font Awesome is bundled via Vite (imported in admin_ui/admin.js) -->
     {% for css_file in bundle_css %}
     <link rel="stylesheet" href="{{ root_path }}/static/{{ css_file }}" />
     {% endfor %}
+    {# Only the login namespace is embedded: this page needs far fewer keys than the admin UI. #}
+    {% set i18n_prefix = 'login.' %}
+    {% include '_i18n_config.html' %}
   </head>
   <body class="h-full bg-gray-50 dark:bg-gray-900 overflow-auto">
     <!-- Main Split Layout -->
@@ -29,6 +32,12 @@
           class="absolute bottom-20 right-10 w-24 h-24 bg-gradient-to-br from-purple-200/30 to-blue-200/30 dark:from-purple-800/30 dark:to-blue-800/30 rounded-full animate-float"
           style="animation-delay: 2s"
         ></div>
+
+        <!-- Language switcher -->
+        <div class="absolute top-4 right-4 z-20">
+          {% set locale_switcher_classes = 'shadow-sm' %}
+          {% include '_locale_switcher.html' %}
+        </div>
 
         <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
           <!-- Login Card -->
@@ -72,7 +81,7 @@
                 <p
                   class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide"
                 >
-                  Continue with
+                  {{ t('login.continueWith') }}
                 </p>
               </div>
               <div class="space-y-3" id="sso-providers">
@@ -90,7 +99,7 @@
               <div class="relative flex justify-center text-sm">
                 <span
                   class="px-4 bg-white/90 dark:bg-gray-800/90 text-gray-500 dark:text-gray-400 font-medium"
-                  >Or continue with email</span
+                  >{{ t('login.orContinueWithEmail') }}</span
                 >
               </div>
             </div>
@@ -107,8 +116,7 @@
                   for="email"
                   class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  <i class="fas fa-envelope mr-2 text-gray-400"></i>Email
-                  address
+                  <i class="fas fa-envelope mr-2 text-gray-400"></i>{{ t('login.emailLabel') }}
                 </label>
                 <input
                   id="email"
@@ -117,7 +125,7 @@
                   autocomplete="{{ 'off' if prefill_email else 'email' }}"
                   required
                   value="{{ prefill_email }}"
-                  placeholder="Enter your email"
+                  placeholder="{{ t('login.emailPlaceholder') }}"
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700/50 dark:text-white transition-all duration-200 backdrop-blur-sm"
                 />
               </div>
@@ -127,7 +135,7 @@
                   for="password"
                   class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  <i class="fas fa-lock mr-2 text-gray-400"></i>Password
+                  <i class="fas fa-lock mr-2 text-gray-400"></i>{{ t('login.passwordLabel') }}
                 </label>
                 <div class="relative">
                   <input
@@ -136,12 +144,13 @@
                     type="password"
                     autocomplete="current-password"
                     required
-                    placeholder="Enter your password"
+                    placeholder="{{ t('login.passwordPlaceholder') }}"
                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700/50 dark:text-white transition-all duration-200 backdrop-blur-sm pr-10"
                   />
                   <button
                     type="button"
                     id="toggle-password-btn"
+                    aria-label="{{ t('login.showPassword') }}"
                     class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     <i id="password-icon" class="fas fa-eye"></i>
@@ -155,7 +164,7 @@
                   href="{{ root_path }}/admin/forgot-password"
                   class="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
-                  Forgot password?
+                  {{ t('login.forgotPassword') }}
                 </a>
               </div>
               {% endif %}
@@ -165,7 +174,7 @@
                 class="w-full flex justify-center items-center py-2 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
               >
                 <i class="fas fa-sign-in-alt mr-2"></i>
-                Sign In
+                {{ t('login.submit') }}
               </button>
             </form>
 
@@ -173,7 +182,7 @@
             <div class="mt-4 text-center">
               <p class="text-xs text-gray-500 dark:text-gray-400">
                 <i class="fas fa-shield-alt mr-1"></i>
-                Secured by ContextForge Authentication
+                {{ t('login.securedBy') }}
               </p>
             </div>
           </div>
@@ -219,16 +228,16 @@
               >
                 <img
                   src="{{ root_path }}/static/contextforge-logo-white.png"
-                  alt="ContextForge logo"
+                  alt="{{ t('login.logoAlt') }}"
                   class="h-12"
                 />
               </a>
             </div>
             <p class="text-lg font-semibold text-white mb-1">
-              MCP & AI Gateway
+              {{ t('login.hero.tagline') }}
             </p>
             <p class="text-sm text-blue-100 opacity-90">
-              MCP, A2A and REST gateway with advanced security & observability
+              {{ t('login.hero.subtitle') }}
             </p>
           </div>
 
@@ -239,7 +248,7 @@
               <h3
                 class="text-xs font-semibold text-blue-200 uppercase tracking-wide mb-3 text-center"
               >
-                Core Platform
+                {{ t('login.hero.corePlatform') }}
               </h3>
               <div class="grid grid-cols-3 gap-3">
                 <div
@@ -251,10 +260,10 @@
                     <i class="fas fa-network-wired text-white text-xs"></i>
                   </div>
                   <h4 class="text-xs font-semibold text-white mb-1">
-                    Federation
+                    {{ t('login.hero.federation.title') }}
                   </h4>
                   <p class="text-xs text-blue-100 leading-relaxed">
-                    Multi-gateway networks with auto-discovery
+                    {{ t('login.hero.federation.description') }}
                   </p>
                 </div>
 
@@ -267,10 +276,10 @@
                     <i class="fas fa-server text-white text-xs"></i>
                   </div>
                   <h4 class="text-xs font-semibold text-white mb-1">
-                    Virtual Servers
+                    {{ t('login.hero.virtualServers.title') }}
                   </h4>
                   <p class="text-xs text-blue-100 leading-relaxed">
-                    Compose custom MCP endpoints
+                    {{ t('login.hero.virtualServers.description') }}
                   </p>
                 </div>
 
@@ -283,10 +292,10 @@
                     <i class="fas fa-exchange-alt text-white text-xs"></i>
                   </div>
                   <h4 class="text-xs font-semibold text-white mb-1">
-                    Multi-Transport
+                    {{ t('login.hero.multiTransport.title') }}
                   </h4>
                   <p class="text-xs text-blue-100 leading-relaxed">
-                    HTTP, WebSocket, SSE protocols
+                    {{ t('login.hero.multiTransport.description') }}
                   </p>
                 </div>
               </div>
@@ -297,7 +306,7 @@
               <h3
                 class="text-xs font-semibold text-blue-200 uppercase tracking-wide mb-3 text-center"
               >
-                Enterprise Ready
+                {{ t('login.hero.enterpriseReady') }}
               </h3>
               <div class="grid grid-cols-3 gap-3">
                 <div
@@ -309,10 +318,10 @@
                     <i class="fas fa-shield-alt text-white text-xs"></i>
                   </div>
                   <h4 class="text-xs font-semibold text-white mb-1">
-                    Security
+                    {{ t('login.hero.security.title') }}
                   </h4>
                   <p class="text-xs text-blue-100 leading-relaxed">
-                    JWT auth, rate limiting, PII & OPA plugins
+                    {{ t('login.hero.security.description') }}
                   </p>
                 </div>
 
@@ -325,10 +334,10 @@
                     <i class="fas fa-chart-line text-white text-xs"></i>
                   </div>
                   <h4 class="text-xs font-semibold text-white mb-1">
-                    Observability
+                    {{ t('login.hero.observability.title') }}
                   </h4>
                   <p class="text-xs text-blue-100 leading-relaxed">
-                    Metrics & comprehensive logging
+                    {{ t('login.hero.observability.description') }}
                   </p>
                 </div>
 
@@ -341,10 +350,10 @@
                     <i class="fas fa-robot text-white text-xs"></i>
                   </div>
                   <h4 class="text-xs font-semibold text-white mb-1">
-                    A2A Agents
+                    {{ t('login.hero.a2aAgents.title') }}
                   </h4>
                   <p class="text-xs text-blue-100 leading-relaxed">
-                    AI agent integration & workflows
+                    {{ t('login.hero.a2aAgents.description') }}
                   </p>
                 </div>
               </div>
@@ -356,15 +365,15 @@
             <div class="inline-flex items-center space-x-4 text-blue-100/80">
               <div class="flex items-center space-x-1">
                 <i class="fas fa-check-circle text-green-300 text-xs"></i>
-                <span class="text-xs">Production Ready</span>
+                <span class="text-xs">{{ t('login.hero.productionReady') }}</span>
               </div>
               <div class="flex items-center space-x-1">
                 <i class="fas fa-bolt text-yellow-300 text-xs"></i>
-                <span class="text-xs">High Performance</span>
+                <span class="text-xs">{{ t('login.hero.highPerformance') }}</span>
               </div>
               <div class="flex items-center space-x-1">
                 <i class="fas fa-lock text-blue-300 text-xs"></i>
-                <span class="text-xs">Secure by Design</span>
+                <span class="text-xs">{{ t('login.hero.secureByDesign') }}</span>
               </div>
             </div>
           </div>
@@ -375,6 +384,16 @@
     <script nonce="{{ csp_nonce(request) }}">
       // Initialize ROOT_PATH for JavaScript URL composition
       window.ROOT_PATH = {{ root_path | tojson }};
+
+      // Localized strings for this page, rendered from the i18n catalogs. Keys
+      // carry no "login." prefix: the server embeds the login namespace with its
+      // prefix stripped (see _i18n_config.html).
+      const LOGIN_STRINGS = (window.__I18N__ && window.__I18N__.catalog) || {};
+      function t(key) {
+        return Object.prototype.hasOwnProperty.call(LOGIN_STRINGS, key)
+          ? LOGIN_STRINGS[key]
+          : key;
+      }
 
       function getCookie(name) {
         const parts = document.cookie.split(";");
@@ -548,9 +567,7 @@
           window.location.href = data.authorization_url;
         } catch (error) {
           console.error("SSO initiation failed:", error);
-          showError(
-            "SSO authentication failed. Please try again or use email/password.",
-          );
+          showError(t("sso.failedTryAgain"));
         }
       }
 
@@ -561,15 +578,13 @@
         const notice = urlParams.get("notice");
 
         if (notice) {
-          let noticeMessage = "Success";
+          let noticeMessage = t("notice.default");
           switch (notice) {
             case "reset_email_sent":
-              noticeMessage =
-                "If the account exists, a password reset link has been sent.";
+              noticeMessage = t("notice.resetEmailSent");
               break;
             case "password_reset_success":
-              noticeMessage =
-                "Password reset successful. Sign in with your new password.";
+              noticeMessage = t("notice.passwordResetSuccess");
               break;
             default:
               noticeMessage = notice
@@ -580,32 +595,31 @@
         }
 
         if (error) {
-          let errorMessage = "Login failed";
+          let errorMessage = t("error.default");
           switch (error) {
             case "missing_fields":
-              errorMessage = "Please provide both email and password";
+              errorMessage = t("error.missingFields");
               break;
             case "invalid_credentials":
-              errorMessage = "Invalid email or password";
+              errorMessage = t("error.invalidCredentials");
               break;
             case "admin_required":
-              errorMessage = "Admin privileges required";
+              errorMessage = t("error.adminRequired");
               break;
             case "server_error":
-              errorMessage = "Server error. Please try again";
+              errorMessage = t("error.serverError");
               break;
             case "sso_failed":
-              errorMessage = "SSO authentication failed. Please try again";
+              errorMessage = t("error.ssoFailed");
               break;
             case "sso_cancelled":
-              errorMessage = "SSO authentication was cancelled";
+              errorMessage = t("error.ssoCancelled");
               break;
             case "token_too_large":
-              errorMessage =
-                "Your account has too many team memberships for cookie-based authentication. Please contact your administrator.";
+              errorMessage = t("error.tokenTooLarge");
               break;
             case "password_reset_disabled":
-              errorMessage = "Password reset is disabled by the administrator.";
+              errorMessage = t("error.passwordResetDisabled");
               break;
             default:
               errorMessage = error
@@ -644,15 +658,18 @@
       function togglePassword() {
         const passwordField = document.getElementById("password");
         const passwordIcon = document.getElementById("password-icon");
+        const toggleBtn = document.getElementById("toggle-password-btn");
 
         if (passwordField.type === "password") {
           passwordField.type = "text";
           passwordIcon.classList.remove("fa-eye");
           passwordIcon.classList.add("fa-eye-slash");
+          toggleBtn.setAttribute("aria-label", t("hidePassword"));
         } else {
           passwordField.type = "password";
           passwordIcon.classList.remove("fa-eye-slash");
           passwordIcon.classList.add("fa-eye");
+          toggleBtn.setAttribute("aria-label", t("showPassword"));
         }
       }
 
@@ -673,8 +690,10 @@
         const form = document.querySelector("form");
         form.addEventListener("submit", function () {
           const submitBtn = form.querySelector('button[type="submit"]');
-          submitBtn.innerHTML =
-            '<i class="fas fa-spinner fa-spin mr-2"></i>Signing in...';
+          // Build the icon as markup, then append the translated label as a text
+          // node, so no catalog value is ever parsed as HTML.
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>';
+          submitBtn.append(t("submitting"));
           submitBtn.disabled = true;
         });
       }

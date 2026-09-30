@@ -348,6 +348,7 @@ mcpgateway = [
   "static/*.js",
   "static/catalog-icons/*",
   "templates/*.html",
+  "i18n/locales/*.json",
   "*.json",
   "alembic.ini",
   "alembic/*.py",
