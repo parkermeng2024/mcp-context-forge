@@ -2093,35 +2093,34 @@
           >
             <div class="mt-3">
               <h3 class="text-lg font-medium text-gray-900 mb-4">
-                API Key Required
+                {{ t('registry.apiKey.title') }}
               </h3>
               <p class="text-sm text-gray-500 mb-4">
-                <span id="modal-server-name"></span> requires an API key to
-                connect.
+                <span id="modal-server-name"></span> {{ t('registry.apiKey.required') }}
               </p>
               <form id="api-key-form" data-action-submit="submitApiKeyForm">
                 <input type="hidden" id="modal-server-id" />
                 <div class="mb-4">
                   <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Server Name (optional)
+                    {{ t('registry.apiKey.serverName') }}
                   </label>
                   <input
                     type="text"
                     id="modal-custom-name"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Custom name for this server"
+                    placeholder="{{ t('registry.apiKey.serverNamePlaceholder') }}"
                   />
                 </div>
                 <div class="mb-4">
                   <label class="block text-sm font-medium text-gray-700 mb-2">
-                    API Key <span class="text-red-500">*</span>
+                    {{ t('registry.apiKey.apiKey') }} <span class="text-red-500">*</span>
                   </label>
                   <input
                     type="password"
                     id="modal-api-key"
                     autocomplete="off"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter your API key"
+                    placeholder="{{ t('registry.apiKey.apiKeyPlaceholder') }}"
                     required
                   />
                 </div>
@@ -2131,13 +2130,13 @@
                     data-action-click="closeApiKeyModal"
                     class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
                   >
-                    Cancel
+                    {{ t('common.actions.cancel') }}
                   </button>
                   <button
                     type="submit"
                     class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
-                    Add Server
+                    {{ t('registry.apiKey.addServer') }}
                   </button>
                 </div>
               </form>
