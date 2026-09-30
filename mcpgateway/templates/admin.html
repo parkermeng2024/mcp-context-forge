@@ -4206,11 +4206,9 @@
       <!-- Resources Panel -->
       <div id="resources-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold dark:text-gray-200">MCP Resources</h2>
+          <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('resources.list.title') }}</h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Resources are reusable data assets from MCP servers-like text, code,
-            or media. You can also add custom resources that Tools and Prompts
-            can reference by URI.
+            {{ t('resources.list.intro') }}
           </p>
           <div class="flex items-center">
             <input
@@ -4232,7 +4230,7 @@
             <label
               for="show-inactive-resources"
               class="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >Show Inactive</label
+              >{{ t('common.label.showInactive') }}</label
             >
           </div>
         </div>
@@ -4246,7 +4244,7 @@
                 <input
                   type="text"
                   id="resources-search-input"
-                  placeholder="Search resources..."
+                  placeholder="{{ t('resources.list.searchPlaceholder') }}"
                   class="w-80 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -4254,7 +4252,7 @@
                 id="resources-clear-search"
                 data-action-click="clearSearch" data-arg0="resources"
                 class="px-2 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors">
-                Clear
+                {{ t('common.actions.clear') }}
               </button>
               <span id="resources-filter-status" class="text-sm text-gray-500 dark:text-gray-400" aria-live="polite" role="status"></span>
             </div>
@@ -4283,7 +4281,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span class="ml-2 text-gray-600 dark:text-gray-400">Loading resources...</span>
+              <span class="ml-2 text-gray-600 dark:text-gray-400">{{ t('resources.states.loading') }}</span>
             </div>
           </div>
 
@@ -4294,7 +4292,7 @@
         {% if user_permissions.can_create_resource %}
         <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
           <h3 class="text-lg font-bold mb-4 dark:text-gray-200">
-            Add New Resource
+            {{ t('resources.form.addTitle') }}
           </h3>
           <form method="POST" id="add-resource-form">
             <div class="grid grid-cols-1 gap-7">
@@ -4302,7 +4300,7 @@
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
                   for="resource-uri"
-                  >URI</label
+                  >{{ t('common.table.uri') }}</label
                 >
                 <input
                   type="text"
@@ -4311,13 +4309,13 @@
                   required
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 />
-                <p data-error-message-for="uri" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">URI is required.</p>
+                <p data-error-message-for="uri" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('resources.form.uriRequired') }}</p>
               </div>
               <div class="relative">
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
                   for="resource-name"
-                  >Name</label
+                  >{{ t('common.table.name') }}</label
                 >
                 <input
                   type="text"
@@ -4328,15 +4326,14 @@
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 />
                 <p id="resource-name-helper" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Display label &mdash; does not need to be unique. The URI
-                  identifies the resource.
+                  {{ t('resources.form.nameHelper') }}
                 </p>
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">Name is required.</p>
+                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('resources.form.nameRequired') }}</p>
               </div>
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Description</label
+                  >{{ t('common.table.description') }}</label
                 >
                 <textarea
                   name="description"
@@ -4346,7 +4343,7 @@
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >MIME Type</label
+                  >{{ t('resources.form.mimeType') }}</label
                 >
                 <input
                   type="text"
@@ -4357,13 +4354,13 @@
                   placeholder="text/plain"
                 />
                 <p id="resource-mime-helper" class="mt-1 text-xs text-gray-500 dark:text-gray-400 hidden">
-                  For interactive MCP Apps use: text/html;profile=mcp-app
+                  {{ t('resources.form.mimeHelper') }}
                 </p>
               </div>
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Content</label
+                  >{{ t('resources.form.content') }}</label
                 >
                 <textarea
                   name="content"
@@ -4379,17 +4376,16 @@
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Tags</label
+                  >{{ t('common.table.tags') }}</label
                 >
                 <input
                   type="text"
                   name="tags"
-                  placeholder="e.g., documentation,api-spec,template (comma-separated)"
+                  placeholder="{{ t('resources.form.tagsPlaceholder') }}"
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 />
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Enter tags separated by commas. Tags help categorize and
-                  filter resources.
+                  {{ t('resources.form.tagsHint') }}
                 </p>
               </div>
             </div>
@@ -4397,7 +4393,7 @@
             <div class="mt-4">
               <label
                 class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                >Visibility</label
+                >{{ t('common.table.visibility') }}</label
               >
               <div class="flex gap-x-6 mt-2">
                 <!-- Add gap-x-6 for more space between radio options -->
@@ -4414,7 +4410,7 @@
                   <label
                     for="resource-visibility-public"
                     class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >🌍Public</label
+                    >{{ t('common.visibility.radio.public') }}</label
                   >
                 </div>
 
@@ -4429,7 +4425,7 @@
                   <label
                     for="resource-visibility-team"
                     class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >👥Team</label
+                    >{{ t('common.visibility.radio.team') }}</label
                   >
                 </div>
                 <div class="flex items-center">
@@ -4443,7 +4439,7 @@
                   <label
                     for="resource-visibility-private"
                     class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >🔒Private</label
+                    >{{ t('common.visibility.radio.private') }}</label
                   >
                 </div>
               </div>
@@ -4451,10 +4447,10 @@
             <div class="mt-6">
               <button
                 type="submit"
-                x-tooltip="'💡Uploads or links a reusable data asset (file, URI, or text).'"
+                x-tooltip="'💡{{ t('resources.form.submitTooltip') }}'"
                 class="inline-flex justify-center py-2 px-4 border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                Add Resource
+                {{ t('resources.form.submit') }}
               </button>
             </div>
           </form>
@@ -4467,11 +4463,9 @@
       <!-- Prompts Panel -->
       <div id="prompts-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold dark:text-gray-200">MCP Prompts</h2>
+          <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('prompts.list.title') }}</h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Prompts define reusable message templates with parameters from MCP
-            servers. You can also add custom prompts, useful for driving LLM
-            interactions or Tool input.
+            {{ t('prompts.list.intro') }}
           </p>
           <div class="flex items-center">
             <input
@@ -4493,7 +4487,7 @@
             <label
               for="show-inactive-prompts"
               class="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >Show Inactive</label
+              >{{ t('common.label.showInactive') }}</label
             >
           </div>
         </div>
@@ -4507,7 +4501,7 @@
                 <input
                   type="text"
                   id="prompts-search-input"
-                  placeholder="Search prompts..."
+                  placeholder="{{ t('prompts.list.searchPlaceholder') }}"
                   class="w-80 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -4515,7 +4509,7 @@
                 id="prompts-clear-search"
                 data-action-click="clearSearch" data-arg0="prompts"
                 class="px-2 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors">
-                Clear
+                {{ t('common.actions.clear') }}
               </button>
               <span id="prompts-filter-status" class="text-sm text-gray-500 dark:text-gray-400" aria-live="polite" role="status"></span>
             </div>
@@ -4544,7 +4538,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span class="ml-2 text-gray-600 dark:text-gray-400">Loading prompts...</span>
+              <span class="ml-2 text-gray-600 dark:text-gray-400">{{ t('prompts.states.loading') }}</span>
             </div>
           </div>
 
@@ -4556,7 +4550,7 @@
         {% if user_permissions.can_create_prompt %}
         <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
           <h3 class="text-lg font-bold mb-4 dark:text-gray-200">
-            Add New Prompt
+            {{ t('prompts.form.addTitle') }}
           </h3>
           <form
             method="POST"
@@ -4568,7 +4562,7 @@
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
                   for="prompt-name"
-                  >Name</label
+                  >{{ t('common.table.name') }}</label
                 >
                 <input
                   type="text"
@@ -4577,24 +4571,24 @@
                   id="prompt-name"
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 />
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">Prompt name is required.</p>
+                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('prompts.form.nameRequired') }}</p>
               </div>
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Display Name</label
+                  >{{ t('prompts.form.displayName') }}</label
                 >
                 <input
                   type="text"
                   name="display_name"
-                  placeholder="Custom display name for your UI"
+                  placeholder="{{ t('prompts.form.displayNamePlaceholder') }}"
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 />
               </div>
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Description</label
+                  >{{ t('common.table.description') }}</label
                 >
                 <textarea
                   name="description"
@@ -4604,7 +4598,7 @@
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Template</label
+                  >{{ t('prompts.form.template') }}</label
                 >
                 <textarea
                   name="template"
@@ -4618,7 +4612,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               <div>
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Arguments (JSON)</label
+                  >{{ t('prompts.form.argumentsJson') }}</label
                 >
                 <textarea
                   name="arguments"
@@ -4653,24 +4647,23 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
             <div>
               <label
                 class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                >Tags</label
+                >{{ t('common.table.tags') }}</label
               >
               <input
                 type="text"
                 name="tags"
-                placeholder="e.g., greeting,template,conversation (comma-separated)"
+                placeholder="{{ t('prompts.form.tagsPlaceholder') }}"
                 class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
               />
               <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Enter tags separated by commas. Tags help categorize and filter
-                prompts.
+                {{ t('prompts.form.tagsHint') }}
               </p>
             </div>
             <!-- Visibility options -->
             <div class="mt-4">
               <label
                 class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                >Visibility</label
+                >{{ t('common.table.visibility') }}</label
               >
               <div class="flex gap-x-6 mt-2">
                 <!-- Add gap-x-6 for more space between radio options -->
@@ -4687,7 +4680,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   <label
                     for="prompt-visibility-public"
                     class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >🌍Public</label
+                    >{{ t('common.visibility.radio.public') }}</label
                   >
                 </div>
 
@@ -4702,7 +4695,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   <label
                     for="prompt-visibility-team"
                     class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >👥Team</label
+                    >{{ t('common.visibility.radio.team') }}</label
                   >
                 </div>
                 <div class="flex items-center">
@@ -4716,7 +4709,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   <label
                     for="prompt-visibility-private"
                     class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >🔒Private</label
+                    >{{ t('common.visibility.radio.private') }}</label
                   >
                 </div>
               </div>
@@ -4724,10 +4717,10 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
             <div class="mt-6">
               <button
                 type="submit"
-                x-tooltip="'💡Creates a reusable message template with parameters.'"
+                x-tooltip="'💡{{ t('prompts.form.submitTooltip') }}'"
                 class="inline-flex justify-center py-2 px-4 border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                Add Prompt
+                {{ t('prompts.form.submit') }}
               </button>
             </div>
           </form>
@@ -8942,7 +8935,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               class="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
             >
               <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Resource Details
+                {{ t('resources.detail.title') }}
               </h3>
               <div
                 class="mt-4 space-y-4 bg-white dark:bg-gray-400"
@@ -8957,7 +8950,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 data-action-click="closeModal" data-arg0="resource-modal"
                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:text-gray-300"
               >
-                Close
+                {{ t('common.actions.close') }}
               </button>
             </div>
           </div>
@@ -9007,7 +9000,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         bg-indigo-600 hover:bg-indigo-700 focus:outline-none
                         focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  Test Resource
+                  {{ t('resources.test.title') }}
                 </button>
 
                 <!-- Test Result -->
@@ -9015,7 +9008,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   <h4
                     class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2"
                   >
-                    Result
+                    {{ t('resources.test.result') }}
                   </h4>
 
                   <div
@@ -9044,7 +9037,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       focus:outline-none focus:ring-2 focus:ring-offset-2
                       focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
               >
-                Close
+                {{ t('common.actions.close') }}
               </button>
             </div>
           </div>
@@ -9073,7 +9066,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               class="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
             >
               <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Edit Resource
+                {{ t('resources.form.editTitle') }}
               </h3>
               <div class="mt-4">
                 <form id="edit-resource-form" method="POST">
@@ -9081,7 +9074,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   <div class="grid grid-cols-1 gap-7">
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >URI</label
+                        >{{ t('common.table.uri') }}</label
                       >
                       <!-- URI is read-only -->
                       <input
@@ -9097,7 +9090,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       <label
                         class="block text-sm font-medium text-gray-700"
                         for="edit-resource-custom-name"
-                        >Name</label
+                        >{{ t('common.table.name') }}</label
                       >
                       <input
                         type="text"
@@ -9106,11 +9099,11 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         id="edit-resource-custom-name"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
-                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">Name is required.</p>
+                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('resources.form.nameRequired') }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >Description</label
+                        >{{ t('common.table.description') }}</label
                       >
                       <textarea
                         name="description"
@@ -9120,7 +9113,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >MIME Type</label
+                        >{{ t('resources.form.mimeType') }}</label
                       >
                       <input
                         type="text"
@@ -9130,7 +9123,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
                       <p id="edit-resource-mime-helper" class="mt-1 text-xs text-gray-500 dark:text-gray-400 hidden">
-                        For interactive MCP Apps use: text/html;profile=mcp-app
+                        {{ t('resources.form.mimeHelper') }}
                       </p>
                     </div>
                     <!-- Removing Content form Edit Form -->
@@ -9154,25 +9147,24 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Tags</label
+                        >{{ t('common.table.tags') }}</label
                       >
                       <input
                         type="text"
                         name="tags"
                         id="edit-resource-tags"
-                        placeholder="e.g., data,content,media (comma-separated)"
+                        placeholder="{{ t('resources.form.tagsEditPlaceholder') }}"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
                       <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Enter tags separated by commas. Tags help categorize and
-                        filter resources.
+                        {{ t('resources.form.tagsHint') }}
                       </p>
                     </div>
                     <!-- Visibility options -->
                     <div id="edit-resource-visibility" class="mt-4">
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                        >Visibility</label
+                        >{{ t('common.table.visibility') }}</label
                       >
                       <div class="flex gap-x-6 mt-2">
 
@@ -9187,7 +9179,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             for="edit-resource-visibility-public"
                             class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                            >🌍Public</label
+                            >{{ t('common.visibility.radio.public') }}</label
                           >
                         </div>
 
@@ -9202,7 +9194,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             for="edit-resource-visibility-team"
                             class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                            >👥Team</label
+                            >{{ t('common.visibility.radio.team') }}</label
                           >
                         </div>
                         <div class="flex items-center">
@@ -9216,7 +9208,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             for="edit-resource-visibility-private"
                             class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                            >🔒Private</label
+                            >{{ t('common.visibility.radio.private') }}</label
                           >
                         </div>
                       </div>
@@ -9230,13 +9222,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       data-action-click="closeModal" data-arg0="resource-edit-modal"
                       class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:text-gray-300"
                     >
-                      Cancel
+                      {{ t('common.actions.cancel') }}
                     </button>
                     <button
                       type="submit"
                       class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                      Save Changes
+                      {{ t('common.actions.saveChanges') }}
                     </button>
                   </div>
                 </form>
@@ -9261,7 +9253,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               class="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
             >
               <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Prompt Details
+                {{ t('prompts.detail.title') }}
               </h3>
               <div
                 class="mt-4 space-y-4 bg-white dark:bg-gray-900"
@@ -9276,7 +9268,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 data-action-click="closeModal" data-arg0="prompt-modal"
                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:text-gray-300"
               >
-                Close
+                {{ t('common.actions.close') }}
               </button>
             </div>
           </div>
@@ -9301,7 +9293,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               class="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
             >
               <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Edit Prompt
+                {{ t('prompts.form.editTitle') }}
               </h3>
               <div class="mt-4">
                 <form id="edit-prompt-form" method="POST">
@@ -9311,7 +9303,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       <label
                         for="edit-prompt-custom-name"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Name</label
+                        >{{ t('common.table.name') }}</label
                       >
                       <input
                         type="text"
@@ -9320,11 +9312,11 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         id="edit-prompt-custom-name"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
-                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">Name is required.</p>
+                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('prompts.form.nameRequired') }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Technical Name</label
+                        >{{ t('prompts.form.technicalName') }}</label
                       >
                       <input
                         type="text"
@@ -9335,19 +9327,19 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Display Name</label
+                        >{{ t('prompts.form.displayName') }}</label
                       >
                       <input
                         type="text"
                         name="displayName"
                         id="edit-prompt-display-name"
-                        placeholder="Custom display name for your UI"
+                        placeholder="{{ t('prompts.form.displayNamePlaceholder') }}"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >Description</label
+                        >{{ t('common.table.description') }}</label
                       >
                       <textarea
                         name="description"
@@ -9357,7 +9349,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >Template</label
+                        >{{ t('prompts.form.template') }}</label
                       >
                       <textarea
                         name="template"
@@ -9367,7 +9359,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
-                        >Arguments (JSON)</label
+                        >{{ t('prompts.form.argumentsJson') }}</label
                       >
                       <textarea
                         name="arguments"
@@ -9379,25 +9371,24 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     <div>
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >Tags</label
+                        >{{ t('common.table.tags') }}</label
                       >
                       <input
                         type="text"
                         name="tags"
                         id="edit-prompt-tags"
-                        placeholder="e.g., greeting,template,conversation (comma-separated)"
+                        placeholder="{{ t('prompts.form.tagsPlaceholder') }}"
                         class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                       />
                       <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Enter tags separated by commas. Tags help categorize and
-                        filter prompts.
+                        {{ t('prompts.form.tagsHint') }}
                       </p>
                     </div>
                     <!-- Visibility options -->
                     <div id="edit-prompt-visibility" class="mt-4">
                       <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                        >Visibility</label
+                        >{{ t('common.table.visibility') }}</label
                       >
                       <div class="flex gap-x-6 mt-2">
 
@@ -9412,7 +9403,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             for="edit-prompt-visibility-public"
                             class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                            >🌍Public</label
+                            >{{ t('common.visibility.radio.public') }}</label
                           >
                         </div>
 
@@ -9427,7 +9418,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             for="edit-prompt-visibility-team"
                             class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                            >👥Team</label
+                            >{{ t('common.visibility.radio.team') }}</label
                           >
                         </div>
                         <div class="flex items-center">
@@ -9441,7 +9432,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             for="edit-prompt-visibility-private"
                             class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                            >🔒Private</label
+                            >{{ t('common.visibility.radio.private') }}</label
                           >
                         </div>
                       </div>
@@ -9455,13 +9446,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       data-action-click="closeModal" data-arg0="prompt-edit-modal"
                       class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:text-gray-300"
                     >
-                      Cancel
+                      {{ t('common.actions.cancel') }}
                     </button>
                     <button
                       type="submit"
                       class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                      Save Changes
+                      {{ t('common.actions.saveChanges') }}
                     </button>
                   </div>
                 </form>
@@ -9493,7 +9484,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 id="prompt-test-modal-title"
                 class="text-lg font-medium text-gray-900 dark:text-gray-100"
               >
-                Test Prompt
+                {{ t('prompts.test.title') }}
               </h3>
               <!-- Container to show the prompt's description -->
               <div
@@ -9514,14 +9505,14 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     <h4
                       class="text-sm font-medium text-gray-900 dark:text-gray-100"
                     >
-                      Rendered Prompt
+                      {{ t('prompts.test.renderedPrompt') }}
                     </h4>
                     <button
                       type="button"
                       data-action-click="runPromptTest"
                       class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                      Render Prompt
+                      {{ t('prompts.test.renderPrompt') }}
                     </button>
                   </div>
                   <div id="prompt-test-loading" class="hidden text-center py-4">
@@ -9546,7 +9537,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      Rendering prompt...
+                      {{ t('prompts.test.rendering') }}
                     </div>
                   </div>
                   <div
@@ -9556,7 +9547,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                     <div
                       class="text-gray-500 dark:text-gray-400 text-sm italic"
                     >
-                      Click "Render Prompt" to see the rendered output
+                      {{ t('prompts.test.emptyHint', button=t('prompts.test.renderPrompt')) }}
                     </div>
                   </div>
                 </div>
@@ -9570,7 +9561,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 data-action-click="closeModal" data-arg0="prompt-test-modal"
                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:text-gray-300"
               >
-                Close
+                {{ t('common.actions.close') }}
               </button>
             </div>
           </div>
