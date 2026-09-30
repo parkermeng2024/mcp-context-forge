@@ -86,6 +86,22 @@ window.PasswordValidator = window.PasswordValidator || {
   },
 
   /**
+   * Read a localized label from the catalog the page embedded.
+   *
+   * password-validator.js is a static asset, so it cannot render Jinja. Pages that
+   * include _i18n_config.html expose the catalog on window.__I18N__. Pages that do
+   * not keep the English literal.
+   *
+   * @param {string} key - Catalog key.
+   * @param {string} fallback - English literal used when the key is absent.
+   * @returns {string} The label to display.
+   */
+  i18nLabel: function(key, fallback) {
+    const catalog = (window.__I18N__ && window.__I18N__.catalog) || {};
+    return Object.prototype.hasOwnProperty.call(catalog, key) ? catalog[key] : fallback;
+  },
+
+  /**
    * Calculate password strength score
    *
    * Note: This is a simplified client-side approximation for real-time UX feedback.
@@ -128,8 +144,8 @@ window.PasswordValidator = window.PasswordValidator || {
     // and entropy, but these are too expensive for real-time client-side validation
 
     // Map to strength labels (scale: 0-100, simplified from backend thresholds)
-    if (score < 50) return { label: 'Weak', color: 'text-red-500' };
-    if (score < 70) return { label: 'Medium', color: 'text-yellow-500' };
-    return { label: 'Strong', color: 'text-green-500' };
+    if (score < 50) return { label: this.i18nLabel('passwordChange.strength.weak', 'Weak'), color: 'text-red-500' };
+    if (score < 70) return { label: this.i18nLabel('passwordChange.strength.medium', 'Medium'), color: 'text-yellow-500' };
+    return { label: this.i18nLabel('passwordChange.strength.strong', 'Strong'), color: 'text-green-500' };
   }
 };

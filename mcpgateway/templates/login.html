@@ -536,7 +536,7 @@
             // Provider name is admin-controlled; inject via textContent (never innerHTML) to prevent stored XSS.
             button.innerHTML = `
                     <i class="${config.icon} mr-3 text-lg"></i>
-                    Continue with <span class="sso-provider-name"></span>
+                    ${t("sso.continueWith")} <span class="sso-provider-name"></span>
                     <i class="fas fa-arrow-right ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200"></i>
                 `;
             button.querySelector(".sso-provider-name").textContent = config.name;
