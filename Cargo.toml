@@ -15,7 +15,7 @@ edition = "2024"
 rust-version = "1.85"
 authors = ["ContextForge Contributors"]
 license = "Apache-2.0"
-repository = "https://github.com/IBM/mcp-context-forge"
+repository = "https://github.com/lowcode-yunti/mcp-context-forge"
 
 [workspace.dependencies]
 anyhow = "1.0"
