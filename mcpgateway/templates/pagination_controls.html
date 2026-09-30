@@ -29,7 +29,7 @@
 >
   <!-- Page Size Selector -->
   <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-    <span>Show:</span>
+    <span>{{ t('pagination.show') }}</span>
     <select
       x-model="perPage"
       @change="changePageSize($event.target.value)"
@@ -42,7 +42,7 @@
       <option value="200">200</option>
       <option value="500">500</option>
     </select>
-    <span>per page</span>
+    <span>{{ t('pagination.perPage') }}</span>
   </div>
 
   <!-- Page Info -->
@@ -172,7 +172,7 @@
         class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded"
         >→</kbd
       >
-      <span>to navigate</span>
+      <span>{{ t('pagination.toNavigate') }}</span>
     </span>
   </div>
 </div>

@@ -10,32 +10,32 @@
         {% if token.is_active %}
         <span
           class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-          >Active</span
+          >{{ t('common.states.active') }}</span
         >
         {% else %}
         <span
           class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
-          >Inactive</span
+          >{{ t('common.states.inactive') }}</span
         >
         {% endif %} {% if token.is_revoked %}
         <span
           class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
-          >Revoked</span
+          >{{ t('tokens.status.revoked') }}</span
         >
         {% endif %} {% if token.team_name %}
         <span
           class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100"
-          >Team: {{ token.team_name }}</span
+          >{{ t('common.table.team') }}: {{ token.team_name }}</span
         >
         {% else %}
         <span
           class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-          >All Teams</span
+          >{{ t('common.allTeams') }}</span
         >
         {% endif %} {% if token.server_id %}
         <span
           class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
-          >Server-scoped</span
+          >{{ t('tokens.detail.serverScoped') }}</span
         >
         {% endif %} {% if token.ip_restrictions and token.ip_restrictions|length
         > 0 %}
@@ -55,22 +55,22 @@
         class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3 text-sm text-gray-500 dark:text-gray-400"
       >
         <div>
-          <span class="font-medium">Created:</span> {{
-          token.created_at.split('T')[0] if token.created_at else 'Never' }}
+          <span class="font-medium">{{ t('tokens.detail.created') }}</span> {{
+          token.created_at.split('T')[0] if token.created_at else t('common.never') }}
         </div>
         <div>
-          <span class="font-medium">Expires:</span> {{
-          token.expires_at.split('T')[0] if token.expires_at else 'Never' }}
+          <span class="font-medium">{{ t('tokens.detail.expires') }}</span> {{
+          token.expires_at.split('T')[0] if token.expires_at else t('common.never') }}
         </div>
         <div>
-          <span class="font-medium">Last Used:</span> {{
-          token.last_used.split('T')[0] if token.last_used else 'Never' }}
+          <span class="font-medium">{{ t('tokens.detail.lastUsed') }}</span> {{
+          token.last_used.split('T')[0] if token.last_used else t('common.never') }}
         </div>
       </div>
       {% if token.server_id %}
       <div class="mt-2 text-sm">
         <span class="font-medium text-gray-700 dark:text-gray-300"
-          >Scoped to Server:</span
+          >{{ t('tokens.detail.scopedToServer') }}</span
         >
         {{ token.server_id }}
       </div>
@@ -78,7 +78,7 @@
       0 %}
       <div class="mt-1 text-sm">
         <span class="font-medium text-gray-700 dark:text-gray-300"
-          >Permissions:</span
+          >{{ t('tokens.detail.permissions') }}</span
         >
         {{ token.resource_scopes|join(', ') }}
       </div>

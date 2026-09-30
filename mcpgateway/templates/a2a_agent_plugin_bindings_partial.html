@@ -44,11 +44,11 @@
 
   <!-- Team Filter -->
   <div class="flex items-center space-x-4">
-    <label for="a2a-bp-team-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300">Team:</label>
+    <label for="a2a-bp-team-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('common.table.team') }}:</label>
     <select id="a2a-bp-team-filter"
             class="mt-1 block w-64 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             onchange="filterByTeam(this.value)">
-      <option value="">All Teams</option>
+      <option value="">{{ t('common.allTeams') }}</option>
       {% for team in teams %}
       {% if selected_team_id == team.id %}
       <option value="{{ team.id }}" selected>{{ team.name }}</option>

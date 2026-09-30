@@ -1,7 +1,12 @@
+import { t } from '../i18n.js';
+
 export function teamSelector() {
   return {
     open: false,
     selectedTeam: '',
+    // Sentinel, not a label: `utils.js` compares against this exact string to
+    // decide whether the caller wants every team. `displayTeamName` translates
+    // it for the header button, so the comparison never depends on the locale.
     selectedTeamName: 'All Teams',
     init: function () {
       const urlParams = new URLSearchParams(window.location.search);
@@ -48,6 +53,9 @@ export function teamSelector() {
       this.selectedTeamName = 'All Teams';
       this.open = false;
       this.updateTeamContext('');
+    },
+    get displayTeamName() {
+      return this.selectedTeamName === 'All Teams' ? t('common.allTeams') : this.selectedTeamName;
     },
     loadTeams: function () {
       if (this.open && window.Admin) window.Admin.loadTeamSelectorDropdown();
