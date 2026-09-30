@@ -10538,7 +10538,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Query Parameter Name
+                            {{ t('gateways.form.queryParamName') }}
                           </label>
                           <input
                             type="text"
@@ -10552,7 +10552,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Query Parameter Value
+                            {{ t('gateways.form.queryParamValue') }}
                           </label>
                           <div class="relative">
                             <input
@@ -10574,7 +10574,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Grant Type
+                            {{ t('gateways.form.grantType') }}
                           </label>
                           <select
                             name="oauth_grant_type"
@@ -10582,20 +10582,20 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                           >
                             <option value="authorization_code" selected>
-                            Authorization Code (User Delegation)
+                            {{ t('gateways.form.grantAuthorizationCode') }}
                             </option>
                             <option value="client_credentials">
-                            Client Credentials (Machine-to-Machine)
+                            {{ t('gateways.form.grantClientCredentials') }}
                             </option>
                             <option value="password">
-                            Resource Owner Password Credentials (Keycloak/Legacy)
+                            {{ t('gateways.form.grantPassword') }}
                             </option>
                           </select>
                           </div>
 
                           <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" >
-                              Issuer URL
+                              {{ t('gateways.form.issuerUrl') }}
                             </label>
                             <div class="mt-1 flex gap-2">
                               <input
@@ -10609,8 +10609,8 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                                 type="button"
                                 data-action-click="discoverOAuthEndpoints" data-arg0="this"
                                 class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-md border border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors"
-                                title="Auto-discover token &amp; authorization endpoints from issuer metadata"
-                              >🔍 Discover</button>
+                                title="{{ t('gateways.form.discoverTooltip') }}"
+                              >🔍 {{ t('gateways.form.discover') }}</button>
                             </div>
                             <div class="oauth-discover-status mt-1 hidden"></div>
                           </div>
@@ -10619,14 +10619,14 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Client ID <span class="text-gray-500">(optional for DCR)</span>
+                            {{ t('gateways.form.clientId') }} <span class="text-gray-500">{{ t('gateways.form.optionalForDcr') }}</span>
                           </label>
                           <input
                             type="text"
                             name="oauth_client_id"
                             id="oauth-client-id-a2a-edit"
                             class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                            placeholder="Leave empty for auto-registration via DCR"
+                            placeholder="{{ t('gateways.form.dcrPlaceholder') }}"
                           />
 
                           <!--
@@ -10641,7 +10641,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Client Secret <span class="text-gray-500">(optional for DCR)</span>
+                            {{ t('gateways.form.clientSecret') }} <span class="text-gray-500">{{ t('gateways.form.optionalForDcr') }}</span>
                           </label>
                           <input
                             type="password"
@@ -10649,7 +10649,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             id="oauth-client-secret-a2a-edit"
                             autocomplete="off"
                             class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                            placeholder="Leave empty for auto-registration via DCR"
+                            placeholder="{{ t('gateways.form.dcrPlaceholder') }}"
                           />
 
                           <!--
@@ -10664,7 +10664,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Username <span class="text-red-500">*</span> <span class="text-gray-500">(for password grant)</span>
+                            {{ t('common.field.username') }} <span class="text-red-500">*</span> <span class="text-gray-500">{{ t('gateways.form.forPasswordGrant') }}</span>
                           </label>
                           <input
                             type="text"
@@ -10687,7 +10687,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Password <span class="text-red-500">*</span> <span class="text-gray-500">(for password grant)</span>
+                            {{ t('common.field.password') }} <span class="text-red-500">*</span> <span class="text-gray-500">{{ t('gateways.form.forPasswordGrant') }}</span>
                           </label>
                           <input
                             type="password"
@@ -10695,7 +10695,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             id="oauth-password-a2a-edit"
                             autocomplete="off"
                             class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                            placeholder="Enter password"
+                            placeholder="{{ t('gateways.form.enterPassword') }}"
                           />
 
                           <!--
@@ -10710,7 +10710,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <label
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                           >
-                            Token URL
+                            {{ t('gateways.form.tokenUrl') }}
                           </label>
                           <input
                             type="url"
@@ -10726,7 +10726,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               <label
                               class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                               >
-                              Authorization URL
+                              {{ t('gateways.form.authorizationUrl') }}
                               </label>
                               <input
                               type="url"
@@ -10736,7 +10736,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               placeholder="https://oauth.example.com/authorize"
                               />
                               <p class="mt-1 text-sm text-gray-500">
-                              The OAuth provider's authorization endpoint URL
+                              {{ t('gateways.form.authorizationUrlHint') }}
                               </p>
                             </div>
 
@@ -10744,7 +10744,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               <label
                               class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                               >
-                              Redirect URI
+                              {{ t('gateways.form.redirectUri') }}
                               </label>
                               <input
                               type="url"
@@ -10754,8 +10754,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               placeholder="https://a2aagent.example.com/oauth/callback"
                               />
                               <p class="mt-1 text-sm text-gray-500">
-                              This must match the redirect URI configured in your
-                              OAuth application
+                              {{ t('gateways.form.redirectUriHint') }}
                               </p>
                               <p class="mt-1 text-sm text-blue-600 font-medium">
                               💡 Use:
@@ -10770,7 +10769,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             <label
                               class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                             >
-                              Scopes
+                              {{ t('gateways.form.scopes') }}
                             </label>
                             <input
                               type="text"
@@ -10780,8 +10779,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               placeholder="repo read:user (space-separated)"
                             />
                             <p class="mt-1 text-sm text-gray-500">
-                              Space-separated list of OAuth scopes (e.g., "repo
-                              read:user")
+                              {{ t('gateways.form.scopesHint') }}
                             </p>
                           </div>
                         </div>
@@ -10790,13 +10788,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       <!-- Description -->
                       <div>
                         <label for="a2a-agent-description-edit" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-                          Description
+                          {{ t('common.field.description') }}
                         </label>
                         <textarea
                           id="a2a-agent-description-edit"
                           name="description"
                           rows="2"
-                          placeholder="Description of the agent's capabilities"
+                          placeholder="{{ t('a2a.form.descriptionPlaceholder') }}"
                           class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm
                                 focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                         ></textarea>
@@ -10805,13 +10803,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       <!-- Tags -->
                       <div>
                         <label for="a2a-agent-tags-edit" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-                          Tags
+                          {{ t('common.table.tags') }}
                         </label>
                         <input
                           type="text"
                           id="a2a-agent-tags-edit"
                           name="tags"
-                          placeholder="ai,assistant,production (comma-separated)"
+                          placeholder="{{ t('a2a.form.tagsPlaceholder') }}"
                           class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm
                                 focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                         />
@@ -10820,7 +10818,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       <!-- UAID (Universal Agent ID) Section -->
                       <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
                         <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                          Universal Agent ID (UAID) Settings
+                          {{ t('a2a.form.uaidSettings') }}
                         </h4>
 
                         <!-- Generate UAID Checkbox -->
@@ -10834,9 +10832,9 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             data-action-change="toggleUAIDFields" data-arg0="a2a-edit"
                           />
                           <label for="a2a-generate-uaid-edit" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                            Generate UAID for cross-gateway routing
+                            {{ t('a2a.form.generateUaid') }}
                             <span class="text-xs text-gray-500 dark:text-gray-400 block mt-1">
-                              Enables zero-config federation without manual peer setup. The UAID embeds endpoint URL, protocol, and registry for automatic discovery.
+                              {{ t('a2a.form.generateUaidHint') }}
                             </span>
                           </label>
                         </div>
@@ -10847,7 +10845,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           <!-- UAID Registry -->
                           <div>
                             <label for="a2a-uaid-registry-edit" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-                              Registry Name
+                              {{ t('a2a.form.registryName') }}
                             </label>
                             <input
                               type="text"
@@ -10858,14 +10856,14 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                             />
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                              Registry identifier (e.g., "context-forge", "hol-registry")
+                              {{ t('a2a.form.registryHint') }}
                             </p>
                           </div>
 
                           <!-- UAID Protocol -->
                           <div>
                             <label for="a2a-uaid-protocol-edit" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-                              Protocol
+                              {{ t('a2a.form.protocol') }}
                             </label>
                             <select
                               id="a2a-uaid-protocol-edit"
@@ -10878,14 +10876,14 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               <option value="grpc">gRPC</option>
                             </select>
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                              Agent communication protocol
+                              {{ t('a2a.form.protocolHint') }}
                             </p>
                           </div>
 
                           <!-- UAID Native ID Override -->
                           <div>
                             <label for="a2a-uaid-native-id-override-edit" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-                              Native ID Override (Optional)
+                              {{ t('a2a.form.nativeIdOverride') }}
                             </label>
                             <input
                               type="text"
@@ -10895,17 +10893,17 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                             />
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                              Override the routing address in UAID. Leave empty to use endpoint URL. Use when gateway address differs from agent endpoint (e.g., gateway proxies to agent).
+                              {{ t('a2a.form.nativeIdOverrideHint') }}
                             </p>
                           </div>
 
                           <!-- Info Box -->
                           <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
                             <p class="text-xs text-blue-700 dark:text-blue-300">
-                              <strong>ℹ️ About UAIDs:</strong> Universal Agent IDs enable cross-gateway routing without manual configuration.
-                              The UAID embeds the endpoint URL, protocol, and registry info for automatic discovery.
+                              <strong>ℹ️ {{ t('a2a.form.aboutUaids') }}</strong> {{ t('a2a.form.aboutUaidsBody') }}
+                              {{ t('a2a.form.uaidHint') }}
                               <br/><br/>
-                              <strong>Domain Allowlist:</strong> Set <code class="px-1 py-0.5 bg-blue-100 dark:bg-blue-800 rounded">UAID_ALLOWED_DOMAINS</code> in .env to control which domains can be used.
+                              <strong>{{ t('a2a.form.domainAllowlist') }}</strong> {{ t('a2a.form.domainAllowlistHint') }}
                             </p>
                           </div>
 
@@ -10914,7 +10912,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
 
                       <!-- Visibility -->
                       <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Visibility</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ t('a2a.form.visibility') }}</label>
                         <div class="flex gap-x-6 mt-2">
 
                           <div class="flex items-center">
@@ -10926,7 +10924,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               class="form-radio h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
                               checked
                             />
-                            <label for="edit-a2a-visibility-public" class="ml-2 text-sm text-gray-700 dark:text-gray-400">🌍 Public</label>
+                            <label for="edit-a2a-visibility-public" class="ml-2 text-sm text-gray-700 dark:text-gray-400">{{ t('common.visibility.radio.public') }}</label>
                           </div>
 
                           <div class="flex items-center">
@@ -10937,7 +10935,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               id="edit-a2a-visibility-team"
                               class="form-radio h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
                             />
-                            <label for="edit-a2a-visibility-team" class="ml-2 text-sm text-gray-700 dark:text-gray-400">👥 Team</label>
+                            <label for="edit-a2a-visibility-team" class="ml-2 text-sm text-gray-700 dark:text-gray-400">{{ t('common.visibility.radio.team') }}</label>
                           </div>
                           <div class="flex items-center">
                             <input
@@ -10947,7 +10945,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               id="edit-a2a-visibility-private"
                               class="form-radio h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
                             />
-                            <label for="edit-a2a-visibility-private" class="ml-2 text-sm text-gray-700 dark:text-gray-400">🔒 Private</label>
+                            <label for="edit-a2a-visibility-private" class="ml-2 text-sm text-gray-700 dark:text-gray-400">{{ t('common.visibility.radio.private') }}</label>
                           </div>
                         </div>
                       </div>
@@ -10955,14 +10953,12 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       <div>
                         <label
                           class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                          >Passthrough Headers</label
+                          >{{ t('gateways.form.passthroughHeaders') }}</label
                         >
                         <small
                           class="text-gray-500 dark:text-gray-400 block mb-2"
                         >
-                          List of headers to pass through from client requests
-                          (comma-separated, e.g., "Authorization, X-Tenant-Id,
-                          X-Trace-Id"). Leave empty to use global defaults.
+                          {{ t('gateways.form.passthroughHeadersHint') }}
                         </small>
                         <input
                           type="text"
@@ -10984,13 +10980,13 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           data-action-click="closeModal" data-arg0="a2a-edit-modal"
                           class="px-4 py-2 border rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300"
                         >
-                          Cancel
+                          {{ t('common.actions.cancel') }}
                         </button>
                         <button
                           type="submit"
                           class="px-4 py-2 rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
                         >
-                          Save Changes
+                          {{ t('common.actions.saveChanges') }}
                         </button>
                       </div>
                     </div>
