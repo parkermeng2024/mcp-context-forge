@@ -1,4 +1,5 @@
 import { getAuthHeaders, loadAuthHeaders } from "./auth.js";
+import { t } from "./i18n.js";
 import { closeModal, openModal } from "./modals.js";
 import { escapeHtml, validateInputName, validateUrl } from "./security.js";
 import { applyVisibilityRestrictions, isTeamScopedView } from "./teams.js";
@@ -63,7 +64,7 @@ export const viewA2AAgent = async function (agentId) {
       // ID field with copy button
       const agentIdP = document.createElement("p");
       const agentIdStrong = document.createElement("strong");
-      agentIdStrong.textContent = "Agent ID: ";
+      agentIdStrong.textContent = t("a2a.detail.agentId");
       agentIdP.appendChild(agentIdStrong);
       const agentIdSpan = document.createElement("span");
       agentIdSpan.className = "font-mono text-sm";
@@ -73,22 +74,22 @@ export const viewA2AAgent = async function (agentId) {
       container.appendChild(agentIdP);
 
       const fields = [
-        { label: "Name", value: agent.name },
-        { label: "Slug", value: agent.slug },
-        { label: "Endpoint URL", value: agent.endpointUrl },
-        { label: "Agent Type", value: agent.agentType },
-        { label: "Protocol Version", value: agent.protocolVersion },
+        { label: t("a2a.detail.name"), value: agent.name },
+        { label: t("a2a.detail.slug"), value: agent.slug },
+        { label: t("a2a.detail.endpointUrl"), value: agent.endpointUrl },
+        { label: t("a2a.detail.agentType"), value: agent.agentType },
+        { label: t("a2a.detail.protocolVersion"), value: agent.protocolVersion },
         {
-          label: "Description",
+          label: t("a2a.detail.description"),
           value: decodeHtml(agent.description) || "N/A",
         },
-        { label: "Visibility", value: agent.visibility || "private" },
+        { label: t("a2a.detail.visibility"), value: agent.visibility || "private" },
       ];
 
       // Tags
       const tagsP = document.createElement("p");
       const tagsStrong = document.createElement("strong");
-      tagsStrong.textContent = "Tags: ";
+      tagsStrong.textContent = t("a2a.detail.tags");
       tagsP.appendChild(tagsStrong);
       if (agent.tags && agent.tags.length > 0) {
         agent.tags.forEach((tag) => {
@@ -103,7 +104,7 @@ export const viewA2AAgent = async function (agentId) {
           tagsP.appendChild(tagSpan);
         });
       } else {
-        tagsP.appendChild(document.createTextNode("No tags"));
+        tagsP.appendChild(document.createTextNode(t("a2a.detail.noTags")));
       }
       container.appendChild(tagsP);
 
@@ -120,7 +121,7 @@ export const viewA2AAgent = async function (agentId) {
       // Status
       const statusP = document.createElement("p");
       const statusStrong = document.createElement("strong");
-      statusStrong.textContent = "Status: ";
+      statusStrong.textContent = t("a2a.detail.status");
       statusP.appendChild(statusStrong);
 
       const statusSpan = document.createElement("span");
@@ -129,21 +130,21 @@ export const viewA2AAgent = async function (agentId) {
       let statusIcon = "";
 
       if (!agent.enabled) {
-        statusText = "Inactive";
+        statusText = t("common.states.inactive");
         statusClass = "bg-red-100 text-red-800";
         statusIcon = `
                   <svg class="ml-1 h-4 w-4 text-red-600 self-center" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M6.293 6.293a1 1 0 011.414 0L10 8.586l2.293-2.293a1 1 0 111.414 1.414L11.414 10l2.293 2.293a1 1 0 11-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 11-1.414-1.414L8.586 10 6.293 7.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                   </svg>`;
       } else if (agent.enabled && agent.reachable) {
-        statusText = "Active";
+        statusText = t("common.states.active");
         statusClass = "bg-green-100 text-green-800";
         statusIcon = `
                   <svg class="ml-1 h-4 w-4 text-green-600 self-center" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-4.586l5.293-5.293-1.414-1.414L9 11.586 7.121 9.707 5.707 11.121 9 14.414z" clip-rule="evenodd"></path>
                   </svg>`;
       } else if (agent.enabled && !agent.reachable) {
-        statusText = "Offline";
+        statusText = t("common.states.offline");
         statusClass = "bg-yellow-100 text-yellow-800";
         statusIcon = `
                   <svg class="ml-1 h-4 w-4 text-yellow-600 self-center" fill="currentColor" viewBox="0 0 20 20">
@@ -167,10 +168,10 @@ export const viewA2AAgent = async function (agentId) {
         uaidSection.appendChild(uaidTitle);
 
         const uaidFields = [
-          { label: "Full UAID", value: agent.uaid, mono: true },
-          { label: "Registry", value: agent.uaidRegistry || "N/A" },
-          { label: "Protocol", value: agent.uaidProto || "N/A" },
-          { label: "Native ID", value: agent.uaidNativeId || "N/A", mono: true },
+          { label: t("a2a.detail.fullUaid"), value: agent.uaid, mono: true },
+          { label: t("a2a.detail.registry"), value: agent.uaidRegistry || "N/A" },
+          { label: t("a2a.detail.protocol"), value: agent.uaidProto || "N/A" },
+          { label: t("a2a.detail.nativeId"), value: agent.uaidNativeId || "N/A", mono: true },
         ];
 
         uaidFields.forEach((field) => {
@@ -193,7 +194,7 @@ export const viewA2AAgent = async function (agentId) {
       const capConfigDiv = document.createElement("div");
       capConfigDiv.className = "mt-4 p-2 bg-gray-50 dark:bg-gray-800 rounded";
       const capTitle = document.createElement("strong");
-      capTitle.textContent = "Capabilities & Config:";
+      capTitle.textContent = t("a2a.detail.capabilities");
       capConfigDiv.appendChild(capTitle);
 
       const pre = document.createElement("pre");
@@ -211,7 +212,7 @@ export const viewA2AAgent = async function (agentId) {
       metadataDiv.className = "mt-6 border-t pt-4";
 
       const metadataTitle = document.createElement("strong");
-      metadataTitle.textContent = "Metadata:";
+      metadataTitle.textContent = t("a2a.detail.metadata");
       metadataDiv.appendChild(metadataTitle);
 
       const metadataGrid = document.createElement("div");
@@ -219,46 +220,46 @@ export const viewA2AAgent = async function (agentId) {
 
       const metadataFields = [
         {
-          label: "Created By",
-          value: agent.created_by || agent.createdBy || "Legacy Entity",
+          label: t("a2a.detail.createdBy"),
+          value: agent.created_by || agent.createdBy || t("a2a.detail.legacyEntity"),
         },
         {
-          label: "Created At",
+          label: t("a2a.detail.createdAt"),
           value:
             agent.created_at || agent.createdAt
               ? new Date(agent.created_at || agent.createdAt).toLocaleString()
-              : "Pre-metadata",
+              : t("a2a.detail.preMetadata"),
         },
         {
-          label: "Created From IP",
-          value: agent.created_from_ip || agent.createdFromIp || "Unknown",
+          label: t("a2a.detail.createdFromIp"),
+          value: agent.created_from_ip || agent.createdFromIp || t("common.unknown"),
         },
         {
-          label: "Created Via",
-          value: agent.created_via || agent.createdVia || "Unknown",
+          label: t("a2a.detail.createdVia"),
+          value: agent.created_via || agent.createdVia || t("common.unknown"),
         },
         {
-          label: "Last Modified By",
+          label: t("a2a.detail.lastModifiedBy"),
           value: agent.modified_by || agent.modifiedBy || "N/A",
         },
         {
-          label: "Last Modified At",
+          label: t("a2a.detail.lastModifiedAt"),
           value:
             agent.updated_at || agent.updatedAt
               ? new Date(agent.updated_at || agent.updatedAt).toLocaleString()
               : "N/A",
         },
         {
-          label: "Modified From IP",
+          label: t("a2a.detail.modifiedFromIp"),
           value: agent.modified_from_ip || agent.modifiedFromIp || "N/A",
         },
         {
-          label: "Modified Via",
+          label: t("a2a.detail.modifiedVia"),
           value: agent.modified_via || agent.modifiedVia || "N/A",
         },
-        { label: "Version", value: agent.version || "1" },
+        { label: t("a2a.detail.version"), value: agent.version || "1" },
         {
-          label: "Import Batch",
+          label: t("a2a.detail.importBatch"),
           value: agent.importBatchId || "N/A",
         },
       ];
@@ -641,11 +642,11 @@ export const editA2AAgent = async function (agentId) {
       if (hasUAID) {
         // Agent already has UAID - make checkbox disabled (UAID is immutable)
         generateUAIDCheckbox.disabled = true;
-        generateUAIDCheckbox.title = "UAID is immutable and cannot be changed once generated";
+        generateUAIDCheckbox.title = t("a2a.uaid.immutableGenerated");
       } else {
         // Agent has no UAID - allow user to check the box to generate one
         generateUAIDCheckbox.disabled = false;
-        generateUAIDCheckbox.title = "Generate UAID for cross-gateway routing (can only be set once)";
+        generateUAIDCheckbox.title = t("a2a.uaid.generateHint");
       }
 
       toggleUAIDFields("a2a-edit", hasUAID);
@@ -661,11 +662,11 @@ export const editA2AAgent = async function (agentId) {
         uaidRegistryField.value = agent.uaidRegistry || "";
         uaidRegistryField.readOnly = true;
         uaidRegistryField.classList.add('bg-gray-100', 'dark:bg-gray-800', 'cursor-not-allowed');
-        uaidRegistryField.title = "UAID is immutable and cannot be changed";
+        uaidRegistryField.title = t("a2a.uaid.immutable");
       } else {
         // Agent has no UAID - allow editing
         uaidRegistryField.value = "context-forge";
-        uaidRegistryField.title = "Registry identifier for UAID generation";
+        uaidRegistryField.title = t("a2a.uaid.registryHint");
       }
     }
 
@@ -679,11 +680,11 @@ export const editA2AAgent = async function (agentId) {
         uaidProtocolField.value = agent.uaidProto || "";
         uaidProtocolField.disabled = true;
         uaidProtocolField.classList.add('bg-gray-100', 'dark:bg-gray-800', 'cursor-not-allowed');
-        uaidProtocolField.title = "UAID is immutable and cannot be changed";
+        uaidProtocolField.title = t("a2a.uaid.immutable");
       } else {
         // Agent has no UAID - allow selection
         uaidProtocolField.value = "a2a";
-        uaidProtocolField.title = "Protocol for UAID generation";
+        uaidProtocolField.title = t("a2a.uaid.protocolHint");
       }
     }
 
@@ -697,11 +698,11 @@ export const editA2AAgent = async function (agentId) {
         uaidNativeIdOverrideField.value = agent.uaidNativeIdOverride || "";
         uaidNativeIdOverrideField.readOnly = true;
         uaidNativeIdOverrideField.classList.add('bg-gray-100', 'dark:bg-gray-800', 'cursor-not-allowed');
-        uaidNativeIdOverrideField.title = "UAID is immutable and cannot be changed";
+        uaidNativeIdOverrideField.title = t("a2a.uaid.immutable");
       } else {
         // Agent has no UAID - allow editing
         uaidNativeIdOverrideField.value = "";
-        uaidNativeIdOverrideField.title = "Override routing address for cross-gateway calls (optional)";
+        uaidNativeIdOverrideField.title = t("a2a.uaid.nativeIdHint");
       }
     }
 
@@ -771,7 +772,7 @@ export const testA2AAgent = async function (agentId, agentName, endpointUrl) {
     }
     if (queryInput) {
       // Reset to default value
-      queryInput.value = "Hello from ContextForge Admin UI test!";
+      queryInput.value = t("a2a.test.queryDefault");
     }
     if (resultDiv) {
       resultDiv.classList.add("hidden");
@@ -796,7 +797,7 @@ export const testA2AAgent = async function (agentId, agentName, endpointUrl) {
     }
   } catch (error) {
     console.error("Error setting up A2A test modal:", error);
-    showErrorMessage("Failed to open A2A test modal");
+    showErrorMessage(t("a2a.test.openFailed"));
   }
 };
 
@@ -822,13 +823,13 @@ export const handleA2ATestSubmit = async function (e) {
     }
     if (testButton) {
       testButton.disabled = true;
-      testButton.textContent = "Testing...";
+      testButton.textContent = t("common.states.testing");
     }
 
     const agentId = safeGetElement("a2a-test-agent-id")?.value;
     const query =
       safeGetElement("a2a-test-query")?.value ||
-      "Hello from ContextForge Admin UI test!";
+      t("a2a.test.queryDefault");
 
     if (!agentId) {
       throw new Error("Agent ID is missing");
@@ -864,12 +865,12 @@ export const handleA2ATestSubmit = async function (e) {
     // Display result
     const isSuccess = result.success && !result.error;
     const icon = isSuccess ? "✅" : "❌";
-    const title = isSuccess ? "Test Successful" : "Test Failed";
+    const title = isSuccess ? t("a2a.test.success") : t("a2a.test.failed");
 
     let bodyHtml = "";
     if (result.result) {
       bodyHtml = `<details open>
-                      <summary class='cursor-pointer font-medium'>Response</summary>
+                      <summary class='cursor-pointer font-medium'>${t("a2a.test.response")}</summary>
                       <pre class="text-sm px-4 max-h-96 dark:bg-gray-800 dark:text-gray-100 overflow-auto whitespace-pre-wrap">${escapeHtml(JSON.stringify(result.result, null, 2))}</pre>
                   </details>`;
     }
@@ -877,14 +878,14 @@ export const handleA2ATestSubmit = async function (e) {
     responseDiv.innerHTML = `
                   <div class="p-3 rounded ${isSuccess ? "bg-green-50 dark:bg-green-900/20" : "bg-red-50 dark:bg-red-900/20"}">
                       <h4 class="font-bold ${isSuccess ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}">${icon} ${title}</h4>
-                      ${result.error ? `<p class="text-red-600 dark:text-red-400 mt-2">Error: ${escapeHtml(result.error)}</p>` : ""}
+                      ${result.error ? `<p class="text-red-600 dark:text-red-400 mt-2">${t("common.label.error")} ${escapeHtml(result.error)}</p>` : ""}
                       ${bodyHtml}
                   </div>
               `;
   } catch (error) {
     console.error("A2A test error:", error);
     if (responseDiv) {
-      responseDiv.innerHTML = `<div class="text-red-600 dark:text-red-400 p-4 bg-red-50 dark:bg-red-900/20 rounded">❌ Error: ${escapeHtml(error.message)}</div>`;
+      responseDiv.innerHTML = `<div class="text-red-600 dark:text-red-400 p-4 bg-red-50 dark:bg-red-900/20 rounded">❌ ${t("common.label.error")} ${escapeHtml(error.message)}</div>`;
     }
   } finally {
     if (loading) {
@@ -895,7 +896,7 @@ export const handleA2ATestSubmit = async function (e) {
     }
     if (testButton) {
       testButton.disabled = false;
-      testButton.textContent = "Test Agent";
+      testButton.textContent = t("a2a.test.submit");
     }
   }
 };
