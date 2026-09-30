@@ -1,3 +1,4 @@
+import { t } from "./i18n.js";
 import {
   escapeHtml,
   escapeHtmlChat,
@@ -186,8 +187,8 @@ export const loadVirtualServersForChat = async function () {
         // Generate appropriate tooltip message
         const tooltipMessage = requiresToken
           ? server.visibility === "team"
-            ? "This is a team-level server. An access token will be required to connect."
-            : "This is a private server. An access token will be required to connect."
+            ? t("llm.chat.tokenTooltip.team")
+            : t("llm.chat.tokenTooltip.private")
           : "";
 
         return `
@@ -283,7 +284,7 @@ export const selectServerForChat = async function (
 ) {
   if (!isActive) {
     showErrorMessage(
-      "This server is inactive. Please select an active server."
+      t("llm.chat.serverInactive")
     );
     return;
   }
@@ -293,11 +294,11 @@ export const selectServerForChat = async function (
     // Create context-aware message based on visibility level
     const visibilityMessage =
       serverVisibility === "team"
-        ? "This is a team-level server that requires authentication for access."
-        : "This is a private server that requires authentication for access.";
+        ? t("llm.chat.visibility.teamAuth")
+        : t("llm.chat.visibility.privateAuth");
 
     const token = prompt(
-      `Authentication Required\n\n${visibilityMessage}\n\nPlease enter the access token for "${serverName}":`
+      `${t("llm.chat.authRequired")}\n\n${visibilityMessage}\n\n${t("llm.chat.enterToken", { server: serverName })}`
     );
 
     if (token === null) {
@@ -460,14 +461,14 @@ const updateConnectButtonState = function () {
 
 export const connectLLMChat = async function () {
   if (!llmChatState.selectedServerId) {
-    showErrorMessage("Please select a virtual server first");
+    showErrorMessage(t("llm.chat.selectServerFirst"));
     return;
   }
 
   const modelSelect = safeGetElement("llm-model-select");
   const selectedModel = modelSelect ? modelSelect.value : "";
   if (!selectedModel) {
-    showErrorMessage("Please select an LLM model");
+    showErrorMessage(t("llm.chat.selectModel"));
     return;
   }
 
@@ -478,7 +479,7 @@ export const connectLLMChat = async function () {
   // Show loading state
   const connectBtn = safeGetElement("llm-connect-btn");
   const originalText = connectBtn.textContent;
-  connectBtn.textContent = "Connecting...";
+  connectBtn.textContent = t("llm.chat.connecting");
   connectBtn.disabled = true;
 
   // Clear any previous error messages
@@ -537,7 +538,7 @@ export const connectLLMChat = async function () {
         fetchError.message.includes("timeout")
       ) {
         throw new Error(
-          "Connection timed out. Please check if the server is responsive and try again."
+          t("llm.chat.connectTimeout")
         );
       }
       throw new Error(`Network error: ${fetchError.message}`);
@@ -608,7 +609,7 @@ export const connectLLMChat = async function () {
     if (configToggle) {
       configToggle.disabled = true;
       configToggle.classList.add("opacity-50", "cursor-not-allowed");
-      configToggle.title = "Please disconnect to change configuration";
+      configToggle.title = t("llm.chat.disconnectToChangeConfig");
 
       // Ensure dropdown is closed if it was open (handled by Alpine, but good to be safe)
       // We DON'T set 'hidden' class manually as it breaks Alpine's state
@@ -620,7 +621,7 @@ export const connectLLMChat = async function () {
     if (serverDropdownBtn) {
       serverDropdownBtn.disabled = true;
       serverDropdownBtn.classList.add("opacity-50", "cursor-not-allowed");
-      serverDropdownBtn.title = "Please disconnect to change server";
+      serverDropdownBtn.title = t("llm.chat.disconnectToChangeServer");
     }
 
     // Show success message
@@ -886,7 +887,7 @@ export const copyEnvVariables = async function (provider) {
 
   if (!variables) {
     console.error("Unknown provider:", provider);
-    showErrorMessage("Unknown provider");
+    showErrorMessage(t("llm.chat.unknownProvider"));
     return;
   }
 
@@ -915,14 +916,14 @@ export const copyEnvVariables = async function (provider) {
         }
       } catch (err) {
         console.error("Fallback copy failed:", err);
-        showErrorMessage("Failed to copy to clipboard");
+        showErrorMessage(t("llm.chat.copyFailed"));
       } finally {
         document.body.removeChild(textArea);
       }
     }
   } catch (err) {
     console.error("Failed to copy environment variables:", err);
-    showErrorMessage("Failed to copy to clipboard. Please copy manually.");
+    showErrorMessage(t("llm.chat.copyFailedManual"));
   }
 };
 
@@ -1083,7 +1084,7 @@ export const disconnectLLMChat = async function () {
 
   const disconnectBtn = safeGetElement("llm-disconnect-btn");
   const originalText = disconnectBtn.textContent;
-  disconnectBtn.textContent = "Disconnecting...";
+  disconnectBtn.textContent = t("llm.chat.disconnecting");
   disconnectBtn.disabled = true;
 
   try {
@@ -1209,15 +1210,15 @@ export const disconnectLLMChat = async function () {
     // Show appropriate notification
     if (backendError) {
       showNotification(
-        `Disconnected (server error: ${backendError})`,
+        `${t("llm.chat.disconnectedServerError", { error: backendError })}`,
         "warning"
       );
     } else if (disconnectStatus === "no_active_session") {
-      showNotification("Already disconnected", "info");
+      showNotification(t("llm.chat.alreadyDisconnected"), "info");
     } else if (disconnectStatus === "disconnected_with_errors") {
-      showNotification("Disconnected (with cleanup warnings)", "warning");
+      showNotification(t("llm.chat.disconnectedWithWarnings"), "warning");
     } else {
-      showNotification("Disconnected successfully", "info");
+      showNotification(t("llm.chat.disconnected"), "info");
     }
   } catch (error) {
     console.error("Unexpected disconnection error:", error);
@@ -1255,7 +1256,7 @@ export const sendChatMessage = async function (event) {
   }
 
   if (!llmChatState.isConnected) {
-    showErrorMessage("Please connect to a server first");
+    showErrorMessage(t("llm.chat.connectFirst"));
     return;
   }
 
@@ -1409,7 +1410,7 @@ export const sendChatMessage = async function (event) {
               case "error": {
                 // Handle server-sent error events from backend
                 const errorMsg =
-                  payload.error || "An error occurred during processing";
+                  payload.error || t("llm.chat.processingFailed");
                 const isRecoverable = payload.recoverable !== false;
 
                 // Display error in the assistant message
@@ -1463,7 +1464,7 @@ export const sendChatMessage = async function (event) {
     console.error("Chat error:", error);
 
     // Display backend error message to user
-    const errorMsg = error.message || "An unexpected error occurred";
+    const errorMsg = error.message || t("llm.chat.unexpectedError");
     appendChatMessage("system", `❌ ${errorMsg}`);
 
     // If we have a partial assistant message, mark it as complete
@@ -1577,10 +1578,10 @@ const createThinkingUI = function (thinkingSteps) {
       <svg class="thinking-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
       </svg>
-      <span class="thinking-label">Thinking</span>
-      <span class="thinking-count">${thinkingSteps.length} step${thinkingSteps.length !== 1 ? "s" : ""}</span>
+      <span class="thinking-label">${t("llm.chat.thinking")}</span>
+      <span class="thinking-count">${thinkingSteps.length} ${t("llm.chat.stepWord")}${thinkingSteps.length !== 1 ? "s" : ""}</span>
     </div>
-    <button class="thinking-toggle" aria-label="Toggle thinking steps">
+    <button class="thinking-toggle" aria-label="${t("llm.chat.toggleThinking")}">
       <svg class="thinking-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
       </svg>
@@ -1854,21 +1855,21 @@ const getOrCreateToolCard = function (messageId) {
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
     </svg>
-    <span>Tool Invocations</span>
+    <span>${t("llm.chat.toolInvocations")}</span>
   `;
 
   const toggleBtn = document.createElement("button");
   toggleBtn.className =
     "text-xs text-blue-600 dark:text-blue-300 hover:underline";
-  toggleBtn.textContent = "Hide";
+  toggleBtn.textContent = t("common.actions.hide");
   toggleBtn.onclick = () => {
     const body = card.querySelector(".tool-events-body");
     if (body.classList.contains("hidden")) {
       body.classList.remove("hidden");
-      toggleBtn.textContent = "Hide";
+      toggleBtn.textContent = t("common.actions.hide");
     } else {
       body.classList.add("hidden");
-      toggleBtn.textContent = "Show";
+      toggleBtn.textContent = t("common.actions.show");
     }
   };
 
@@ -1956,11 +1957,11 @@ const setToolUsedSummary = function (messageId, used, toolsList) {
   if (used && toolsList && toolsList.length > 0) {
     badge.className =
       "tool-summary-badge mt-2 pt-2 border-t border-blue-200 dark:border-blue-700 text-xs font-medium text-green-700 dark:text-green-400";
-    badge.textContent = `✓ Tools used: ${toolsList.join(", ")}`;
+    badge.textContent = `✓ ${t("llm.chat.toolsUsed")} ${toolsList.join(", ")}`;
   } else {
     badge.className =
       "tool-summary-badge mt-2 pt-2 border-t border-blue-200 dark:border-blue-700 text-xs font-medium text-gray-600 dark:text-gray-400";
-    badge.textContent = "No tools invoked";
+    badge.textContent = t("llm.chat.noToolsInvoked");
   }
 };
 
