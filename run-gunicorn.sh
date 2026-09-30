@@ -136,6 +136,17 @@ echo $$ > "${LOCK_FILE}"
 # Check if a virtual environment is already active. If not, activate the one
 # created by `make install` in the project directory.
 #────────────────────────────────────────────────────────────────────────────────
+# A set-but-unusable VIRTUAL_ENV (a venv copied from another machine, a stale
+# container path) puts a non-existent bin directory first on PATH, which hides
+# the project-local environment and makes `command -v gunicorn` fail. Treat it
+# as unactivated rather than trusting the variable.
+if [[ -n "${VIRTUAL_ENV:-}" && ! -x "${VIRTUAL_ENV}/bin/python" ]]; then
+    echo "⚠️  WARNING: VIRTUAL_ENV is set but does not resolve to a working environment:"
+    echo "   ${VIRTUAL_ENV}"
+    echo "   Ignoring it and activating the project-local environment instead."
+    unset VIRTUAL_ENV
+fi
+
 if [[ -z "${VIRTUAL_ENV:-}" ]]; then
     # Use the project-local virtual environment created by `make install`
     if [[ -f "${SCRIPT_DIR}/.venv/bin/activate" ]]; then
@@ -449,7 +460,8 @@ fi
 #────────────────────────────────────────────────────────────────────────────────
 if ! command -v gunicorn &> /dev/null; then
     echo "❌  FATAL: gunicorn command not found!"
-    echo "   Please install it with: pip install gunicorn"
+    echo "   Active virtual environment: ${VIRTUAL_ENV:-<none>}"
+    echo "   Please install it with: make venv install-dev, or: pip install gunicorn"
     exit 1
 fi
 
