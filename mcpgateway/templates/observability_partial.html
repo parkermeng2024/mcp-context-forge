@@ -520,7 +520,7 @@ window.__obsExecAndStrip = function(html) {
         <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
             <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <span>🔍</span>
-                Observability Dashboard
+                {{ t('obs.panel.title') }}
             </h2>
             <div class="flex gap-4 items-center" x-show="viewMode === 'traces'">
             <select
@@ -528,47 +528,47 @@ window.__obsExecAndStrip = function(html) {
                 class="px-4 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-all dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600"
                 style="min-width: 200px;"
             >
-                <option value="">📋 Saved Queries</option>
+                <option value="">📋 {{ t('obs.savedQueries.title') }}</option>
                 <template x-for="query in savedQueries" :key="query.id">
-                    <option :value="query.id" x-text="query.name + (query.is_shared ? ' (shared)' : '')"></option>
+                    <option :value="query.id" x-text="query.name + (query.is_shared ? ' {{ t('obs.savedQueries.shared') }}' : '')"></option>
                 </template>
             </select>
             <button
                 class="px-4 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-all dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600"
                 @click="showSaveQueryModal = true"
-                title="Save current filters as a query"
+                title="{{ t('obs.savedQueries.saveTitle') }}"
             >
-                💾 Save Query
+                💾 {{ t('obs.savedQueries.save') }}
             </button>
             <select
                 x-model="timeRange"
                 class="px-4 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-all dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600"
             >
-                <option value="1h">Last Hour</option>
-                <option value="6h">Last 6 Hours</option>
-                <option value="24h" selected>Last 24 Hours</option>
-                <option value="7d">Last 7 Days</option>
+                <option value="1h">{{ t('obs.metrics.range.lastHour') }}</option>
+                <option value="6h">{{ t('obs.metrics.range.last6h') }}</option>
+                <option value="24h" selected>{{ t('obs.metrics.range.last24h') }}</option>
+                <option value="7d">{{ t('obs.metrics.range.last7d') }}</option>
             </select>
             <select
                 x-model="statusFilter"
                 class="px-4 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-all dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600"
             >
-                <option value="all" selected>All Status</option>
-                <option value="ok">Success Only</option>
-                <option value="error">Errors Only</option>
+                <option value="all" selected>{{ t('obs.status.all') }}</option>
+                <option value="ok">{{ t('obs.status.ok') }}</option>
+                <option value="error">{{ t('obs.status.error') }}</option>
             </select>
             <button
                 class="px-4 py-2 text-sm border rounded-md cursor-pointer transition-all dark:border-gray-600 dark:hover:bg-gray-600"
                 :class="showAdvancedFilters ? 'bg-blue-500 text-white border-blue-500 dark:bg-blue-600 dark:border-blue-500' : 'bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-100'"
                 @click="showAdvancedFilters = !showAdvancedFilters"
             >
-                ⚙️ Advanced Filters
+                ⚙️ {{ t('obs.filters.advanced') }}
             </button>
             <button
                 class="px-4 py-2 text-sm bg-blue-500 text-white rounded-md cursor-pointer font-medium transition-colors hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500"
                 @click="refreshAll()"
             >
-                🔄 Refresh
+                🔄 {{ t('common.actions.refresh') }}
             </button>
             </div>
         </div>
@@ -580,35 +580,35 @@ window.__obsExecAndStrip = function(html) {
                 :class="viewMode === 'traces' ? 'bg-blue-500 text-white border-blue-500 dark:bg-blue-600 dark:border-blue-500' : 'bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600'"
                 class="px-4 py-2 text-sm border rounded-md cursor-pointer transition-all"
             >
-                📋 Traces
+                📋 {{ t('obs.tab.traces') }}
             </button>
             <button
                 @click="setViewMode('metrics')"
                 :class="viewMode === 'metrics' ? 'bg-blue-500 text-white border-blue-500 dark:bg-blue-600 dark:border-blue-500' : 'bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600'"
                 class="px-4 py-2 text-sm border rounded-md cursor-pointer transition-all"
             >
-                📊 Advanced Metrics
+                📊 {{ t('obs.tab.metrics') }}
             </button>
             <button
                 @click="setViewMode('tools')"
                 :class="viewMode === 'tools' ? 'bg-blue-500 text-white border-blue-500 dark:bg-blue-600 dark:border-blue-500' : 'bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600'"
                 class="px-4 py-2 text-sm border rounded-md cursor-pointer transition-all"
             >
-                🔧 MCP Tools
+                🔧 {{ t('obs.tab.tools') }}
             </button>
             <button
                 @click="setViewMode('prompts')"
                 :class="viewMode === 'prompts' ? 'bg-blue-500 text-white border-blue-500 dark:bg-blue-600 dark:border-blue-500' : 'bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600'"
                 class="px-4 py-2 text-sm border rounded-md cursor-pointer transition-all"
             >
-                💬 Prompts
+                💬 {{ t('obs.tab.prompts') }}
             </button>
             <button
                 @click="setViewMode('resources')"
                 :class="viewMode === 'resources' ? 'bg-blue-500 text-white border-blue-500 dark:bg-blue-600 dark:border-blue-500' : 'bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600'"
                 class="px-4 py-2 text-sm border rounded-md cursor-pointer transition-all"
             >
-                📦 Resources
+                📦 {{ t('obs.tab.resources') }}
             </button>
         </div>
     </div>
@@ -620,13 +620,13 @@ window.__obsExecAndStrip = function(html) {
          x-transition
          class="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6 shadow-sm dark:shadow-gray-900/30">
         <h3 class="m-0 mb-4 text-lg font-semibold text-gray-700 dark:text-gray-200">
-            🔧 Advanced Filters
+            🔧 {{ t('obs.filters.advanced') }}
         </h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
             <!-- Duration Range -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Min Duration (ms)
+                    {{ t('obs.filters.minDuration') }}
                 </label>
                 <input
                     type="number"
@@ -638,7 +638,7 @@ window.__obsExecAndStrip = function(html) {
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Max Duration (ms)
+                    {{ t('obs.filters.maxDuration') }}
                 </label>
                 <input
                     type="number"
@@ -652,14 +652,14 @@ window.__obsExecAndStrip = function(html) {
             <!-- HTTP Method -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    HTTP Method
+                    {{ t('obs.filters.httpMethod') }}
                 </label>
                 <select
                     x-model="httpMethod"
                     class="w-full px-4 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-all dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
                     @change="refreshTraces()"
                 >
-                    <option value="">All Methods</option>
+                    <option value="">{{ t('obs.filters.allMethods') }}</option>
                     <option value="GET">GET</option>
                     <option value="POST">POST</option>
                     <option value="PUT">PUT</option>
@@ -671,7 +671,7 @@ window.__obsExecAndStrip = function(html) {
             <!-- User Email -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    User Email
+                    {{ t('obs.filters.userEmail') }}
                 </label>
                 <input
                     type="text"
@@ -685,7 +685,7 @@ window.__obsExecAndStrip = function(html) {
             <!-- Name Search -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Trace Name
+                    {{ t('obs.filters.traceName') }}
                 </label>
                 <input
                     type="text"
@@ -699,12 +699,12 @@ window.__obsExecAndStrip = function(html) {
             <!-- Attribute Search -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Attribute Search
+                    {{ t('obs.filters.attributeSearch') }}
                 </label>
                 <input
                     type="text"
                     x-model="attributeSearch"
-                    placeholder="Search in attributes..."
+                    placeholder="{{ t('obs.filters.attributeSearchPlaceholder') }}"
                     class="w-full px-4 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-all dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:placeholder-gray-400"
                     @input.debounce.500ms="refreshTraces()"
                 />
@@ -713,12 +713,12 @@ window.__obsExecAndStrip = function(html) {
             <!-- Tool Name Filter -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    🔧 MCP Tool Name
+                    🔧 {{ t('obs.filters.toolName') }}
                 </label>
                 <input
                     type="text"
                     x-model="toolName"
-                    placeholder="Filter by tool name..."
+                    placeholder="{{ t('obs.filters.toolNamePlaceholder') }}"
                     class="w-full px-4 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-all dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:placeholder-gray-400"
                     @input.debounce.500ms="refreshTraces()"
                 />
@@ -731,7 +731,7 @@ window.__obsExecAndStrip = function(html) {
                 class="px-6 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-all dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600"
                 @click="clearFilters()"
             >
-                🗑️ Clear All Filters
+                🗑️ {{ t('obs.filters.clearAll') }}
             </button>
         </div>
     </div>
@@ -740,7 +740,7 @@ window.__obsExecAndStrip = function(html) {
     <div id="stats-container">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm dark:shadow-gray-900/30 border-l-4 border-blue-500">
-                <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Loading statistics...</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ t('obs.traces.loadingStats') }}</div>
             </div>
         </div>
     </div>
@@ -750,19 +750,19 @@ window.__obsExecAndStrip = function(html) {
         <table class="w-full border-collapse">
             <thead>
                 <tr>
-                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">Timestamp</th>
-                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">Method</th>
-                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">Endpoint</th>
-                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">Status</th>
-                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">Duration</th>
-                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">User</th>
-                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">Actions</th>
+                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">{{ t('obs.traces.table.timestamp') }}</th>
+                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">{{ t('obs.traces.table.method') }}</th>
+                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">{{ t('obs.traces.table.endpoint') }}</th>
+                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">{{ t('obs.traces.table.status') }}</th>
+                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">{{ t('obs.traces.table.duration') }}</th>
+                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">{{ t('obs.traces.table.user') }}</th>
+                    <th class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">{{ t('obs.traces.table.actions') }}</th>
                 </tr>
             </thead>
             <tbody id="traces-list">
                 <tr>
                     <td colspan="7" class="text-center py-8 text-gray-500 dark:text-gray-400">
-                        Loading traces...
+                        {{ t('obs.traces.loading') }}
                     </td>
                 </tr>
             </tbody>
@@ -786,7 +786,7 @@ window.__obsExecAndStrip = function(html) {
          @click.self="showSaveQueryModal = false">
         <div class="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full mx-4 p-8 shadow-2xl">
             <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 m-0">💾 Save Query</h3>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 m-0">💾 {{ t('obs.savedQueries.save') }}</h3>
                 <button @click="showSaveQueryModal = false" class="bg-transparent border-0 text-2xl cursor-pointer text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">×</button>
             </div>
 
@@ -794,12 +794,12 @@ window.__obsExecAndStrip = function(html) {
                 <!-- Query Name -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Query Name <span class="text-red-500">*</span>
+                        {{ t('obs.traces.saveQuery.name') }} <span class="text-red-500">*</span>
                     </label>
                     <input
                         x-model="saveQueryName"
                         type="text"
-                        placeholder="e.g., Slow Requests Last Hour"
+                        placeholder="{{ t('obs.traces.saveQuery.namePlaceholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                     />
                 </div>
@@ -807,11 +807,11 @@ window.__obsExecAndStrip = function(html) {
                 <!-- Query Description -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Description (optional)
+                        {{ t('obs.traces.saveQuery.description') }}
                     </label>
                     <textarea
                         x-model="saveQueryDescription"
-                        placeholder="What does this query help you find?"
+                        placeholder="{{ t('obs.traces.saveQuery.descriptionPlaceholder') }}"
                         rows="3"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 resize-y focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                     ></textarea>
@@ -826,22 +826,22 @@ window.__obsExecAndStrip = function(html) {
                         class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
                     />
                     <label for="save-query-shared" class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
-                        Share with team (visible to all users)
+                        {{ t('obs.traces.saveQuery.share') }}
                     </label>
                 </div>
 
                 <!-- Current Filters Preview -->
                 <div class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
-                    <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase">Current Filters</p>
+                    <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase">{{ t('obs.traces.saveQuery.currentFilters') }}</p>
                     <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 dark:text-gray-300">
-                        <div x-show="timeRange"><strong>Time:</strong> <span x-text="timeRange"></span></div>
-                        <div x-show="statusFilter"><strong>Status:</strong> <span x-text="statusFilter"></span></div>
-                        <div x-show="minDuration"><strong>Min Duration:</strong> <span x-text="minDuration + 'ms'"></span></div>
-                        <div x-show="maxDuration"><strong>Max Duration:</strong> <span x-text="maxDuration + 'ms'"></span></div>
-                        <div x-show="httpMethod"><strong>HTTP Method:</strong> <span x-text="httpMethod"></span></div>
-                        <div x-show="userEmail"><strong>User:</strong> <span x-text="userEmail"></span></div>
-                        <div x-show="nameSearch" class="col-span-2"><strong>Name:</strong> <span x-text="nameSearch"></span></div>
-                        <div x-show="attributeSearch" class="col-span-2"><strong>Attributes:</strong> <span x-text="attributeSearch"></span></div>
+                        <div x-show="timeRange"><strong>{{ t('obs.traces.saveQuery.filter.time') }}</strong> <span x-text="timeRange"></span></div>
+                        <div x-show="statusFilter"><strong>{{ t('obs.traces.saveQuery.filter.status') }}</strong> <span x-text="statusFilter"></span></div>
+                        <div x-show="minDuration"><strong>{{ t('obs.traces.saveQuery.filter.minDuration') }}</strong> <span x-text="minDuration + 'ms'"></span></div>
+                        <div x-show="maxDuration"><strong>{{ t('obs.traces.saveQuery.filter.maxDuration') }}</strong> <span x-text="maxDuration + 'ms'"></span></div>
+                        <div x-show="httpMethod"><strong>{{ t('obs.traces.saveQuery.filter.httpMethod') }}</strong> <span x-text="httpMethod"></span></div>
+                        <div x-show="userEmail"><strong>{{ t('obs.traces.saveQuery.filter.user') }}</strong> <span x-text="userEmail"></span></div>
+                        <div x-show="nameSearch" class="col-span-2"><strong>{{ t('obs.traces.saveQuery.filter.name') }}</strong> <span x-text="nameSearch"></span></div>
+                        <div x-show="attributeSearch" class="col-span-2"><strong>{{ t('obs.traces.saveQuery.filter.attributes') }}</strong> <span x-text="attributeSearch"></span></div>
                     </div>
                 </div>
 
@@ -851,13 +851,13 @@ window.__obsExecAndStrip = function(html) {
                         @click="showSaveQueryModal = false"
                         class="px-6 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md cursor-pointer font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                     >
-                        Cancel
+                        {{ t('common.actions.cancel') }}
                     </button>
                     <button
                         @click="saveCurrentQuery()"
                         class="px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md cursor-pointer font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
                     >
-                        Save Query
+                        {{ t('obs.savedQueries.save') }}
                     </button>
                 </div>
             </div>
@@ -868,28 +868,28 @@ window.__obsExecAndStrip = function(html) {
     <!-- Metrics View -->
     <div x-show="viewMode === 'metrics'" id="metrics-container">
         <div class="p-8 text-center text-gray-600 dark:text-gray-400">
-            Loading metrics dashboard...
+            {{ t('obs.view.loading.metrics') }}
         </div>
     </div>
 
     <!-- Tools View -->
     <div x-show="viewMode === 'tools'" id="tools-container">
         <div class="p-8 text-center text-gray-600 dark:text-gray-400">
-            Loading tool metrics dashboard...
+            {{ t('obs.view.loading.tools') }}
         </div>
     </div>
 
     <!-- Prompts View -->
     <div x-show="viewMode === 'prompts'" id="prompts-container">
         <div class="p-8 text-center text-gray-600 dark:text-gray-400">
-            Loading prompt metrics dashboard...
+            {{ t('obs.view.loading.prompts') }}
         </div>
     </div>
 
     <!-- Resources View -->
     <div x-show="viewMode === 'resources'" id="resources-container">
         <div class="p-8 text-center text-gray-600 dark:text-gray-400">
-            Loading resource metrics dashboard...
+            {{ t('obs.view.loading.resources') }}
         </div>
     </div>
 </div>

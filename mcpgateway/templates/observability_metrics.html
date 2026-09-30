@@ -200,7 +200,7 @@ window.createMetricsController = function() {
           labels: data.timestamps.map((t) => new Date(t).toLocaleTimeString()),
           datasets: [
             {
-              label: 'p50 (median)',
+              label: "{{ t('obs.metrics.chart.p50') }}",
               data: data.p50,
               borderColor: '#10b981',
               backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -239,7 +239,7 @@ window.createMetricsController = function() {
           plugins: {
             title: {
               display: true,
-              text: 'Latency Percentiles Over Time',
+              text: "{{ t('obs.metrics.chart.percentilesTitle') }}",
               color: defaults.titleColor,
             },
             legend: {
@@ -261,7 +261,7 @@ window.createMetricsController = function() {
               beginAtZero: true,
               title: {
                 display: true,
-                text: 'Latency (ms)',
+                text: "{{ t('obs.metrics.chart.latencyMs') }}",
                 color: defaults.titleColor,
               },
               ticks: {
@@ -287,7 +287,7 @@ window.createMetricsController = function() {
           this.charts.percentile = chart;
         } catch (e) {
           console.error('Failed to create percentile chart:', e);
-          this.error = 'Failed to render percentile chart';
+          this.error = "{{ t('obs.metrics.error.percentile') }}";
         }
       });
     },
@@ -333,7 +333,7 @@ window.createMetricsController = function() {
           labels: data.timestamps.map((t) => new Date(t).toLocaleTimeString()),
           datasets: [
             {
-              label: 'Total Requests',
+              label: "{{ t('obs.metrics.chart.totalRequests') }}",
               data: data.request_count,
               borderColor: '#3b82f6',
               backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -341,7 +341,7 @@ window.createMetricsController = function() {
               fill: true,
             },
             {
-              label: 'Error Rate (%)',
+              label: "{{ t('obs.metrics.chart.errorRate') }}",
               data: data.error_rate,
               borderColor: '#ef4444',
               backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -360,7 +360,7 @@ window.createMetricsController = function() {
           plugins: {
             title: {
               display: true,
-              text: 'Request Rate & Error Rate',
+              text: "{{ t('obs.metrics.chart.rateTitle') }}",
               color: defaults.titleColor,
             },
             legend: {
@@ -385,7 +385,7 @@ window.createMetricsController = function() {
               position: 'left',
               title: {
                 display: true,
-                text: 'Requests',
+                text: "{{ t('obs.metrics.chart.requests') }}",
                 color: defaults.titleColor,
               },
               ticks: {
@@ -401,7 +401,7 @@ window.createMetricsController = function() {
               position: 'right',
               title: {
                 display: true,
-                text: 'Error Rate (%)',
+                text: "{{ t('obs.metrics.chart.errorRate') }}",
                 color: defaults.titleColor,
               },
               ticks: {
@@ -419,7 +419,7 @@ window.createMetricsController = function() {
           this.charts.timeSeries = chart;
         } catch (e) {
           console.error('Failed to create time series chart:', e);
-          this.error = 'Failed to render time series chart';
+          this.error = "{{ t('obs.metrics.error.timeSeries') }}";
         }
       });
     },
@@ -529,7 +529,7 @@ window.createMetricsController = function() {
             data: {
               datasets: [
                 {
-                  label: 'Request Count',
+                  label: "{{ t('obs.metrics.chart.requestCount') }}",
                   data: heatmapData,
                   backgroundColor: function (context) {
                     const value = context.raw.v;
@@ -548,7 +548,7 @@ window.createMetricsController = function() {
               plugins: {
                 title: {
                   display: true,
-                  text: 'Latency Distribution Heatmap',
+                  text: "{{ t('obs.metrics.chart.heatmapTitle') }}",
                   color: defaults.titleColor,
                 },
                 legend: {
@@ -562,7 +562,7 @@ window.createMetricsController = function() {
                       return `${timeLabel} - ${latencyLabel}`;
                     },
                     label: function (context) {
-                      return `Requests: ${context?.raw?.v || 0}`;
+                      return `{{ t('obs.metrics.chart.requests') }}: ${context?.raw?.v || 0}`;
                     },
                   },
                 },
@@ -580,7 +580,7 @@ window.createMetricsController = function() {
                   },
                   title: {
                     display: true,
-                    text: 'Time',
+                    text: "{{ t('obs.metrics.chart.time') }}",
                     color: defaults.titleColor,
                   },
                   grid: {
@@ -598,7 +598,7 @@ window.createMetricsController = function() {
                   },
                   title: {
                     display: true,
-                    text: 'Latency',
+                    text: "{{ t('obs.metrics.chart.latency') }}",
                     color: defaults.titleColor,
                   },
                   grid: {
@@ -613,7 +613,7 @@ window.createMetricsController = function() {
           this.charts.heatmap = chart;
         } catch (e) {
           console.error('Failed to create heatmap chart:', e);
-          this.error = 'Failed to render heatmap chart';
+          this.error = "{{ t('obs.metrics.error.heatmap') }}";
         }
       });
     },
@@ -655,51 +655,51 @@ window.createMetricsController = function() {
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >Time Range</label
+          >{{ t('obs.metrics.filter.timeRange') }}</label
         >
         <select
           x-model="timeRange"
           @change="applyFilters()"
           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
         >
-          <option value="1">Last Hour</option>
-          <option value="6">Last 6 Hours</option>
-          <option value="24" selected>Last 24 Hours</option>
-          <option value="72">Last 3 Days</option>
-          <option value="168">Last 7 Days</option>
+          <option value="1">{{ t('obs.metrics.range.lastHour') }}</option>
+          <option value="6">{{ t('obs.metrics.range.last6h') }}</option>
+          <option value="24" selected>{{ t('obs.metrics.range.last24h') }}</option>
+          <option value="72">{{ t('obs.metrics.range.last3d') }}</option>
+          <option value="168">{{ t('obs.metrics.range.last7d') }}</option>
         </select>
       </div>
 
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >Interval</label
+          >{{ t('obs.metrics.filter.interval') }}</label
         >
         <select
           x-model="interval"
           @change="applyFilters()"
           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
         >
-          <option value="5">5 Minutes</option>
-          <option value="15">15 Minutes</option>
-          <option value="60" selected>1 Hour</option>
-          <option value="360">6 Hours</option>
-          <option value="1440">1 Day</option>
+          <option value="5">{{ t('obs.metrics.interval.m5') }}</option>
+          <option value="15">{{ t('obs.metrics.interval.m15') }}</option>
+          <option value="60" selected>{{ t('obs.metrics.interval.h1') }}</option>
+          <option value="360">{{ t('obs.metrics.interval.h6') }}</option>
+          <option value="1440">{{ t('obs.metrics.interval.d1') }}</option>
         </select>
       </div>
 
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >Top N Limit</label
+          >{{ t('obs.metrics.filter.topN') }}</label
         >
         <select
           x-model="limit"
           @change="applyFilters()"
           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
         >
-          <option value="5">Top 5</option>
-          <option value="10" selected>Top 10</option>
-          <option value="20">Top 20</option>
-          <option value="50">Top 50</option>
+          <option value="5">{{ t('obs.metrics.topN.n5') }}</option>
+          <option value="10" selected>{{ t('obs.metrics.topN.n10') }}</option>
+          <option value="20">{{ t('obs.metrics.topN.n20') }}</option>
+          <option value="50">{{ t('obs.metrics.topN.n50') }}</option>
         </select>
       </div>
 
@@ -709,8 +709,8 @@ window.createMetricsController = function() {
           :disabled="loading"
           class="w-full px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 transition-colors"
         >
-          <span x-show="!loading">Refresh</span>
-          <span x-show="loading">Loading...</span>
+          <span x-show="!loading">{{ t('common.actions.refresh') }}</span>
+          <span x-show="loading">{{ t('common.states.loading') }}</span>
         </button>
       </div>
     </div>
@@ -747,7 +747,7 @@ window.createMetricsController = function() {
     <!-- Top Slow Endpoints -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/30">
       <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">📉 Slowest Endpoints</h3>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ t('obs.metrics.section.slowest') }}</h3>
       </div>
       <div class="overflow-x-auto">
         <table id="topSlowTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -761,22 +761,22 @@ window.createMetricsController = function() {
               <th
                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Endpoint
+                {{ t('obs.metrics.table.endpoint') }}
               </th>
               <th
                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Count
+                {{ t('obs.metrics.table.count') }}
               </th>
               <th
                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Avg
+                {{ t('obs.metrics.table.avg') }}
               </th>
               <th
                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Max
+                {{ t('obs.metrics.table.max') }}
               </th>
             </tr>
           </thead>
@@ -790,7 +790,7 @@ window.createMetricsController = function() {
     <!-- Top Volume Endpoints -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/30">
       <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">📊 Highest Volume</h3>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ t('obs.metrics.section.volume') }}</h3>
       </div>
       <div class="overflow-x-auto">
         <table id="topVolumeTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -804,17 +804,17 @@ window.createMetricsController = function() {
               <th
                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Endpoint
+                {{ t('obs.metrics.table.endpoint') }}
               </th>
               <th
                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Requests
+                {{ t('obs.metrics.table.requests') }}
               </th>
               <th
                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Avg
+                {{ t('obs.metrics.table.avg') }}
               </th>
             </tr>
           </thead>
@@ -828,7 +828,7 @@ window.createMetricsController = function() {
     <!-- Top Error Endpoints -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/30">
       <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">❌ Most Errors</h3>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ t('obs.metrics.section.errors') }}</h3>
       </div>
       <div class="overflow-x-auto">
         <table id="topErrorsTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -842,22 +842,22 @@ window.createMetricsController = function() {
               <th
                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Endpoint
+                {{ t('obs.metrics.table.endpoint') }}
               </th>
               <th
                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Total
+                {{ t('obs.metrics.table.total') }}
               </th>
               <th
                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Errors
+                {{ t('obs.metrics.table.errors') }}
               </th>
               <th
                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Rate
+                {{ t('obs.metrics.table.rate') }}
               </th>
             </tr>
           </thead>
