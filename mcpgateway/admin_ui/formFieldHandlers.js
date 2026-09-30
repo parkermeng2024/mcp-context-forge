@@ -369,7 +369,7 @@ export const handleAddPassthrough = function () {
       const queryDiv = document.createElement("div");
       queryDiv.className = "mb-4";
       queryDiv.innerHTML = `
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Query Mapping (JSON)</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">${t("formField.queryMapping")}</label>
           <textarea id="query-mapping-field" name="query_mapping" class="mt-1 px-3 py-2 block w-full h-40 rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-black text-white" placeholder="{}"></textarea>
       `;
       passthroughContainer.appendChild(queryDiv);
@@ -378,7 +378,7 @@ export const handleAddPassthrough = function () {
       const headerDiv = document.createElement("div");
       headerDiv.className = "mb-4";
       headerDiv.innerHTML = `
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Header Mapping (JSON)</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">${t("formField.headerMapping")}</label>
           <textarea id="header-mapping-field" name="header_mapping" class="mt-1 px-3 py-2 block w-full h-40 rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-black text-white" placeholder="{}"></textarea>
       `;
       passthroughContainer.appendChild(headerDiv);
@@ -396,10 +396,10 @@ export const handleAddPassthrough = function () {
       const exposeDiv = document.createElement("div");
       exposeDiv.className = "mb-4";
       exposeDiv.innerHTML = `
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Expose Passthrough</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">${t("formField.exposePassthrough")}</label>
           <select id="expose-passthrough-field" name="expose_passthrough" class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-300">
-              <option value="true" selected>True</option>
-              <option value="false">False</option>
+              <option value="true" selected>${t("common.boolean.true")}</option>
+              <option value="false">${t("common.boolean.false")}</option>
           </select>
       `;
       passthroughContainer.appendChild(exposeDiv);
@@ -408,7 +408,7 @@ export const handleAddPassthrough = function () {
       const allowlistDiv = document.createElement("div");
       allowlistDiv.className = "mb-4";
       allowlistDiv.innerHTML = `
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Allowlist (comma-separated hosts/schemes)</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">${t("formField.allowlist")}</label>
           <input type="text" id="allowlist-field" name="allowlist" class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-300" placeholder="[example.com, https://api.example.com]" />
       `;
       passthroughContainer.appendChild(allowlistDiv);
@@ -417,7 +417,7 @@ export const handleAddPassthrough = function () {
       const pluginPreDiv = document.createElement("div");
       pluginPreDiv.className = "mb-4";
       pluginPreDiv.innerHTML = `
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Plugin Chain Pre</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">${t("formField.pluginChainPre")}</label>
           <input type="text" id="plugin-chain-pre-field" name="plugin_chain_pre" class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-300" placeholder="[]" />
       `;
       passthroughContainer.appendChild(pluginPreDiv);
@@ -426,7 +426,7 @@ export const handleAddPassthrough = function () {
       const pluginPostDiv = document.createElement("div");
       pluginPostDiv.className = "mb-4";
       pluginPostDiv.innerHTML = `
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Plugin Chain Post (optional, override defaults)</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">${t("formField.pluginChainPost")}</label>
           <input type="text" id="plugin-chain-post-field" name="plugin_chain_post" class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-300" placeholder="[]" />
       `;
       passthroughContainer.appendChild(pluginPostDiv);
@@ -512,10 +512,10 @@ export const performTeamSelectorSearch = function (searchTerm) {
       if (container) {
         delete container.dataset.loaded;
         container.innerHTML =
-          '<div class="px-4 py-2 text-sm text-red-600 dark:text-red-400">' +
-          "Failed to load teams. " +
-          '<button type="button" data-action="retry-team-search" ' +
-            'class="underline font-medium">Retry</button></div>';
+          `<div class="px-4 py-2 text-sm text-red-600 dark:text-red-400">` +
+          `${t("teams.error.loadFailed")} ` +
+          `<button type="button" data-action="retry-team-search" ` +
+            `class="underline font-medium">${t("tokens.actions.retry")}</button></div>`;
         const retryBtn = container.querySelector(
           '[data-action="retry-team-search"]',
         );

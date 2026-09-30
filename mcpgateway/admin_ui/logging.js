@@ -179,7 +179,7 @@ export const displayLogResults = function (data) {
       </td></tr>
     `;
     logCount.textContent = "0 logs";
-    logStats.innerHTML = '<span class="text-sm">No results</span>';
+    logStats.innerHTML = `<span class="text-sm">${t("logs.noResults")}</span>`;
     return;
   }
 
@@ -576,20 +576,20 @@ export const displayCorrelationTrace = function (trace) {
   logStats.innerHTML = `
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
         <div>
-            <strong>Correlation ID:</strong><br>
+            <strong>${t("logs.correlationId")}</strong><br>
             <code class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">${escapeHtml(trace.correlation_id)}</code>
         </div>
         <div>
-            <strong>Logs:</strong> <span class="text-blue-600">${trace.log_count || 0}</span>
+            <strong>${t("logs.logsLabel")}</strong> <span class="text-blue-600">${trace.log_count || 0}</span>
         </div>
         <div>
-            <strong>Security:</strong> <span class="text-red-600">${trace.security_events?.length || 0}</span>
+            <strong>${t("logs.securityLabel")}</strong> <span class="text-red-600">${trace.security_events?.length || 0}</span>
         </div>
         <div>
-            <strong>Audit:</strong> <span class="text-yellow-600">${trace.audit_trails?.length || 0}</span>
+            <strong>${t("logs.auditLabel")}</strong> <span class="text-yellow-600">${trace.audit_trails?.length || 0}</span>
         </div>
         <div>
-            <strong>Duration:</strong> ${trace.total_duration_ms ? trace.total_duration_ms.toFixed(2) + "ms" : "N/A"}
+            <strong>${t("logs.durationLabel")}</strong> ${trace.total_duration_ms ? trace.total_duration_ms.toFixed(2) + "ms" : t("common.na")}
         </div>
     </div>
 `;
@@ -680,7 +680,7 @@ export const displayCorrelationTrace = function (trace) {
                           ${event.severity}
                       </span>
                       <div class="flex items-center gap-1">
-                          <span class="text-xs text-gray-600 dark:text-gray-400">Threat:</span>
+                          <span class="text-xs text-gray-600 dark:text-gray-400">${t("logs.threat")}</span>
                           <div class="w-16 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                               <div class="bg-red-600 h-2 rounded-full" style="width: ${threatScore}%"></div>
                           </div>
@@ -1184,7 +1184,7 @@ export const displayPerformanceMetrics = function (metrics) {
             </td>
             <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-300">
                 <div class="text-xs">
-                    <div>Avg: <strong>${metric.avg_duration_ms.toFixed(2)}ms</strong></div>
+                    <div>${t("logs.avg")} <strong>${metric.avg_duration_ms.toFixed(2)}ms</strong></div>
                     <div class="text-gray-500">P95: ${metric.p95_duration_ms.toFixed(2)}ms</div>
                 </div>
             </td>

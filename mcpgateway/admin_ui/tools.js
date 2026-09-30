@@ -269,7 +269,7 @@ export const viewTool = async function (toolId) {
 
       return `
         <div>
-        <strong>Annotations:</strong>
+        <strong>${t("tools.detail.annotations")}</strong>
         <div class="mt-1 flex flex-wrap">
             ${badges.join("")}
         </div>
@@ -287,42 +287,42 @@ export const viewTool = async function (toolId) {
             <!-- Left Column -->
             <div class="space-y-3">
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">Tool ID:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">${t("tools.detail.id")}</span>
                 <div class="mt-1 tool-id text-sm font-mono"></div>
             </div>
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">Display Name:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">${t("tools.detail.displayName")}</span>
                 <div class="mt-1 tool-display-name font-medium"></div>
             </div>
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">Technical Name:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">${t("tools.detail.technicalName")}</span>
                 <div class="mt-1 tool-name text-sm"></div>
             </div>
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">URL:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">${t("tools.detail.url")}</span>
                 <div class="mt-1 tool-url text-sm"></div>
             </div>
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">Type:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">${t("tools.detail.type")}</span>
                 <div class="mt-1 tool-type text-sm"></div>
             </div>
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">Visibility:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">${t("tools.detail.visibility")}</span>
                 <div class="mt-1 tool-visibility text-sm"></div>
             </div>
             </div>
             <!-- Right Column -->
             <div class="space-y-3">
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">Description:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">${t("tools.detail.description")}</span>
                 <div class="mt-1 tool-description text-sm"></div>
             </div>
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">Tags:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">${t("tools.detail.tags")}</span>
                 <div class="mt-1 tool-tags text-sm"></div>
             </div>
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">Request Type:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">${t("tools.detail.requestType")}</span>
                 <div class="mt-1 tool-request-type text-sm"></div>
             </div>
             <div class="auth-info">
@@ -339,56 +339,56 @@ export const viewTool = async function (toolId) {
         <!-- Technical Details Section -->
         <div class="space-y-4">
             <div>
-            <strong class="text-gray-700 dark:text-gray-300">Headers:</strong>
+            <strong class="text-gray-700 dark:text-gray-300">${t("tools.detail.headers")}</strong>
             <pre class="mt-1 bg-gray-100 p-3 rounded text-xs dark:bg-gray-800 dark:text-gray-200 tool-headers overflow-x-auto"></pre>
             </div>
             <div>
-            <strong class="text-gray-700 dark:text-gray-300">Input Schema:</strong>
+            <strong class="text-gray-700 dark:text-gray-300">${t("tools.detail.inputSchema")}</strong>
             <pre class="mt-1 bg-gray-100 p-3 rounded text-xs dark:bg-gray-800 dark:text-gray-200 tool-schema overflow-x-auto"></pre>
             </div>
             <div>
-            <strong class="text-gray-700 dark:text-gray-300">Output Schema:</strong>
+            <strong class="text-gray-700 dark:text-gray-300">${t("tools.detail.outputSchema")}</strong>
             <pre class="mt-1 bg-gray-100 p-3 rounded text-xs dark:bg-gray-800 dark:text-gray-200 tool-output-schema overflow-x-auto"></pre>
             </div>
         </div>
 
         <!-- Metrics Section -->
         <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
-            <strong class="text-gray-700 dark:text-gray-300">Metrics:</strong>
+            <strong class="text-gray-700 dark:text-gray-300">${t("tools.detail.metrics")}</strong>
             <div class="grid grid-cols-2 gap-4 mt-3 text-sm">
             <div class="space-y-2">
                 <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Total Executions:</span>
+                <span class="text-gray-600 dark:text-gray-400">${t("metrics.kpi.totalExecutions")}:</span>
                 <span class="metric-total font-medium"></span>
                 </div>
                 <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Successful Executions:</span>
+                <span class="text-gray-600 dark:text-gray-400">${t("metrics.executions.successful")}:</span>
                 <span class="metric-success font-medium text-green-600"></span>
                 </div>
                 <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Failed Executions:</span>
+                <span class="text-gray-600 dark:text-gray-400">${t("metrics.executions.failed")}:</span>
                 <span class="metric-failed font-medium text-red-600"></span>
                 </div>
                 <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Failure Rate:</span>
+                <span class="text-gray-600 dark:text-gray-400">${t("metrics.executions.failureRate")}:</span>
                 <span class="metric-failure-rate font-medium"></span>
                 </div>
             </div>
             <div class="space-y-2">
                 <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Min Response Time:</span>
+                <span class="text-gray-600 dark:text-gray-400">${t("resources.kpi.minResponseTime")}:</span>
                 <span class="metric-min-time font-medium"></span>
                 </div>
                 <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Max Response Time:</span>
+                <span class="text-gray-600 dark:text-gray-400">${t("resources.kpi.maxResponseTime")}:</span>
                 <span class="metric-max-time font-medium"></span>
                 </div>
                 <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Average Response Time:</span>
+                <span class="text-gray-600 dark:text-gray-400">${t("metrics.executions.avgResponseTime")}:</span>
                 <span class="metric-avg-time font-medium"></span>
                 </div>
                 <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Last Execution Time:</span>
+                <span class="text-gray-600 dark:text-gray-400">${t("metrics.executions.lastExecutionTime")}:</span>
                 <span class="metric-last-time font-medium"></span>
                 </div>
             </div>
@@ -396,46 +396,46 @@ export const viewTool = async function (toolId) {
         </div>
         <div class="mt-6 border-t pt-4">
         <!-- Metadata Section -->
-            <strong>Metadata:</strong>
+            <strong>${t("a2a.detail.metadata")}</strong>
             <div class="grid grid-cols-2 gap-4 mt-2 text-sm">
             <div>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Created By:</span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">${t("a2a.detail.createdBy")}:</span>
                 <span class="ml-2 metadata-created-by"></span>
             </div>
             <div>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Created At:</span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">${t("a2a.detail.createdAt")}:</span>
                 <span class="ml-2 metadata-created-at"></span>
             </div>
             <div>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Created From IP:</span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">${t("a2a.detail.createdFromIp")}:</span>
                 <span class="ml-2 metadata-created-from"></span>
             </div>
             <div>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Created Via:</span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">${t("a2a.detail.createdVia")}:</span>
                 <span class="ml-2 metadata-created-via"></span>
             </div>
             <div>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Last Modified By:</span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">${t("a2a.detail.lastModifiedBy")}:</span>
                 <span class="ml-2 metadata-modified-by"></span>
             </div>
             <div>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Last Modified At:</span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">${t("a2a.detail.lastModifiedAt")}:</span>
                 <span class="ml-2 metadata-modified-at"></span>
             </div>
             <div>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Modified From IP:</span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">${t("a2a.detail.modifiedFromIp")}:</span>
                 <span class="ml-2 modified-from"></span>
             </div>
             <div>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Modified Via:</span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">${t("a2a.detail.modifiedVia")}:</span>
                 <span class="ml-2 metadata-modified-via"></span>
             </div>
             <div>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Version:</span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">${t("a2a.detail.version")}:</span>
                 <span class="ml-2 metadata-version"></span>
             </div>
             <div>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Import Batch:</span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">${t("a2a.detail.importBatch")}:</span>
                 <span class="ml-2 metadata-import-batch"></span>
             </div>
             </div>
@@ -1972,7 +1972,7 @@ export const loadTools = async function () {
     if (toolBody !== null) {
       toolBody.innerHTML = `
                 <tr>
-                <td colspan="5" class="text-center py-4 text-red-500">Failed to load tools. Please try again.</td>
+                <td colspan="5" class="text-center py-4 text-red-500">${t("tools.error.loadFailed")}</td>
                 </tr>
             `;
     }

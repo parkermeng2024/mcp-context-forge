@@ -174,8 +174,8 @@ export const showMetricsLoading = function () {
     loadingDiv.innerHTML = `
             <div class="text-center">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                <p class="text-gray-600">Loading aggregated metrics...</p>
-                <p class="text-sm text-gray-500 mt-2">This may take a moment</p>
+                <p class="text-gray-600">${t("metrics.loading.aggregated")}</p>
+                <p class="text-sm text-gray-500 mt-2">${t("metrics.loading.mayTakeAMoment")}</p>
             </div>
         `;
     aggregatedSection.innerHTML = "";
@@ -330,8 +330,8 @@ export const displayMetrics = function (data, retryCount = 0) {
                 <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
-                <h3 class="text-lg font-medium mb-2">No Metrics Available</h3>
-                <p class="text-sm">Metrics data will appear here once tools, resources, or prompts are executed.</p>
+                <h3 class="text-lg font-medium mb-2">${t("metrics.empty.title")}</h3>
+                <p class="text-sm">${t("metrics.empty.hint")}</p>
                 <button data-action="retry-metrics" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">
                     Refresh Metrics
                 </button>
@@ -1304,7 +1304,7 @@ export const createStandardPaginationControls = function (
   wrapper.innerHTML = `
         <!-- Page Size Selector -->
         <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-            <span>Show:</span>
+            <span>${t("metrics.pagination.show")}</span>
             <select
                 x-model="perPage"
                 @change="changePageSize($event.target.value)"
@@ -1316,7 +1316,7 @@ export const createStandardPaginationControls = function (
                 <option value="50">50</option>
                 <option value="100">100</option>
             </select>
-            <span>per page</span>
+            <span>${t("metrics.pagination.perPage")}</span>
         </div>
 
         <!-- Page Info -->

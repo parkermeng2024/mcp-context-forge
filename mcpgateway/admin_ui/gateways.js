@@ -1713,7 +1713,7 @@ const handleGatewayTestSubmit = async function (e) {
     const latency = result.latencyMs != null ? `${result.latencyMs}ms` : "NA";
     const body = result.body
       ? `<details open>
-                <summary class='cursor-pointer'><strong>Response Body</strong></summary>
+                <summary class='cursor-pointer'><strong>${t("gateways.test.responseBody")}</strong></summary>
                 <pre class="text-sm px-4 max-h-96 dark:bg-gray-800 dark:text-gray-100 overflow-auto">${JSON.stringify(result.body, null, 2)}</pre>
             </details>`
       : "";
@@ -1721,8 +1721,8 @@ const handleGatewayTestSubmit = async function (e) {
     responseDiv.innerHTML = `
         <div class="alert alert-${alertType}">
             <h4><strong>${title}</strong></h4>
-            <p><strong>Status Code:</strong> ${statusCode}</p>
-            <p><strong>Response Time:</strong> ${latency}</p>
+            <p><strong>${t("gateways.test.statusCode")}</strong> ${statusCode}</p>
+            <p><strong>${t("gateways.test.responseTime")}</strong> ${latency}</p>
             ${body}
         </div>
         `;

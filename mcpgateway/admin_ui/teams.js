@@ -1,6 +1,7 @@
 import { AppState } from "./appState.js";
 import { DEFAULT_TEAMS_PER_PAGE } from "./constants.js";
 import { searchTeamSelector } from "./formFieldHandlers.js";
+import { t } from "./i18n.js";
 import { escapeHtml, safeReplaceState } from "./security.js";
 import { fetchWithAuth, getAuthToken } from "./tokens.js";
 import { performUserSearch } from "./users.js";
@@ -116,7 +117,7 @@ const performTeamSearch = async function (searchTerm) {
         container.innerHTML = html;
       } else {
         container.innerHTML =
-          '<div class="text-center py-4 text-red-600">Failed to load teams</div>';
+          `<div class="text-center py-4 text-red-600">${t("teams.error.loadFailed")}</div>`;
       }
       // Only hide indicator in fetch fallback path (HTMX handles its own)
       if (loadingIndicator) {
@@ -126,7 +127,7 @@ const performTeamSearch = async function (searchTerm) {
   } catch (error) {
     console.error("Error searching teams:", error);
     container.innerHTML =
-      '<div class="text-center py-4 text-red-600">Error searching teams</div>';
+      `<div class="text-center py-4 text-red-600">${t("teams.error.searchError")}</div>`;
     // Hide indicator on error in fallback path
     if (loadingIndicator) {
       loadingIndicator.style.display = "none";
@@ -212,7 +213,7 @@ const loadPublicTeams = async function () {
 
   // Show loading state
   container.innerHTML =
-    '<div class="animate-pulse text-gray-500 dark:text-gray-400">Loading public teams...</div>';
+`<div class="animate-pulse text-gray-500 dark:text-gray-400">${t("teams.loading.public")}</div>`;
 
   try {
     const response = await fetchWithTimeout(
@@ -270,8 +271,8 @@ export const displayPublicTeams = function (teams) {
                       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.83-1M17 20H7m10 0v-2c0-1.09-.29-2.11-.83-3M7 20v2m0-2v-2a3 3 0 011.87-2.77m0 0A3 3 0 017 12m0 0a3 3 0 013-3m-3 3h6.4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No public teams found</h3>
-                      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">There are no public teams available to join at the moment.</p>
+                      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">${t("teams.public.empty.title")}</h3>
+                      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">${t("teams.public.empty.hint")}</p>
                   </div>
               `;
     return;
@@ -1267,10 +1268,10 @@ export const loadTeamSelectorDropdown = function () {
     .catch(function () {
       delete container.dataset.loaded;
       container.innerHTML =
-          '<div class="px-4 py-2 text-sm text-red-600 dark:text-red-400">' +
-          "Failed to load teams. Backend may be temporarily unavailable. " +
-          '<button type="button" data-action="retry-load-teams" ' +
-          'class="underline font-medium">Retry</button></div>';
+          `<div class="px-4 py-2 text-sm text-red-600 dark:text-red-400">` +
+          `${t("teams.error.loadFailedBackend")} ` +
+          `<button type="button" data-action="retry-load-teams" ` +
+          `class="underline font-medium">${t("tokens.actions.retry")}</button></div>`;
       const retryBtn = container.querySelector(
         '[data-action="retry-load-teams"]',
       );

@@ -625,7 +625,7 @@ export const showTab = function (tabName) {
                   .catch((error) => {
                     console.error("Failed to load MCP Registry:", error);
                     registryContent.innerHTML =
-                      '<div class="text-center text-red-600 py-8">Failed to load MCP Registry servers</div>';
+                      `<div class="text-center text-red-600 py-8">${t("registry.loadFailed")}</div>`;
                   });
               }
             }
@@ -714,7 +714,7 @@ export const showTab = function (tabName) {
                 console.error("Error loading plugins partial:", error);
                 pluginsPanel.innerHTML = `
                                         <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                                            <strong class="font-bold">Error loading plugins:</strong>
+                                            <strong class="font-bold">${t("plugins.error.loading")}</strong>
                                             <span class="block sm:inline">${escapeHtml(error.message)}</span>
                                         </div>
                                     `;

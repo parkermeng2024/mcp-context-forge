@@ -14,6 +14,7 @@ import {
   handleImport,
   loadRecentImports,
 } from "./fileTransfer.js";
+import { t } from "./i18n.js";
 import {
   handleAddParameter,
   handleAddPassthrough,
@@ -1149,7 +1150,7 @@ export const setupBulkImportModal = function () {
             if (resultEl) {
               resultEl.innerHTML = `
                                     <div class="mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                                        <p class="font-semibold">Invalid JSON</p>
+                                        <p class="font-semibold">${t("importExport.invalidJson")}</p>
                                         <p class="text-sm mt-1">${escapeHtml(err.message)}</p>
                                     </div>
                                 `;
@@ -1162,7 +1163,7 @@ export const setupBulkImportModal = function () {
           if (resultEl) {
             resultEl.innerHTML = `
                                 <div class="mt-2 p-3 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
-                                    <p class="text-sm">Please provide JSON data or upload a file</p>
+                                    <p class="text-sm">${t("importExport.provideData")}</p>
                                 </div>
                             `;
           }
@@ -1190,7 +1191,7 @@ export const setupBulkImportModal = function () {
           if (result.success) {
             resultEl.innerHTML = `
                                 <div class="mt-2 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-                                    <p class="font-semibold">Import Successful</p>
+                                    <p class="font-semibold">${t("importExport.success")}</p>
                                     <p class="text-sm mt-1">${escapeHtml(result.message)}</p>
                                 </div>
                             `;
@@ -1213,7 +1214,7 @@ export const setupBulkImportModal = function () {
 
             resultEl.innerHTML = `
                                 <div class="mt-2 p-3 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
-                                    <p class="font-semibold">Partial Import</p>
+                                    <p class="font-semibold">${t("importExport.partial")}</p>
                                     <p class="text-sm mt-1">${escapeHtml(result.message)}</p>
                                     ${detailsHtml}
                                 </div>
@@ -1222,7 +1223,7 @@ export const setupBulkImportModal = function () {
             // Complete failure
             resultEl.innerHTML = `
                                 <div class="mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                                    <p class="font-semibold">Import Failed</p>
+                                    <p class="font-semibold">${t("importExport.failed")}</p>
                                     <p class="text-sm mt-1">${escapeHtml(result.message)}</p>
                                 </div>
                             `;
@@ -1233,7 +1234,7 @@ export const setupBulkImportModal = function () {
         if (resultEl) {
           resultEl.innerHTML = `
                             <div class="mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                                <p class="font-semibold">Import Error</p>
+                                <p class="font-semibold">${t("importExport.error")}</p>
                                 <p class="text-sm mt-1">${escapeHtml(error.message || "An unexpected error occurred")}</p>
                             </div>
                         `;

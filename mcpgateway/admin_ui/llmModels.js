@@ -734,7 +734,7 @@ export const populateProviderDropdown = async function () {
     const data = await response.json();
 
     const select = safeGetElement("llm-model-provider");
-    select.innerHTML = '<option value="">Select provider</option>';
+    select.innerHTML = `<option value="">${t("llm.select.provider")}</option>`;
 
     data.providers.forEach((provider) => {
       const option = document.createElement("option");

@@ -309,8 +309,8 @@ export function showSkippedToolsWarning(skippedTools) {
 
     const thead = document.createElement("thead");
     thead.innerHTML = `<tr class="bg-gray-100 text-left">
-      <th class="px-3 py-2 font-semibold text-gray-700 border-b border-gray-200 w-1/2">Tool name</th>
-      <th class="px-3 py-2 font-semibold text-gray-700 border-b border-gray-200">Reason</th>
+      <th class="px-3 py-2 font-semibold text-gray-700 border-b border-gray-200 w-1/2">${t("logs.toolName")}</th>
+      <th class="px-3 py-2 font-semibold text-gray-700 border-b border-gray-200">${t("logs.reason")}</th>
     </tr>`;
 
     const tbody = document.createElement("tbody");

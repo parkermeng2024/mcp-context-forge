@@ -27,7 +27,7 @@ export const validateCACertFiles = async function (event) {
       feedbackEl.innerHTML = `
   <div class="flex items-center text-red-600">
   <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-  <span>Certificate file(s) too large. Maximum size is 10MB per file.</span>
+  <span>${t("caCert.tooLarge")}</span>
   </div>
   `;
       feedbackEl.className = "mt-2 text-sm";
@@ -48,7 +48,7 @@ export const validateCACertFiles = async function (event) {
       feedbackEl.innerHTML = `
   <div class="flex items-center text-red-600">
   <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-  <span>Invalid file type. Please upload valid certificate files (.pem, .crt, .cer, .cert)</span>
+  <span>${t("caCert.invalidType")}</span>
   </div>
   `;
       feedbackEl.className = "mt-2 text-sm";
@@ -185,7 +185,7 @@ const displayCertValidationResults = function (certResults, feedbackEl) {
     html += `
   <div class="flex items-center text-red-600 font-semibold text-lg">
   <svg class="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-  <span>Some certificates failed validation</span>
+  <span>${t("caCert.validationFailed")}</span>
   </div>
   `;
   }
@@ -284,7 +284,7 @@ const updateDropZoneWithFiles = function (files) {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <div class="text-sm text-gray-700 dark:text-gray-300">
-                <span class="font-medium">Selected Certificates:</span>
+                <span class="font-medium">${t("caCert.selectedTitle")}</span>
             </div>
             <div class="text-xs text-gray-500 dark:text-gray-400">${fileListHTML}</div>
         </div>
@@ -375,7 +375,7 @@ export const updateBodyLabel = function () {
   if (bodyLabel) {
     bodyLabel.innerHTML =
       contentType === "application/x-www-form-urlencoded"
-        ? 'Body (JSON)<br><small class="text-gray-500">Auto-converts to form data</small>'
+        ? `${t("caCert.bodyJsonForm")}<br><small class="text-gray-500">${t("caCert.autoConverts")}</small>`
         : t("caCert.bodyJson");
   }
 };

@@ -3,6 +3,7 @@
 // ===============================================
 
 import { INVALID_TAG_VALUES } from "./constants.js";
+import { t } from "./i18n.js";
 import { getPanelSearchConfig, loadSearchablePanel, queueSearchablePanelReload, updatePanelSearchStateInUrl } from "./search.js";
 import { safeGetElement } from "./utils.js";
 
@@ -77,7 +78,7 @@ export const updateAvailableTags = function (entityType) {
 
   if (tags.length === 0) {
     availableTagsContainer.innerHTML =
-      '<span class="text-sm text-gray-500">No tags found</span>';
+        `<span class="text-sm text-gray-500">${t("tags.empty.short")}</span>`;
     return;
   }
 
@@ -212,7 +213,7 @@ export const updateFilterEmptyState = function (
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                   </svg>
                   <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No matching ${entityType}</h3>
-                  <p class="text-gray-500 dark:text-gray-400">No ${entityType} found with the specified tags. Try adjusting your filter or <button data-action="clear-tag-filter" class="text-indigo-600 hover:text-indigo-500 underline">clear the filter</button>.</p>
+                  <p class="text-gray-500 dark:text-gray-400">${t("tags.empty.message", { entity: entityType })} <button data-action="clear-tag-filter" class="text-indigo-600 hover:text-indigo-500 underline">${t("tags.empty.clearFilter")}</button>.</p>
               </div>
           `;
       const clearBtn = emptyMessage.querySelector(

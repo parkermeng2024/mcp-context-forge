@@ -1,4 +1,5 @@
 import { getAuthHeaders } from "./auth.js";
+import { t } from "./i18n.js";
 import { escapeHtml } from "./security.js";
 import { displayImportPreview } from "./selectiveImport.js";
 import { getAuthToken } from "./tokens.js";
@@ -297,10 +298,10 @@ export const resetImportFile = function () {
                         <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3-3m-3 3l3 3m-3-3V8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     <div class="text-sm text-gray-600 dark:text-gray-300">
-                        <span class="font-medium text-blue-600 dark:text-blue-400">Click to upload</span>
+                        <span class="font-medium text-blue-600 dark:text-blue-400">${t("fileTransfer.clickToUpload")}</span>
                         or drag and drop
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">JSON export files only</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">${t("fileTransfer.jsonOnly")}</p>
                 </div>
             `;
   }

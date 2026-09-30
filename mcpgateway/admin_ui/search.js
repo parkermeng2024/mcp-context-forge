@@ -5,6 +5,7 @@ import {
   SEARCH_CONFIGS,
 } from "./constants.js";
 import { getSelectedGatewayIds } from "./gateways.js";
+import { t } from "./i18n.js";
 import { escapeHtml, safeReplaceState } from "./security.js";
 import {
   getEditSelections,
@@ -925,7 +926,7 @@ export const serverSideMemberSearch = async function (teamId, searchTerm) {
   } catch (error) {
     console.error("Error searching members:", error);
     container.innerHTML =
-      '<div class="text-center py-4 text-red-600">Error searching members</div>';
+        `<div class="text-center py-4 text-red-600">${t("search.errorMembers")}</div>`;
   }
 }
 
@@ -943,7 +944,7 @@ export const serverSideNonMemberSearch = async function (teamId, searchTerm) {
   // Require at least 2 characters for non-member search
   if (!searchTerm || searchTerm.trim().length < 2) {
     container.innerHTML =
-      '<div class="text-center py-4 text-gray-500 dark:text-gray-400">Type at least 2 characters to search for users.</div>';
+        `<div class="text-center py-4 text-gray-500 dark:text-gray-400">${t("search.minChars")}</div>`;
     restoreNonMemberSelections(teamId);
     return;
   }
@@ -962,6 +963,6 @@ export const serverSideNonMemberSearch = async function (teamId, searchTerm) {
   } catch (error) {
     console.error("Error searching non-members:", error);
     container.innerHTML =
-      '<div class="text-center py-4 text-red-600">Error searching users</div>';
+        `<div class="text-center py-4 text-red-600">${t("search.errorUsers")}</div>`;
   }
 }

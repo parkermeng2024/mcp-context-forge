@@ -1,4 +1,5 @@
 import { escapeHtml } from "./security.js";
+import { t } from "./i18n.js";
 import {
   dedupeSelectorItems,
   extractTeamId,
@@ -115,7 +116,7 @@ export const performUserSearch = async function (
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <p class="mt-2 text-sm text-gray-500">Searching users...</p>
+                  <p class="mt-2 text-sm text-gray-500">${t("users.search.searching")}</p>
               </div>
           `;
 
@@ -139,12 +140,12 @@ export const performUserSearch = async function (
           `[Team ${teamId}] Failed to load users: ${response.status}`
         );
         container.innerHTML =
-          '<div class="text-center py-4 text-red-600">Failed to load users</div>';
+          `<div class="text-center py-4 text-red-600">${t("users.search.loadFailed")}</div>`;
       }
     } catch (error) {
       console.error(`[Team ${teamId}] Error loading users:`, error);
       container.innerHTML =
-        '<div class="text-center py-4 text-red-600">Error loading users</div>';
+        `<div class="text-center py-4 text-red-600">${t("users.search.loadError")}</div>`;
     }
     return;
   }
@@ -208,12 +209,12 @@ export const performUserSearch = async function (
                               <div class="flex-grow min-w-0">
                                   <div class="flex items-center gap-2 flex-wrap">
                                       <span class="select-none font-medium text-gray-900 dark:text-white truncate">${escapeHtml(user.full_name || user.email)}</span>
-                                      ${isCurrentUser ? '<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900 dark:text-blue-200">You</span>' : ""}
-                                      ${isLastOwner ? '<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-900 dark:text-yellow-200">Last Owner</span>' : ""}
-                                      ${isMember && memberRole === "owner" && !isLastOwner ? '<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-800 rounded-full dark:bg-purple-900 dark:text-purple-200">Owner</span>' : ""}
+                                      ${isCurrentUser ? `<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900 dark:text-blue-200">${t("users.badge.you")}</span>` : ""}
+                                      ${isLastOwner ? `<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-900 dark:text-yellow-200">${t("users.badge.lastOwner")}</span>` : ""}
+                                      ${isMember && memberRole === "owner" && !isLastOwner ? `<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-800 rounded-full dark:bg-purple-900 dark:text-purple-200">${t("teams.roles.owner")}</span>` : ""}
                                   </div>
                                   <div class="text-sm text-gray-500 dark:text-gray-400 truncate">${escapeHtml(user.email)}</div>
-                                  ${isMember && joinedAt ? `<div class="text-xs text-gray-400 dark:text-gray-500">Joined: ${formatDate(joinedAt)}</div>` : ""}
+                                  ${isMember && joinedAt ? `<div class="text-xs text-gray-400 dark:text-gray-500">${t("users.search.joined", { date: formatDate(joinedAt) })}</div>` : ""}
                               </div>
 
                               <!-- Role Selector -->
@@ -221,8 +222,8 @@ export const performUserSearch = async function (
                                   name="role_${encodeURIComponent(user.email)}"
                                   class="role-select text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white flex-shrink-0"
                               >
-                                  <option value="member" ${selectedRole === "member" ? "selected" : ""}>Member</option>
-                                  <option value="owner" ${selectedRole === "owner" ? "selected" : ""}>Owner</option>
+                                  <option value="member" ${selectedRole === "member" ? "selected" : ""}>${t("teams.roles.member")}</option>
+                                  <option value="owner" ${selectedRole === "owner" ? "selected" : ""}>${t("teams.roles.owner")}</option>
                               </select>
                           </div>
                       `;
@@ -237,12 +238,12 @@ export const performUserSearch = async function (
       );
     } else {
       container.innerHTML =
-        '<div class="text-center py-4 text-gray-500">No users found</div>';
+        `<div class="text-center py-4 text-gray-500">${t("users.empty.short")}</div>`;
     }
   } catch (error) {
     console.error(`[Team ${teamId}] Error searching users:`, error);
     container.innerHTML =
-      '<div class="text-center py-4 text-red-600">Error searching users</div>';
+      `<div class="text-center py-4 text-red-600">${t("users.search.searchError")}</div>`;
   }
 };
 
@@ -360,12 +361,12 @@ export const initializePermissionsPanel = function () {
 
     if (membersList) {
       membersList.innerHTML =
-        '<div class="text-sm text-gray-500 dark:text-gray-400">Use the Teams Management tab to view and manage team members.</div>';
+        `<div class="text-sm text-gray-500 dark:text-gray-400">${t("users.hint.viewMembers")}</div>`;
     }
 
     if (rolesList) {
       rolesList.innerHTML =
-        '<div class="text-sm text-gray-500 dark:text-gray-400">Use the Teams Management tab to assign roles to team members.</div>';
+        `<div class="text-sm text-gray-500 dark:text-gray-400">${t("users.hint.assignRoles")}</div>`;
     }
   }
 };

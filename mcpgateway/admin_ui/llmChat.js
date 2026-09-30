@@ -171,7 +171,7 @@ export const loadVirtualServersForChat = async function () {
 
     if (servers.length === 0) {
       serversList.innerHTML =
-        '<div class="text-center text-gray-500 dark:text-gray-400 text-sm py-4">No virtual servers available</div>';
+        `<div class="text-center text-gray-500 dark:text-gray-400 text-sm py-4">${t("llm.chat.noServers")}</div>`;
       return;
     }
 
@@ -220,8 +220,8 @@ export const loadVirtualServersForChat = async function () {
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${toolCount} tool${toolCount !== 1 ? "s" : ""}</p>
                             </div>
                             <div class="flex flex-col items-end gap-1">
-                                ${!isActive ? '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Inactive</span>' : ""}
-                                ${requiresToken ? '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-yellow-100 text-yellow-800">Requires Token</span>' : ""}
+                                ${!isActive ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">${t("common.states.inactive")}</span>` : ""}
+                                ${requiresToken ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-yellow-100 text-yellow-800">${t("llm.chat.requiresToken")}</span>` : ""}
                             </div>
                         </div>
                         ${server.description ? `<p class="text-xs text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">${escapeHtml(server.description)}</p>` : ""}
@@ -407,7 +407,7 @@ const loadLLMModels = async function () {
     }
   } catch (error) {
     console.error("Error loading LLM models:", error);
-    modelSelect.innerHTML = '<option value="">Error loading models</option>';
+    modelSelect.innerHTML = `<option value="">${t("llm.chat.errorLoadingModels")}</option>`;
   }
 
   updateConnectButtonState();
@@ -1021,7 +1021,7 @@ const showConnectionSuccess = function () {
         <svg class="w-8 h-8 mx-auto text-gray-400 dark:text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
         </svg>
-        <p class="text-xs text-gray-500 dark:text-gray-400">No tools available for this server</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">${t("llm.chat.noTools")}</p>
         `;
       toolListDiv.appendChild(emptyMsg);
     }
@@ -1063,7 +1063,7 @@ const showConnectionError = function (message) {
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
           </svg>
           <div class="flex-1">
-              <strong class="font-semibold">Connection Failed</strong>
+              <strong class="font-semibold">${t("llm.chat.connectionFailed")}</strong>
               <p class="mt-1">${escapeHtml(message)}</p>
           </div>
       </div>
@@ -1910,7 +1910,7 @@ const addToolEventToCard = function (messageId, eventType, payload) {
     icon =
       '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
     colorClass = "text-green-700 dark:text-green-400";
-    text = `<strong>Started:</strong> ${escapeHtmlChat(payload.tool || payload.id || "unknown")}`;
+    text = `<strong>${t("llm.chat.event.started")}</strong> ${escapeHtmlChat(payload.tool || payload.id || "unknown")}`;
     if (payload.input) {
       text += `<br><span class="text-gray-600 dark:text-gray-400">Input: ${escapeHtmlChat(JSON.stringify(payload.input))}</span>`;
     }
@@ -1918,7 +1918,7 @@ const addToolEventToCard = function (messageId, eventType, payload) {
     icon =
       '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
     colorClass = "text-blue-700 dark:text-blue-400";
-    text = `<strong>Completed:</strong> ${escapeHtmlChat(payload.tool || payload.id || "unknown")}`;
+    text = `<strong>${t("llm.chat.event.completed")}</strong> ${escapeHtmlChat(payload.tool || payload.id || "unknown")}`;
     if (payload.output) {
       const out =
         typeof payload.output === "string"
@@ -1930,7 +1930,7 @@ const addToolEventToCard = function (messageId, eventType, payload) {
     icon =
       '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
     colorClass = "text-red-700 dark:text-red-400";
-    text = `<strong>Error:</strong> ${escapeHtmlChat(payload.error || payload.tool || payload.id || "unknown")}`;
+    text = `<strong>${t("common.label.error")}</strong> ${escapeHtmlChat(payload.error || payload.tool || payload.id || "unknown")}`;
   }
 
   row.innerHTML = `<div class="flex items-start gap-2 ${colorClass}">${icon}<div>${text}</div></div>`;
@@ -1977,8 +1977,8 @@ const clearChatMessages = function () {
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
         </svg>
-        <p class="mt-4 text-lg font-medium">Select a server and connect to start chatting</p>
-        <p class="mt-2 text-sm">Choose a virtual server from the left and configure your LLM settings</p>
+        <p class="mt-4 text-lg font-medium">${t("llm.chat.empty.title")}</p>
+        <p class="mt-2 text-sm">${t("llm.chat.empty.hint")}</p>
         </div>
       </div>
     `;
