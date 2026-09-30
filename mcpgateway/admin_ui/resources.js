@@ -1,4 +1,5 @@
 import { getSelectedGatewayIds } from "./gateways.js";
+import { t } from "./i18n.js";
 import { openModal } from "./modals.js";
 import { validateInputName } from "./security.js";
 import { getEditSelections } from "./servers.js";
@@ -41,7 +42,11 @@ export const testResource = async function (resourceId) {
     openResourceTestModal(resource);
   } catch (error) {
     console.error("Error fetching resource details:", error);
-    const errorMessage = handleFetchError(error, "load resource details");
+    const errorMessage = handleFetchError(
+      error,
+      "load resource details",
+      t("common.op.loadDetails")
+    );
     showErrorMessage(errorMessage);
   }
 };
@@ -51,10 +56,10 @@ export const openResourceTestModal = function (resource) {
   const fieldsContainer = safeGetElement("resource-test-form-fields");
   const resultBox = safeGetElement("resource-test-result");
 
-  title.textContent = `Test Resource: ${resource.name}`;
+  title.textContent = `${t("resources.test.title")}: ${resource.name}`;
 
   fieldsContainer.innerHTML = "";
-  resultBox.textContent = "Fill the fields and click Invoke Resource";
+  resultBox.textContent = t("resources.view.invokeHint");
 
   // 1️⃣ Build form fields ONLY if uriTemplate exists
   if (resource.uriTemplate) {
@@ -146,7 +151,7 @@ export const runResourceTest = async function () {
 
   // Title
   const contentTitle = document.createElement("strong");
-  contentTitle.textContent = "Content";
+  contentTitle.textContent = t("resources.form.content");
   contentHeader.appendChild(contentTitle);
 
   // Right controls (arrow/copy/fullscreen/download)
@@ -163,7 +168,7 @@ export const runResourceTest = async function () {
   // Copy button
   const copyBtn = document.createElement("button");
   copyBtn.type = "button";
-  copyBtn.textContent = "Copy";
+  copyBtn.textContent = t("common.actions.copy");
   copyBtn.className =
     "text-xs px-2 py-1 rounded bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500";
   headerRight.appendChild(copyBtn);
@@ -171,7 +176,7 @@ export const runResourceTest = async function () {
   // Fullscreen button
   const fullscreenBtn = document.createElement("button");
   fullscreenBtn.type = "button";
-  fullscreenBtn.textContent = "Fullscreen";
+  fullscreenBtn.textContent = t("common.actions.fullscreen");
   fullscreenBtn.className =
     "text-xs px-2 py-1 rounded bg-blue-300 dark:bg-blue-600 hover:bg-blue-400 dark:hover:bg-blue-500";
   headerRight.appendChild(fullscreenBtn);
@@ -179,7 +184,7 @@ export const runResourceTest = async function () {
   // Download button
   const downloadBtn = document.createElement("button");
   downloadBtn.type = "button";
-  downloadBtn.textContent = "Download";
+  downloadBtn.textContent = t("common.actions.download");
   downloadBtn.className =
     "text-xs px-2 py-1 rounded bg-green-300 dark:bg-green-600 hover:bg-green-400 dark:hover:bg-green-500";
   headerRight.appendChild(downloadBtn);
@@ -202,7 +207,7 @@ export const runResourceTest = async function () {
   if (lineCount > 30) {
     contentBody.classList.add("hidden");
     toggleIcon.style.transform = "rotate(0deg)";
-    contentTitle.textContent = "Content (Large - Click to expand)";
+    contentTitle.textContent = t("resources.view.largeContent");
   } else {
     contentBody.classList.remove("hidden");
     toggleIcon.style.transform = "rotate(90deg)";
@@ -220,8 +225,8 @@ export const runResourceTest = async function () {
   copyBtn.onclick = (event) => {
     event.stopPropagation();
     navigator.clipboard.writeText(contentStr).then(() => {
-      copyBtn.textContent = "Copied!";
-      setTimeout(() => (copyBtn.textContent = "Copy"), 1200);
+      copyBtn.textContent = t("common.actions.copied");
+      setTimeout(() => (copyBtn.textContent = t("common.actions.copy")), 1200);
     });
   };
 
@@ -248,7 +253,7 @@ export const runResourceTest = async function () {
 
     const closeBtn = document.createElement("button");
     closeBtn.type = "button";
-    closeBtn.textContent = "Close";
+    closeBtn.textContent = t("common.actions.close");
     closeBtn.className =
       "text-xs px-3 py-1 mb-2 rounded bg-red-400 hover:bg-red-500 dark:bg-red-700 dark:hover:bg-red-600";
 
@@ -335,7 +340,7 @@ export const viewResource = async function (resourceId) {
       // ID field with copy button
       const resourceIdP = document.createElement("p");
       const resourceIdStrong = document.createElement("strong");
-      resourceIdStrong.textContent = "Resource ID: ";
+      resourceIdStrong.textContent = t("common.detail.resourceId");
       resourceIdP.appendChild(resourceIdStrong);
       const resourceIdSpan = document.createElement("span");
       resourceIdSpan.className = "font-mono text-sm";
@@ -368,7 +373,7 @@ export const viewResource = async function (resourceId) {
       // Tags section
       const tagsP = document.createElement("p");
       const tagsStrong = document.createElement("strong");
-      tagsStrong.textContent = "Tags: ";
+      tagsStrong.textContent = t("common.detail.tags");
       tagsP.appendChild(tagsStrong);
 
       if (resource.tags && resource.tags.length > 0) {
@@ -391,7 +396,7 @@ export const viewResource = async function (resourceId) {
       // Status with safe styling
       const statusP = document.createElement("p");
       const statusStrong = document.createElement("strong");
-      statusStrong.textContent = "Status: ";
+      statusStrong.textContent = t("common.detail.status");
       statusP.appendChild(statusStrong);
 
       const isActive = resource.enabled === true;
@@ -432,7 +437,7 @@ export const viewResource = async function (resourceId) {
       if (resource.metrics) {
         const metricsDiv = document.createElement("div");
         const metricsStrong = document.createElement("strong");
-        metricsStrong.textContent = "Metrics:";
+        metricsStrong.textContent = t("common.metrics.title");
         metricsDiv.appendChild(metricsStrong);
 
         const metricsList = document.createElement("ul");
@@ -488,7 +493,7 @@ export const viewResource = async function (resourceId) {
       metadataDiv.className = "mt-6 border-t pt-4";
 
       const metadataTitle = document.createElement("strong");
-      metadataTitle.textContent = "Metadata:";
+      metadataTitle.textContent = t("common.metadata.title");
       metadataDiv.appendChild(metadataTitle);
 
       const metadataGrid = document.createElement("div");
@@ -576,7 +581,11 @@ export const viewResource = async function (resourceId) {
     console.log("✓ Resource details loaded successfully");
   } catch (error) {
     console.error("Error fetching resource details:", error);
-    const errorMessage = handleFetchError(error, "load resource details");
+    const errorMessage = handleFetchError(
+      error,
+      "load resource details",
+      t("common.op.loadDetails")
+    );
     showErrorMessage(errorMessage);
   }
 };
@@ -754,7 +763,11 @@ export const editResource = async function (resourceId) {
     console.log("✓ Resource edit modal loaded successfully");
   } catch (error) {
     console.error("Error fetching resource for editing:", error);
-    const errorMessage = handleFetchError(error, "load resource for editing");
+    const errorMessage = handleFetchError(
+      error,
+      "load resource for editing",
+      t("common.op.loadForEdit")
+    );
     showErrorMessage(errorMessage);
   }
 };
@@ -908,7 +921,7 @@ export const initResourceSelect = function (
       if (count > maxPillsToShow) {
         const span = document.createElement("span");
         span.className = pillClasses + " cursor-pointer";
-        span.title = "Click to see all selected resources";
+        span.title = t("resources.select.tooltip");
         const remaining = count - maxPillsToShow;
         span.textContent = `+${remaining} more`;
         pillsBox.appendChild(span);
@@ -928,7 +941,7 @@ export const initResourceSelect = function (
           if (count > 0) {
             currentSelectBtn.textContent = `Select All (${count})`;
           } else {
-            currentSelectBtn.textContent = "Select All";
+            currentSelectBtn.textContent = t("common.actions.selectAll");
           }
         }
       }
@@ -977,7 +990,7 @@ export const initResourceSelect = function (
 
     newSelectBtn.addEventListener("click", async () => {
       newSelectBtn.disabled = true;
-      newSelectBtn.textContent = "Selecting all resources...";
+      newSelectBtn.textContent = t("resources.select.selecting");
 
       try {
         // Prefer full-set selection when pagination/infinite-scroll is present
@@ -1077,7 +1090,7 @@ export const initResourceSelect = function (
         update();
       } catch (error) {
         console.error("Error selecting all resources:", error);
-        alert("Failed to select all resources. Please try again.");
+        alert(t("resources.select.failed"));
         newSelectBtn.disabled = false;
         update(); // Reset button text via update()
       } finally {

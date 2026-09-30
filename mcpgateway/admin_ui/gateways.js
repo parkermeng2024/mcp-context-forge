@@ -1,5 +1,6 @@
 import { getAuthHeaders, loadAuthHeaders, updateAuthHeadersJSON } from "./auth.js";
 import { MASKED_AUTH_VALUE } from "./constants.js";
+import { t } from "./i18n.js";
 import { closeModal, openModal } from "./modals.js";
 import { initPromptSelect } from "./prompts.js";
 import { initResourceSelect } from "./resources.js";
@@ -54,7 +55,7 @@ export const viewGateway = async function (gatewayId) {
       // ID field with copy-to-clipboard button
       const idP = document.createElement("p");
       const idStrong = document.createElement("strong");
-      idStrong.textContent = "Gateway ID: ";
+      idStrong.textContent = t("common.detail.gatewayId");
       idP.appendChild(idStrong);
       const idSpan = document.createElement("span");
       idSpan.className = "font-mono text-sm";
@@ -76,7 +77,7 @@ export const viewGateway = async function (gatewayId) {
       // Add tags field with special handling
       const tagsP = document.createElement("p");
       const tagsStrong = document.createElement("strong");
-      tagsStrong.textContent = "Tags: ";
+      tagsStrong.textContent = t("common.detail.tags");
       tagsP.appendChild(tagsStrong);
       if (gateway.tags && gateway.tags.length > 0) {
         gateway.tags.forEach((tag, index) => {
@@ -107,7 +108,7 @@ export const viewGateway = async function (gatewayId) {
       // Status
       const statusP = document.createElement("p");
       const statusStrong = document.createElement("strong");
-      statusStrong.textContent = "Status: ";
+      statusStrong.textContent = t("common.detail.status");
       statusP.appendChild(statusStrong);
 
       const statusSpan = document.createElement("span");
@@ -148,7 +149,7 @@ export const viewGateway = async function (gatewayId) {
       metadataDiv.className = "mt-6 border-t pt-4";
 
       const metadataTitle = document.createElement("strong");
-      metadataTitle.textContent = "Metadata:";
+      metadataTitle.textContent = t("common.metadata.title");
       metadataDiv.appendChild(metadataTitle);
 
       const metadataGrid = document.createElement("div");
@@ -231,7 +232,11 @@ export const viewGateway = async function (gatewayId) {
     console.log("✓ Gateway details loaded successfully");
   } catch (error) {
     console.error("Error fetching gateway details:", error);
-    const errorMessage = handleFetchError(error, "load gateway details");
+    const errorMessage = handleFetchError(
+      error,
+      "load gateway details",
+      t("common.op.loadDetails")
+    );
     showErrorMessage(errorMessage);
   }
 };
@@ -595,7 +600,11 @@ export const editGateway = async function (gatewayId) {
     console.log("✓ Gateway edit modal loaded successfully");
   } catch (error) {
     console.error("Error fetching gateway for editing:", error);
-    const errorMessage = handleFetchError(error, "load gateway for editing");
+    const errorMessage = handleFetchError(
+      error,
+      "load gateway for editing",
+      t("common.op.loadForEdit")
+    );
     showErrorMessage(errorMessage);
   }
 };
@@ -732,7 +741,7 @@ export const initGatewaySelect = function (
       if (count > maxPillsToShow) {
         const span = document.createElement("span");
         span.className = pillClasses + " cursor-pointer";
-        span.title = "Click to see all selected gateways";
+        span.title = t("gateways.select.tooltip");
         const remaining = count - maxPillsToShow;
         span.textContent = `+${remaining} more`;
         pillsBox.appendChild(span);
@@ -752,7 +761,7 @@ export const initGatewaySelect = function (
           if (count > 0) {
             currentSelectBtn.textContent = `Select All (${count})`;
           } else {
-            currentSelectBtn.textContent = "Select All";
+            currentSelectBtn.textContent = t("common.actions.selectAll");
           }
         }
       }
@@ -802,7 +811,7 @@ export const initGatewaySelect = function (
     newSelectBtn.addEventListener("click", async () => {
       // Disable button and show loading state
       newSelectBtn.disabled = true;
-      newSelectBtn.textContent = "Selecting all gateways...";
+      newSelectBtn.textContent = t("gateways.select.selecting");
 
       try {
         // Fetch all gateway IDs from the server.
@@ -894,7 +903,7 @@ export const initGatewaySelect = function (
         reloadAssociatedItems();
       } catch (error) {
         console.error("Error in Select All:", error);
-        alert("Failed to select all gateways. Please try again.");
+        alert(t("gateways.select.failed"));
         newSelectBtn.disabled = false;
         update(); // Reset button text via update()
       } finally {
@@ -1508,7 +1517,9 @@ export const testGateway = async function (gatewayURL) {
     // Validate URL
     const urlValidation = validateUrl(gatewayURL);
     if (!urlValidation.valid) {
-      showErrorMessage(`Invalid gateway URL: ${urlValidation.error}`);
+      showErrorMessage(
+        t("gateways.validation.invalidUrl", { error: urlValidation.error })
+      );
       return;
     }
 
@@ -1587,7 +1598,7 @@ export const testGateway = async function (gatewayURL) {
     }
   } catch (error) {
     console.error("Error setting up gateway test modal:", error);
-    showErrorMessage("Failed to open gateway test modal");
+    showErrorMessage(t("gateways.test.openFailed"));
   }
 };
 
@@ -1609,7 +1620,7 @@ const handleGatewayTestSubmit = async function (e) {
     }
     if (testButton) {
       testButton.disabled = true;
-      testButton.textContent = "Testing...";
+      testButton.textContent = t("gateways.test.testing");
     }
 
     const form = e.target;
@@ -1733,7 +1744,7 @@ const handleGatewayTestSubmit = async function (e) {
     }
 
     testButton.disabled = false;
-    testButton.textContent = "Test";
+    testButton.textContent = t("common.actions.test");
   }
 };
 
@@ -1891,7 +1902,7 @@ export const refreshToolsForSelectedGateways = async function(buttonEl) {
   const realGwIds = gwIds.filter((id) => id !== "null");
 
   if (!realGwIds.length) {
-    showErrorMessage("Select at least one MCP gateway first.");
+    showErrorMessage(t("gateways.select.none"));
     return;
   }
 
@@ -1938,7 +1949,9 @@ export const refreshToolsForSelectedGateways = async function(buttonEl) {
       ? `${added} added, ${updated} updated, ${removed} removed`
       : "No changes detected";
   if (failed) {
-    showErrorMessage(`${failed} gateway(s) failed. ${deltaMsg}`);
+    showErrorMessage(
+      t("gateways.test.bulkPartial", { failed, message: deltaMsg })
+    );
   } else {
     showSuccessMessage(deltaMsg);
   }
