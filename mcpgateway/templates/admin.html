@@ -8021,11 +8021,10 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
         <!-- System Metrics Section (isolated from JavaScript clearing) -->
         <div id="system-metrics-section" class="bg-white shadow rounded-lg p-6 dark:bg-gray-800 mb-6">
           <h2 class="text-2xl font-bold dark:text-gray-200 mb-4">
-            System Metrics
+            {{ t('metrics.system.title') }}
           </h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            Real-time system metrics showing counts across all entity types.
-            Useful for capacity planning and system monitoring.
+            {{ t('metrics.system.hint') }}
           </p>
 
           <!-- System Metrics Content (loaded via HTMX) -->
@@ -8039,7 +8038,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span class="ml-3 text-gray-600 dark:text-gray-400">Loading system metrics...</span>
+              <span class="ml-3 text-gray-600 dark:text-gray-400">{{ t('metrics.system.loading') }}</span>
             </div>
           </div>
         </div>
@@ -8050,42 +8049,42 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
         <!-- Top Performers Section -->
         <div class="bg-white shadow rounded-lg p-6 mb-8 dark:bg-gray-800">
           <h2 class="text-2xl font-bold dark:text-gray-200 mb-4">
-            Top Performers
+            {{ t('metrics.top.title') }}
           </h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
-            View the most frequently used tools, resources, prompts, and servers with paginated results.
+            {{ t('metrics.top.hint') }}
           </p>
 
           <!-- Tab Navigation -->
           <div class="border-b border-gray-200 dark:border-gray-700 mb-4">
-            <nav class="-mb-px flex space-x-8" aria-label="Top Performers Tabs">
+            <nav class="-mb-px flex space-x-8" aria-label="{{ t('metrics.top.tabsAria') }}">
               <button
                 data-action-click="switchTopPerformersTab" data-arg0="tools"
                 id="top-performers-tab-tools"
                 class="top-performers-tab border-b-2 border-indigo-500 py-2 px-1 text-sm font-medium text-indigo-600 dark:text-indigo-400"
               >
-                Tools
+                {{ t('common.table.tools') }}
               </button>
               <button
                 data-action-click="switchTopPerformersTab" data-arg0="resources"
                 id="top-performers-tab-resources"
                 class="top-performers-tab border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
               >
-                Resources
+                {{ t('common.table.resources') }}
               </button>
               <button
                 data-action-click="switchTopPerformersTab" data-arg0="prompts"
                 id="top-performers-tab-prompts"
                 class="top-performers-tab border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
               >
-                Prompts
+                {{ t('common.table.prompts') }}
               </button>
               <button
                 data-action-click="switchTopPerformersTab" data-arg0="servers"
                 id="top-performers-tab-servers"
                 class="top-performers-tab border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
               >
-                Servers
+                {{ t('common.table.servers') }}
               </button>
             </nav>
           </div>
@@ -8099,11 +8098,11 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                    hx-swap="outerHTML"
                    hx-indicator="#top-tools-loading-visible">
                 <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                  Loading top tools...
+                  {{ t('metrics.top.loadingTools') }}
                 </div>
               </div>
             </div>
-            <div id="top-tools-loading-visible" class="htmx-indicator hidden">Loading...</div>
+            <div id="top-tools-loading-visible" class="htmx-indicator hidden">{{ t('metrics.loading') }}</div>
             <div id="top-tools-pagination-controls-visible"></div>
           </div>
 
@@ -8115,11 +8114,11 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                    hx-swap="outerHTML"
                    hx-indicator="#top-resources-loading-visible">
                 <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                  Loading top resources...
+                  {{ t('metrics.top.loadingResources') }}
                 </div>
               </div>
             </div>
-            <div id="top-resources-loading-visible" class="htmx-indicator hidden">Loading...</div>
+            <div id="top-resources-loading-visible" class="htmx-indicator hidden">{{ t('metrics.loading') }}</div>
             <div id="top-resources-pagination-controls-visible"></div>
           </div>
 
@@ -8131,11 +8130,11 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                    hx-swap="outerHTML"
                    hx-indicator="#top-prompts-loading-visible">
                 <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                  Loading top prompts...
+                  {{ t('metrics.top.loadingPrompts') }}
                 </div>
               </div>
             </div>
-            <div id="top-prompts-loading-visible" class="htmx-indicator hidden">Loading...</div>
+            <div id="top-prompts-loading-visible" class="htmx-indicator hidden">{{ t('metrics.loading') }}</div>
             <div id="top-prompts-pagination-controls-visible"></div>
           </div>
 
@@ -8147,11 +8146,11 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                    hx-swap="outerHTML"
                    hx-indicator="#top-servers-loading-visible">
                 <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                  Loading top servers...
+                  {{ t('metrics.top.loadingServers') }}
                 </div>
               </div>
             </div>
-            <div id="top-servers-loading-visible" class="htmx-indicator hidden">Loading...</div>
+            <div id="top-servers-loading-visible" class="htmx-indicator hidden">{{ t('metrics.loading') }}</div>
             <div id="top-servers-pagination-controls-visible"></div>
           </div>
 
