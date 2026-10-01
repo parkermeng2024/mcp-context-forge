@@ -5,12 +5,6 @@
     display: none !important;
 }
 
-/* Tab panel base styles */
-.tab-panel {
-    /* Panels handle their own internal padding */
-}
-
-
 /* Sidebar scrollbar */
 .sidebar-scroll {
     scrollbar-width: thin;
@@ -58,24 +52,6 @@
 }
 
 
-/* CodeMirror code example styling (for LLM API Info) */
-.code-example {
-    display: none;
-}
-
-/* stylelint-disable-next-line selector-class-pattern -- third-party library class */
-.code-example+.CodeMirror {
-    border-radius: 0.5rem;
-    font-size: 0.8125rem;
-    line-height: 1.5;
-    position: relative;
-}
-
-/* stylelint-disable-next-line selector-class-pattern -- third-party library class */
-.code-example+.CodeMirror.cm-s-monokai {
-    background: #272822;
-}
-
 .error-status {
     margin-top: 10px;
     padding: 10px;
@@ -93,7 +69,7 @@
     border-radius: 50%;
     width: 24px;
     height: 24px;
-    animation: spin 1s linear infinite;
+    animation: spinner-rotate 1s linear infinite;
 
     /* margin: 10px auto; */
 
@@ -107,7 +83,9 @@
 }
 
 
-@keyframes spin {
+/* Keep this name distinct from Tailwind's spin keyframes.
+   Otherwise .spinner depends on Tailwind emitting animate-spin. */
+@keyframes spinner-rotate {
     0% {
         transform: rotate(0deg);
     }
@@ -209,14 +187,6 @@
     background-color: rgb(55 65 81 / 100%);
 }
 
-#llm-config-chevron {
-    transition: transform 0.2s ease;
-}
-
-#llm-config-container:has(#llm-config-form:not(.hidden)) #llm-config-chevron {
-    transform: rotate(180deg);
-}
-
 /* Chat Messages Container */
 #chat-messages-container {
     flex: 1;
@@ -265,60 +235,6 @@
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-/* User Message (Right-aligned) */
-.user-message {
-    justify-content: flex-end;
-    margin-left: auto;
-}
-
-.user-message .rounded-lg,
-.user-message .rounded-2xl {
-    max-width: 85%;
-    background: linear-gradient(135deg, rgb(79 70 229), rgb(124 58 237));
-    color: white;
-    padding: 0.625rem 1rem;
-    border-radius: 1.25rem 1.25rem 0.25rem;
-    line-height: 1.5;
-    overflow-wrap: break-word;
-    word-break: normal;
-    box-shadow: 0 4px 12px rgb(99 102 241 / 20%);
-    border: 1px solid rgb(255 255 255 / 10%);
-}
-
-/* Assistant Message (Left-aligned) */
-.assistant-message {
-    justify-content: flex-start;
-    margin-right: auto;
-}
-
-.assistant-message .rounded-lg,
-.assistant-message .rounded-2xl {
-    max-width: min(90%, 850px);
-    background: white;
-    color: rgb(31 41 55);
-    padding: 0.75rem 1.125rem;
-    border-radius: 1.25rem 1.25rem 1.25rem 0.25rem;
-    line-height: 1.6;
-    overflow-wrap: break-word;
-    word-break: normal;
-    border: 1px solid rgb(229 231 235);
-    box-shadow: 0 4px 12px rgb(0 0 0 / 5%);
-    transition: box-shadow 0.2s ease;
-}
-
-.assistant-message .rounded-lg:hover,
-.assistant-message .rounded-2xl:hover {
-    box-shadow: 0 6px 16px rgb(0 0 0 / 8%);
-}
-
-.dark .assistant-message .rounded-lg,
-.dark .assistant-message .rounded-2xl {
-    background: rgb(31 41 55);
-    color: rgb(243 244 246);
-    border-color: rgb(55 65 81);
-    box-shadow: 0 4px 12px rgb(0 0 0 / 25%);
 }
 
 /* Markdown Styling within bubbles */
@@ -482,26 +398,6 @@
 
 .dark .markdown-body th {
     background-color: rgb(17 24 39);
-}
-
-/* System Message (Centered) */
-.system-message {
-    justify-content: center;
-}
-
-.system-message .rounded-lg {
-    max-width: 80%;
-    background: rgb(254 243 199 / 90%);
-    color: rgb(146 64 14);
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
-    font-size: 0.813rem;
-    text-align: center;
-}
-
-.dark .system-message .rounded-lg {
-    background: rgb(120 53 15 / 30%);
-    color: rgb(253 224 71);
 }
 
 /* Streaming Indicator (Typing dots) */
@@ -673,38 +569,6 @@
     padding: 0 !important;
 }
 
-/* Chat Bubble Padding - Override Tailwind */
-.user-bubble {
-    padding: 6px 12px !important;
-}
-
-
-.assistant-bubble {
-    padding: 6px 12px !important;
-}
-
-.system-bubble {
-    padding: 4px 10px !important;
-}
-
-/* Ensure text has no extra spacing */
-.user-bubble p,
-.assistant-bubble p,
-.system-bubble p {
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 1.3 !important;
-}
-
-.tool-events {
-    border-left: 2px solid rgb(99 102 241 / 25%);
-    padding-left: 8px;
-}
-
-.tool-used-badge {
-    line-height: 1;
-}
-
 /* Active tools tooltip enhancements */
 #llm-active-tools-badge {
     position: relative;
@@ -714,8 +578,10 @@
     transform: translateY(-1px);
 }
 
-/* Smooth fade-in animation for tooltip */
-@keyframes fade-in {
+/* Keep this name distinct from Tailwind's fade-in keyframes.
+   Tailwind's version has no transform. This one centres a tooltip.
+   A shared name also broke the top-right LLM chat notification. */
+@keyframes tooltip-in {
     from {
         opacity: 0;
         transform: translate(-50%, -8px);
@@ -727,8 +593,8 @@
     }
 }
 
-.animate-fade-in {
-    animation: fade-in 0.2s ease-out;
+.animate-tooltip-in {
+    animation: tooltip-in 0.2s ease-out;
 }
 
 /* Custom scrollbar for tool list */
