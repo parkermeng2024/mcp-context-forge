@@ -3,6 +3,8 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     environment: "jsdom",
+    // Populates window.__I18N__ the way _i18n_config.html does in the browser.
+    setupFiles: ["tests/unit/js/setup-i18n.js"],
     globals: true,
     include: [
       // "tests/js/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
