@@ -688,7 +688,7 @@ describe("showTab", () => {
     const panel = document.createElement("div");
     panel.id = "overview-panel";
     panel.classList.add("tab-panel", "hidden");
-    panel.innerHTML = "Loading overview...";
+    panel.innerHTML = '<div id="overview-loading">Loading overview...</div>';
     document.body.appendChild(panel);
 
     const link = document.createElement("a");

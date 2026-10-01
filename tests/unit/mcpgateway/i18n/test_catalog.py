@@ -13,6 +13,7 @@ untranslated string in the UI.
 
 # Standard
 import re
+from collections import Counter
 from types import MappingProxyType
 
 # Third-Party
@@ -23,6 +24,10 @@ from mcpgateway.i18n import catalog as catalog_module
 from mcpgateway.i18n import DEFAULT_LOCALE, LOCALE_COOKIE_NAME, SUPPORTED_LOCALES, clear_catalog_cache, load_catalog, normalize_locale, parse_accept_language, resolve_locale, set_locale, t, translated_catalog
 
 PLACEHOLDER = re.compile(r"\{(\w+)\}")
+
+# Top-level key declarations in a catalog file. Every key sits on its own line,
+# so a line scan recovers the occurrences that ``json.load`` collapses.
+KEY_DECLARATION = re.compile(r'^\s*"([^"]+)"\s*:', re.MULTILINE)
 
 
 @pytest.fixture(autouse=True)
@@ -60,6 +65,24 @@ def test_locales_define_the_same_keys_as_the_baseline(locale):
 
     assert not missing, f"{locale} is missing keys present in {DEFAULT_LOCALE}: {missing[:10]}"
     assert not extra, f"{locale} defines keys absent from {DEFAULT_LOCALE}: {extra[:10]}"
+
+
+def _key_occurrences(locale: str) -> Counter:
+    """Count the declarations of each key in a locale catalog file."""
+    raw = (catalog_module.LOCALES_DIR / f"{locale}.json").read_text(encoding="utf-8")
+    return Counter(KEY_DECLARATION.findall(raw))
+
+
+@pytest.mark.parametrize("locale", sorted(SUPPORTED_LOCALES))
+def test_catalog_declares_no_duplicate_keys(locale):
+    """A duplicate key is silently shadowed: JSON keeps the last value only."""
+    occurrences = _key_occurrences(locale)
+
+    # Guard the scan itself, so a reformatted catalog cannot pass by finding nothing.
+    assert len(occurrences) >= len(load_catalog(locale)), f"{locale} catalog could not be scanned for duplicate keys"
+
+    duplicates = sorted(key for key, count in occurrences.items() if count > 1)
+    assert not duplicates, f"{locale} declares these keys more than once: {duplicates}"
 
 
 @pytest.mark.parametrize("locale", sorted(SUPPORTED_LOCALES))
