@@ -6507,6 +6507,49 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 <span
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
+                  {{ t('tokens.form.usageLimitsTitle') }}
+                </span>
+                <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      class="block text-sm text-gray-700 dark:text-gray-300"
+                      for="api-token-requests-per-hour"
+                    >
+                      {{ t('tokens.form.requestsPerHour') }}
+                    </label>
+                    <input
+                      type="number"
+                      name="requests_per_hour"
+                      id="api-token-requests-per-hour"
+                      min="1"
+                      step="1"
+                      class="mt-1 px-3 py-2 block w-full border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                      placeholder="1000"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      class="block text-sm text-gray-700 dark:text-gray-300"
+                      for="api-token-requests-per-day"
+                    >
+                      {{ t('tokens.form.requestsPerDay') }}
+                    </label>
+                    <input
+                      type="number"
+                      name="requests_per_day"
+                      id="api-token-requests-per-day"
+                      min="1"
+                      step="1"
+                      class="mt-1 px-3 py-2 block w-full border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                      placeholder="10000"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <span
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   {{ t('tokens.form.timeRestrictionsTitle') }}
                 </span>
                 <div class="mt-2 space-y-2">
@@ -6526,6 +6569,85 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     />
                     {{ t('tokens.form.weekdaysOnly') }}
                   </label>
+                </div>
+                <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      class="block text-sm text-gray-700 dark:text-gray-300"
+                      for="api-token-start-time"
+                    >
+                      {{ t('tokens.form.timeWindowStart') }}
+                    </label>
+                    <input
+                      type="time"
+                      name="start_time"
+                      id="api-token-start-time"
+                      class="mt-1 px-3 py-2 block w-full border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      class="block text-sm text-gray-700 dark:text-gray-300"
+                      for="api-token-end-time"
+                    >
+                      {{ t('tokens.form.timeWindowEnd') }}
+                    </label>
+                    <input
+                      type="time"
+                      name="end_time"
+                      id="api-token-end-time"
+                      class="mt-1 px-3 py-2 block w-full border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                    />
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <label
+                    class="block text-sm text-gray-700 dark:text-gray-300"
+                    for="api-token-timezone"
+                  >
+                    {{ t('tokens.form.timezone') }}
+                  </label>
+                  <input
+                    type="text"
+                    name="timezone"
+                    id="api-token-timezone"
+                    list="api-token-timezone-options"
+                    class="mt-1 px-3 py-2 block w-full border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                    placeholder="UTC"
+                  />
+                  <datalist id="api-token-timezone-options">
+                    <option value="UTC"></option>
+                    <option value="America/New_York"></option>
+                    <option value="America/Chicago"></option>
+                    <option value="America/Los_Angeles"></option>
+                    <option value="Europe/London"></option>
+                    <option value="Europe/Berlin"></option>
+                    <option value="Asia/Shanghai"></option>
+                    <option value="Asia/Tokyo"></option>
+                    <option value="Australia/Sydney"></option>
+                  </datalist>
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    {{ t('tokens.form.timezoneHint') }}
+                  </p>
+                </div>
+                <div class="mt-3">
+                  <span class="block text-sm text-gray-700 dark:text-gray-300">
+                    {{ t('tokens.form.allowedDays') }}
+                  </span>
+                  <div class="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+                    {% for day_key, day_value in [('dayMonday', 'Monday'), ('dayTuesday', 'Tuesday'), ('dayWednesday', 'Wednesday'), ('dayThursday', 'Thursday'), ('dayFriday', 'Friday'), ('daySaturday', 'Saturday'), ('daySunday', 'Sunday')] %}
+                    <label class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                      <input
+                        type="checkbox"
+                        name="days"
+                        value="{{ day_value }}"
+                        checked
+                        class="mr-1"
+                      />
+                      {{ t('tokens.form.' ~ day_key) }}
+                    </label>
+                    {% endfor %}
+                  </div>
                 </div>
               </div>
             </div>

@@ -24,6 +24,7 @@ import {
   collectCheckedPermissions,
   parseTagsInput,
   buildTimeRestrictions,
+  buildUsageLimits,
 } from "../../../mcpgateway/admin_ui/tokens.js";
 import {
   getCookie,
@@ -2208,7 +2209,24 @@ describe("parseTagsInput", () => {
 // buildTimeRestrictions
 // ---------------------------------------------------------------------------
 describe("buildTimeRestrictions", () => {
-  function formWithCheckboxes({ business = false, weekdays = false } = {}) {
+  const ALL_DAYS = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
+
+  function buildFormData({
+    business = false,
+    weekdays = false,
+    startTime = "",
+    endTime = "",
+    timezone = "",
+    days = null,
+  } = {}) {
     const form = document.createElement("form");
     const businessInput = document.createElement("input");
     businessInput.type = "checkbox";
@@ -2220,29 +2238,163 @@ describe("buildTimeRestrictions", () => {
     weekdaysInput.name = "weekdays_only";
     weekdaysInput.checked = weekdays;
     form.appendChild(weekdaysInput);
+    const startInput = document.createElement("input");
+    startInput.type = "time";
+    startInput.name = "start_time";
+    startInput.value = startTime;
+    form.appendChild(startInput);
+    const endInput = document.createElement("input");
+    endInput.type = "time";
+    endInput.name = "end_time";
+    endInput.value = endTime;
+    form.appendChild(endInput);
+    const tzInput = document.createElement("input");
+    tzInput.type = "text";
+    tzInput.name = "timezone";
+    tzInput.value = timezone;
+    form.appendChild(tzInput);
+    (days || []).forEach((day) => {
+      const dayInput = document.createElement("input");
+      dayInput.type = "checkbox";
+      dayInput.name = "days";
+      dayInput.value = day;
+      dayInput.checked = true;
+      form.appendChild(dayInput);
+    });
     return new FormData(form);
   }
 
-  test("returns null when nothing is checked", () => {
-    expect(buildTimeRestrictions(formWithCheckboxes())).toBeNull();
+  test("returns null when nothing is set", () => {
+    expect(buildTimeRestrictions(buildFormData())).toBeNull();
   });
 
   test("maps business hours checkbox", () => {
-    expect(buildTimeRestrictions(formWithCheckboxes({ business: true }))).toEqual({
+    expect(buildTimeRestrictions(buildFormData({ business: true }))).toEqual({
       business_hours_only: true,
     });
   });
 
   test("maps weekdays checkbox", () => {
-    expect(buildTimeRestrictions(formWithCheckboxes({ weekdays: true }))).toEqual({
+    expect(buildTimeRestrictions(buildFormData({ weekdays: true }))).toEqual({
       weekdays_only: true,
     });
   });
 
   test("maps both checkboxes together", () => {
     expect(
-      buildTimeRestrictions(formWithCheckboxes({ business: true, weekdays: true }))
+      buildTimeRestrictions(buildFormData({ business: true, weekdays: true }))
     ).toEqual({ business_hours_only: true, weekdays_only: true });
+  });
+
+  test("includes start_time and end_time only when set", () => {
+    expect(buildTimeRestrictions(buildFormData({ startTime: "09:00" }))).toEqual({
+      start_time: "09:00",
+    });
+    expect(
+      buildTimeRestrictions(buildFormData({ startTime: "22:00", endTime: "06:00" }))
+    ).toEqual({ start_time: "22:00", end_time: "06:00" });
+  });
+
+  test("allows overnight windows (end before start) without blocking", () => {
+    const result = buildTimeRestrictions(
+      buildFormData({ startTime: "18:00", endTime: "08:00" })
+    );
+    expect(result).toEqual({ start_time: "18:00", end_time: "08:00" });
+  });
+
+  test("includes timezone only when a window bound is set", () => {
+    expect(
+      buildTimeRestrictions(buildFormData({ timezone: "Europe/Berlin" }))
+    ).toBeNull();
+    expect(
+      buildTimeRestrictions(
+        buildFormData({ endTime: "17:00", timezone: "Europe/Berlin" })
+      )
+    ).toEqual({ end_time: "17:00", timezone: "Europe/Berlin" });
+  });
+
+  test("omits days when all seven weekdays are checked", () => {
+    expect(
+      buildTimeRestrictions(buildFormData({ days: ALL_DAYS }))
+    ).toBeNull();
+  });
+
+  test("includes days when one to six weekdays are checked", () => {
+    expect(
+      buildTimeRestrictions(buildFormData({ days: ["Saturday", "Sunday"] }))
+    ).toEqual({ days: ["Saturday", "Sunday"] });
+    expect(
+      buildTimeRestrictions(buildFormData({ days: ["Monday"] }))
+    ).toEqual({ days: ["Monday"] });
+  });
+
+  test("merges window, timezone, days, and legacy booleans", () => {
+    expect(
+      buildTimeRestrictions(
+        buildFormData({
+          business: true,
+          startTime: "08:00",
+          endTime: "20:00",
+          timezone: "Asia/Tokyo",
+          days: ["Monday", "Tuesday"],
+        })
+      )
+    ).toEqual({
+      business_hours_only: true,
+      start_time: "08:00",
+      end_time: "20:00",
+      timezone: "Asia/Tokyo",
+      days: ["Monday", "Tuesday"],
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildUsageLimits
+// ---------------------------------------------------------------------------
+describe("buildUsageLimits", () => {
+  function buildFormData({ perHour = "", perDay = "" } = {}) {
+    const form = document.createElement("form");
+    const hourInput = document.createElement("input");
+    hourInput.type = "number";
+    hourInput.name = "requests_per_hour";
+    hourInput.value = perHour;
+    form.appendChild(hourInput);
+    const dayInput = document.createElement("input");
+    dayInput.type = "number";
+    dayInput.name = "requests_per_day";
+    dayInput.value = perDay;
+    form.appendChild(dayInput);
+    return new FormData(form);
+  }
+
+  test("returns null when neither limit is set", () => {
+    expect(buildUsageLimits(buildFormData())).toBeNull();
+  });
+
+  test("includes both limits when both are set", () => {
+    expect(buildUsageLimits(buildFormData({ perHour: "100", perDay: "5000" }))).toEqual({
+      requests_per_hour: 100,
+      requests_per_day: 5000,
+    });
+  });
+
+  test("includes only the limit that is set", () => {
+    expect(buildUsageLimits(buildFormData({ perHour: "50" }))).toEqual({
+      requests_per_hour: 50,
+    });
+    expect(buildUsageLimits(buildFormData({ perDay: "200" }))).toEqual({
+      requests_per_day: 200,
+    });
+  });
+
+  test("rejects values below 1 and non-integers", () => {
+    expect(() => buildUsageLimits(buildFormData({ perHour: "0" }))).toThrow(
+      "Rate limits must be whole numbers of at least 1."
+    );
+    expect(() => buildUsageLimits(buildFormData({ perDay: "1.5" }))).toThrow(
+      "Rate limits must be whole numbers of at least 1."
+    );
   });
 });
 
@@ -2368,6 +2520,133 @@ describe("createToken - new payload fields", () => {
     expect(callBody.scope.time_restrictions).toEqual({
       business_hours_only: true,
     });
+  });
+
+  test("usage limits appear in scope only when set", async () => {
+    const form = buildForm();
+    mockTokenCreated();
+
+    const perHour = document.createElement("input");
+    perHour.type = "number";
+    perHour.name = "requests_per_hour";
+    perHour.value = "100";
+    form.appendChild(perHour);
+    const perDay = document.createElement("input");
+    perDay.type = "number";
+    perDay.name = "requests_per_day";
+    form.appendChild(perDay);
+
+    const callBody = await submitAndGetBody(form);
+    expect(callBody.scope.usage_limits).toEqual({ requests_per_hour: 100 });
+  });
+
+  test("usage_limits key is omitted when neither limit is set", async () => {
+    const form = buildForm();
+    mockTokenCreated();
+
+    const callBody = await submitAndGetBody(form);
+    expect(callBody.scope).not.toHaveProperty("usage_limits");
+  });
+
+  test("invalid usage limit blocks submit with a named error", async () => {
+    const form = buildForm();
+    mockTokenCreated();
+    const { showNotification } = await import("../../../mcpgateway/admin_ui/utils.js");
+
+    const perHour = document.createElement("input");
+    perHour.type = "number";
+    perHour.name = "requests_per_hour";
+    perHour.value = "0";
+    form.appendChild(perHour);
+
+    setupCreateTokenForm();
+    form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(fetchWithTimeout).not.toHaveBeenCalled();
+    expect(showNotification).toHaveBeenCalledWith(
+      expect.stringContaining("whole numbers of at least 1"),
+      "error"
+    );
+  });
+
+  test("merged time window, timezone, days, and checkbox payload", async () => {
+    const form = buildForm();
+    mockTokenCreated();
+
+    const business = document.createElement("input");
+    business.type = "checkbox";
+    business.name = "business_hours_only";
+    business.checked = true;
+    form.appendChild(business);
+
+    const start = document.createElement("input");
+    start.type = "time";
+    start.name = "start_time";
+    start.value = "09:00";
+    form.appendChild(start);
+
+    const timezone = document.createElement("input");
+    timezone.type = "text";
+    timezone.name = "timezone";
+    timezone.value = "Asia/Shanghai";
+    form.appendChild(timezone);
+
+    ["Monday", "Wednesday", "Friday"].forEach((day) => {
+      const dayInput = document.createElement("input");
+      dayInput.type = "checkbox";
+      dayInput.name = "days";
+      dayInput.value = day;
+      dayInput.checked = true;
+      form.appendChild(dayInput);
+    });
+
+    const callBody = await submitAndGetBody(form);
+    expect(callBody.scope.time_restrictions).toEqual({
+      business_hours_only: true,
+      start_time: "09:00",
+      timezone: "Asia/Shanghai",
+      days: ["Monday", "Wednesday", "Friday"],
+    });
+  });
+
+  test("timezone without a time window is not submitted", async () => {
+    const form = buildForm();
+    mockTokenCreated();
+
+    const timezone = document.createElement("input");
+    timezone.type = "text";
+    timezone.name = "timezone";
+    timezone.value = "Europe/Berlin";
+    form.appendChild(timezone);
+
+    const callBody = await submitAndGetBody(form);
+    expect(callBody.scope).not.toHaveProperty("time_restrictions");
+  });
+
+  test("all seven days checked submits no days key", async () => {
+    const form = buildForm();
+    mockTokenCreated();
+
+    [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ].forEach((day) => {
+      const dayInput = document.createElement("input");
+      dayInput.type = "checkbox";
+      dayInput.name = "days";
+      dayInput.value = day;
+      dayInput.checked = true;
+      form.appendChild(dayInput);
+    });
+
+    const callBody = await submitAndGetBody(form);
+    expect(callBody.scope).not.toHaveProperty("time_restrictions");
   });
 });
 

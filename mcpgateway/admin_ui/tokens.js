@@ -468,8 +468,24 @@ export const parseTagsInput = function (value) {
 };
 
 /**
+ * English weekday names accepted by the time_restrictions "days" key, in
+ * Monday-first display order matching the form's checkbox group.
+ */
+const WEEKDAY_NAMES = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
+/**
  * Build the time_restrictions object from form data.
- * Returns null when no restriction is checked so the key can be omitted.
+ * Returns null when no restriction is set so the key can be omitted.
+ * start_time/end_time are included only when set; timezone only when non-empty
+ * and a window bound is set; days only when 1-6 weekdays are checked.
  * @param {FormData} formData - The create-token form data
  * @returns {Object|null} time_restrictions payload or null
  */
@@ -481,7 +497,53 @@ export const buildTimeRestrictions = function (formData) {
   if (formData.get("weekdays_only")) {
     restrictions.weekdays_only = true;
   }
+
+  const startTime = String(formData.get("start_time") || "").trim();
+  const endTime = String(formData.get("end_time") || "").trim();
+  if (startTime) {
+    restrictions.start_time = startTime;
+  }
+  if (endTime) {
+    restrictions.end_time = endTime;
+  }
+
+  const timezone = String(formData.get("timezone") || "").trim();
+  if (timezone && (startTime || endTime)) {
+    restrictions.timezone = timezone;
+  }
+
+  const checkedDays = formData.getAll("days");
+  if (checkedDays.length >= 1 && checkedDays.length < WEEKDAY_NAMES.length) {
+    restrictions.days = checkedDays;
+  }
+
   return Object.keys(restrictions).length > 0 ? restrictions : null;
+};
+
+/**
+ * Build the usage_limits object from form data.
+ * Returns null when neither limit is set so the key can be omitted.
+ * @param {FormData} formData - The create-token form data
+ * @returns {Object|null} usage_limits payload or null
+ * @throws {Error} When a filled limit is not a whole number >= 1
+ */
+export const buildUsageLimits = function (formData) {
+  const limits = {};
+  [
+    ["requests_per_hour", "requests_per_hour"],
+    ["requests_per_day", "requests_per_day"],
+  ].forEach(([field, key]) => {
+    const raw = String(formData.get(field) || "").trim();
+    if (!raw) {
+      return;
+    }
+    const parsed = Number(raw);
+    if (!Number.isInteger(parsed) || parsed < 1) {
+      throw new Error(t("tokens.error.invalidUsageLimit"));
+    }
+    limits[key] = parsed;
+  });
+  return Object.keys(limits).length > 0 ? limits : null;
 };
 
 /**
@@ -733,6 +795,11 @@ const createToken = async function (form) {
     const timeRestrictions = buildTimeRestrictions(formData);
     if (timeRestrictions) {
       scope.time_restrictions = timeRestrictions;
+    }
+
+    const usageLimits = buildUsageLimits(formData);
+    if (usageLimits) {
+      scope.usage_limits = usageLimits;
     }
 
     payload.scope = scope;
