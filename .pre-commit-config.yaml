@@ -138,6 +138,10 @@ repos:
       - id: fix-smartquotes
         name: 📝 Normalize Smart Quotes
         description: Replaces smart/curly quotes with standard ASCII quotes.
+        # This repo prescribes curly quotes in Chinese text, so the hook must not
+        # rewrite the catalogs or the glossary that documents the rule. The global
+        # exclude above treats normalize_special_characters.py the same way.
+        exclude: '(\.json$|docs/docs/development/i18n-glossary\.md$)'
       - id: fix-ligatures
         name: 🔡 Normalize Ligatures
         description: Replaces typographic ligatures with standard characters.
