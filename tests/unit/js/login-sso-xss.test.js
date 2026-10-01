@@ -6,9 +6,9 @@
  * `innerHTML`), so a stored/malicious `display_name` is inert when another
  * admin loads the login page.
  *
- * This test exercises the *real* template source: it slices the
- * `ssoProviders` config + `loadSSOProviders()` function straight out of
- * `login.html` and runs them in JSDOM. If someone reverts to
+ * This test exercises the *real* template source: it slices the `t()` helper,
+ * the `ssoProviders` config, and the `loadSSOProviders()` function straight out
+ * of `login.html` and runs them in JSDOM. If someone reverts to
  * `innerHTML = ...Continue with ${config.name}...`, the payload parses into a
  * live <img> node and this test fails.
  */
@@ -25,14 +25,24 @@ const loginHtml = fs.readFileSync(path.resolve(__dirname, "../../../mcpgateway/t
 // and the `loadSSOProviders()` function. The DOMContentLoaded bootstrap block
 // that sits between them is deliberately skipped (it touches unrelated login
 // elements and would just add noise here).
+// `loadSSOProviders()` calls `t()`, which the template defines above the
+// config. The slice must carry that definition, or the extracted source throws
+// a ReferenceError before any XSS assertion runs.
+const tStart = loginHtml.indexOf("const LOGIN_STRINGS =");
+const tEnd = loginHtml.indexOf("function getCookie(name) {");
 const cfgStart = loginHtml.indexOf("const ssoProviders = {");
 const cfgEnd = loginHtml.indexOf('document.addEventListener("DOMContentLoaded"');
 const fnStart = loginHtml.indexOf("async function loadSSOProviders()");
 const fnEnd = loginHtml.indexOf("// Initiate SSO authentication");
-if ([cfgStart, cfgEnd, fnStart, fnEnd].some((i) => i === -1) || cfgEnd <= cfgStart || fnEnd <= fnStart) {
+if ([tStart, tEnd, cfgStart, cfgEnd, fnStart, fnEnd].some((i) => i === -1) || tEnd <= tStart || cfgEnd <= cfgStart || fnEnd <= fnStart) {
   throw new Error("Could not locate SSO rendering source in login.html — update the extraction anchors.");
 }
-const ssoSource = loginHtml.slice(cfgStart, cfgEnd) + "\n" + loginHtml.slice(fnStart, fnEnd);
+const ssoSource =
+  loginHtml.slice(tStart, tEnd) +
+  "\n" +
+  loginHtml.slice(cfgStart, cfgEnd) +
+  "\n" +
+  loginHtml.slice(fnStart, fnEnd);
 
 function renderWith(provider) {
   const dom = new JSDOM(
