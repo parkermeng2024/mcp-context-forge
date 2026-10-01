@@ -57,7 +57,7 @@ export const displayImportPreview = function (preview) {
                         </h3>
                         <div class="mt-1 text-sm text-blue-600 dark:text-blue-300">
                             ${Object.entries(preview.summary.by_type)
-    .map(([type, count]) => `${entityLabel(type)}: ${count}`)
+    .map(([type, count]) => `${type}: ${count}`)
     .join(", ")}
                         </div>
                     </div>
@@ -120,7 +120,7 @@ export const displayImportPreview = function (preview) {
     )
     .map(
       ([type, items]) =>
-        `${items.length} ${entityLabel(type)}`
+        `${items.length} ${type}`
     )
     .join(", ")})
                                         </div>
