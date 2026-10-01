@@ -356,6 +356,30 @@ class TestTokenCatalogService:
             assert call_kwargs["scopes"]["server_id"] == "server-123"
             assert call_kwargs["scopes"]["permissions"] == ["tools.read", "resources.read", "servers.use"]
             assert call_kwargs["scopes"]["ip_restrictions"] == ["192.168.1.0/24"]
+            assert call_kwargs["scopes"]["usage_limits"] == {"max_requests_per_hour": 100}
+
+    @pytest.mark.asyncio
+    async def test_generate_token_omits_empty_usage_limits(self, token_service):
+        """Usage limits must not appear in the JWT scopes claim when empty."""
+        scope = TokenScope(permissions=["tools.read"], usage_limits={})
+        with patch("mcpgateway.services.token_catalog_service.create_jwt_token", new_callable=AsyncMock) as mock_create_jwt:
+            mock_create_jwt.return_value = "jwt_token_scoped"
+
+            await token_service._generate_token("user@example.com", jti=str(uuid.uuid4()), scope=scope)
+
+            call_kwargs = mock_create_jwt.call_args.kwargs
+            assert "usage_limits" not in call_kwargs["scopes"]
+
+    @pytest.mark.asyncio
+    async def test_generate_token_without_scope_has_no_usage_limits(self, token_service):
+        """Tokens without a scope carry no usage_limits claim."""
+        with patch("mcpgateway.services.token_catalog_service.create_jwt_token", new_callable=AsyncMock) as mock_create_jwt:
+            mock_create_jwt.return_value = "jwt_token_basic"
+
+            await token_service._generate_token("user@example.com", jti=str(uuid.uuid4()))
+
+            call_kwargs = mock_create_jwt.call_args.kwargs
+            assert "usage_limits" not in call_kwargs["scopes"]
 
     @pytest.mark.asyncio
     async def test_generate_token_with_admin_user(self, token_service, mock_user):

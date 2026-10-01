@@ -283,6 +283,8 @@ class TokenCatalogService:
                 "ip_restrictions": scope.ip_restrictions or [],
                 "time_restrictions": scope.time_restrictions or {},
             }
+            if scope.usage_limits:
+                scopes_dict["usage_limits"] = scope.usage_limits
         else:
             scopes_dict = {
                 "server_id": None,

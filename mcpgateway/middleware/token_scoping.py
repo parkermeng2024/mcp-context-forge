@@ -11,12 +11,13 @@ and time-based restrictions.
 
 # Standard
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time, timedelta, timezone, tzinfo
 from enum import auto, Enum
 from functools import lru_cache
 import ipaddress
 import re
 from typing import List, Optional, Pattern, Tuple
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 # Third-Party
 from fastapi import HTTPException, Request, status
@@ -65,6 +66,9 @@ _RESOURCE_PATTERNS: List[Tuple[Pattern[str], str]] = [
     (re.compile(r"/gateways/?([a-f0-9\-]+)"), "gateway"),
 ]
 _AUTH_COOKIE_NAMES = ("jwt_token", "access_token")
+
+# Valid English weekday names for the time_restrictions "days" key
+_WEEKDAY_NAMES = frozenset({"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"})
 
 
 class ResourceOwnershipResult(Enum):
@@ -593,8 +597,41 @@ class TokenScopingMiddleware:
 
         return False
 
+    @staticmethod
+    def _parse_restriction_time(value: object, field: str) -> Optional[time]:
+        """Parse an "HH:MM" time-restriction string.
+
+        Args:
+            value: Candidate time value from token time restrictions.
+            field: Field name used in deny logging.
+
+        Returns:
+            Parsed ``datetime.time`` at minute precision, or ``None`` when invalid.
+        """
+        if not isinstance(value, str):
+            logger.warning("Token time restriction denied: %s must be an HH:MM string, got %r", field, value)
+            return None
+        parts = value.split(":")
+        if len(parts) != 2:
+            logger.warning("Token time restriction denied: invalid %s format %r", field, value)
+            return None
+        try:
+            parsed = time(int(parts[0]), int(parts[1]))
+        except (TypeError, ValueError):
+            logger.warning("Token time restriction denied: invalid %s format %r", field, value)
+            return None
+        return parsed
+
     def _check_time_restrictions(self, time_restrictions: dict) -> bool:
         """Check if current time is allowed by restrictions.
+
+        All present restrictions must pass (AND semantics). The legacy
+        ``business_hours_only`` and ``weekdays_only`` keys are evaluated in UTC.
+        The ``start_time``/``end_time`` ("HH:MM"), ``timezone`` (IANA name), and
+        ``days`` (English weekday names) keys are evaluated in the effective
+        timezone (UTC when absent). Invalid timezone names, time formats, or day
+        entries fail closed (deny). An overnight window (start > end) crosses
+        midnight; equal start/end bounds allow the whole day.
 
         Args:
             time_restrictions: Dict containing time-based restrictions
@@ -615,6 +652,22 @@ class TokenScopingMiddleware:
             Business hours only: result depends on current hour (always bool):
             >>> isinstance(m._check_time_restrictions({'business_hours_only': True}), bool)
             True
+
+            Invalid timezone fails closed:
+            >>> m._check_time_restrictions({'start_time': '09:00', 'timezone': 'Not/AZone'})
+            False
+
+            Invalid time format fails closed:
+            >>> m._check_time_restrictions({'start_time': '9am'})
+            False
+
+            Empty days list is no restriction:
+            >>> m._check_time_restrictions({'days': []})
+            True
+
+            A timezone alone with no window or days imposes no restriction:
+            >>> m._check_time_restrictions({'timezone': 'America/New_York'})
+            True
         """
         if not time_restrictions:
             return True  # No restrictions
@@ -632,6 +685,67 @@ class TokenScopingMiddleware:
         weekdays_only = time_restrictions.get("weekdays_only")
         if weekdays_only and now.weekday() >= 5:  # Saturday=5, Sunday=6
             return False
+
+        start_raw = time_restrictions.get("start_time")
+        end_raw = time_restrictions.get("end_time")
+        tz_name = time_restrictions.get("timezone")
+        days = time_restrictions.get("days")
+
+        if start_raw is None and end_raw is None and not tz_name and not days:
+            return True  # Only legacy keys present
+
+        # Resolve the effective timezone; unknown names fail closed
+        local_tz: tzinfo = timezone.utc
+        if tz_name:
+            if not isinstance(tz_name, str):
+                logger.warning("Token time restriction denied: invalid timezone %r", tz_name)
+                return False
+            try:
+                local_tz = ZoneInfo(tz_name)
+            except (ZoneInfoNotFoundError, ValueError):
+                logger.warning("Token time restriction denied: unknown timezone %r", tz_name)
+                return False
+
+        local_now = now.astimezone(local_tz)
+        local_time = local_now.time().replace(second=0, microsecond=0)
+
+        # Check the optional HH:MM window (either bound may appear alone)
+        if start_raw is not None or end_raw is not None:
+            start = self._parse_restriction_time(start_raw, "start_time") if start_raw is not None else None
+            end = self._parse_restriction_time(end_raw, "end_time") if end_raw is not None else None
+            if (start_raw is not None and start is None) or (end_raw is not None and end is None):
+                return False
+            if start is not None and end is not None:
+                if start == end:
+                    in_window = True  # Equal bounds allow the whole day
+                elif start < end:
+                    in_window = start <= local_time <= end
+                else:
+                    in_window = local_time >= start or local_time <= end  # Overnight window
+            elif start is not None:
+                in_window = local_time >= start
+            elif end is not None:
+                in_window = local_time <= end
+            else:
+                in_window = True  # Unreachable: at least one bound is present
+            if not in_window:
+                logger.info(
+                    "Token time restriction denied: local time %s outside allowed window (start=%r, end=%r, timezone=%r)",
+                    local_time,
+                    start_raw,
+                    end_raw,
+                    tz_name or "UTC",
+                )
+                return False
+
+        # Check the optional weekday list in the effective timezone
+        if days:
+            if not isinstance(days, list) or any(day not in _WEEKDAY_NAMES for day in days):
+                logger.warning("Token time restriction denied: invalid days entries %r", days)
+                return False
+            if local_now.strftime("%A") not in days:
+                logger.info("Token time restriction denied: weekday %s not in allowed days %r (timezone=%r)", local_now.strftime("%A"), days, tz_name or "UTC")
+                return False
 
         return True
 
