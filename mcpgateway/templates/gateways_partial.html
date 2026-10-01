@@ -129,7 +129,7 @@
               </form>
 
               <!-- Delete -->
-              <form method="POST" action="{{ root_path }}/admin/gateways/{{ gateway.id }}/delete" class="contents" @submit="menuOpen = false" data-action-submit="handleDeleteSubmit" data-arg0="gateway" data-arg1="{{ gateway_label|tojson_attr }}" data-arg2="gateways">
+              <form method="POST" action="{{ root_path }}/admin/gateways/{{ gateway.id }}/delete" class="contents" @submit="menuOpen = false" data-action-submit="handleGatewayDeleteSubmit" data-arg0="gateway" data-arg1="{{ gateway_label|tojson_attr }}" data-arg2="gateways">
                 <button
                   type="submit"
                   role="menuitem"

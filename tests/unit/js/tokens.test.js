@@ -20,6 +20,10 @@ import {
   setupTokenListEventHandlers,
   debouncedServerSideTokenSearch,
   performTokenSearch,
+  derivePermissionBuckets,
+  collectCheckedPermissions,
+  parseTagsInput,
+  buildTimeRestrictions,
 } from "../../../mcpgateway/admin_ui/tokens.js";
 import {
   getCookie,
@@ -1201,24 +1205,24 @@ describe("createToken via setupCreateTokenForm submit", () => {
     );
   });
 
-  test("invalid permission shows validation error without calling API", async () => {
+  test("invalid IP error names each invalid entry", async () => {
     const { form } = buildForm();
     const { showNotification } = await import("../../../mcpgateway/admin_ui/utils.js");
 
-    const permInput = document.createElement("input");
-    permInput.name = "permissions";
-    permInput.value = "bad permission format!!";
-    form.appendChild(permInput);
+    const ipInput = document.createElement("input");
+    ipInput.name = "ip_restrictions";
+    ipInput.value = "10.0.0.1, not-an-ip, also-bad";
+    form.appendChild(ipInput);
 
     setupCreateTokenForm();
     form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(fetchWithTimeout).not.toHaveBeenCalled();
-    expect(showNotification).toHaveBeenCalledWith(
-      expect.stringContaining("Invalid permission format"),
-      "error"
-    );
+    const message = showNotification.mock.calls[0][0];
+    expect(message).toContain("not-an-ip");
+    expect(message).toContain("also-bad");
+    expect(message).not.toContain("10.0.0.1,");
   });
 
   test("valid IPv4 and CIDR passes validation", async () => {
@@ -1245,7 +1249,7 @@ describe("createToken via setupCreateTokenForm submit", () => {
     expect(callBody.scope.ip_restrictions).toEqual(["192.168.1.0/24", "10.0.0.1"]);
   });
 
-  test("wildcard * permission passes validation", async () => {
+  test("all mode submits no permissions key and no usage_limits", async () => {
     const { form } = buildForm();
     fetchWithTimeout.mockResolvedValue({
       ok: true,
@@ -1255,18 +1259,16 @@ describe("createToken via setupCreateTokenForm submit", () => {
       }),
     });
 
-    const permInput = document.createElement("input");
-    permInput.name = "permissions";
-    permInput.value = "*";
-    form.appendChild(permInput);
-
     setupCreateTokenForm();
     form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(fetchWithTimeout).toHaveBeenCalled();
     const callBody = JSON.parse(fetchWithTimeout.mock.calls[0][1].body);
-    expect(callBody.scope.permissions).toEqual(["*"]);
+    expect(callBody.scope).not.toHaveProperty("permissions");
+    expect(callBody.scope).not.toHaveProperty("usage_limits");
+    expect(callBody.scope).not.toHaveProperty("time_restrictions");
+    expect(callBody.tags).toEqual([]);
   });
 });
 
@@ -2076,5 +2078,491 @@ describe("showTokenDetailsModal - additional coverage", () => {
 
     vi.advanceTimersByTime(1500);
     expect(copyBtn.textContent).toBe("Copy");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// derivePermissionBuckets
+// ---------------------------------------------------------------------------
+describe("derivePermissionBuckets", () => {
+  test("intersects catalog with caller permissions and groups by suffix", () => {
+    const catalog = ["tools.read", "tools.execute", "prompts.create", "servers.use"];
+    const caller = ["tools.read", "servers.use"];
+
+    const buckets = derivePermissionBuckets(catalog, caller);
+
+    expect(buckets).toEqual([
+      { key: "read", labelKey: "tokens.form.bucketRead", scopes: ["tools.read"] },
+      { key: "invoke", labelKey: "tokens.form.bucketInvoke", scopes: ["servers.use"] },
+    ]);
+  });
+
+  test("caller wildcard grants the whole catalog", () => {
+    const catalog = ["tools.read", "tools.execute", "prompts.create", "prompts.delete"];
+
+    const buckets = derivePermissionBuckets(catalog, ["*"]);
+
+    expect(buckets.map((b) => b.key)).toEqual(["read", "invoke", "create", "delete"]);
+  });
+
+  test("filters out wildcards, category wildcards, and colon-form entries", () => {
+    const catalog = ["*", "tools.*", "logs:read", "tools.read"];
+    const caller = ["*"];
+
+    const buckets = derivePermissionBuckets(catalog, caller);
+
+    expect(buckets).toEqual([
+      { key: "read", labelKey: "tokens.form.bucketRead", scopes: ["tools.read"] },
+    ]);
+  });
+
+  test("hides empty buckets and keeps fixed bucket order", () => {
+    const catalog = ["a.delete", "b.create", "c.read", "d.update", "e.invoke"];
+    const caller = ["*"];
+
+    const buckets = derivePermissionBuckets(catalog, caller);
+
+    expect(buckets.map((b) => b.key)).toEqual([
+      "read",
+      "invoke",
+      "create",
+      "update",
+      "delete",
+    ]);
+  });
+
+  test("execute and invoke suffixes share the invoke bucket", () => {
+    const buckets = derivePermissionBuckets(
+      ["tools.execute", "a2a.invoke", "tools.read"],
+      ["*"]
+    );
+
+    const invoke = buckets.find((b) => b.key === "invoke");
+    expect(invoke.scopes).toEqual(["tools.execute", "a2a.invoke"]);
+  });
+
+  test("handles non-array inputs gracefully", () => {
+    expect(derivePermissionBuckets(null, undefined)).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// collectCheckedPermissions
+// ---------------------------------------------------------------------------
+describe("collectCheckedPermissions", () => {
+  const buckets = [
+    { key: "read", scopes: ["tools.read", "resources.read"] },
+    { key: "invoke", scopes: ["tools.execute", "servers.use"] },
+  ];
+
+  test("returns union of concrete scopes for checked buckets", () => {
+    expect(collectCheckedPermissions(buckets, ["read"])).toEqual([
+      "tools.read",
+      "resources.read",
+    ]);
+  });
+
+  test("excludes servers.use from the submission", () => {
+    expect(collectCheckedPermissions(buckets, ["invoke"])).toEqual([
+      "tools.execute",
+    ]);
+  });
+
+  test("deduplicates scopes across buckets", () => {
+    const overlapping = [
+      { key: "read", scopes: ["tools.read"] },
+      { key: "create", scopes: ["tools.read", "tools.create"] },
+    ];
+    expect(collectCheckedPermissions(overlapping, ["read", "create"])).toEqual([
+      "tools.read",
+      "tools.create",
+    ]);
+  });
+
+  test("returns empty array when nothing is checked", () => {
+    expect(collectCheckedPermissions(buckets, [])).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// parseTagsInput
+// ---------------------------------------------------------------------------
+describe("parseTagsInput", () => {
+  test("splits, trims, and drops empties", () => {
+    expect(parseTagsInput(" alpha, beta ,,gamma ")).toEqual([
+      "alpha",
+      "beta",
+      "gamma",
+    ]);
+  });
+
+  test("returns empty array for empty or missing input", () => {
+    expect(parseTagsInput("")).toEqual([]);
+    expect(parseTagsInput(null)).toEqual([]);
+    expect(parseTagsInput(undefined)).toEqual([]);
+    expect(parseTagsInput(" , ,")).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildTimeRestrictions
+// ---------------------------------------------------------------------------
+describe("buildTimeRestrictions", () => {
+  function formWithCheckboxes({ business = false, weekdays = false } = {}) {
+    const form = document.createElement("form");
+    const businessInput = document.createElement("input");
+    businessInput.type = "checkbox";
+    businessInput.name = "business_hours_only";
+    businessInput.checked = business;
+    form.appendChild(businessInput);
+    const weekdaysInput = document.createElement("input");
+    weekdaysInput.type = "checkbox";
+    weekdaysInput.name = "weekdays_only";
+    weekdaysInput.checked = weekdays;
+    form.appendChild(weekdaysInput);
+    return new FormData(form);
+  }
+
+  test("returns null when nothing is checked", () => {
+    expect(buildTimeRestrictions(formWithCheckboxes())).toBeNull();
+  });
+
+  test("maps business hours checkbox", () => {
+    expect(buildTimeRestrictions(formWithCheckboxes({ business: true }))).toEqual({
+      business_hours_only: true,
+    });
+  });
+
+  test("maps weekdays checkbox", () => {
+    expect(buildTimeRestrictions(formWithCheckboxes({ weekdays: true }))).toEqual({
+      weekdays_only: true,
+    });
+  });
+
+  test("maps both checkboxes together", () => {
+    expect(
+      buildTimeRestrictions(formWithCheckboxes({ business: true, weekdays: true }))
+    ).toEqual({ business_hours_only: true, weekdays_only: true });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// createToken — payload assembly for new fields
+// ---------------------------------------------------------------------------
+describe("createToken - new payload fields", () => {
+  beforeEach(() => {
+    window.ROOT_PATH = "";
+    window.Admin = {};
+    window.htmx = { process: vi.fn(), trigger: vi.fn() };
+    getCurrentTeamId.mockReturnValue(null);
+    getCookie.mockImplementation((n) => (n === "jwt_token" ? "test-tok" : null));
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    delete window.ROOT_PATH;
+    delete window.Admin;
+    delete window.htmx;
+    vi.clearAllMocks();
+  });
+
+  function buildForm() {
+    const warning = document.createElement("div");
+    warning.id = "team-scoping-warning";
+    document.body.appendChild(warning);
+    const info = document.createElement("div");
+    info.id = "team-scoping-info";
+    document.body.appendChild(info);
+
+    const form = document.createElement("form");
+    form.id = "create-token-form";
+    const nameInput = document.createElement("input");
+    nameInput.name = "name";
+    nameInput.value = "My Token";
+    form.appendChild(nameInput);
+    const submitBtn = document.createElement("button");
+    submitBtn.type = "submit";
+    submitBtn.textContent = "Create";
+    form.appendChild(submitBtn);
+    document.body.appendChild(form);
+    return form;
+  }
+
+  function mockTokenCreated() {
+    fetchWithTimeout.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        access_token: "tok",
+        token: { name: "My Token", expires_at: null },
+      }),
+    });
+  }
+
+  async function submitAndGetBody(form) {
+    setupCreateTokenForm();
+    form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    return JSON.parse(fetchWithTimeout.mock.calls[0][1].body);
+  }
+
+  test("tags input becomes a top-level tags array", async () => {
+    const form = buildForm();
+    mockTokenCreated();
+
+    const tagsInput = document.createElement("input");
+    tagsInput.name = "tags";
+    tagsInput.value = "production, readonly ,,";
+    form.appendChild(tagsInput);
+
+    const callBody = await submitAndGetBody(form);
+    expect(callBody.tags).toEqual(["production", "readonly"]);
+  });
+
+  test("empty expiry select submits null expires_in_days", async () => {
+    const form = buildForm();
+    mockTokenCreated();
+
+    const select = document.createElement("select");
+    select.name = "expires_in_days";
+    ["", "7", "30"].forEach((value) => {
+      const option = document.createElement("option");
+      option.value = value;
+      select.appendChild(option);
+    });
+    select.value = "";
+    form.appendChild(select);
+
+    const callBody = await submitAndGetBody(form);
+    expect(callBody.expires_in_days).toBeNull();
+  });
+
+  test("expiry preset submits the numeric day count", async () => {
+    const form = buildForm();
+    mockTokenCreated();
+
+    const select = document.createElement("select");
+    select.name = "expires_in_days";
+    ["", "7", "30", "90"].forEach((value) => {
+      const option = document.createElement("option");
+      option.value = value;
+      select.appendChild(option);
+    });
+    select.value = "90";
+    form.appendChild(select);
+
+    const callBody = await submitAndGetBody(form);
+    expect(callBody.expires_in_days).toBe(90);
+  });
+
+  test("checked time restriction checkboxes appear in scope", async () => {
+    const form = buildForm();
+    mockTokenCreated();
+
+    const business = document.createElement("input");
+    business.type = "checkbox";
+    business.name = "business_hours_only";
+    business.checked = true;
+    form.appendChild(business);
+
+    const callBody = await submitAndGetBody(form);
+    expect(callBody.scope.time_restrictions).toEqual({
+      business_hours_only: true,
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// createToken — selected permission mode end to end
+// ---------------------------------------------------------------------------
+describe("createToken - selected permission mode", () => {
+  beforeEach(() => {
+    window.ROOT_PATH = "";
+    window.Admin = {};
+    window.htmx = { process: vi.fn(), trigger: vi.fn() };
+    getCookie.mockImplementation((n) => (n === "jwt_token" ? "test-tok" : null));
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    delete window.ROOT_PATH;
+    delete window.Admin;
+    delete window.htmx;
+    vi.clearAllMocks();
+  });
+
+  function buildFormWithPicker() {
+    const warning = document.createElement("div");
+    warning.id = "team-scoping-warning";
+    document.body.appendChild(warning);
+    const info = document.createElement("div");
+    info.id = "team-scoping-info";
+    document.body.appendChild(info);
+
+    const form = document.createElement("form");
+    form.id = "create-token-form";
+    const nameInput = document.createElement("input");
+    nameInput.name = "name";
+    nameInput.value = "My Token";
+    form.appendChild(nameInput);
+
+    const allRadio = document.createElement("input");
+    allRadio.type = "radio";
+    allRadio.name = "permission_mode";
+    allRadio.value = "all";
+    allRadio.checked = true;
+    form.appendChild(allRadio);
+
+    const selectedRadio = document.createElement("input");
+    selectedRadio.type = "radio";
+    selectedRadio.name = "permission_mode";
+    selectedRadio.value = "selected";
+    form.appendChild(selectedRadio);
+
+    const submitBtn = document.createElement("button");
+    submitBtn.type = "submit";
+    submitBtn.textContent = "Create";
+    form.appendChild(submitBtn);
+    document.body.appendChild(form);
+
+    const picker = document.createElement("div");
+    picker.id = "token-permission-picker";
+    picker.classList.add("hidden");
+    form.appendChild(picker);
+    const status = document.createElement("div");
+    status.id = "token-permission-picker-status";
+    picker.appendChild(status);
+    const buckets = document.createElement("div");
+    buckets.id = "token-permission-buckets";
+    picker.appendChild(buckets);
+
+    return { form, selectedRadio, picker, status, buckets };
+  }
+
+  function mockRbacAndTokenEndpoints(callerPermissions) {
+    fetchWithTimeout.mockImplementation((url) => {
+      if (url.includes("/rbac/permissions/available")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({
+            all_permissions: [
+              "tools.read",
+              "tools.execute",
+              "resources.read",
+              "servers.use",
+            ],
+          }),
+        });
+      }
+      if (url.includes("/rbac/my/permissions")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(callerPermissions),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          access_token: "tok",
+          token: { name: "My Token", expires_at: null },
+        }),
+      });
+    });
+  }
+
+  async function selectModeAndLoad(selectedRadio, form) {
+    setupCreateTokenForm();
+    selectedRadio.checked = true;
+    selectedRadio.dispatchEvent(new Event("change", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    return form;
+  }
+
+  test("lazy-loads and renders buckets when selected mode is chosen", async () => {
+    getCurrentTeamId.mockReturnValue("team-lazy");
+    const { selectedRadio, picker, buckets } = buildFormWithPicker();
+    mockRbacAndTokenEndpoints(["tools.read", "tools.execute", "servers.use"]);
+
+    await selectModeAndLoad(selectedRadio, null);
+
+    expect(picker.classList.contains("hidden")).toBe(false);
+    const bucketValues = Array.from(
+      buckets.querySelectorAll('input[name="permission_bucket"]')
+    ).map((el) => el.value);
+    expect(bucketValues).toEqual(["read", "invoke"]);
+    expect(buckets.innerHTML).toContain("tools.read");
+    expect(buckets.innerHTML).toContain("servers.use");
+  });
+
+  test("requests caller permissions with the current team_id", async () => {
+    getCurrentTeamId.mockReturnValue("team-query");
+    const { selectedRadio } = buildFormWithPicker();
+    mockRbacAndTokenEndpoints(["*"]);
+
+    await selectModeAndLoad(selectedRadio, null);
+
+    const myPermsCall = fetchWithTimeout.mock.calls.find((c) =>
+      c[0].includes("/rbac/my/permissions")
+    );
+    expect(myPermsCall[0]).toContain("team_id=team-query");
+  });
+
+  test("shows empty state when nothing is grantable", async () => {
+    getCurrentTeamId.mockReturnValue("team-empty");
+    const { selectedRadio, status, buckets } = buildFormWithPicker();
+    mockRbacAndTokenEndpoints([]);
+
+    await selectModeAndLoad(selectedRadio, null);
+
+    expect(status.textContent).toContain("No permissions available");
+    expect(buckets.querySelectorAll("input").length).toBe(0);
+  });
+
+  test("blocks submit in selected mode when no bucket is checked", async () => {
+    getCurrentTeamId.mockReturnValue("team-block");
+    const { form, selectedRadio } = buildFormWithPicker();
+    mockRbacAndTokenEndpoints(["*"]);
+    const { showNotification } = await import("../../../mcpgateway/admin_ui/utils.js");
+
+    await selectModeAndLoad(selectedRadio, form);
+
+    form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const tokenPost = fetchWithTimeout.mock.calls.find(
+      (c) => c[0] === "/tokens"
+    );
+    expect(tokenPost).toBeUndefined();
+    expect(showNotification).toHaveBeenCalledWith(
+      expect.stringContaining("Select at least one permission group"),
+      "error"
+    );
+  });
+
+  test("submits union of checked buckets minus servers.use", async () => {
+    getCurrentTeamId.mockReturnValue("team-submit");
+    const { form, selectedRadio } = buildFormWithPicker();
+    mockRbacAndTokenEndpoints(["tools.read", "tools.execute", "servers.use"]);
+
+    await selectModeAndLoad(selectedRadio, form);
+
+    const invokeCheckbox = document.querySelector(
+      'input[name="permission_bucket"][value="invoke"]'
+    );
+    expect(invokeCheckbox).not.toBeNull();
+    invokeCheckbox.checked = true;
+
+    form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const tokenPost = fetchWithTimeout.mock.calls.find(
+      (c) => c[0] === "/tokens"
+    );
+    expect(tokenPost).toBeDefined();
+    const callBody = JSON.parse(tokenPost[1].body);
+    expect(callBody.scope.permissions).toEqual(["tools.execute"]);
+    expect(callBody.scope.permissions).not.toContain("servers.use");
   });
 });

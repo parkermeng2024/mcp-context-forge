@@ -209,6 +209,9 @@ export const updateTeamScopingWarning = function () {
       teamNameSpan.textContent = teamName;
     }
   }
+
+  // Keep the permission picker in sync with the global team selector
+  syncPermissionPickerWithTeam();
 };
 
 /**
@@ -251,6 +254,9 @@ export const setupCreateTokenForm = function () {
 
   // Update team scoping warning/info display
   updateTeamScopingWarning();
+
+  // Wire permission-mode radios (lazy-loads buckets on "selected")
+  setupPermissionModeToggle(form);
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -348,29 +354,306 @@ const isValidIpOrCidr = function (value) {
 };
 
 /**
- * Validate a permission scope string.
- * Permissions should follow format: resource.action (e.g., tools.read, resources.write)
- * Also allows wildcard (*) for full access.
- * @param {string} value - The permission string to validate
- * @returns {boolean} True if valid permission format
+ * Server-side auto-grant: injected into token scope whenever tools./resources./prompts.
+ * permissions are present. Displayed as a chip under "invoke" but never submitted.
  */
-const isValidPermission = function (value) {
-  if (!value || typeof value !== "string") {
-    return false;
+const AUTO_GRANTED_SERVER_PERMISSION = "servers.use";
+
+/**
+ * Permission bucket definitions in fixed display order.
+ * Membership is by scope suffix; `extras` lists additional scopes shown as chips.
+ */
+const PERMISSION_BUCKET_DEFS = [
+  { key: "read", labelKey: "tokens.form.bucketRead", suffixes: [".read"] },
+  {
+    key: "invoke",
+    labelKey: "tokens.form.bucketInvoke",
+    suffixes: [".execute", ".invoke"],
+    extras: [AUTO_GRANTED_SERVER_PERMISSION],
+  },
+  { key: "create", labelKey: "tokens.form.bucketCreate", suffixes: [".create"] },
+  { key: "update", labelKey: "tokens.form.bucketUpdate", suffixes: [".update"] },
+  { key: "delete", labelKey: "tokens.form.bucketDelete", suffixes: [".delete"] },
+];
+
+/**
+ * Check whether a permission string is a concrete single-dot resource.action scope.
+ * Rejects "*", category wildcards like "tools.*", and colon-form entries.
+ * @param {string} perm - Permission string to check
+ * @returns {boolean} True for concrete "resource.action" scopes
+ */
+const isConcretePermission = function (perm) {
+  return (
+    typeof perm === "string" &&
+    /^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/i.test(perm)
+  );
+};
+
+/**
+ * Derive the permission buckets grantable by the current caller.
+ * Intersects the system catalog with the caller's effective permissions
+ * (caller "*" grants everything), keeps only concrete resource.action scopes,
+ * and groups them into the fixed buckets. Empty buckets are omitted.
+ * @param {string[]} catalogPermissions - All permissions known to the system
+ * @param {string[]} callerPermissions - Caller's effective permissions
+ * @returns {Array<{key: string, labelKey: string, scopes: string[]}>} Non-empty buckets in fixed order
+ */
+export const derivePermissionBuckets = function (
+  catalogPermissions,
+  callerPermissions
+) {
+  const catalog = Array.isArray(catalogPermissions) ? catalogPermissions : [];
+  const caller = Array.isArray(callerPermissions) ? callerPermissions : [];
+  const callerGrantsAll = caller.includes("*");
+  const callerSet = new Set(caller);
+
+  const grantable = catalog.filter(
+    (perm) =>
+      isConcretePermission(perm) && (callerGrantsAll || callerSet.has(perm))
+  );
+  const grantableSet = new Set(grantable);
+
+  return PERMISSION_BUCKET_DEFS.map((def) => {
+    const scopes = grantable.filter((perm) =>
+      def.suffixes.some((suffix) => perm.endsWith(suffix))
+    );
+    (def.extras || []).forEach((extra) => {
+      if (grantableSet.has(extra)) {
+        scopes.push(extra);
+      }
+    });
+    return { key: def.key, labelKey: def.labelKey, scopes };
+  }).filter((bucket) => bucket.scopes.length > 0);
+};
+
+/**
+ * Collect the deduplicated concrete scopes of the checked buckets.
+ * The server-side auto-grant (servers.use) is never included.
+ * @param {Array<{key: string, scopes: string[]}>} buckets - Buckets from derivePermissionBuckets
+ * @param {string[]} checkedKeys - Bucket keys currently checked
+ * @returns {string[]} Deduplicated permission scopes to submit
+ */
+export const collectCheckedPermissions = function (buckets, checkedKeys) {
+  const wanted = new Set(checkedKeys);
+  const scopes = [];
+  (Array.isArray(buckets) ? buckets : []).forEach((bucket) => {
+    if (!wanted.has(bucket.key)) {
+      return;
+    }
+    bucket.scopes.forEach((scope) => {
+      if (
+        scope !== AUTO_GRANTED_SERVER_PERMISSION &&
+        !scopes.includes(scope)
+      ) {
+        scopes.push(scope);
+      }
+    });
+  });
+  return scopes;
+};
+
+/**
+ * Parse a comma-separated tags input into a tags array.
+ * @param {string} value - Raw input value
+ * @returns {string[]} Trimmed, non-empty tags
+ */
+export const parseTagsInput = function (value) {
+  if (!value) {
+    return [];
+  }
+  return String(value)
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter((tag) => tag.length > 0);
+};
+
+/**
+ * Build the time_restrictions object from form data.
+ * Returns null when no restriction is checked so the key can be omitted.
+ * @param {FormData} formData - The create-token form data
+ * @returns {Object|null} time_restrictions payload or null
+ */
+export const buildTimeRestrictions = function (formData) {
+  const restrictions = {};
+  if (formData.get("business_hours_only")) {
+    restrictions.business_hours_only = true;
+  }
+  if (formData.get("weekdays_only")) {
+    restrictions.weekdays_only = true;
+  }
+  return Object.keys(restrictions).length > 0 ? restrictions : null;
+};
+
+/**
+ * Mutable state for the permission picker (lazy-loaded per team context).
+ */
+const permissionPickerState = {
+  loadedForTeam: undefined,
+  buckets: [],
+  loading: false,
+};
+
+/**
+ * Read the selected permission mode from the form ("all" or "selected").
+ * @param {HTMLFormElement} form - The create-token form
+ * @returns {string} The active permission mode
+ */
+const getPermissionMode = function (form) {
+  const checked = form.querySelector('input[name="permission_mode"]:checked');
+  return checked ? checked.value : "all";
+};
+
+/**
+ * Fetch the permission catalog and the caller's effective permissions for the
+ * current team context, then derive the grantable buckets.
+ * @returns {Promise<Array<{key: string, labelKey: string, scopes: string[]}>>} Grantable buckets
+ */
+const fetchGrantablePermissionBuckets = async function () {
+  const teamId =
+    typeof getCurrentTeamId === "function" ? getCurrentTeamId() : "";
+  const myPermissionsUrl = teamId
+    ? `${window.ROOT_PATH}/rbac/my/permissions?team_id=${encodeURIComponent(teamId)}`
+    : `${window.ROOT_PATH}/rbac/my/permissions`;
+  const headers = { Authorization: `Bearer ${await getAuthToken()}` };
+
+  const [availableResponse, mineResponse] = await Promise.all([
+    fetchWithTimeout(`${window.ROOT_PATH}/rbac/permissions/available`, {
+      headers,
+    }),
+    fetchWithTimeout(myPermissionsUrl, { headers }),
+  ]);
+
+  if (!availableResponse.ok || !mineResponse.ok) {
+    throw new Error(
+      `Failed to load permissions (${availableResponse.status}/${mineResponse.status})`
+    );
   }
 
-  const trimmed = value.trim();
+  const available = await availableResponse.json();
+  const mine = await mineResponse.json();
+  return derivePermissionBuckets(available.all_permissions, mine);
+};
 
-  // Allow wildcard
-  if (trimmed === "*") {
-    return true;
+/**
+ * Render the bucket checkbox rows with their concrete scope chips.
+ * Previously checked buckets that still exist stay checked.
+ * @param {Array<{key: string, labelKey: string, scopes: string[]}>} buckets - Buckets to render
+ */
+const renderPermissionBuckets = function (buckets) {
+  const container = document.getElementById("token-permission-buckets");
+  if (!container) {
+    return;
   }
 
-  // Permission format: resource.action (alphanumeric with underscores, dot-separated)
-  // Examples: tools.read, resources.write, prompts.list, tools.execute
-  const permissionPattern = /^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/i;
+  const previouslyChecked = new Set(
+    Array.from(
+      container.querySelectorAll('input[name="permission_bucket"]:checked')
+    ).map((el) => el.value)
+  );
 
-  return permissionPattern.test(trimmed);
+  container.innerHTML = buckets
+    .map((bucket) => {
+      const checkedAttr = previouslyChecked.has(bucket.key) ? " checked" : "";
+      const chips = bucket.scopes
+        .map(
+          (scope) =>
+            `<span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded font-mono">${escapeHtml(scope)}</span>`
+        )
+        .join("");
+      return (
+        "<div>" +
+        '<label class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">' +
+        `<input type="checkbox" name="permission_bucket" value="${escapeHtml(bucket.key)}" class="mr-2"${checkedAttr} />` +
+        escapeHtml(t(bucket.labelKey)) +
+        `<span class="ml-2 text-xs text-gray-500 dark:text-gray-400">(${bucket.scopes.length})</span>` +
+        "</label>" +
+        `<div class="mt-1 ml-6 flex flex-wrap gap-1">${chips}</div>` +
+        "</div>"
+      );
+    })
+    .join("");
+};
+
+/**
+ * Load (or reload) the permission buckets for the current team context and
+ * render the picker status and bucket rows.
+ */
+const refreshPermissionPicker = async function () {
+  const status = document.getElementById("token-permission-picker-status");
+  const container = document.getElementById("token-permission-buckets");
+  if (!status || !container) {
+    return;
+  }
+
+  const teamId =
+    (typeof getCurrentTeamId === "function" ? getCurrentTeamId() : "") || "";
+  permissionPickerState.loading = true;
+  status.classList.remove("hidden");
+  status.textContent = t("tokens.form.permissionsLoading");
+  container.innerHTML = "";
+
+  try {
+    const buckets = await fetchGrantablePermissionBuckets();
+    permissionPickerState.buckets = buckets;
+    permissionPickerState.loadedForTeam = teamId;
+    if (buckets.length === 0) {
+      status.textContent = t("tokens.form.permissionsEmpty");
+    } else {
+      status.classList.add("hidden");
+      renderPermissionBuckets(buckets);
+    }
+  } catch (error) {
+    console.error("Error loading permissions:", error);
+    permissionPickerState.buckets = [];
+    permissionPickerState.loadedForTeam = undefined;
+    status.textContent = t("tokens.form.permissionsLoadFailed");
+  } finally {
+    permissionPickerState.loading = false;
+  }
+};
+
+/**
+ * Re-fetch the permission buckets when the picker is visible and the global
+ * team context changed since the last load. Called from the same team-monitor
+ * cadence that drives updateTeamScopingWarning.
+ */
+const syncPermissionPickerWithTeam = function () {
+  const picker = document.getElementById("token-permission-picker");
+  if (!picker || picker.classList.contains("hidden")) {
+    return;
+  }
+  const teamId =
+    (typeof getCurrentTeamId === "function" ? getCurrentTeamId() : "") || "";
+  if (
+    permissionPickerState.loadedForTeam !== teamId &&
+    !permissionPickerState.loading
+  ) {
+    refreshPermissionPicker();
+  }
+};
+
+/**
+ * Wire the permission-mode radios: show the picker and lazy-load buckets when
+ * "selected" mode is activated, hide it otherwise.
+ * @param {HTMLFormElement} form - The create-token form
+ */
+const setupPermissionModeToggle = function (form) {
+  form
+    .querySelectorAll('input[name="permission_mode"]')
+    .forEach((radio) => {
+      radio.addEventListener("change", () => {
+        const picker = document.getElementById("token-permission-picker");
+        if (!picker) {
+          return;
+        }
+        if (getPermissionMode(form) === "selected") {
+          picker.classList.remove("hidden");
+          syncPermissionPickerWithTeam();
+        } else {
+          picker.classList.add("hidden");
+        }
+      });
+    });
 };
 
 /**
@@ -394,9 +677,9 @@ const createToken = async function (form) {
       name: formData.get("name"),
       description: formData.get("description") || null,
       expires_in_days: formData.get("expires_in_days")
-        ? parseInt(formData.get("expires_in_days"))
+        ? parseInt(formData.get("expires_in_days"), 10)
         : null,
-      tags: [],
+      tags: parseTagsInput(formData.get("tags")),
       team_id: currentTeamId || null, // null = all teams (admin bypass for admins, public-only for non-admins)
     };
 
@@ -420,8 +703,7 @@ const createToken = async function (form) {
         const invalidIps = ipList.filter((ip) => !isValidIpOrCidr(ip));
         if (invalidIps.length > 0) {
           throw new Error(
-            `Invalid IP address or CIDR format: ${invalidIps.join(", ")}. ` +
-              "Use formats like 192.168.1.0/24 or 10.0.0.1"
+            t("tokens.error.invalidIp", { entries: invalidIps.join(", ") })
           );
         }
         scope.ip_restrictions = ipList;
@@ -432,29 +714,27 @@ const createToken = async function (form) {
       scope.ip_restrictions = [];
     }
 
-    // Parse and validate permissions
-    if (formData.get("permissions")) {
-      const permList = formData
-        .get("permissions")
-        .split(",")
-        .map((p) => p.trim())
-        .filter((p) => p.length > 0);
-
-      // Validate each permission
-      const invalidPerms = permList.filter((p) => !isValidPermission(p));
-      if (invalidPerms.length > 0) {
-        throw new Error(
-          `Invalid permission format: ${invalidPerms.join(", ")}. ` +
-            "Use formats like tools.read, resources.write, or * for full access"
-        );
+    // Permission scope: "all" mode inherits the caller's RBAC at runtime
+    // (no permissions key); "selected" mode submits the checked buckets.
+    if (getPermissionMode(form) === "selected") {
+      const checkedKeys = Array.from(
+        form.querySelectorAll('input[name="permission_bucket"]:checked')
+      ).map((el) => el.value);
+      const selectedPermissions = collectCheckedPermissions(
+        permissionPickerState.buckets,
+        checkedKeys
+      );
+      if (selectedPermissions.length === 0) {
+        throw new Error(t("tokens.error.noPermissionsSelected"));
       }
-      scope.permissions = permList;
-    } else {
-      scope.permissions = [];
+      scope.permissions = selectedPermissions;
     }
 
-    scope.time_restrictions = {};
-    scope.usage_limits = {};
+    const timeRestrictions = buildTimeRestrictions(formData);
+    if (timeRestrictions) {
+      scope.time_restrictions = timeRestrictions;
+    }
+
     payload.scope = scope;
 
     const response = await fetchWithTimeout(`${window.ROOT_PATH}/tokens`, {
@@ -495,6 +775,12 @@ const createToken = async function (form) {
     const result = await response.json();
     showTokenCreatedModal(result);
     form.reset();
+
+    // Collapse the permission picker back to its default hidden state
+    const picker = document.getElementById("token-permission-picker");
+    if (picker) {
+      picker.classList.add("hidden");
+    }
 
     // Clear any lingering inline error
     const inlineMessagesSuccess = document.getElementById(

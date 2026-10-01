@@ -185,9 +185,10 @@ Admin.handleSubmitWithConfirmation = handleSubmitWithConfirmation;
 Admin.handleDeleteSubmit = handleDeleteSubmit;
 
 // Gateways
-import { editGateway, refreshGatewayTools, refreshToolsForSelectedGateways, testGateway, viewGateway } from "./gateways.js";
+import { editGateway, handleGatewayDeleteSubmit, refreshGatewayTools, refreshToolsForSelectedGateways, testGateway, viewGateway } from "./gateways.js";
 
 Admin.editGateway = editGateway;
+Admin.handleGatewayDeleteSubmit = handleGatewayDeleteSubmit;
 Admin.refreshGatewayTools = refreshGatewayTools;
 Admin.refreshToolsForSelectedGateways = refreshToolsForSelectedGateways;
 Admin.testGateway = testGateway;
