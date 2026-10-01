@@ -2598,543 +2598,568 @@
           <h3 class="text-lg font-bold mb-4 dark:text-gray-200">
             {{ t('servers.form.addTitle') }}
           </h3>
-          <form
-            method="POST"
-            id="add-server-form"
-            data-action-reset="clearAssociatedTools"
-          >
-            <div class="grid grid-cols-1 gap-7">
-              <div>
-                <label
-                  class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >{{ t('servers.form.customUuid') }}</label
+          <div id="server-wizard">
+            <!-- Step indicator -->
+            <div class="mb-6 flex items-center gap-3">
+              <span
+                id="server-wizard-step-indicator"
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200"
+              >
+                {{ t('servers.wizard.stepIndicator', step=1) }}
+              </span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                1. {{ t('servers.wizard.step1Label') }} &rarr; 2. {{ t('servers.wizard.step2Label') }}
+              </span>
+            </div>
+
+            <!-- Inline error + status -->
+            <span
+              id="server-wizard-error"
+              class="hidden block mb-4 text-sm font-semibold text-red-600"
+              role="alert"
+              aria-live="polite"
+            ></span>
+            <div
+              id="server-wizard-status"
+              class="hidden mb-4 text-sm text-gray-500 dark:text-gray-400"
+              aria-live="polite"
+            ></div>
+
+            <!-- Step 1: Details -->
+            <div id="server-wizard-step-1">
+              <div class="grid grid-cols-1 gap-7">
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                    >{{ t('servers.form.customUuid') }}</label
+                  >
+                  <input
+                    type="text"
+                    name="id"
+                    id="server-wizard-id"
+                    placeholder="{{ t('servers.form.customUuidPlaceholder') }}"
+                    class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                  />
+                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    {{ t('servers.form.customUuidHint') }}
+                  </p>
+                </div>
+                <div class="relative">
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                    for="server-wizard-name"
+                    >{{ t('common.table.name') }}</label
+                  >
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    id="server-wizard-name"
+                    maxlength="100"
+                    class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                  />
+                  <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('servers.form.nameRequired') }}</p>
+                </div>
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                    >{{ t('common.table.description') }}</label
+                  >
+                  <textarea
+                    name="description"
+                    id="server-wizard-description"
+                    maxlength="500"
+                    class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                  ></textarea>
+                </div>
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                    >{{ t('servers.form.iconUrl') }}</label
+                  >
+                  <input
+                    type="url"
+                    name="icon"
+                    id="server-wizard-icon"
+                    class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                    >{{ t('common.table.tags') }}</label
+                  >
+                  <input
+                    type="text"
+                    name="tags"
+                      id="server-wizard-tags"
+                    placeholder="{{ t('servers.form.tagsPlaceholder') }}"
+                    class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                  />
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    {{ t('servers.form.tagsHint') }}
+                  </p>
+                </div>
+                <!-- Visibility options -->
+                <div class="mt-4">
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                    >{{ t('common.table.visibility') }}</label
+                  >
+                  <div class="flex gap-x-6 mt-2">
+                    <!-- Add gap-x-6 for more space between radio options -->
+
+                    <div class="flex items-center">
+                      <input
+                        type="radio"
+                        name="server-wizard-visibility"
+                        value="public"
+                        class="form-radio h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
+                        id="server-wizard-visibility-public"
+                        checked
+                      />
+                      <label
+                        for="server-wizard-visibility-public"
+                        class="ml-2 text-sm text-gray-700 dark:text-gray-400"
+                        >{{ t('common.visibility.radio.public') }}</label
+                      >
+                    </div>
+
+                    <div class="flex items-center">
+                      <input
+                        type="radio"
+                        name="server-wizard-visibility"
+                        value="team"
+                        class="form-radio h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
+                        id="server-wizard-visibility-team"
+                      />
+                      <label
+                        for="server-wizard-visibility-team"
+                        class="ml-2 text-sm text-gray-700 dark:text-gray-400"
+                        >{{ t('common.visibility.radio.team') }}</label
+                      >
+                    </div>
+                    <div class="flex items-center">
+                      <input
+                        type="radio"
+                        name="server-wizard-visibility"
+                        value="private"
+                        class="form-radio h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
+                        id="server-wizard-visibility-private"
+                      />
+                      <label
+                        for="server-wizard-visibility-private"
+                        class="ml-2 text-sm text-gray-700 dark:text-gray-400"
+                        >{{ t('common.visibility.radio.private') }}</label
+                      >
+                    </div>
+                  </div>
+                </div>
+                <!-- OAuth 2.0 Configuration Section (RFC 9728) -->
+                <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <div class="flex items-center mb-4">
+                    <input
+                      type="checkbox"
+                      name="oauth_enabled"
+                      id="server-wizard-oauth-enabled"
+                      class="form-checkbox h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
+                      data-action-change="toggleElementClass" data-arg0="server-wizard-oauth-config-section" data-arg1="hidden"
+                    />
+                    <label
+                      for="server-wizard-oauth-enabled"
+                      class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-400"
+                      >{{ t('servers.form.enableOauth') }}</label
+                    >
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    {{ t('servers.form.enableOauthHint') }}
+                  </p>
+
+                  <!-- OAuth Configuration Fields (hidden by default) -->
+                  <div id="server-wizard-oauth-config-section" class="hidden space-y-4 pl-6 border-l-2 border-indigo-200 dark:border-indigo-800">
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                        for="server-wizard-oauth-authorization-server"
+                        >{{ t('servers.form.authServerUrl') }}</label
+                      >
+                      <input
+                        type="url"
+                        name="oauth_authorization_server"
+                        id="server-wizard-oauth-authorization-server"
+                        placeholder="https://idp.example.com"
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                      />
+                      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {{ t('servers.form.authServerUrlHint') }}
+                      </p>
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                        for="server-wizard-oauth-scopes"
+                        >{{ t('servers.form.scopes') }}</label
+                      >
+                      <input
+                        type="text"
+                        name="oauth_scopes"
+                        id="server-wizard-oauth-scopes"
+                        placeholder="openid profile email"
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                      />
+                      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {{ t('servers.form.scopesHint') }}
+                      </p>
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                        for="server-wizard-oauth-token-endpoint"
+                        >{{ t('servers.form.tokenEndpointUrl') }}</label
+                      >
+                      <input
+                        type="url"
+                        name="oauth_token_endpoint"
+                        id="server-wizard-oauth-token-endpoint"
+                        placeholder="https://idp.example.com/oauth/token"
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                      />
+                      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {{ t('servers.form.tokenEndpointHint') }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-6 flex justify-end">
+                <button
+                  type="button"
+                  data-action-click="serverWizardNext"
+                  class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                <input
-                  type="text"
-                  name="id"
-                  placeholder="{{ t('servers.form.customUuidPlaceholder') }}"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  {{ t('servers.form.customUuidHint') }}
+                  {{ t('common.actions.next') }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 2: Sources -->
+            <div id="server-wizard-step-2" class="hidden">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-3">
+                  <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    {{ t('servers.wizard.gatewaysTitle') }}
+                  </h4>
+                  <label class="inline-flex items-center text-xs text-gray-600 dark:text-gray-400">
+                    <input
+                      type="checkbox"
+                      id="server-wizard-select-all-gateways"
+                      class="form-checkbox h-4 w-4 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
+                    />
+                    <span class="ml-1">{{ t('common.actions.selectAll') }}</span>
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  data-action-click="loadServerWizardGateways"
+                  class="px-2 py-1 text-xs font-medium text-indigo-700 dark:text-indigo-300 border border-indigo-500 dark:border-indigo-400 rounded-md hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+                >
+                  {{ t('common.actions.refresh') }}
+                </button>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                {{ t('servers.wizard.gatewaysHint') }}
+              </p>
+              <div
+                id="associatedGateways"
+                class="max-h-72 overflow-y-auto rounded-md border border-gray-300 dark:border-gray-700 shadow-sm bg-gray-50 dark:bg-gray-900"
+              >
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead class="bg-gray-100 dark:bg-gray-800 sticky top-0">
+                    <tr>
+                      <th class="px-4 py-2 w-10">
+                        <span class="sr-only">{{ t('common.actions.selectAll') }}</span>
+                      </th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.name') }}</th>
+                      <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.tools') }}</th>
+                      <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.resources') }}</th>
+                      <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.prompts') }}</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{{ t('common.table.status') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="server-wizard-gateways-body"
+                    class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700"
+                  >
+                    <tr>
+                      <td colspan="6" class="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-400">
+                        {{ t('servers.wizard.gatewaysLoading') }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div id="selectedGatewayPills" class="mt-4 flex flex-wrap gap-2"></div>
+              <div
+                id="selectedGatewayWarning"
+                class="mt-2 min-h-[1.25rem] text-sm font-semibold text-yellow-600"
+                aria-live="polite"
+              ></div>
+
+              <!-- Granular component selectors (collapsible) -->
+              <details class="mt-6">
+                <summary class="cursor-pointer text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {{ t('servers.wizard.granularToggle') }}
+                </summary>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {{ t('servers.wizard.granularHint') }}
                 </p>
-              </div>
-              <div class="relative">
-                <label
-                  class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  for="server-name"
-                  >{{ t('common.table.name') }}</label
-                >
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  id="server-name"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('servers.form.nameRequired') }}</p>
-              </div>
-              <div>
-                <label
-                  class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >{{ t('common.table.description') }}</label
-                >
-                <textarea
-                  name="description"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                ></textarea>
-              </div>
-              <div>
-                <label
-                  class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >{{ t('servers.form.iconUrl') }}</label
-                >
-                <input
-                  type="url"
-                  name="icon"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div
-                  class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700"
-                >
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div
+                    class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700"
+                  >
+                    <div class="flex items-center justify-between mb-2">
+                      <label
+                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
+                        for="associatedTools"
+                      >
+                        {{ t('servers.form.associatedTools') }}
+                      </label>
+                      <button
+                        type="button"
+                        data-action-click="refreshToolsForSelectedGateways" data-arg0="this"
+                        class="px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400 border border-green-600 dark:border-green-500 rounded-md hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+                        x-tooltip="'{{ t('servers.form.refreshFromMcpsTooltip') }}'"
+                      >{{ t('servers.form.refreshFromMcps') }}</button>
+                    </div>
+                    <input
+                      type="text"
+                      id="searchTools"
+                      placeholder="{{ t('servers.form.searchTools') }}"
+                      class="mb-4 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 dark:bg-gray-900 dark:text-gray-300"
+                    />
+                    <div
+                      id="associatedTools"
+                      class="max-h-60 overflow-y-auto rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-3 bg-gray-50 dark:bg-gray-900"
+                      hx-get="{{ root_path }}/admin/tools/partial?page=1&per_page=50&render=selector{% if selected_team_id %}&team_id={{ selected_team_id }}{% endif %}"
+                      hx-trigger="load"
+                      hx-swap="innerHTML"
+                    >
+                      <!-- Tools will be loaded via HTMX -->
+                      <div class="text-center py-4 text-gray-500 dark:text-gray-400">
+                        <svg class="animate-spin h-5 w-5 text-indigo-600 dark:text-indigo-400 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="ml-2">{{ t('tools.states.loading') }}</span>
+                      </div>
+                    </div>
+                    <p
+                      id="noToolsMessage"
+                      class="text-gray-700 dark:text-gray-300 mt-2"
+                      style="display: none"
+                    >
+                      {{ t('servers.form.noToolMatch') }} "<span id="searchQueryTools"></span>"
+                    </p>
+                    <div class="flex justify-end mt-3 gap-2">
+                      <button
+                        type="button"
+                        id="selectAllToolsBtn"
+                        class="px-3 py-1 text-sm font-semibold text-green-600 border border-green-600 rounded-md hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-1"
+                        aria-label="{{ t('servers.form.selectAllToolsAria') }}"
+                      >
+                        {{ t('common.actions.selectAll') }}
+                      </button>
+
+                      <button
+                        type="button"
+                        id="clearAllToolsBtn"
+                        class="px-3 py-1 text-sm font-semibold text-red-600 border border-red-600 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
+                        aria-label="{{ t('servers.form.clearAllToolsAria') }}"
+                      >
+                        {{ t('common.actions.clearAll') }}
+                      </button>
+                    </div>
+
+                    <!-- Selected pills -->
+                    <div
+                      id="selectedToolsPills"
+                      class="mt-4 flex flex-wrap gap-2"
+                    ></div>
+
+                    <!-- Warning message -->
+                    <div
+                      id="selectedToolsWarning"
+                      class="mt-2 min-h-[1.25rem] text-sm font-semibold text-yellow-600"
+                      aria-live="polite"
+                    ></div>
+                  </div>
+                </div>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
                   <label
                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
-                    for="associatedGateways"
+                    for="associatedResources"
                   >
-                    {{ t('servers.form.mcpServers') }}
+                    {{ t('servers.form.associatedResources') }}
                   </label>
                   <input
                     type="text"
-                    id="searchGateways"
-                    placeholder="{{ t('servers.form.searchMcpServers') }}"
+                    id="searchResources"
+                    placeholder="{{ t('servers.form.searchResources') }}"
                     class="mb-4 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 dark:bg-gray-900 dark:text-gray-300"
                   />
                   <div
-                    id="associatedGateways"
+                    id="associatedResources"
                     class="max-h-60 overflow-y-auto rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-3 bg-gray-50 dark:bg-gray-900"
-                    hx-get="{{ root_path }}/admin/gateways/partial?page=1&per_page=50&render=selector{% if selected_team_id %}&team_id={{ selected_team_id }}{% endif %}"
+                    hx-get="{{ root_path }}/admin/resources/partial?page=1&per_page=20&render=selector{% if selected_team_id %}&team_id={{ selected_team_id }}{% endif %}"
                     hx-trigger="load"
                     hx-swap="innerHTML"
                   >
-                    <!-- Gateway checkboxes will be loaded here via HTMX -->
-                    <div class="flex items-center justify-center p-4">
-                      <span class="text-gray-500 dark:text-gray-400 text-sm">{{ t('servers.states.loadingMcpServers') }}</span>
-                    </div>
-                  </div>
-                  <p
-                    id="noGatewayMessage"
-                    class="text-gray-700 dark:text-gray-300 mt-2"
-                    style="display: none"
-                  >
-                    {{ t('servers.form.noMcpServerMatch') }} "<span id="searchQueryServers"></span>"
-                  </p>
-                  <div class="flex justify-end mt-3 gap-2">
-                    <button
-                      type="button"
-                      id="selectAllGatewayBtn"
-                      class="px-3 py-1 text-sm font-semibold text-green-600 border border-green-600 rounded-md hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-1"
-                      aria-label="{{ t('servers.form.selectAllMcpServersAria') }}"
-                    >
-                      {{ t('common.actions.selectAll') }}
-                    </button>
-
-                    <button
-                      type="button"
-                      id="clearAllGatewayBtn"
-                      class="px-3 py-1 text-sm font-semibold text-red-600 border border-red-600 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
-                      aria-label="{{ t('servers.form.clearAllMcpServersAria') }}"
-                    >
-                      {{ t('common.actions.clearAll') }}
-                    </button>
-                  </div>
-
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                    {{ t('servers.form.mcpServerHint') }}
-                  </p>
-
-                  <!-- Selected pills -->
-                  <div
-                    id="selectedGatewayPills"
-                    class="mt-4 flex flex-wrap gap-2"
-                  ></div>
-
-                  <!-- Warning message -->
-                  <div
-                    id="selectedGatewayWarning"
-                    class="mt-2 min-h-[1.25rem] text-sm font-semibold text-yellow-600"
-                    aria-live="polite"
-                  ></div>
-                </div>
-
-                <div
-                  class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700"
-                >
-                  <div class="flex items-center justify-between mb-2">
-                    <label
-                      class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
-                      for="associatedTools"
-                    >
-                      {{ t('servers.form.associatedTools') }}
-                    </label>
-                    <button
-                      type="button"
-                      data-action-click="refreshToolsForSelectedGateways" data-arg0="this"
-                      class="px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400 border border-green-600 dark:border-green-500 rounded-md hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
-                      x-tooltip="'{{ t('servers.form.refreshFromMcpsTooltip') }}'"
-                    >{{ t('servers.form.refreshFromMcps') }}</button>
-                  </div>
-                  <input
-                    type="text"
-                    id="searchTools"
-                    placeholder="{{ t('servers.form.searchTools') }}"
-                    class="mb-4 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 dark:bg-gray-900 dark:text-gray-300"
-                  />
-                  <div
-                    id="associatedTools"
-                    class="max-h-60 overflow-y-auto rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-3 bg-gray-50 dark:bg-gray-900"
-                    hx-get="{{ root_path }}/admin/tools/partial?page=1&per_page=50&render=selector{% if selected_team_id %}&team_id={{ selected_team_id }}{% endif %}"
-                    hx-trigger="load"
-                    hx-swap="innerHTML"
-                  >
-                    <!-- Tools will be loaded via HTMX -->
+                    <!-- Resources will be loaded via HTMX -->
                     <div class="text-center py-4 text-gray-500 dark:text-gray-400">
-                      <svg class="animate-spin h-5 w-5 text-indigo-600 dark:text-indigo-400 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg class="animate-spin h-5 w-5 text-blue-600 dark:text-blue-400 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      <span class="ml-2">{{ t('tools.states.loading') }}</span>
+                      <span class="ml-2">{{ t('resources.states.loading') }}</span>
                     </div>
                   </div>
                   <p
-                    id="noToolsMessage"
+                    id="noResourcesMessage"
                     class="text-gray-700 dark:text-gray-300 mt-2"
                     style="display: none"
                   >
-                    {{ t('servers.form.noToolMatch') }} "<span id="searchQueryTools"></span>"
+                    {{ t('common.search.noResourcePrefix') }}<span id="searchResourcesQuery"></span>{{ t('common.search.noResourceSuffix') }}
                   </p>
-                  <div class="flex justify-end mt-3 gap-2">
+                  <div class="flex justify-end gap-3 mt-3">
                     <button
                       type="button"
-                      id="selectAllToolsBtn"
-                      class="px-3 py-1 text-sm font-semibold text-green-600 border border-green-600 rounded-md hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-1"
-                      aria-label="{{ t('servers.form.selectAllToolsAria') }}"
+                      id="selectAllResourcesBtn"
+                      class="px-3 py-1 text-sm font-semibold text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1"
+                      aria-label="{{ t('servers.form.selectAllResourcesAria') }}"
                     >
                       {{ t('common.actions.selectAll') }}
                     </button>
-
                     <button
                       type="button"
-                      id="clearAllToolsBtn"
+                      id="clearAllResourcesBtn"
                       class="px-3 py-1 text-sm font-semibold text-red-600 border border-red-600 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
-                      aria-label="{{ t('servers.form.clearAllToolsAria') }}"
+                      aria-label="{{ t('servers.form.clearAllResourcesAria') }}"
                     >
                       {{ t('common.actions.clearAll') }}
                     </button>
                   </div>
-
                   <!-- Selected pills -->
                   <div
-                    id="selectedToolsPills"
+                    id="selectedResourcesPills"
                     class="mt-4 flex flex-wrap gap-2"
                   ></div>
-
                   <!-- Warning message -->
                   <div
-                    id="selectedToolsWarning"
+                    id="selectedResourcesWarning"
                     class="mt-2 min-h-[1.25rem] text-sm font-semibold text-yellow-600"
                     aria-live="polite"
                   ></div>
                 </div>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                <label
-                  class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
-                  for="associatedResources"
-                >
-                  {{ t('servers.form.associatedResources') }}
-                </label>
-                <input
-                  type="text"
-                  id="searchResources"
-                  placeholder="{{ t('servers.form.searchResources') }}"
-                  class="mb-4 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 dark:bg-gray-900 dark:text-gray-300"
-                />
-                <div
-                  id="associatedResources"
-                  class="max-h-60 overflow-y-auto rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-3 bg-gray-50 dark:bg-gray-900"
-                  hx-get="{{ root_path }}/admin/resources/partial?page=1&per_page=20&render=selector{% if selected_team_id %}&team_id={{ selected_team_id }}{% endif %}"
-                  hx-trigger="load"
-                  hx-swap="innerHTML"
-                >
-                  <!-- Resources will be loaded via HTMX -->
-                  <div class="text-center py-4 text-gray-500 dark:text-gray-400">
-                    <svg class="animate-spin h-5 w-5 text-blue-600 dark:text-blue-400 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span class="ml-2">{{ t('resources.states.loading') }}</span>
-                  </div>
-                </div>
-                <p
-                  id="noResourcesMessage"
-                  class="text-gray-700 dark:text-gray-300 mt-2"
-                  style="display: none"
-                >
-                  {{ t('common.search.noResourcePrefix') }}<span id="searchResourcesQuery"></span>{{ t('common.search.noResourceSuffix') }}
-                </p>
-                <div class="flex justify-end gap-3 mt-3">
-                  <button
-                    type="button"
-                    id="selectAllResourcesBtn"
-                    class="px-3 py-1 text-sm font-semibold text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1"
-                    aria-label="{{ t('servers.form.selectAllResourcesAria') }}"
-                  >
-                    {{ t('common.actions.selectAll') }}
-                  </button>
-                  <button
-                    type="button"
-                    id="clearAllResourcesBtn"
-                    class="px-3 py-1 text-sm font-semibold text-red-600 border border-red-600 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
-                    aria-label="{{ t('servers.form.clearAllResourcesAria') }}"
-                  >
-                    {{ t('common.actions.clearAll') }}
-                  </button>
-                </div>
-                <!-- Selected pills -->
-                <div
-                  id="selectedResourcesPills"
-                  class="mt-4 flex flex-wrap gap-2"
-                ></div>
-                <!-- Warning message -->
-                <div
-                  id="selectedResourcesWarning"
-                  class="mt-2 min-h-[1.25rem] text-sm font-semibold text-yellow-600"
-                  aria-live="polite"
-                ></div>
-              </div>
-              <div>
-                <label
-                  class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
-                  for="associatedPrompts"
-                >
-                  {{ t('servers.form.associatedPrompts') }}
-                </label>
-                <input
-                  type="text"
-                  id="searchPrompts"
-                  placeholder="{{ t('servers.form.searchPrompts') }}"
-                  class="mb-4 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 dark:bg-gray-900 dark:text-gray-300"
-                />
-                <div
-                  id="associatedPrompts"
-                  class="max-h-60 overflow-y-auto rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-3 bg-gray-50 dark:bg-gray-900"
-                  hx-get="{{ root_path }}/admin/prompts/partial?page=1&per_page=20&render=selector{% if selected_team_id %}&team_id={{ selected_team_id }}{% endif %}"
-                  hx-trigger="load"
-                  hx-swap="innerHTML"
-                >
-                  <!-- Prompts will be loaded via HTMX -->
-                  <div class="text-center py-4 text-gray-500 dark:text-gray-400">
-                    <svg class="animate-spin h-5 w-5 text-purple-600 dark:text-purple-400 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span class="ml-2">{{ t('prompts.states.loading') }}</span>
-                  </div>
-                </div>
-                <p
-                  id="noPromptsMessage"
-                  class="text-gray-700 dark:text-gray-300 mt-2"
-                  style="display: none"
-                >
-                  {{ t('common.search.noPromptPrefix') }}<span id="searchPromptsQuery"></span>{{ t('common.search.noPromptSuffix') }}
-                </p>
-                <div class="flex justify-end gap-3 mt-3">
-                  <button
-                    type="button"
-                    id="selectAllPromptsBtn"
-                    class="px-3 py-1 text-sm font-semibold text-purple-600 border border-purple-600 rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-offset-1"
-                    aria-label="{{ t('servers.form.selectAllPromptsAria') }}"
-                  >
-                    {{ t('common.actions.selectAll') }}
-                  </button>
-                  <button
-                    type="button"
-                    id="clearAllPromptsBtn"
-                    class="px-3 py-1 text-sm font-semibold text-red-600 border border-red-600 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
-                    aria-label="{{ t('servers.form.clearAllPromptsAria') }}"
-                  >
-                    {{ t('common.actions.clearAll') }}
-                  </button>
-                </div>
-                <!-- Selected pills -->
-                <div
-                  id="selectedPromptsPills"
-                  class="mt-4 flex flex-wrap gap-2"
-                ></div>
-                <!-- Warning message -->
-                <div
-                  id="selectedPromptsWarning"
-                  class="mt-2 min-h-[1.25rem] text-sm font-semibold text-yellow-600"
-                  aria-live="polite"
-                ></div>
-                </div>
-              </div>
-            </div>
-            <!-- 🔻 Error Display Span -->
-            <span
-              id="serverFormError"
-              class="block text-sm font-semibold text-red-600 mt-2"
-            ></span>
-
-            <!-- 🔄 Optional Loading Indicator -->
-            <div
-              id="add-server-loading"
-              class="hidden text-sm text-gray-500 mt-2"
-            >
-              {{ t('servers.form.submitting') }}
-            </div>
-
-            <div>
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                >{{ t('common.table.tags') }}</label
-              >
-              <input
-                type="text"
-                name="tags"
-                placeholder="{{ t('servers.form.tagsPlaceholder') }}"
-                class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-              />
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {{ t('servers.form.tagsHint') }}
-              </p>
-            </div>
-            <!-- Visibility options -->
-            <div class="mt-4">
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                >{{ t('common.table.visibility') }}</label
-              >
-              <div class="flex gap-x-6 mt-2">
-                <!-- Add gap-x-6 for more space between radio options -->
-
-                <div class="flex items-center">
-                  <input
-                    type="radio"
-                    name="visibility"
-                    value="public"
-                    class="form-radio h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
-                    id="server-visibility-public"
-                    checked
-                  />
-                  <label
-                    for="server-visibility-public"
-                    class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >{{ t('common.visibility.radio.public') }}</label
-                  >
-                </div>
-
-                <div class="flex items-center">
-                  <input
-                    type="radio"
-                    name="visibility"
-                    value="team"
-                    class="form-radio h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
-                    id="server-visibility-team"
-                  />
-                  <label
-                    for="server-visibility-team"
-                    class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >{{ t('common.visibility.radio.team') }}</label
-                  >
-                </div>
-                <div class="flex items-center">
-                  <input
-                    type="radio"
-                    name="visibility"
-                    value="private"
-                    class="form-radio h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
-                    id="server-visibility-private"
-                  />
-                  <label
-                    for="server-visibility-private"
-                    class="ml-2 text-sm text-gray-700 dark:text-gray-400"
-                    >{{ t('common.visibility.radio.private') }}</label
-                  >
-                </div>
-              </div>
-            </div>
-
-            {% if selected_team_id %}
-            <!-- View Public toggle for team-scoped server creation -->
-            <div class="mt-4" id="add-server-view-public-container">
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  id="add-server-view-public"
-                  class="form-checkbox h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
-                />
-                <label
-                  for="add-server-view-public"
-                  class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >{{ t('servers.form.viewPublic') }}</label
-                >
-              </div>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {{ t('servers.form.viewPublicHint') }}
-              </p>
-            </div>
-            {% endif %}
-
-            <!-- OAuth 2.0 Configuration Section (RFC 9728) -->
-            <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
-              <div class="flex items-center mb-4">
-                <input
-                  type="checkbox"
-                  name="oauth_enabled"
-                  id="server-oauth-enabled"
-                  class="form-checkbox h-5 w-5 text-indigo-600 dark:bg-gray-800 dark:border-gray-600"
-                  data-action-change="toggleElementClass" data-arg0="server-oauth-config-section" data-arg1="hidden"
-                />
-                <label
-                  for="server-oauth-enabled"
-                  class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >{{ t('servers.form.enableOauth') }}</label
-                >
-              </div>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                {{ t('servers.form.enableOauthHint') }}
-              </p>
-
-              <!-- OAuth Configuration Fields (hidden by default) -->
-              <div id="server-oauth-config-section" class="hidden space-y-4 pl-6 border-l-2 border-indigo-200 dark:border-indigo-800">
                 <div>
                   <label
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                    for="server-oauth-authorization-server"
-                    >{{ t('servers.form.authServerUrl') }}</label
+                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                    for="associatedPrompts"
                   >
-                  <input
-                    type="url"
-                    name="oauth_authorization_server"
-                    id="server-oauth-authorization-server"
-                    placeholder="https://idp.example.com"
-                    class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                  />
-                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    {{ t('servers.form.authServerUrlHint') }}
-                  </p>
-                </div>
-                <div>
-                  <label
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                    for="server-oauth-scopes"
-                    >{{ t('servers.form.scopes') }}</label
-                  >
+                    {{ t('servers.form.associatedPrompts') }}
+                  </label>
                   <input
                     type="text"
-                    name="oauth_scopes"
-                    id="server-oauth-scopes"
-                    placeholder="openid profile email"
-                    class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                    id="searchPrompts"
+                    placeholder="{{ t('servers.form.searchPrompts') }}"
+                    class="mb-4 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 dark:bg-gray-900 dark:text-gray-300"
                   />
-                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    {{ t('servers.form.scopesHint') }}
-                  </p>
-                </div>
-                <div>
-                  <label
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                    for="server-oauth-token-endpoint"
-                    >{{ t('servers.form.tokenEndpointUrl') }}</label
+                  <div
+                    id="associatedPrompts"
+                    class="max-h-60 overflow-y-auto rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-3 bg-gray-50 dark:bg-gray-900"
+                    hx-get="{{ root_path }}/admin/prompts/partial?page=1&per_page=20&render=selector{% if selected_team_id %}&team_id={{ selected_team_id }}{% endif %}"
+                    hx-trigger="load"
+                    hx-swap="innerHTML"
                   >
-                  <input
-                    type="url"
-                    name="oauth_token_endpoint"
-                    id="server-oauth-token-endpoint"
-                    placeholder="https://idp.example.com/oauth/token"
-                    class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                  />
-                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    {{ t('servers.form.tokenEndpointHint') }}
+                    <!-- Prompts will be loaded via HTMX -->
+                    <div class="text-center py-4 text-gray-500 dark:text-gray-400">
+                      <svg class="animate-spin h-5 w-5 text-purple-600 dark:text-purple-400 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span class="ml-2">{{ t('prompts.states.loading') }}</span>
+                    </div>
+                  </div>
+                  <p
+                    id="noPromptsMessage"
+                    class="text-gray-700 dark:text-gray-300 mt-2"
+                    style="display: none"
+                  >
+                    {{ t('common.search.noPromptPrefix') }}<span id="searchPromptsQuery"></span>{{ t('common.search.noPromptSuffix') }}
                   </p>
+                  <div class="flex justify-end gap-3 mt-3">
+                    <button
+                      type="button"
+                      id="selectAllPromptsBtn"
+                      class="px-3 py-1 text-sm font-semibold text-purple-600 border border-purple-600 rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-offset-1"
+                      aria-label="{{ t('servers.form.selectAllPromptsAria') }}"
+                    >
+                      {{ t('common.actions.selectAll') }}
+                    </button>
+                    <button
+                      type="button"
+                      id="clearAllPromptsBtn"
+                      class="px-3 py-1 text-sm font-semibold text-red-600 border border-red-600 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
+                      aria-label="{{ t('servers.form.clearAllPromptsAria') }}"
+                    >
+                      {{ t('common.actions.clearAll') }}
+                    </button>
+                  </div>
+                  <!-- Selected pills -->
+                  <div
+                    id="selectedPromptsPills"
+                    class="mt-4 flex flex-wrap gap-2"
+                  ></div>
+                  <!-- Warning message -->
+                  <div
+                    id="selectedPromptsWarning"
+                    class="mt-2 min-h-[1.25rem] text-sm font-semibold text-yellow-600"
+                    aria-live="polite"
+                  ></div>
+                  </div>
+                </div>
+              </details>
+
+              <div class="mt-6 flex items-center justify-between">
+                <button
+                  type="button"
+                  data-action-click="serverWizardBack"
+                  class="inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  {{ t('common.actions.back') }}
+                </button>
+                <div class="flex items-center gap-3">
+                  <button
+                    type="button"
+                    id="server-wizard-skip-btn"
+                    data-action-click="serverWizardSkip"
+                    x-tooltip="'{{ t('servers.wizard.skipHint') }}'"
+                    class="inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    {{ t('servers.wizard.skip') }}
+                  </button>
+                  <button
+                    type="button"
+                    id="server-wizard-create-btn"
+                    data-action-click="serverWizardCreate"
+                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    {{ t('servers.wizard.create') }}
+                  </button>
                 </div>
               </div>
             </div>
-
-            <div class="mt-6">
-              <button
-                type="submit"
-                x-tooltip="'💡{{ t('servers.form.submitTooltip') }}'"
-                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                {{ t('servers.form.submit') }}
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
         {% endif %}
       </div>

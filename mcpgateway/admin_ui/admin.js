@@ -430,6 +430,25 @@ import { viewServer, editServer } from "./servers.js";
 Admin.viewServer = viewServer;
 Admin.editServer = editServer;
 
+// Server creation wizard (catalog tab)
+import {
+  initServerWizard,
+  loadServerWizardGateways,
+  resetServerWizard,
+  serverWizardBack,
+  serverWizardCreate,
+  serverWizardNext,
+  serverWizardSkip,
+} from "./serverWizard.js";
+
+Admin.initServerWizard = initServerWizard;
+Admin.loadServerWizardGateways = loadServerWizardGateways;
+Admin.resetServerWizard = resetServerWizard;
+Admin.serverWizardBack = serverWizardBack;
+Admin.serverWizardCreate = serverWizardCreate;
+Admin.serverWizardNext = serverWizardNext;
+Admin.serverWizardSkip = serverWizardSkip;
+
 // Tabs
 import { showTab } from "./tabs.js";
 
