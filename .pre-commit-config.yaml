@@ -138,6 +138,7 @@ repos:
       - id: fix-smartquotes
         name: 📝 Normalize Smart Quotes
         description: Replaces smart/curly quotes with standard ASCII quotes.
+        exclude: '\.json$'  # JSON is data, not prose; rewriting it breaks the file
       - id: fix-ligatures
         name: 🔡 Normalize Ligatures
         description: Replaces typographic ligatures with standard characters.
