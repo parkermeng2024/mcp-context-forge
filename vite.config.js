@@ -3,25 +3,27 @@ import path from 'path';
 import fs from 'fs';
 import viteCompression from 'vite-plugin-compression';
 
-// Plugin to clean up old bundle files before building
+// Plugin to clean up old build artifacts before building.
+//
+// emptyOutDir is false and viteCompression writes a <file>.gz beside every large
+// output, so the previous build survives unless this removes it. assets/ holds
+// generated output only, so its pattern can be broader than the top-level one,
+// which must not touch the hand-maintained files beside the bundles.
 function cleanOldBundles() {
   return {
     name: 'clean-old-bundles',
     buildStart() {
-      const outDir = path.resolve(__dirname, 'mcpgateway/static');
-      if (fs.existsSync(outDir)) {
-        const files = fs.readdirSync(outDir);
-        for (const file of files) {
-          // Remove old bundle files (bundle-*.js pattern)
-          if (file.startsWith('bundle-') && file.endsWith('.js')) {
-            fs.unlinkSync(path.join(outDir, file));
-            console.log(`Removed old bundle: ${file}`);
-          }
-          // Remove old chunk files
-          if (file.startsWith('chunk-') && file.endsWith('.js')) {
-            fs.unlinkSync(path.join(outDir, file));
-            console.log(`Removed old chunk: ${file}`);
-          }
+      const staticDir = path.resolve(__dirname, 'mcpgateway/static');
+      const targets = [
+        { dir: staticDir, pattern: /^(bundle|chunk)-.+\.js(\.gz)?$/ },
+        { dir: path.join(staticDir, 'assets'), pattern: /\.css(\.gz)?$/ },
+      ];
+      for (const { dir, pattern } of targets) {
+        if (!fs.existsSync(dir)) continue;
+        for (const file of fs.readdirSync(dir)) {
+          if (!pattern.test(file)) continue;
+          fs.unlinkSync(path.join(dir, file));
+          console.log(`Removed old build artifact: ${path.relative(staticDir, path.join(dir, file))}`);
         }
       }
     },
