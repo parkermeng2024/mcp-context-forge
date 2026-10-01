@@ -110,10 +110,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4'
+          cpus: '${NGINX_CPU_LIMIT:-4}'
           memory: 1G
         reservations:
-          cpus: '2'
+          cpus: '${NGINX_CPU_RESERVATION:-2}'
           memory: 512M
 
   # ──────────────────────────────────────────────────────────────────────
@@ -986,10 +986,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4'
+          cpus: '${POSTGRES_CPU_LIMIT:-4}'
           memory: 8G
         reservations:
-          cpus: '2'
+          cpus: '${POSTGRES_CPU_RESERVATION:-2}'
           memory: 2G
 
   # ──────────────────────────────────────────────────────────────────────
@@ -2524,10 +2524,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4'
+          cpus: '${NGINX_TLS_CPU_LIMIT:-4}'
           memory: 1G
         reservations:
-          cpus: '2'
+          cpus: '${NGINX_TLS_CPU_RESERVATION:-2}'
           memory: 512M
     profiles: ["tls"]
 
