@@ -2210,7 +2210,7 @@ export const generateTestCases = async function () {
           `Tool with ID ${toolId} not found. It may have been deleted.`
         );
       } else if (response.status === 429) {
-        throw new Error(t("tools.validation.rateLimited"));
+        throw new Error(t("tools.validation.tooManyRequests"));
       } else if (response.status >= 500) {
         throw new Error(
           `Server error (${response.status}). The server may be overloaded. Please try again in a few seconds.`
@@ -2312,7 +2312,7 @@ export const validateTool = async function (toolId) {
           `Tool with ID ${toolId} not found. It may have been deleted.`
         );
       } else if (response.status === 429) {
-        throw new Error(t("tools.validation.rateLimited"));
+        throw new Error(t("tools.validation.tooManyRequests"));
       } else if (response.status >= 500) {
         throw new Error(
           `Server error (${response.status}). The server may be overloaded. Please try again in a few seconds.`
