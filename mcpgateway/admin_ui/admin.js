@@ -521,6 +521,31 @@ import { hideUserEditModal } from "./users.js";
 
 Admin.hideUserEditModal = hideUserEditModal;
 
+// SSO
+import {
+  approveSsoUser,
+  confirmDeleteSsoProvider,
+  deleteSsoProvider,
+  handleSsoProviderSubmit,
+  handleSsoRejectSubmit,
+  loadSsoPanel,
+  showSsoProviderCreateModal,
+  showSsoProviderEditModal,
+  showSsoRejectModal,
+  toggleSsoProvider,
+} from "./sso.js";
+
+Admin.approveSsoUser = approveSsoUser;
+Admin.confirmDeleteSsoProvider = confirmDeleteSsoProvider;
+Admin.deleteSsoProvider = deleteSsoProvider;
+Admin.handleSsoProviderSubmit = handleSsoProviderSubmit;
+Admin.handleSsoRejectSubmit = handleSsoRejectSubmit;
+Admin.loadSsoPanel = loadSsoPanel;
+Admin.showSsoProviderCreateModal = showSsoProviderCreateModal;
+Admin.showSsoProviderEditModal = showSsoProviderEditModal;
+Admin.showSsoRejectModal = showSsoRejectModal;
+Admin.toggleSsoProvider = toggleSsoProvider;
+
 // ===================================================================
 // TIER 3 & 4: Domain and Orchestration modules (still using IIFE)
 // These modules will attach their functions directly to window.Admin

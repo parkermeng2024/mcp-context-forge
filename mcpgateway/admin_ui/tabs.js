@@ -9,6 +9,7 @@ import { t } from "./i18n.js";
 import { dispatchPluginAction, filterPlugins, populatePluginFilters } from "./plugins.js";
 import { getPanelSearchConfig, getPanelSearchStateFromUrl, queueSearchablePanelReload } from "./search.js";
 import { escapeHtml, safeReplaceState, safeSetInnerHTML } from "./security.js";
+import { loadSsoPanel } from "./sso.js";
 import {
   setupCreateTokenForm,
   setupTokenListEventHandlers,
@@ -25,6 +26,7 @@ import {
 // ===================================================================
 export const ADMIN_ONLY_TABS = new Set([
   "users",
+  "sso",
   "metrics",
   "performance",
   "observability",
@@ -819,6 +821,13 @@ export const showTab = function (tabName) {
             } catch (error) {
               console.error("Error initializing permissions panel:", error);
             }
+          }
+        }
+
+        if (tabName === "sso") {
+          // SSO tab content is client-rendered from the /auth/sso JSON API
+          if (!panel.classList.contains("hidden")) {
+            loadSsoPanel();
           }
         }
       } catch (error) {
