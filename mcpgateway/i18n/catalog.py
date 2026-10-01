@@ -38,6 +38,8 @@ DEFAULT_LOCALE = "en"
 SUPPORTED_LOCALES: Dict[str, str] = {
     "en": "English",
     "zh-CN": "简体中文",
+    "es-ES": "Español",
+    "pt-BR": "Português (Brasil)",
 }
 
 #: Cookie holding the visitor's explicit locale choice.
@@ -58,6 +60,15 @@ _LOCALE_ALIASES: Dict[str, str] = {
     "zh-hant": "zh-CN",
     "zh-tw": "zh-CN",
     "zh-hk": "zh-CN",
+    "es": "es-ES",
+    "es-es": "es-ES",
+    "es-mx": "es-ES",
+    "es-ar": "es-ES",
+    "es-cl": "es-ES",
+    "es-co": "es-ES",
+    "pt": "pt-BR",
+    "pt-br": "pt-BR",
+    "pt-pt": "pt-BR",
 }
 
 
