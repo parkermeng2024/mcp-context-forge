@@ -1716,7 +1716,6 @@
   "tokens.created.saveWarning": "This is the only time you will be able to see this token. Make sure to save it in a secure location.",
   "tokens.created.saved": "I've Saved It",
   "common.copyManually": "Please copy the selected text manually (Ctrl+C)",
-  "common.error.unexpected": "An unexpected error occurred",
   "search.searching": "Searching...",
   "search.noResults": "No matching results.",
   "search.startTyping": "Start typing to search all entities.",
