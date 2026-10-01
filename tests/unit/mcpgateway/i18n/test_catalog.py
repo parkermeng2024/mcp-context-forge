@@ -29,19 +29,6 @@ PLACEHOLDER = re.compile(r"\{(\w+)\}")
 # so a line scan recovers the occurrences that ``json.load`` collapses.
 KEY_DECLARATION = re.compile(r'^\s*"([^"]+)"\s*:', re.MULTILINE)
 
-# Keys whose two occurrences still hold different values, so choosing the
-# surviving value is a copy decision. Duplicating any other key is a defect.
-PENDING_VALUE_DECISION = frozenset(
-    {
-        "metrics.system.title",
-        "tools.detail.outputSchema",
-        "tools.tooltip.deactivate",
-        "tools.tooltip.test",
-        "tools.validation.generationFailed",
-        "tools.validation.generationInProgress",
-    }
-)
-
 
 @pytest.fixture(autouse=True)
 def _reset_catalog_cache():
@@ -87,20 +74,15 @@ def _key_occurrences(locale: str) -> Counter:
 
 
 @pytest.mark.parametrize("locale", sorted(SUPPORTED_LOCALES))
-def test_catalog_declares_no_unexpected_duplicate_keys(locale):
+def test_catalog_declares_no_duplicate_keys(locale):
     """A duplicate key is silently shadowed: JSON keeps the last value only."""
     occurrences = _key_occurrences(locale)
 
     # Guard the scan itself, so a reformatted catalog cannot pass by finding nothing.
     assert len(occurrences) >= len(load_catalog(locale)), f"{locale} catalog could not be scanned for duplicate keys"
 
-    duplicates = {key for key, count in occurrences.items() if count > 1}
-
-    unexpected = sorted(duplicates - PENDING_VALUE_DECISION)
-    assert not unexpected, f"{locale} duplicates keys that must stay unique: {unexpected}"
-
-    resolved = sorted(PENDING_VALUE_DECISION - duplicates)
-    assert not resolved, f"{locale} resolved these keys, so drop them from PENDING_VALUE_DECISION: {resolved}"
+    duplicates = sorted(key for key, count in occurrences.items() if count > 1)
+    assert not duplicates, f"{locale} declares these keys more than once: {duplicates}"
 
 
 @pytest.mark.parametrize("locale", sorted(SUPPORTED_LOCALES))

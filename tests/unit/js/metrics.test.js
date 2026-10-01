@@ -722,7 +722,7 @@ describe("createSystemSummaryCard", () => {
 
     const card = createSystemSummaryCard(systemData);
     expect(card).toBeInstanceOf(HTMLElement);
-    expect(card.textContent).toContain("System Overview");
+    expect(card.textContent).toContain("System Metrics");
     expect(card.textContent).toContain("5d 3h");
   });
 

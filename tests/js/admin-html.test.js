@@ -34,7 +34,7 @@ describe("createSystemSummaryCard", () => {
       networkOut: 200,
     });
     const text = card.textContent;
-    expect(text).toContain("System Overview");
+    expect(text).toContain("System Metrics");
     expect(text).toContain("5d 3h");
     expect(text).toContain("12345");
     expect(text).toContain("42");
