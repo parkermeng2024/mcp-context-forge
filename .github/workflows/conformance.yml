@@ -66,6 +66,15 @@ jobs:
           CF_COMPOSE_BUILD: "false"
           CF_CONTROLPLANE_IMAGE: mcpgateway/mcpgateway:conformance
           CF_CONTROLPLANE_PULL_POLICY: never
+          # The runner exposes 2 CPUs, and docker refuses a container whose CPU
+          # limit exceeds that. Cap every service the builtin lane starts; a
+          # normal deployment keeps the compose defaults.
+          NGINX_CPU_LIMIT: "1"
+          NGINX_CPU_RESERVATION: "0.5"
+          POSTGRES_CPU_LIMIT: "1"
+          POSTGRES_CPU_RESERVATION: "0.5"
+          GATEWAY_CPU_LIMIT: "1"
+          GATEWAY_CPU_RESERVATION: "0.5"
         run: make conformance
 
       - name: Upload conformance diagnostics
