@@ -14672,7 +14672,7 @@ class TestAdminAdditionalCoverage:
         assert "disabled" in html_content
         assert "team-card" in html_content
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_list_with_rotation(self, mock_settings, tmp_path, mock_db):
         """List log files with rotation enabled."""
         log_dir = tmp_path
@@ -14704,13 +14704,13 @@ class TestAdminAdditionalCoverage:
         def _boom(_self, _pattern):
             raise RuntimeError("boom")
 
-        monkeypatch.setattr("mcpgateway.admin.Path.glob", _boom, raising=True)
+        monkeypatch.setattr("mcpgateway.admin.logs.Path.glob", _boom, raising=True)
 
         with pytest.raises(HTTPException) as excinfo:
             await admin_get_log_file(request=SimpleNamespace(headers={}), filename=None, user={"email": "admin@example.com", "db": mock_db})
         assert excinfo.value.status_code == 500
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_list_with_storage_log(self, mock_settings, tmp_path, mock_db):
         """List log files with storage log present."""
         log_dir = tmp_path
@@ -14727,7 +14727,7 @@ class TestAdminAdditionalCoverage:
         assert "main" in types
         assert "storage" in types
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_download_and_validation(self, mock_settings, tmp_path, mock_db):
         """Download log file and validate path checks."""
         log_dir = tmp_path
@@ -14761,7 +14761,7 @@ class TestAdminAdditionalCoverage:
             await admin_get_log_file(request=SimpleNamespace(headers={}), filename="random.txt", user={"email": "admin@example.com", "db": mock_db})
         assert excinfo.value.status_code == 403
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_sets_cache_validator_headers(self, mock_settings, tmp_path, mock_db):
         """A full download must carry Accept-Ranges/ETag/Last-Modified like the FileResponse it replaced."""
         log_dir = tmp_path
@@ -14779,7 +14779,7 @@ class TestAdminAdditionalCoverage:
         assert response.headers.get("last-modified")
         assert response.headers.get("content-length") == "4"
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_serves_single_range(self, mock_settings, tmp_path, mock_db):
         """A Range request returns a 206 partial response with the requested byte span."""
         log_dir = tmp_path
@@ -14797,7 +14797,7 @@ class TestAdminAdditionalCoverage:
         body = b"".join([chunk async for chunk in response.body_iterator])
         assert body == b"2345"
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_serves_suffix_range(self, mock_settings, tmp_path, mock_db):
         """A suffix range (``bytes=-N``) returns the last N bytes of the file."""
         log_dir = tmp_path
@@ -14814,7 +14814,7 @@ class TestAdminAdditionalCoverage:
         body = b"".join([chunk async for chunk in response.body_iterator])
         assert body == b"789"
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_rejects_malformed_range(self, mock_settings, tmp_path, mock_db):
         """A syntactically invalid Range header is rejected with 400, not silently ignored."""
         log_dir = tmp_path
@@ -14830,7 +14830,7 @@ class TestAdminAdditionalCoverage:
         assert excinfo.value.status_code == 400
 
     @pytest.mark.parametrize("unit", ["Bytes", "BYTES", "  bytes  "])
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_range_unit_is_case_insensitive(self, mock_settings, unit, tmp_path, mock_db):
         """The range-unit token is case-insensitive per RFC 7233; the FileResponse
         parser this handler replaced accepted ``Bytes=``/``BYTES=`` and so must this one."""
@@ -14846,7 +14846,7 @@ class TestAdminAdditionalCoverage:
         assert response.status_code == 206
         assert response.headers.get("content-range") == "bytes 2-5/10"
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_rejects_unsatisfiable_range(self, mock_settings, tmp_path, mock_db):
         """A range starting beyond EOF is rejected with 416 and a Content-Range header."""
         log_dir = tmp_path
@@ -14862,7 +14862,7 @@ class TestAdminAdditionalCoverage:
         assert excinfo.value.status_code == 416
         assert excinfo.value.headers.get("Content-Range") == "bytes */10"
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_ignores_stale_if_range(self, mock_settings, tmp_path, mock_db):
         """An If-Range validator that doesn't match the current ETag/Last-Modified falls back to a full 200 response."""
         log_dir = tmp_path
@@ -14880,7 +14880,7 @@ class TestAdminAdditionalCoverage:
         body = b"".join([chunk async for chunk in response.body_iterator])
         assert body == b"0123456789"
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_background_task_closes_fd_if_never_streamed(self, mock_settings, tmp_path, mock_db):
         """The fd opened by open_confined() must be closed even if the StreamingResponse
         body generator is cancelled before it is ever iterated (e.g. an immediate client
@@ -14905,7 +14905,7 @@ class TestAdminAdditionalCoverage:
             async for _ in response.body_iterator:
                 pass
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_rejects_sibling_prefix_directory(self, mock_settings, tmp_path, mock_db):
         """A sibling directory sharing LOG_FOLDER's textual prefix must not be readable.
 
@@ -14932,7 +14932,7 @@ class TestAdminAdditionalCoverage:
             assert excinfo.value.status_code == 400
             assert canary not in str(excinfo.value.detail)
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_rejects_symlink_escaping_log_dir(self, mock_settings, tmp_path, mock_db):
         """A symlink planted inside LOG_FOLDER must not read outside it.
 
@@ -14963,7 +14963,7 @@ class TestAdminAdditionalCoverage:
             await admin_get_log_file(request=SimpleNamespace(headers={}), filename="escape.json", user={"email": "admin@example.com", "db": mock_db})
         assert excinfo.value.status_code == 403
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_rejects_absolute_and_nul_filenames(self, mock_settings, tmp_path, mock_db):
         """Absolute paths and NUL bytes are rejected before the path join."""
         log_dir = tmp_path / "logs"
@@ -14980,7 +14980,7 @@ class TestAdminAdditionalCoverage:
                 await admin_get_log_file(request=SimpleNamespace(headers={}), filename=payload, user={"email": "admin@example.com", "db": mock_db})
             assert excinfo.value.status_code == 400
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_resolve_failure_is_rejected(self, mock_settings, tmp_path, mock_db):
         """An OS-level failure while resolving the path is rejected, never allowed through."""
         log_dir = tmp_path / "logs"
@@ -14992,12 +14992,12 @@ class TestAdminAdditionalCoverage:
         mock_settings.log_folder = str(log_dir)
         mock_settings.log_rotation_enabled = False
 
-        with patch("mcpgateway.admin.Path.resolve", side_effect=OSError("ELOOP")):
+        with patch("mcpgateway.admin.logs.Path.resolve", side_effect=OSError("ELOOP")):
             with pytest.raises(HTTPException) as excinfo:
                 await admin_get_log_file(request=SimpleNamespace(headers={}), filename="app.log", user={"email": "admin@example.com", "db": mock_db})
         assert excinfo.value.status_code == 400
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_allows_nested_file_inside_log_dir(self, mock_settings, tmp_path, mock_db):
         """Confinement must not be so tight that legitimate nested log files break."""
         log_dir = tmp_path / "logs"
@@ -15014,7 +15014,7 @@ class TestAdminAdditionalCoverage:
         assert isinstance(response, Response)
         assert "app.log" in response.headers.get("content-disposition", "")
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_download_stat_filenotfound(self, mock_settings, tmp_path, mock_db):
         """Cover FileNotFoundError handling when opening the verified fd."""
         log_dir = tmp_path
@@ -15025,12 +15025,12 @@ class TestAdminAdditionalCoverage:
         mock_settings.log_folder = str(log_dir)
         mock_settings.log_rotation_enabled = False
 
-        with patch("mcpgateway.admin.open_confined", side_effect=FileNotFoundError("gone")):
+        with patch("mcpgateway.admin.logs.open_confined", side_effect=FileNotFoundError("gone")):
             with pytest.raises(HTTPException) as excinfo:
                 await admin_get_log_file(request=SimpleNamespace(headers={}), filename="app.log", user={"email": "admin@example.com", "db": mock_db})
         assert excinfo.value.status_code == 404
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_download_stat_generic_error(self, mock_settings, tmp_path, mock_db):
         """Cover generic exception handling when opening the verified fd."""
         log_dir = tmp_path
@@ -15041,12 +15041,12 @@ class TestAdminAdditionalCoverage:
         mock_settings.log_folder = str(log_dir)
         mock_settings.log_rotation_enabled = False
 
-        with patch("mcpgateway.admin.open_confined", side_effect=RuntimeError("boom")):
+        with patch("mcpgateway.admin.logs.open_confined", side_effect=RuntimeError("boom")):
             with pytest.raises(HTTPException) as excinfo:
                 await admin_get_log_file(request=SimpleNamespace(headers={}), filename="app.log", user={"email": "admin@example.com", "db": mock_db})
         assert excinfo.value.status_code == 500
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_rejects_symlinked_file(self, mock_settings, tmp_path, mock_db):
         """A symlink at the final path component must be rejected even when its target is inside the log dir."""
         log_dir = tmp_path
@@ -15062,7 +15062,7 @@ class TestAdminAdditionalCoverage:
             await admin_get_log_file(request=SimpleNamespace(headers={}), filename="app.log", user={"email": "admin@example.com", "db": mock_db})
         assert excinfo.value.status_code == 403
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_falls_back_without_dir_fd_support(self, mock_settings, tmp_path, mock_db):
         """On a platform without dir_fd/O_NOFOLLOW support (e.g. Windows), the download must
         still succeed via the per-component reparse-point-checking fallback rather than fail."""
@@ -15078,7 +15078,7 @@ class TestAdminAdditionalCoverage:
             response = await admin_get_log_file(request=SimpleNamespace(headers={}), filename="app.log", user={"email": "admin@example.com", "db": mock_db})
         assert response.status_code == 200
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_fallback_rejects_symlinked_file(self, mock_settings, tmp_path, mock_db):
         """The non-atomic fallback used without dir_fd/O_NOFOLLOW support must still reject a
         symlink at the final path component, even though the check isn't atomic with the open."""
@@ -15096,7 +15096,7 @@ class TestAdminAdditionalCoverage:
                 await admin_get_log_file(request=SimpleNamespace(headers={}), filename="app.log", user={"email": "admin@example.com", "db": mock_db})
         assert excinfo.value.status_code == 403
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_multi_range_falls_back_to_full_response(self, mock_settings, tmp_path, mock_db):
         """A multi-range Range header (multipart/byteranges) isn't implemented; the handler
         must serve the full entity as 200 rather than reject it with 400."""
@@ -15113,7 +15113,7 @@ class TestAdminAdditionalCoverage:
         body = b"".join([chunk async for chunk in response.body_iterator])
         assert body == b"0123456789"
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_rejects_oversized_range_value(self, mock_settings, tmp_path, mock_db):
         """A Range value with more digits than Python's int/str conversion limit allows
         must be rejected with 400, not escape as an uncaught 500 with the fd left open."""
@@ -15130,7 +15130,7 @@ class TestAdminAdditionalCoverage:
             await admin_get_log_file(request=SimpleNamespace(headers={"range": f"bytes={oversized}-"}), filename="app.log", user={"email": "admin@example.com", "db": mock_db})
         assert excinfo.value.status_code == 400
 
-    @patch("mcpgateway.admin.settings")
+    @patch("mcpgateway.admin.logs.settings")
     async def test_admin_get_log_file_access_denied_log_is_sanitized(self, mock_settings, tmp_path, mock_db, caplog):
         """Filename and exception text logged on access-denied must have CR/LF stripped so
         a crafted filename can't forge additional log lines.
