@@ -1373,8 +1373,8 @@ class TestAdminServerRoutes:
 class TestAdminToolRoutes:
     """Test admin routes for tool management with enhanced coverage."""
 
-    @patch("mcpgateway.admin.TeamManagementService")
-    @patch("mcpgateway.admin.tool_service")
+    @patch("mcpgateway.admin.tools.TeamManagementService")
+    @patch("mcpgateway.admin.tools.tool_service")
     async def test_admin_list_tools_empty_and_exception(self, mock_tool_service, mock_team_service_class, mock_db):
         """Test listing tools with empty results and exceptions."""
         # First-Party
@@ -12231,13 +12231,13 @@ async def test_admin_servers_partial_html_default_includes_inactive(monkeypatch,
 async def test_admin_tools_partial_html_renders(monkeypatch, mock_request, mock_db, render):
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.tools.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400b1", team_id="team-1")], "pagination": pagination, "links": None}),  # pragma: allowlist secret
     )
     setup_team_service(monkeypatch, ["team-1"])
     tool_service = MagicMock()
     tool_service.convert_tool_to_read.return_value = {"id": "550e8400e29b41d4a7164466554400b1", "name": "Tool 1"}  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.tool_service", tool_service)
+    monkeypatch.setattr("mcpgateway.admin.tools.tool_service", tool_service)
 
     mock_request.headers = {}
     response = await admin_tools_partial_html(
@@ -12262,7 +12262,7 @@ async def test_admin_tools_partial_html_propagates_search_and_tags_to_pagination
 
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
+    monkeypatch.setattr("mcpgateway.admin.tools.paginate_query", paginate_mock)
     monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
@@ -12292,7 +12292,7 @@ async def test_admin_tools_partial_html_gateway_filters_and_access_conditions(mo
     """Cover gateway filter branches, All Teams view access conditions, and include_inactive query param."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.tools.paginate_query",
         AsyncMock(
             return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400b1", team_id="team-1", name="Tool 1")], "pagination": pagination, "links": None}  # pragma: allowlist secret
         ),  # pragma: allowlist secret
@@ -12301,7 +12301,7 @@ async def test_admin_tools_partial_html_gateway_filters_and_access_conditions(mo
 
     tool_service = MagicMock()
     tool_service.convert_tool_to_read.return_value = {"id": "550e8400e29b41d4a7164466554400b1", "name": "Tool 1"}  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.tool_service", tool_service)
+    monkeypatch.setattr("mcpgateway.admin.tools.tool_service", tool_service)
 
     mock_request.headers = {}
     # NULL-only branch
@@ -12338,13 +12338,13 @@ async def test_admin_tools_partial_html_team_filter_denied_and_convert_error(mon
     """Cover team filter denied branch and conversion exception handling."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.tools.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="tool-bad", team_id="team-x", name="Bad Tool")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, [])
     tool_service = MagicMock()
     tool_service.convert_tool_to_read.side_effect = ValueError("bad tool")
-    monkeypatch.setattr("mcpgateway.admin.tool_service", tool_service)
+    monkeypatch.setattr("mcpgateway.admin.tools.tool_service", tool_service)
 
     mock_request.headers = {}
     response = await admin_tools_partial_html(
@@ -12365,13 +12365,13 @@ async def test_admin_tools_partial_html_team_filter_denied_and_convert_error(mon
 async def test_admin_tool_ops_partial_html(monkeypatch, mock_request, mock_db):
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.tools.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="tool-ops-1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     tool_service = MagicMock()
     tool_service.convert_tool_to_read.return_value = {"id": "tool-ops-1", "name": "Tool Ops"}
-    monkeypatch.setattr("mcpgateway.admin.tool_service", tool_service)
+    monkeypatch.setattr("mcpgateway.admin.tools.tool_service", tool_service)
 
     mock_request.headers = {}
     response = await admin_tool_ops_partial(
@@ -12390,16 +12390,16 @@ async def test_admin_tool_ops_partial_html(monkeypatch, mock_request, mock_db):
 @pytest.mark.asyncio
 async def test_admin_tool_ops_partial_uses_resolve_root_path(monkeypatch, mock_request, mock_db):
     """paginate_query receives fallback-resolved base_url when scope root_path is empty."""
-    monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", "/api/proxy/mcp", raising=False)
+    monkeypatch.setattr("mcpgateway.admin.tools.settings.app_root_path", "/api/proxy/mcp", raising=False)
     mock_request.scope = {"root_path": ""}
 
     pagination = make_pagination_meta()
     mock_paginate = AsyncMock(return_value={"data": [SimpleNamespace(id="tool-ops-1", team_id="team-1")], "pagination": pagination, "links": None})
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", mock_paginate)
+    monkeypatch.setattr("mcpgateway.admin.tools.paginate_query", mock_paginate)
     setup_team_service(monkeypatch, ["team-1"])
     tool_service = MagicMock()
     tool_service.convert_tool_to_read.return_value = {"id": "tool-ops-1", "name": "Tool Ops"}
-    monkeypatch.setattr("mcpgateway.admin.tool_service", tool_service)
+    monkeypatch.setattr("mcpgateway.admin.tools.tool_service", tool_service)
 
     mock_request.headers = {}
     await admin_tool_ops_partial(
@@ -12420,13 +12420,13 @@ async def test_admin_tool_ops_partial_html_all_teams_view(monkeypatch, mock_requ
     """Cover All Teams view access conditions in admin_tool_ops_partial."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.tools.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="tool-ops-1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     tool_service = MagicMock()
     tool_service.convert_tool_to_read.return_value = {"id": "tool-ops-1", "name": "Tool Ops"}
-    monkeypatch.setattr("mcpgateway.admin.tool_service", tool_service)
+    monkeypatch.setattr("mcpgateway.admin.tools.tool_service", tool_service)
 
     mock_request.headers = {}
     response = await admin_tool_ops_partial(
@@ -12447,13 +12447,13 @@ async def test_admin_tool_ops_partial_html_gateway_filters(monkeypatch, mock_req
     """Cover NULL and mixed gateway_id filter branches in tool ops partial."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.tools.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="tool-ops-1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     tool_service = MagicMock()
     tool_service.convert_tool_to_read.return_value = {"id": "tool-ops-1", "name": "Tool Ops"}
-    monkeypatch.setattr("mcpgateway.admin.tool_service", tool_service)
+    monkeypatch.setattr("mcpgateway.admin.tools.tool_service", tool_service)
 
     mock_request.headers = {}
 
@@ -12486,9 +12486,9 @@ async def test_admin_tool_ops_partial_html_gateway_filters(monkeypatch, mock_req
 async def test_admin_tool_ops_partial_html_team_filter_denied(monkeypatch, mock_request, mock_db):
     """Cover the 'team_id specified but user not a member' branch in tool ops partial."""
     pagination = make_pagination_meta()
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
+    monkeypatch.setattr("mcpgateway.admin.tools.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
     setup_team_service(monkeypatch, ["team-1"])
-    monkeypatch.setattr("mcpgateway.admin.tool_service", MagicMock(convert_tool_to_read=MagicMock(return_value={"id": "tool-ops-x"})))
+    monkeypatch.setattr("mcpgateway.admin.tools.tool_service", MagicMock(convert_tool_to_read=MagicMock(return_value={"id": "tool-ops-x"})))
 
     mock_request.headers = {}
     response = await admin_tool_ops_partial(
@@ -13868,7 +13868,7 @@ def test_apply_tag_filter_groups_builds_where_clauses(monkeypatch, mock_db):
 @pytest.mark.asyncio
 async def test_admin_search_tools_supports_tags_without_query(monkeypatch, mock_db, allow_permission):
     setup_team_service(monkeypatch, [])
-    monkeypatch.setattr("mcpgateway.admin._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
+    monkeypatch.setattr("mcpgateway.admin.tools._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
     mock_db.execute.return_value.all.return_value = [
         SimpleNamespace(id="550e8400e29b41d4a7164466554400b1", original_name="Tool 1", display_name="Tool 1", custom_name=None, description="Desc")  # pragma: allowlist secret
     ]  # pragma: allowlist secret
@@ -23219,7 +23219,7 @@ class TestAdminGetToolPassesTeamRoles:
         tool_read = MagicMock()
         with (
             patch.object(ToolService, "get_tool", new_callable=AsyncMock, return_value=tool_read) as mock_get,
-            patch("mcpgateway.admin._get_user_team_roles", return_value={"team-1": "owner"}) as mock_roles,
+            patch("mcpgateway.admin.tools._get_user_team_roles", return_value={"team-1": "owner"}) as mock_roles,
         ):
             await admin_get_tool("550e8400e29b41d4a7164466554400b1", mock_request, mock_db, user={"email": "user@example.com", "is_admin": False, "db": mock_db})  # pragma: allowlist secret
 
@@ -23246,7 +23246,7 @@ class TestAdminGetToolPassesTeamRoles:
         mock_request.state = MagicMock()
         mock_request.state.token_teams = []
 
-        with patch("mcpgateway.admin.tool_service", mock_tool_svc), patch("mcpgateway.admin._get_user_team_roles", return_value={"team-2": "member"}) as mock_roles:
+        with patch("mcpgateway.admin.tools.tool_service", mock_tool_svc), patch("mcpgateway.admin.tools._get_user_team_roles", return_value={"team-2": "member"}) as mock_roles:
             await admin_list_tools(request=mock_request, page=1, per_page=50, include_inactive=False, db=mock_db, user={"email": "user@example.com", "is_admin": False, "db": mock_db})
 
             mock_roles.assert_called_once_with(mock_db, "user@example.com")
@@ -25835,13 +25835,13 @@ async def test_admin_tools_partial_include_public(monkeypatch, mock_request, moc
     """Tools partial endpoint accepts include_public and returns response."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.tools.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400b1", team_id="team-1")], "pagination": pagination, "links": None}),  # pragma: allowlist secret
     )
     setup_team_service(monkeypatch, ["team-1"])
     tool_service = MagicMock()
     tool_service.convert_tool_to_read.return_value = {"id": "550e8400e29b41d4a7164466554400b1", "name": "Tool 1"}  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.tool_service", tool_service)
+    monkeypatch.setattr("mcpgateway.admin.tools.tool_service", tool_service)
 
     mock_request.headers = {}
     response = await admin_tools_partial_html(
@@ -25888,13 +25888,13 @@ async def test_admin_tools_selector_template_includes_team_id_and_include_public
     """When render=selector, the template context must include team_id and include_public for infinite scroll URLs."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.tools.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400b1", team_id="team-1")], "pagination": pagination, "links": None}),  # pragma: allowlist secret
     )
     setup_team_service(monkeypatch, ["team-1"])
     tool_service = MagicMock()
     tool_service.convert_tool_to_read.return_value = {"id": "550e8400e29b41d4a7164466554400b1", "name": "Tool 1"}  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.tool_service", tool_service)
+    monkeypatch.setattr("mcpgateway.admin.tools.tool_service", tool_service)
 
     # Capture what gets passed to TemplateResponse
     captured_context = {}
@@ -26055,9 +26055,9 @@ async def test_admin_gateways_selector_template_includes_team_id_and_include_pub
 async def test_admin_tools_partial_include_public_denied_for_non_member(monkeypatch, mock_request, mock_db):
     """include_public=True should not bypass team membership check for tools."""
     pagination = make_pagination_meta()
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
+    monkeypatch.setattr("mcpgateway.admin.tools.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
     setup_team_service(monkeypatch, [])
-    monkeypatch.setattr("mcpgateway.admin.tool_service", MagicMock(convert_tool_to_read=MagicMock(return_value={"id": "t-x"})))
+    monkeypatch.setattr("mcpgateway.admin.tools.tool_service", MagicMock(convert_tool_to_read=MagicMock(return_value={"id": "t-x"})))
 
     mock_request.headers = {}
     response = await admin_tools_partial_html(
