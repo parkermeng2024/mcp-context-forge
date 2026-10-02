@@ -3413,8 +3413,8 @@ class TestAdminPromptRoutes:
 class TestAdminGatewayRoutes:
     """Test admin routes for gateway management with enhanced coverage."""
 
-    @patch("mcpgateway.admin.gateway_service")
-    @patch("mcpgateway.admin.TeamManagementService")
+    @patch("mcpgateway.admin.gateways.gateway_service")
+    @patch("mcpgateway.admin.gateways.TeamManagementService")
     async def test_admin_list_gateways_with_auth_info(self, mock_team_service_class, mock_gateway_service, mock_db):
         """Test listing gateways with authentication information."""
         # Standard
@@ -3627,9 +3627,9 @@ class TestAdminGatewayRoutes:
 
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(side_effect=lambda email, tid: tid)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.MetadataCapture.extract_modification_metadata",
+            "mcpgateway.admin.gateways.MetadataCapture.extract_modification_metadata",
             lambda *_args, **_kwargs: {"modified_by": "u", "modified_from_ip": None, "modified_via": "ui", "modified_user_agent": None, "version": 1},
         )
         mock_update_gateway.return_value = None
@@ -6884,7 +6884,7 @@ class TestOAuthFunctionality:
         mock_request.headers = {"content-type": "multipart/form-data"}
 
         # Mock OAuth encryption
-        with patch("mcpgateway.admin.get_encryption_service") as mock_get_encryption:
+        with patch("mcpgateway.admin.gateways.get_encryption_service") as mock_get_encryption:
             mock_encryption = MagicMock()
             mock_encryption.encrypt_secret_async = AsyncMock(return_value="encrypted-secret")
             mock_get_encryption.return_value = mock_encryption
@@ -6967,7 +6967,7 @@ class TestOAuthFunctionality:
         mock_request.form = AsyncMock(return_value=form_data)
 
         # Mock OAuth encryption
-        with patch("mcpgateway.admin.get_encryption_service") as mock_get_encryption:
+        with patch("mcpgateway.admin.gateways.get_encryption_service") as mock_get_encryption:
             mock_encryption = MagicMock()
             mock_encryption.encrypt_secret_async = AsyncMock(return_value="encrypted-edit-secret")
             mock_get_encryption.return_value = mock_encryption
@@ -7061,9 +7061,9 @@ class TestOAuthFunctionality:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value=None)
         with (
-            patch("mcpgateway.admin.TeamManagementService", lambda db: team_service),
-            patch("mcpgateway.admin.get_encryption_service") as mock_get_encryption,
-            patch("mcpgateway.admin.MetadataCapture.extract_creation_metadata") as mock_meta,
+            patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service),
+            patch("mcpgateway.admin.gateways.get_encryption_service") as mock_get_encryption,
+            patch("mcpgateway.admin.gateways.MetadataCapture.extract_creation_metadata") as mock_meta,
         ):
             mock_encryption = MagicMock()
             mock_encryption.encrypt_secret_async = AsyncMock(return_value="enc-secret")
@@ -7402,7 +7402,7 @@ class TestOAuthFunctionality:
 
         monkeypatch.setattr(settings, "enable_ed25519_signing", True)
         monkeypatch.setattr(settings, "ed25519_private_key", SecretStr("dummy-key"))
-        monkeypatch.setattr("mcpgateway.admin.sign_data", MagicMock(return_value="sig"))
+        monkeypatch.setattr("mcpgateway.admin.gateways.sign_data", MagicMock(return_value="sig"))
 
         form_data = FakeForm({"name": "Gateway_With_CA", "url": "https://example.com", "ca_certificate": "CERT"})
         mock_request.form = AsyncMock(return_value=form_data)
@@ -7411,8 +7411,8 @@ class TestOAuthFunctionality:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value=None)
         with (
-            patch("mcpgateway.admin.TeamManagementService", lambda db: team_service),
-            patch("mcpgateway.admin.MetadataCapture.extract_creation_metadata") as mock_meta,
+            patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service),
+            patch("mcpgateway.admin.gateways.MetadataCapture.extract_creation_metadata") as mock_meta,
         ):
             mock_meta.return_value = {
                 "created_by": "u@example.com",
@@ -7647,8 +7647,8 @@ class TestOAuthFunctionality:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value="team-123")
         with (
-            patch("mcpgateway.admin.TeamManagementService", lambda db: team_service),
-            patch("mcpgateway.admin.MetadataCapture.extract_modification_metadata") as mock_meta,
+            patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service),
+            patch("mcpgateway.admin.gateways.MetadataCapture.extract_modification_metadata") as mock_meta,
         ):
             mock_meta.return_value = {
                 "modified_by": "u@example.com",
@@ -7834,7 +7834,7 @@ class TestErrorHandlingPaths:
         mock_request.headers = {"content-type": "multipart/form-data"}
 
         # Mock the GatewayCreate validation to raise the error
-        with patch("mcpgateway.admin.GatewayCreate") as mock_gateway_create:
+        with patch("mcpgateway.admin.gateways.GatewayCreate") as mock_gateway_create:
             mock_gateway_create.side_effect = validation_error
 
             result = await admin_add_gateway(mock_request, mock_db, user={"email": "test-user", "db": mock_db})
@@ -7873,7 +7873,7 @@ class TestErrorHandlingPaths:
         mock_request.headers = {"content-type": "application/json"}
 
         # Mock _parse_gateway_data_from_request to raise a generic exception
-        with patch("mcpgateway.admin._parse_gateway_data_from_request", side_effect=Exception("Processing failed")):
+        with patch("mcpgateway.admin.gateways._parse_gateway_data_from_request", side_effect=Exception("Processing failed")):
             result = await admin_add_gateway(mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert isinstance(result, JSONResponse)
@@ -7888,7 +7888,7 @@ class TestErrorHandlingPaths:
         from mcpgateway.admin import admin_update_gateway_rest
 
         # Mock _parse_gateway_data_from_request to raise exception
-        with patch("mcpgateway.admin._parse_gateway_data_from_request", side_effect=Exception("Parsing failed")):
+        with patch("mcpgateway.admin.gateways._parse_gateway_data_from_request", side_effect=Exception("Parsing failed")):
             result = await admin_update_gateway_rest("gateway-123", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert isinstance(result, JSONResponse)
@@ -7914,7 +7914,7 @@ class TestErrorHandlingPaths:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value=None)
 
-        with patch("mcpgateway.admin.TeamManagementService", lambda db: team_service):
+        with patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service):
             result = await admin_update_gateway_rest("gateway-123", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert isinstance(result, JSONResponse)
@@ -7944,8 +7944,8 @@ class TestErrorHandlingPaths:
         team_service.verify_team_for_user = AsyncMock(return_value="team-123")
 
         with (
-            patch("mcpgateway.admin.TeamManagementService", lambda db: team_service),
-            patch("mcpgateway.admin.get_encryption_service") as mock_encryption,
+            patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service),
+            patch("mcpgateway.admin.gateways.get_encryption_service") as mock_encryption,
         ):
             mock_enc_service = MagicMock()
             mock_enc_service.encrypt_secret_async = AsyncMock(return_value="encrypted_secret")
@@ -7981,7 +7981,7 @@ class TestErrorHandlingPaths:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value="team-123")
 
-        with patch("mcpgateway.admin.TeamManagementService", lambda db: team_service):
+        with patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service):
             result = await admin_update_gateway_rest("gateway-123", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert isinstance(result, JSONResponse)
@@ -8007,7 +8007,7 @@ class TestErrorHandlingPaths:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value="team-123")
 
-        with patch("mcpgateway.admin.TeamManagementService", lambda db: team_service):
+        with patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service):
             response = await admin_update_gateway_rest("gateway-123", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert response.status_code == 409
@@ -8031,7 +8031,7 @@ class TestErrorHandlingPaths:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value="team-123")
 
-        with patch("mcpgateway.admin.TeamManagementService", lambda db: team_service):
+        with patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service):
             result = await admin_update_gateway_rest("gateway-123", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert isinstance(result, JSONResponse)
@@ -8058,7 +8058,7 @@ class TestErrorHandlingPaths:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value="team-123")
 
-        with patch("mcpgateway.admin.TeamManagementService", lambda db: team_service):
+        with patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service):
             result = await admin_update_gateway_rest("gateway-123", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert isinstance(result, JSONResponse)
@@ -8085,7 +8085,7 @@ class TestErrorHandlingPaths:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value="team-123")
 
-        with patch("mcpgateway.admin.TeamManagementService", lambda db: team_service):
+        with patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service):
             result = await admin_update_gateway_rest("gateway-123", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert isinstance(result, JSONResponse)
@@ -8112,7 +8112,7 @@ class TestErrorHandlingPaths:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value="team-123")
 
-        with patch("mcpgateway.admin.TeamManagementService", lambda db: team_service):
+        with patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service):
             result = await admin_update_gateway_rest("gateway-123", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert isinstance(result, JSONResponse)
@@ -8175,7 +8175,7 @@ class TestErrorHandlingPaths:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value="team-123")
 
-        with patch("mcpgateway.admin.TeamManagementService", lambda db: team_service):
+        with patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service):
             result = await admin_update_gateway_rest("gateway-123", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert isinstance(result, JSONResponse)
@@ -8199,7 +8199,7 @@ class TestErrorHandlingPaths:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value="team-123")
 
-        with patch("mcpgateway.admin.TeamManagementService", lambda db: team_service):
+        with patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service):
             result = await admin_update_gateway_rest("gateway-123", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert isinstance(result, JSONResponse)
@@ -8226,7 +8226,7 @@ class TestErrorHandlingPaths:
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value="team-123")
 
-        with patch("mcpgateway.admin.TeamManagementService", lambda db: team_service):
+        with patch("mcpgateway.admin.gateways.TeamManagementService", lambda db: team_service):
             result = await admin_update_gateway_rest("gateway-123", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
 
         assert isinstance(result, JSONResponse)
@@ -12719,13 +12719,13 @@ async def test_admin_resources_partial_html_propagates_search_and_tags_to_pagina
 async def test_admin_gateways_partial_html_renders(monkeypatch, mock_request, mock_db, render):
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.gateways.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="gw-1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     gateway_service = MagicMock()
     gateway_service.convert_gateway_to_read.return_value = {"id": "gw-1", "name": "Gateway 1"}
-    monkeypatch.setattr("mcpgateway.admin.gateway_service", gateway_service)
+    monkeypatch.setattr("mcpgateway.admin.gateways.gateway_service", gateway_service)
 
     mock_request.headers = {}
     response = await admin_gateways_partial_html(
@@ -12746,7 +12746,7 @@ async def test_admin_gateways_partial_html_eager_loads_capability_relationships(
     """Query must eager-load tools/prompts/resources so counts don't require N+1 queries."""
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
+    monkeypatch.setattr("mcpgateway.admin.gateways.paginate_query", paginate_mock)
     setup_team_service(monkeypatch, ["team-1"])
 
     mock_request.headers = {}
@@ -12803,7 +12803,7 @@ async def test_admin_gateways_partial_html_populates_capability_counts_end_to_en
 
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.gateways.paginate_query",
         AsyncMock(return_value={"data": [fake_gateway], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
@@ -12836,7 +12836,7 @@ async def test_admin_gateways_partial_html_propagates_search_and_tags_to_paginat
 
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
+    monkeypatch.setattr("mcpgateway.admin.gateways.paginate_query", paginate_mock)
     monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
@@ -12865,13 +12865,13 @@ async def test_admin_gateways_partial_html_all_teams_view_and_convert_error(monk
     """Cover All Teams view access conditions, include_inactive query params, and conversion exception handling."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.gateways.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="gw-1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     gateway_service = MagicMock()
     gateway_service.convert_gateway_to_read.side_effect = ValueError("bad gateway")
-    monkeypatch.setattr("mcpgateway.admin.gateway_service", gateway_service)
+    monkeypatch.setattr("mcpgateway.admin.gateways.gateway_service", gateway_service)
 
     mock_request.headers = {}
     response = await admin_gateways_partial_html(
@@ -12891,9 +12891,9 @@ async def test_admin_gateways_partial_html_all_teams_view_and_convert_error(monk
 async def test_admin_gateways_partial_html_team_filter_denied(monkeypatch, mock_request, mock_db):
     """Cover the 'team_id specified but user not a member' branch."""
     pagination = make_pagination_meta()
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
+    monkeypatch.setattr("mcpgateway.admin.gateways.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
     setup_team_service(monkeypatch, [])
-    monkeypatch.setattr("mcpgateway.admin.gateway_service", MagicMock(convert_gateway_to_read=MagicMock(return_value={"id": "gw-x"})))
+    monkeypatch.setattr("mcpgateway.admin.gateways.gateway_service", MagicMock(convert_gateway_to_read=MagicMock(return_value={"id": "gw-x"})))
 
     mock_request.headers = {}
     response = await admin_gateways_partial_html(
@@ -12914,13 +12914,13 @@ async def test_admin_gateways_partial_html_default_includes_inactive(monkeypatch
     """Verify include_inactive defaults to True so inactive gateways appear on first load (issue #3234)."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.gateways.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="gw-1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     gateway_service = MagicMock()
     gateway_service.convert_gateway_to_read.return_value = {"id": "gw-1", "name": "Gateway 1"}
-    monkeypatch.setattr("mcpgateway.admin.gateway_service", gateway_service)
+    monkeypatch.setattr("mcpgateway.admin.gateways.gateway_service", gateway_service)
 
     mock_request.app.state.templates.TemplateResponse.reset_mock()
     mock_request.headers = {}
@@ -13894,6 +13894,7 @@ async def test_admin_search_endpoints_support_tags_without_query(monkeypatch, mo
     setup_team_service(monkeypatch, [])
     monkeypatch.setattr("mcpgateway.admin.a2a._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
     monkeypatch.setattr("mcpgateway.admin._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
+    monkeypatch.setattr("mcpgateway.admin.gateways._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
 
     result = MagicMock()
     result.all.return_value = []
@@ -25775,13 +25776,13 @@ async def test_admin_gateways_partial_include_public_adds_visibility_condition(m
     """When include_public=True with team_id, the query should include public items from all teams."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.gateways.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="gw-1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     gateway_service = MagicMock()
     gateway_service.convert_gateway_to_read.return_value = {"id": "gw-1", "name": "Gateway 1"}
-    monkeypatch.setattr("mcpgateway.admin.gateway_service", gateway_service)
+    monkeypatch.setattr("mcpgateway.admin.gateways.gateway_service", gateway_service)
 
     mock_request.headers = {}
     response = await admin_gateways_partial_html(
@@ -25803,13 +25804,13 @@ async def test_admin_gateways_partial_include_public_false_does_not_change_behav
     """When include_public=False (default) with team_id, behavior is unchanged from team-only view."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.gateways.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="gw-1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     gateway_service = MagicMock()
     gateway_service.convert_gateway_to_read.return_value = {"id": "gw-1", "name": "Gateway 1"}
-    monkeypatch.setattr("mcpgateway.admin.gateway_service", gateway_service)
+    monkeypatch.setattr("mcpgateway.admin.gateways.gateway_service", gateway_service)
 
     mock_request.headers = {}
     response = await admin_gateways_partial_html(
@@ -25859,9 +25860,9 @@ async def test_admin_tools_partial_include_public(monkeypatch, mock_request, moc
 async def test_admin_gateways_partial_include_public_denied_for_non_member(monkeypatch, mock_request, mock_db):
     """include_public=True should not bypass team membership check."""
     pagination = make_pagination_meta()
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
+    monkeypatch.setattr("mcpgateway.admin.gateways.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
     setup_team_service(monkeypatch, [])  # user is not a member of any team
-    monkeypatch.setattr("mcpgateway.admin.gateway_service", MagicMock(convert_gateway_to_read=MagicMock(return_value={"id": "gw-x"})))
+    monkeypatch.setattr("mcpgateway.admin.gateways.gateway_service", MagicMock(convert_gateway_to_read=MagicMock(return_value={"id": "gw-x"})))
 
     mock_request.headers = {}
     response = await admin_gateways_partial_html(
@@ -26011,13 +26012,13 @@ async def test_admin_gateways_selector_template_includes_team_id_and_include_pub
     """When render=selector, the gateways template context must include team_id and include_public."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.gateways.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="gw-1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     gateway_service = MagicMock()
     gateway_service.convert_gateway_to_read.return_value = {"id": "gw-1", "name": "Gateway 1"}
-    monkeypatch.setattr("mcpgateway.admin.gateway_service", gateway_service)
+    monkeypatch.setattr("mcpgateway.admin.gateways.gateway_service", gateway_service)
 
     captured_context = {}
     original_template_response = mock_request.app.state.templates.TemplateResponse

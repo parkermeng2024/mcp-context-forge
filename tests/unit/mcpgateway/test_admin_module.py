@@ -191,8 +191,8 @@ async def test_admin_add_gateway_includes_gateway_payload(monkeypatch):
     db = MagicMock()
     user = {"email": "admin@example.com"}
     result = {"id": "gw-1", "status": "pending", "name": "gw"}
-    monkeypatch.setattr(admin, "_parse_gateway_data_from_request", AsyncMock(return_value={"name": "gw", "url": "http://example.com", "transport": "SSE"}))
-    monkeypatch.setattr(admin, "TeamManagementService", _GatewayPayloadTeamService)
+    monkeypatch.setattr(admin.gateways, "_parse_gateway_data_from_request", AsyncMock(return_value={"name": "gw", "url": "http://example.com", "transport": "SSE"}))
+    monkeypatch.setattr(admin.gateways, "TeamManagementService", _GatewayPayloadTeamService)
     monkeypatch.setattr(admin.MetadataCapture, "extract_creation_metadata", MagicMock(return_value={"created_by": "admin@example.com", "created_from_ip": "127.0.0.1", "created_via": "test", "created_user_agent": "pytest"}))
     monkeypatch.setattr(admin.gateway_service, "register_gateway", AsyncMock(return_value=result))
 
@@ -210,8 +210,8 @@ async def test_admin_update_gateway_rest_includes_gateway_payload(monkeypatch):
     db.get.return_value = SimpleNamespace(owner_email="admin@example.com", team_id="team-1")
     user = {"email": "admin@example.com"}
     result = {"id": "gw-1", "status": "pending", "name": "gw"}
-    monkeypatch.setattr(admin, "_parse_gateway_data_from_request", AsyncMock(return_value={"name": "gw", "url": "http://example.com", "transport": "SSE"}))
-    monkeypatch.setattr(admin, "TeamManagementService", _GatewayPayloadTeamService)
+    monkeypatch.setattr(admin.gateways, "_parse_gateway_data_from_request", AsyncMock(return_value={"name": "gw", "url": "http://example.com", "transport": "SSE"}))
+    monkeypatch.setattr(admin.gateways, "TeamManagementService", _GatewayPayloadTeamService)
     monkeypatch.setattr(admin.MetadataCapture, "extract_modification_metadata", MagicMock(return_value={"modified_by": "admin@example.com", "modified_from_ip": "127.0.0.1", "modified_via": "test", "modified_user_agent": "pytest"}))
     monkeypatch.setattr(admin.gateway_service, "update_gateway", AsyncMock(return_value=result))
 
@@ -230,7 +230,7 @@ async def test_admin_edit_gateway_includes_gateway_payload(monkeypatch):
     db.get.return_value = SimpleNamespace(owner_email="admin@example.com", team_id="team-1")
     user = {"email": "admin@example.com"}
     result = {"id": "gw-1", "status": "pending", "name": "gw"}
-    monkeypatch.setattr(admin, "TeamManagementService", _GatewayPayloadTeamService)
+    monkeypatch.setattr(admin.gateways, "TeamManagementService", _GatewayPayloadTeamService)
     monkeypatch.setattr(admin.MetadataCapture, "extract_modification_metadata", MagicMock(return_value={"modified_by": "admin@example.com", "modified_from_ip": "127.0.0.1", "modified_via": "test", "modified_user_agent": "pytest"}))
     monkeypatch.setattr(admin.gateway_service, "update_gateway", AsyncMock(return_value=result))
 
