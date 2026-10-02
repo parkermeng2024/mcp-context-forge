@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+- **Admin package layout** - The 17,347-line `mcpgateway/admin/__init__.py` monolith is now a package of focused route modules. `mcpgateway.admin.admin_router` keeps all 208 routes with their prefixes, tags, and CSRF dependency, so imports, patch targets, and the HTTP surface are unchanged. Import admin routes from the owning submodule, for example `mcpgateway.admin.tools`, and read the mutable logging anchor through `mcpgateway.admin.set_logging_service()`.
+- **Admin UI tab loading** - Tabs that render their content on demand no longer key off the English loading text, which never matched a translated catalog. The Teams panel now loads through the page loader on every tab visit, so `/admin/teams/partial`, `/admin/teams/ids`, and `/admin/teams/search` are reachable again.
+- **A2A static admin routes** - `GET /admin/a2a/{agent_id}` is registered after `GET /admin/a2a/ids`, `/admin/a2a/partial`, and `/admin/a2a/search`, so those paths no longer answer `A2A Agent not found`.
+- **SSO client secret autofill** - The SSO provider form marks the client secret `autocomplete="off"` instead of `new-password`, so browsers do not offer to save an IdP secret as a user password.
 - **Federated gateway tool-name collisions** - Gateway registration, refresh, OAuth discovery, reactivation, rename, and visibility updates now reject detected tool-name collisions in public, team, and private visibility scopes. Gateway automation must handle the endpoint's conflict response when a previously accepted colliding registration is rejected. Existing duplicate rows require administrator review before affected invocation names are usable. Operators can identify duplicates with:
 
   ```sql
