@@ -377,5 +377,3 @@ async def catalog_partial(
     }
 
     return request.app.state.templates.TemplateResponse(request, "mcp_registry_partial.html", context)
-
-

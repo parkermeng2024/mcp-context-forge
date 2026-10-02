@@ -16659,8 +16659,8 @@ async def test_list_plugins_and_stats(monkeypatch, mock_request, mock_db):
 
     mock_request.app.state.plugin_manager = MagicMock()
 
-    monkeypatch.setattr("mcpgateway.admin.get_plugin_service", lambda: plugin_service)
-    monkeypatch.setattr("mcpgateway.admin.get_structured_logger", lambda *args, **kwargs: structured_logger)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_plugin_service", lambda: plugin_service)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_structured_logger", lambda *args, **kwargs: structured_logger)
 
     response = await list_plugins(mock_request, db=mock_db, user={"email": "u@example.com", "db": mock_db})
     assert response.total == 2
@@ -16680,11 +16680,11 @@ async def test_list_plugins_exception(monkeypatch, mock_request, mock_db, allow_
     structured_logger = MagicMock()
     structured_logger.info = MagicMock()
     structured_logger.error = MagicMock()
-    monkeypatch.setattr("mcpgateway.admin.get_structured_logger", lambda *args, **kwargs: structured_logger)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_structured_logger", lambda *args, **kwargs: structured_logger)
 
     plugin_service = MagicMock()
     plugin_service.get_all_plugins.side_effect = RuntimeError("boom")
-    monkeypatch.setattr("mcpgateway.admin.get_plugin_service", lambda: plugin_service)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_plugin_service", lambda: plugin_service)
 
     with pytest.raises(HTTPException) as excinfo:
         await list_plugins(mock_request, db=mock_db, user={"email": "u@example.com", "db": mock_db})
@@ -16696,11 +16696,11 @@ async def test_get_plugin_stats_exception(monkeypatch, mock_request, mock_db, al
     structured_logger = MagicMock()
     structured_logger.info = MagicMock()
     structured_logger.error = MagicMock()
-    monkeypatch.setattr("mcpgateway.admin.get_structured_logger", lambda *args, **kwargs: structured_logger)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_structured_logger", lambda *args, **kwargs: structured_logger)
 
     plugin_service = MagicMock()
     plugin_service.get_plugin_statistics = AsyncMock(side_effect=RuntimeError("boom"))
-    monkeypatch.setattr("mcpgateway.admin.get_plugin_service", lambda: plugin_service)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_plugin_service", lambda: plugin_service)
 
     with pytest.raises(HTTPException) as excinfo:
         await get_plugin_stats(mock_request, db=mock_db, user={"email": "u@example.com", "db": mock_db})
@@ -16736,9 +16736,9 @@ async def test_get_plugin_details_success_and_not_found(monkeypatch, mock_reques
     audit_service = MagicMock()
     audit_service.log_audit = MagicMock()
 
-    monkeypatch.setattr("mcpgateway.admin.get_plugin_service", lambda: plugin_service)
-    monkeypatch.setattr("mcpgateway.admin.get_structured_logger", lambda *args, **kwargs: structured_logger)
-    monkeypatch.setattr("mcpgateway.admin.get_audit_trail_service", lambda: audit_service)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_plugin_service", lambda: plugin_service)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_structured_logger", lambda *args, **kwargs: structured_logger)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_audit_trail_service", lambda: audit_service)
 
     detail = await get_plugin_details("alpha", mock_request, db=mock_db, user={"email": "u@example.com", "db": mock_db})
     assert detail.name == "alpha"
@@ -16777,9 +16777,9 @@ async def test_get_plugin_details_exception(monkeypatch, mock_request, mock_db, 
     audit_service = MagicMock()
     audit_service.log_audit = MagicMock(side_effect=RuntimeError("boom"))
 
-    monkeypatch.setattr("mcpgateway.admin.get_plugin_service", lambda: plugin_service)
-    monkeypatch.setattr("mcpgateway.admin.get_structured_logger", lambda *args, **kwargs: structured_logger)
-    monkeypatch.setattr("mcpgateway.admin.get_audit_trail_service", lambda: audit_service)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_plugin_service", lambda: plugin_service)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_structured_logger", lambda *args, **kwargs: structured_logger)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_audit_trail_service", lambda: audit_service)
 
     with pytest.raises(HTTPException) as excinfo:
         await get_plugin_details("alpha", mock_request, db=mock_db, user={"email": "u@example.com", "db": mock_db})
@@ -18722,7 +18722,7 @@ async def test_get_plugins_partial_success(monkeypatch):
     plugin_service = MagicMock()
     plugin_service.get_all_plugins.return_value = []
     plugin_service.get_plugin_statistics = AsyncMock(return_value={"total": 0})
-    monkeypatch.setattr("mcpgateway.admin.get_plugin_service", lambda: plugin_service)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_plugin_service", lambda: plugin_service)
 
     response = await get_plugins_partial(request=request, db=MagicMock(), user={"email": "u@example.com"})
     assert isinstance(response, HTMLResponse)
@@ -18738,7 +18738,7 @@ async def test_get_plugins_partial_error(monkeypatch):
 
     plugin_service = MagicMock()
     plugin_service.get_all_plugins.side_effect = Exception("plugin boom")
-    monkeypatch.setattr("mcpgateway.admin.get_plugin_service", lambda: plugin_service)
+    monkeypatch.setattr("mcpgateway.admin.plugins.get_plugin_service", lambda: plugin_service)
 
     response = await get_plugins_partial(request=request, db=MagicMock(), user={"email": "u@example.com"})
     assert response.status_code == 500

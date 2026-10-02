@@ -8,7 +8,7 @@ Shared Admin UI helpers: search/list utilities, team-id normalization, redirect 
 
 # Standard
 import logging
-from typing import Any, Optional
+from typing import Any, Optional, Union
 import urllib.parse
 import uuid
 
@@ -467,3 +467,52 @@ def _build_search_response(
         "query": query,
         "filters_applied": filters_applied,
     }
+
+
+def get_user_id(user: Union[str, dict[str, Any], object] = None) -> str:
+    """Return the user ID from a JWT payload, user object, or string.
+
+    Args:
+        user (Union[str, dict, object], optional): User object from JWT token
+            (from get_current_user_with_permissions). Can be:
+            - dict: representing JWT payload with 'id', 'user_id', or 'sub'
+            - object: with an `id` attribute
+            - str: a user ID string
+            - None: will return "unknown"
+            Defaults to None.
+
+    Returns:
+        str: User ID, or "unknown" if no ID can be determined.
+             - If `user` is a dict, returns `id` if present, else `user_id`, else `sub`, else email as fallback, else "unknown".
+             - If `user` has an `id` attribute, returns that.
+             - If `user` is a string, returns it.
+             - If `user` is None, returns "unknown".
+             - Otherwise, returns str(user).
+
+    Examples:
+        >>> get_user_id({'id': '123'})
+        '123'
+        >>> get_user_id({'user_id': '456'})
+        '456'
+        >>> get_user_id({'sub': 'alice@example.com'})
+        'alice@example.com'
+        >>> get_user_id({'email': 'bob@company.com'})
+        'bob@company.com'
+        >>> class MockUser:
+        ...     def __init__(self, user_id):
+        ...         self.id = user_id
+        >>> get_user_id(MockUser('789'))
+        '789'
+        >>> get_user_id(None)
+        'unknown'
+        >>> get_user_id('user-xyz')
+        'user-xyz'
+        >>> get_user_id({})
+        'unknown'
+    """
+    if isinstance(user, dict):
+        # Try multiple possible ID fields in order of preference.
+        # Email is the primary key in the model, so that's our mostly likely result.
+        return user.get("id") or user.get("user_id") or get_user_email(user)
+
+    return "unknown" if user is None else str(getattr(user, "id", user))
