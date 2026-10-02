@@ -15950,7 +15950,7 @@ async def test_admin_generate_support_bundle_exception_raises_http_500(monkeypat
 
 @pytest.mark.asyncio
 async def test_admin_grpc_endpoints_disabled(monkeypatch, mock_db):
-    monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", False)
+    monkeypatch.setattr("mcpgateway.admin.grpc.GRPC_AVAILABLE", False)
     monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True)
     with pytest.raises(HTTPException) as excinfo:
         await admin_list_grpc_services(include_inactive=False, team_id=None, db=mock_db, user={"email": "user@example.com", "db": mock_db})
@@ -15960,7 +15960,7 @@ async def test_admin_grpc_endpoints_disabled(monkeypatch, mock_db):
 @pytest.mark.asyncio
 async def test_admin_grpc_endpoints_disabled_all_routes(monkeypatch, mock_db):
     """Cover the disabled guard for every gRPC endpoint."""
-    monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", False)
+    monkeypatch.setattr("mcpgateway.admin.grpc.GRPC_AVAILABLE", False)
     monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True)
 
     request = MagicMock(spec=Request)
@@ -15988,7 +15988,7 @@ async def test_admin_grpc_endpoints_disabled_all_routes(monkeypatch, mock_db):
 
 @pytest.mark.asyncio
 async def test_admin_grpc_endpoints_enabled(monkeypatch, mock_db):
-    monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", True)
+    monkeypatch.setattr("mcpgateway.admin.grpc.GRPC_AVAILABLE", True)
     monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True)
 
     mgr = MagicMock()
@@ -16012,7 +16012,7 @@ async def test_admin_grpc_endpoints_enabled(monkeypatch, mock_db):
     mgr.delete_service = AsyncMock(return_value=None)
     mgr.reflect_service = AsyncMock(return_value={"id": "svc-1", "reflected": True})
     mgr.get_service_methods = AsyncMock(return_value=["Svc/Method"])
-    monkeypatch.setattr("mcpgateway.admin.grpc_service_mgr", mgr)
+    monkeypatch.setattr("mcpgateway.admin.grpc.grpc_service_mgr", mgr)
 
     metadata = MagicMock()
     metadata.extract_creation_metadata = MagicMock(
@@ -16029,7 +16029,7 @@ async def test_admin_grpc_endpoints_enabled(monkeypatch, mock_db):
     metadata.extract_modification_metadata = MagicMock(
         return_value={"modified_by": "user@example.com", "modified_from_ip": "1.1.1.1", "modified_via": "ui", "modified_user_agent": "test/1.0", "version": 1}
     )
-    monkeypatch.setattr("mcpgateway.admin.MetadataCapture", metadata)
+    monkeypatch.setattr("mcpgateway.admin.grpc.MetadataCapture", metadata)
 
     request = MagicMock(spec=Request)
     request.client = SimpleNamespace(host="10.0.0.2")
@@ -16073,17 +16073,17 @@ async def test_admin_update_grpc_service_error_handlers(monkeypatch, mock_db):
     # First-Party
     from mcpgateway import admin as admin_mod
 
-    monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", True)
+    monkeypatch.setattr("mcpgateway.admin.grpc.GRPC_AVAILABLE", True)
     monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True)
 
     mgr = MagicMock()
-    monkeypatch.setattr("mcpgateway.admin.grpc_service_mgr", mgr)
+    monkeypatch.setattr("mcpgateway.admin.grpc.grpc_service_mgr", mgr)
 
     metadata = MagicMock()
     metadata.extract_modification_metadata = MagicMock(
         return_value={"modified_by": "user@example.com", "modified_from_ip": "1.1.1.1", "modified_via": "ui", "modified_user_agent": "test/1.0", "version": 1}
     )
-    monkeypatch.setattr("mcpgateway.admin.MetadataCapture", metadata)
+    monkeypatch.setattr("mcpgateway.admin.grpc.MetadataCapture", metadata)
 
     request = MagicMock(spec=Request)
     request.client = SimpleNamespace(host="10.0.0.2")
@@ -16110,11 +16110,11 @@ async def test_admin_create_grpc_service_error_handlers(monkeypatch, mock_db):
     # First-Party
     from mcpgateway import admin as admin_mod
 
-    monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", True)
+    monkeypatch.setattr("mcpgateway.admin.grpc.GRPC_AVAILABLE", True)
     monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True)
 
     mgr = MagicMock()
-    monkeypatch.setattr("mcpgateway.admin.grpc_service_mgr", mgr)
+    monkeypatch.setattr("mcpgateway.admin.grpc.grpc_service_mgr", mgr)
 
     metadata = MagicMock()
     metadata.extract_creation_metadata = MagicMock(
@@ -16128,7 +16128,7 @@ async def test_admin_create_grpc_service_error_handlers(monkeypatch, mock_db):
             "version": 1,
         }
     )
-    monkeypatch.setattr("mcpgateway.admin.MetadataCapture", metadata)
+    monkeypatch.setattr("mcpgateway.admin.grpc.MetadataCapture", metadata)
 
     request = MagicMock(spec=Request)
     request.client = SimpleNamespace(host="10.0.0.2")
@@ -16153,12 +16153,12 @@ async def test_admin_get_grpc_service_not_found(monkeypatch, mock_db):
     # First-Party
     from mcpgateway import admin as admin_mod
 
-    monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", True)
+    monkeypatch.setattr("mcpgateway.admin.grpc.GRPC_AVAILABLE", True)
     monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True)
 
     mgr = MagicMock()
     mgr.get_service = AsyncMock(side_effect=admin_mod.GrpcServiceNotFoundError("missing"))
-    monkeypatch.setattr("mcpgateway.admin.grpc_service_mgr", mgr)
+    monkeypatch.setattr("mcpgateway.admin.grpc.grpc_service_mgr", mgr)
 
     with pytest.raises(HTTPException) as excinfo:
         await admin_get_grpc_service("svc-missing", db=mock_db, user={"email": "user@example.com", "db": mock_db})
@@ -16171,14 +16171,14 @@ async def test_admin_grpc_state_delete_methods_not_found(monkeypatch, mock_db):
     # First-Party
     from mcpgateway import admin as admin_mod
 
-    monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", True)
+    monkeypatch.setattr("mcpgateway.admin.grpc.GRPC_AVAILABLE", True)
     monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True)
 
     mgr = MagicMock()
     mgr.get_service = AsyncMock(side_effect=admin_mod.GrpcServiceNotFoundError("missing"))
     mgr.delete_service = AsyncMock(side_effect=admin_mod.GrpcServiceNotFoundError("missing"))
     mgr.get_service_methods = AsyncMock(side_effect=admin_mod.GrpcServiceNotFoundError("missing"))
-    monkeypatch.setattr("mcpgateway.admin.grpc_service_mgr", mgr)
+    monkeypatch.setattr("mcpgateway.admin.grpc.grpc_service_mgr", mgr)
 
     with pytest.raises(HTTPException) as excinfo:
         await admin_set_grpc_service_state("svc-missing", activate=None, db=mock_db, user={"email": "user@example.com", "db": mock_db})
@@ -16199,11 +16199,11 @@ async def test_admin_reflect_grpc_service_error_handlers(monkeypatch, mock_db):
     # First-Party
     from mcpgateway import admin as admin_mod
 
-    monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", True)
+    monkeypatch.setattr("mcpgateway.admin.grpc.GRPC_AVAILABLE", True)
     monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True)
 
     mgr = MagicMock()
-    monkeypatch.setattr("mcpgateway.admin.grpc_service_mgr", mgr)
+    monkeypatch.setattr("mcpgateway.admin.grpc.grpc_service_mgr", mgr)
 
     mgr.reflect_service = AsyncMock(side_effect=admin_mod.GrpcServiceNotFoundError("missing"))
     with pytest.raises(HTTPException) as excinfo:
@@ -25663,12 +25663,12 @@ class TestPublicVisibilityGuard:
 
     @pytest.mark.asyncio
     async def test_create_grpc_service_allows_public_when_flag_false_no_team_id(self, mock_request, mock_db, monkeypatch):
-        monkeypatch.setattr("mcpgateway.admin.settings.allow_public_visibility", False)
-        monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", True)
-        monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_grpc_enabled", True)
+        monkeypatch.setattr("mcpgateway.admin.grpc.settings.allow_public_visibility", False)
+        monkeypatch.setattr("mcpgateway.admin.grpc.GRPC_AVAILABLE", True)
+        monkeypatch.setattr("mcpgateway.admin.grpc.settings.mcpgateway_grpc_enabled", True)
         mock_mgr = MagicMock()
         mock_mgr.register_service = AsyncMock(return_value={"id": "svc-new", "name": "G"})
-        monkeypatch.setattr("mcpgateway.admin.grpc_service_mgr", mock_mgr)
+        monkeypatch.setattr("mcpgateway.admin.grpc.grpc_service_mgr", mock_mgr)
         # First-Party
         from mcpgateway.schemas import GrpcServiceCreate
 

@@ -420,8 +420,11 @@ def test_admin_module_grpc_import_error_fallback(monkeypatch):
 
     monkeypatch.setattr(builtins, "__import__", _guarded_import)
 
-    admin_path = Path(admin.__file__)
-    spec = importlib.util.spec_from_file_location("mcpgateway_admin_no_grpc", admin_path)
+    # First-Party
+    from mcpgateway.admin import grpc as admin_grpc
+
+    grpc_path = Path(admin_grpc.__file__)
+    spec = importlib.util.spec_from_file_location("mcpgateway_admin_no_grpc", grpc_path)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore[union-attr]
