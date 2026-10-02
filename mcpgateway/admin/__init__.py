@@ -76,7 +76,7 @@ from mcpgateway.cache.a2a_stats_cache import a2a_stats_cache
 from mcpgateway.cache.global_config_cache import global_config_cache
 from mcpgateway.common.models import LogLevel
 from mcpgateway.common.query_params import (
-    QueryEntityType,
+    QueryEntityType as QueryEntityType,
     QueryEntityTypes,
     QueryExportFormatAliased,
     QueryGatewayIdList,
@@ -134,18 +134,18 @@ from mcpgateway.schemas import (
     PluginToggleRequest as PluginToggleRequest,
     PluginToggleResponse as PluginToggleResponse,
     PromptCreate,
-    PromptMetrics,
+    PromptMetrics as PromptMetrics,
     PromptRead,
     PromptUpdate,
     ResourceCreate,
-    ResourceMetrics,
+    ResourceMetrics as ResourceMetrics,
     ResourceUpdate,
     ServerCreate,
-    ServerMetrics,
+    ServerMetrics as ServerMetrics,
     ServerRead,
     ServerUpdate,
     ToolCreate,
-    ToolMetrics,
+    ToolMetrics as ToolMetrics,
     ToolRead,
     ToolUpdate,
 )
@@ -349,6 +349,12 @@ from mcpgateway.admin.system import (  # noqa: PLC2701
 from mcpgateway.admin.events import (  # noqa: PLC2701
     admin_events as admin_events,
     router as _events_router,
+)
+from mcpgateway.admin.metrics import (  # noqa: PLC2701
+    admin_metrics_partial_html as admin_metrics_partial_html,
+    admin_reset_metrics as admin_reset_metrics,
+    get_aggregated_metrics as get_aggregated_metrics,
+    router as _metrics_router,
 )
 
 # Import the shared logging service from main
@@ -13123,199 +13129,6 @@ async def admin_delete_root(uri: str, request: Request, user=Depends(get_current
     return RedirectResponse(redirect_url, status_code=303)
 
 
-# Metrics
-MetricsDict = Dict[str, Union[ToolMetrics, ResourceMetrics, ServerMetrics, PromptMetrics]]
-
-
-# @admin_router.get("/metrics", response_model=MetricsDict)
-# async def admin_get_metrics(
-#     db: Session = Depends(get_db),
-#     user=Depends(get_current_user_with_permissions),
-# ) -> MetricsDict:
-#     """
-#     Retrieve aggregate metrics for all entity types via the admin UI.
-
-#     This endpoint collects and returns usage metrics for tools, resources, servers,
-#     and prompts. The metrics are retrieved by calling the aggregate_metrics method
-#     on each respective service, which compiles statistics about usage patterns,
-#     success rates, and other relevant metrics for administrative monitoring
-#     and analysis purposes.
-
-#     Args:
-#         db (Session): Database session dependency.
-#         user (str): Authenticated user dependency.
-
-#     Returns:
-#         MetricsDict: A dictionary containing the aggregated metrics for tools,
-#         resources, servers, and prompts. Each value is a Pydantic model instance
-#         specific to the entity type.
-#     """
-#     LOGGER.debug(f"User {get_user_email(user)} requested aggregate metrics")
-#     tool_metrics = await tool_service.aggregate_metrics(db)
-#     resource_metrics = await resource_service.aggregate_metrics(db)
-#     server_metrics = await server_service.aggregate_metrics(db)
-#     prompt_metrics = await prompt_service.aggregate_metrics(db)
-
-#     # Return actual Pydantic model instances
-#     return {
-#         "tools": tool_metrics,
-#         "resources": resource_metrics,
-#         "servers": server_metrics,
-#         "prompts": prompt_metrics,
-#     }
-
-
-@admin_router.get("/metrics")
-@require_permission("admin.system_config", allow_admin_bypass=False)
-async def get_aggregated_metrics(
-    db: Session = Depends(get_db),
-    _user=Depends(get_current_user_with_permissions),
-) -> Dict[str, Any]:
-    """Retrieve aggregated metrics and top performers for all entity types.
-
-    This endpoint collects usage metrics and top-performing entities for tools,
-    resources, prompts, and servers by calling the respective service methods.
-    The results are compiled into a dictionary for administrative monitoring.
-
-    Args:
-        db (Session): Database session dependency for querying metrics.
-
-    Returns:
-        Dict[str, Any]: A dictionary containing aggregated metrics and top performers
-            for tools, resources, prompts, and servers. The structure includes:
-            - 'tools': Metrics for tools.
-            - 'resources': Metrics for resources.
-            - 'prompts': Metrics for prompts.
-            - 'servers': Metrics for servers.
-            - 'topPerformers': A nested dictionary with all tools, resources, prompts,
-              and servers with their metrics.
-    """
-    metrics = {
-        "tools": await tool_service.aggregate_metrics(db),
-        "resources": await resource_service.aggregate_metrics(db),
-        "prompts": await prompt_service.aggregate_metrics(db),
-        "servers": await server_service.aggregate_metrics(db),
-        "topPerformers": {
-            "tools": await tool_service.get_top_tools(db, limit=10),
-            "resources": await resource_service.get_top_resources(db, limit=10),
-            "prompts": await prompt_service.get_top_prompts(db, limit=10),
-            "servers": await server_service.get_top_servers(db, limit=10),
-        },
-    }
-    return metrics
-
-
-@admin_router.get("/metrics/partial", response_class=HTMLResponse)
-@require_permission("admin.system_config", allow_admin_bypass=False)
-async def admin_metrics_partial_html(
-    request: Request,
-    entity_type: QueryEntityType = "tools",
-    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
-    per_page: int = Query(10, ge=1, le=settings.pagination_max_page_size, description="Items per page"),
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user_with_permissions),
-):
-    """
-    Return HTML partial for paginated top performers (HTMX endpoint).
-
-    Matches the /admin/tools/partial pattern for consistent pagination UX.
-
-    Args:
-        request: FastAPI request object
-        entity_type: Entity type (tools, resources, prompts, servers)
-        page: Page number (1-indexed)
-        per_page: Items per page
-        db: Database session
-        user: Authenticated user
-
-    Returns:
-        HTMLResponse with paginated table and OOB pagination controls
-
-    Raises:
-        HTTPException: If entity_type is not one of the valid types
-    """
-    LOGGER.debug(f"User {get_user_email(user)} requested metrics partial (entity_type={entity_type}, page={page}, per_page={per_page})")
-
-    # Validate entity type
-    valid_types = ["tools", "resources", "prompts", "servers"]
-    if entity_type not in valid_types:
-        raise HTTPException(status_code=400, detail=f"Invalid entity_type. Must be one of: {', '.join(valid_types)}")
-
-    # Constrain parameters
-    page = max(1, page)
-    per_page = max(1, min(per_page, 1000))
-
-    # Get all items for this entity type
-    if entity_type == "tools":
-        all_items = await tool_service.get_top_tools(db, limit=None)
-    elif entity_type == "resources":
-        all_items = await resource_service.get_top_resources(db, limit=None)
-    elif entity_type == "prompts":
-        all_items = await prompt_service.get_top_prompts(db, limit=None)
-    else:  # servers
-        all_items = await server_service.get_top_servers(db, limit=None)
-
-    # Calculate pagination
-    total_items = len(all_items)
-    total_pages = math.ceil(total_items / per_page) if per_page > 0 else 0
-    offset = (page - 1) * per_page
-    paginated_items = all_items[offset : offset + per_page]
-
-    # Convert to JSON-serializable format
-    data = jsonable_encoder(paginated_items)
-
-    # Build pagination metadata
-    pagination = PaginationMeta(
-        page=page,
-        per_page=per_page,
-        total_items=total_items,
-        total_pages=total_pages,
-        has_next=page < total_pages,
-        has_prev=page > 1,
-    )
-
-    # Render template
-    return request.app.state.templates.TemplateResponse(
-        request,
-        "metrics_top_performers_partial.html",
-        {
-            "request": request,
-            "entity_type": entity_type,
-            "data": data,
-            "pagination": pagination.model_dump(),
-            "root_path": _resolve_root_path(request),
-        },
-    )
-
-
-@admin_router.post("/metrics/reset", response_model=Dict[str, object])
-@require_permission("admin.system_config", allow_admin_bypass=False)
-async def admin_reset_metrics(db: Session = Depends(get_db), user=Depends(get_current_user_with_permissions)) -> Dict[str, object]:
-    """
-    Reset all metrics for tools, resources, servers, and prompts.
-    Each service must implement its own reset_metrics method.
-
-    Args:
-        db (Session): Database session dependency.
-        user (str): Authenticated user dependency.
-
-    Returns:
-        Dict[str, object]: A dictionary containing a success message and status.
-
-    Examples:
-        >>> callable(admin_reset_metrics)
-        True
-        >>> admin_reset_metrics.__name__
-        'admin_reset_metrics'
-    """
-    LOGGER.debug(f"User {get_user_email(user)} requested to reset all metrics")
-    await tool_service.reset_metrics(db)
-    await resource_service.reset_metrics(db)
-    await server_service.reset_metrics(db)
-    await prompt_service.reset_metrics(db)
-    return {"message": "All metrics reset successfully", "success": True}
-
-
 @admin_router.post("/gateways/test", response_model=GatewayTestResponse)
 @require_permission("gateways.read", allow_admin_bypass=False)
 async def admin_test_gateway(
@@ -15805,3 +15618,4 @@ admin_router.routes.extend(_plugins_router.routes)
 admin_router.routes.extend(_performance_router.routes)
 admin_router.routes.extend(_system_router.routes)
 admin_router.routes.extend(_events_router.routes)
+admin_router.routes.extend(_metrics_router.routes)
