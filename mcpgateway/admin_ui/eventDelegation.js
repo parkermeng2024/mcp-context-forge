@@ -369,9 +369,7 @@ function removeClosestFixed(event) {
  * Helper: execute bulk import dropdown toggle and reload page
  */
 function executeBulkImportAndReload() {
-  if (typeof toggleBulkImportDropdown === 'function') {
-    toggleBulkImportDropdown();
-  }
+  window.Admin?.toggleBulkImportDropdown?.();
   window.location.reload();
 }
 

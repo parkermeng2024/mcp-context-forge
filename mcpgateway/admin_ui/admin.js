@@ -565,6 +565,100 @@ Admin.showSsoProviderEditModal = showSsoProviderEditModal;
 Admin.showSsoRejectModal = showSsoRejectModal;
 Admin.toggleSsoProvider = toggleSsoProvider;
 
+// Standalone UI helpers: URL flash messages, the edit-tool modal, and the A2A
+// plugin-bindings panel. These run on DOM-ready content, so call them here,
+// after the template has parsed and before DOMContentLoaded fires.
+import { getFlashParams, initFlashMessages } from "./flashMessages.js";
+import { handleEditIntegrationTypeChange, initToolEditModalObserver } from "./toolEdit.js";
+import { closeAddBindingForm, filterBindingsByTeam, showAddBindingForm, validateBindingForm } from "./a2aPluginBindings.js";
+import {
+  buildTeamsPartialUrl,
+  cancelJoinRequest,
+  deleteTeamSafe,
+  discoverOAuthEndpoints,
+  downloadSampleJSON,
+  editTeamSafe,
+  initializeTeamManagement,
+  leaveTeamSafe,
+  loadTeamMembersView,
+  manageTeamMembersSafe,
+  openCreateTeamModal,
+  closeCreateTeamModal,
+  requestToJoinTeamSafe,
+  updateTeamContext,
+  viewJoinRequestsSafe,
+} from "./teamActions.js";
+import {
+  closeBulkImportModal,
+  handleDropdownFileSelect,
+  handleFileSelect,
+  openBulkImportModal,
+  performDropdownImport,
+  resetBulkImportModal,
+  resetDropdownImport,
+  showDropdownActionButtons,
+  showDropdownFailedTools,
+  showDropdownResults,
+  showDropdownStatus,
+  submitBulkImport,
+  submitDropdownImport,
+  toggleBulkImportDropdown,
+  toggleDropdownImportMethod,
+  toggleImportMethod,
+  togglePreviewDetails,
+  toggleValidationGuide,
+  validateDropdownData,
+  validateDropdownJson,
+  validateJsonInput,
+} from "./bulkImport.js";
+
+Admin.getFlashParams = getFlashParams;
+Admin.initFlashMessages = initFlashMessages;
+Admin.handleEditIntegrationTypeChange = handleEditIntegrationTypeChange;
+Admin.initToolEditModalObserver = initToolEditModalObserver;
+Admin.closeAddBindingForm = closeAddBindingForm;
+Admin.filterBindingsByTeam = filterBindingsByTeam;
+Admin.showAddBindingForm = showAddBindingForm;
+Admin.validateBindingForm = validateBindingForm;
+Admin.buildTeamsPartialUrl = buildTeamsPartialUrl;
+Admin.cancelJoinRequest = cancelJoinRequest;
+Admin.closeCreateTeamModal = closeCreateTeamModal;
+Admin.deleteTeamSafe = deleteTeamSafe;
+Admin.discoverOAuthEndpoints = discoverOAuthEndpoints;
+Admin.downloadSampleJSON = downloadSampleJSON;
+Admin.editTeamSafe = editTeamSafe;
+Admin.initializeTeamManagement = initializeTeamManagement;
+Admin.leaveTeamSafe = leaveTeamSafe;
+Admin.loadTeamMembersView = loadTeamMembersView;
+Admin.manageTeamMembersSafe = manageTeamMembersSafe;
+Admin.openCreateTeamModal = openCreateTeamModal;
+Admin.requestToJoinTeamSafe = requestToJoinTeamSafe;
+Admin.updateTeamContext = updateTeamContext;
+Admin.viewJoinRequestsSafe = viewJoinRequestsSafe;
+Admin.closeBulkImportModal = closeBulkImportModal;
+Admin.handleDropdownFileSelect = handleDropdownFileSelect;
+Admin.handleFileSelect = handleFileSelect;
+Admin.openBulkImportModal = openBulkImportModal;
+Admin.performDropdownImport = performDropdownImport;
+Admin.resetBulkImportModal = resetBulkImportModal;
+Admin.resetDropdownImport = resetDropdownImport;
+Admin.showDropdownActionButtons = showDropdownActionButtons;
+Admin.showDropdownFailedTools = showDropdownFailedTools;
+Admin.showDropdownResults = showDropdownResults;
+Admin.showDropdownStatus = showDropdownStatus;
+Admin.submitBulkImport = submitBulkImport;
+Admin.submitDropdownImport = submitDropdownImport;
+Admin.toggleBulkImportDropdown = toggleBulkImportDropdown;
+Admin.toggleDropdownImportMethod = toggleDropdownImportMethod;
+Admin.toggleImportMethod = toggleImportMethod;
+Admin.togglePreviewDetails = togglePreviewDetails;
+Admin.toggleValidationGuide = toggleValidationGuide;
+Admin.validateDropdownData = validateDropdownData;
+Admin.validateDropdownJson = validateDropdownJson;
+Admin.validateJsonInput = validateJsonInput;
+initFlashMessages();
+initToolEditModalObserver();
+
 // ===================================================================
 // TIER 3 & 4: Domain and Orchestration modules (still using IIFE)
 // These modules will attach their functions directly to window.Admin
