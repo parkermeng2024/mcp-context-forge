@@ -6191,8 +6191,8 @@ class TestA2AAgentManagement:
         assert call_kwargs["page"] == 1
         assert call_kwargs["per_page"] == 50
 
-    @patch("mcpgateway.admin.settings.mcpgateway_a2a_enabled", False)
-    @patch("mcpgateway.admin.a2a_service", None)
+    @patch("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", False)
+    @patch("mcpgateway.admin.a2a.a2a_service", None)
     async def test_admin_list_a2a_agents_disabled(self, mock_request, mock_db):
         """Test listing A2A agents when A2A is disabled."""
         # First-Party
@@ -6205,7 +6205,7 @@ class TestA2AAgentManagement:
         assert "data" in result
         assert len(result["data"]) == 0
 
-    @patch("mcpgateway.admin.a2a_service")
+    @patch("mcpgateway.admin.a2a.a2a_service")
     async def _test_admin_add_a2a_agent_success(self, mock_a2a_service, mock_request, mock_db):
         """Test successfully adding A2A agent."""
         # First-Party
@@ -6311,8 +6311,8 @@ class TestA2AAgentManagement:
     @pytest.mark.asyncio
     async def test_admin_set_a2a_agent_state_disabled_redirects(self, monkeypatch, mock_request, mock_db):
         """Cover disabled-features early redirect in admin_set_a2a_agent_state."""
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", None)
-        monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", None)
+        monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True, raising=False)
         mock_request.scope = {"root_path": "/root"}
 
         result = await admin_set_a2a_agent_state("agent-1", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
@@ -6387,8 +6387,8 @@ class TestA2AAgentManagement:
     @pytest.mark.asyncio
     async def test_admin_delete_a2a_agent_disabled_redirects(self, monkeypatch, mock_request, mock_db):
         """Cover disabled-features early redirect in admin_delete_a2a_agent."""
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", None)
-        monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", None)
+        monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True, raising=False)
         mock_request.scope = {"root_path": ""}
 
         result = await admin_delete_a2a_agent("agent-1", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
@@ -6508,8 +6508,8 @@ class TestA2AAgentManagement:
 
     @pytest.mark.asyncio
     async def test_admin_test_a2a_agent_disabled(self, monkeypatch, mock_request, mock_db, allow_permission):
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", None)
-        monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", None)
+        monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True, raising=False)
 
         result = await admin_test_a2a_agent("agent-1", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
         assert result.status_code == 403
@@ -6521,9 +6521,9 @@ class TestA2AAgentManagement:
         service = MagicMock()
         service.get_agent = AsyncMock(return_value=SimpleNamespace(name="Agent", agent_type="generic", endpoint_url="http://agent.example.com/"))
         service.invoke_agent = AsyncMock(return_value={"ok": True})
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
-        monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin._read_request_json", AsyncMock(side_effect=RuntimeError("boom")), raising=True)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.a2a._read_request_json", AsyncMock(side_effect=RuntimeError("boom")), raising=True)
 
         result = await admin_test_a2a_agent("agent-1", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
         assert result.status_code == 200
@@ -6535,9 +6535,9 @@ class TestA2AAgentManagement:
         service = MagicMock()
         service.get_agent = AsyncMock(return_value=SimpleNamespace(name="Agent", agent_type="custom", endpoint_url="http://agent.example.com/api"))
         service.invoke_agent = AsyncMock(return_value={"ok": True})
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
-        monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin._read_request_json", AsyncMock(return_value={"query": "hi"}), raising=True)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.a2a._read_request_json", AsyncMock(return_value={"query": "hi"}), raising=True)
 
         result = await admin_test_a2a_agent("agent-1", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
         assert result.status_code == 200
@@ -6551,9 +6551,9 @@ class TestA2AAgentManagement:
         service = MagicMock()
         service.get_agent = AsyncMock(return_value=SimpleNamespace(name="Agent", agent_type="custom", endpoint_url="http://agent.example.com/api"))
         service.invoke_agent = AsyncMock(side_effect=RuntimeError("boom"))
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
-        monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin._read_request_json", AsyncMock(return_value={"query": "hi"}), raising=True)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.a2a._read_request_json", AsyncMock(return_value={"query": "hi"}), raising=True)
 
         result = await admin_test_a2a_agent("agent-1", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
         assert result.status_code == 500
@@ -6609,9 +6609,9 @@ class TestA2AAgentManagement:
         service = MagicMock()
         service.get_agent = AsyncMock(return_value=SimpleNamespace(name="Agent", agent_type="generic", endpoint_url="http://agent.example.com/"))
         service.invoke_agent = AsyncMock(side_effect=A2AAgentError("A2A Agent 'test-agent' is disabled"))
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
-        monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin._read_request_json", AsyncMock(return_value={"query": "test"}), raising=True)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.a2a._read_request_json", AsyncMock(return_value={"query": "test"}), raising=True)
 
         result = await admin_test_a2a_agent("agent-1", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
         assert result.status_code == 502
@@ -6630,9 +6630,9 @@ class TestA2AAgentManagement:
         service = MagicMock()
         service.get_agent = AsyncMock(return_value=SimpleNamespace(name="Agent", agent_type="generic", endpoint_url="http://agent.example.com/"))
         service.invoke_agent = AsyncMock(side_effect=A2AAgentError("HTTP 503: Service Unavailable"))
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
-        monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin._read_request_json", AsyncMock(return_value={"query": "test"}), raising=True)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.a2a._read_request_json", AsyncMock(return_value={"query": "test"}), raising=True)
 
         result = await admin_test_a2a_agent("agent-1", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
         assert result.status_code == 502
@@ -6648,9 +6648,9 @@ class TestA2AAgentManagement:
         service.get_agent = AsyncMock(return_value=SimpleNamespace(name="Agent", agent_type="generic", endpoint_url="http://agent.example.com/"))
         # Simulate validation error during parameter processing
         service.invoke_agent = AsyncMock(side_effect=ValidationError.from_exception_data("test", []))
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
-        monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin._read_request_json", AsyncMock(return_value={"query": "test"}), raising=True)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.a2a._read_request_json", AsyncMock(return_value={"query": "test"}), raising=True)
 
         result = await admin_test_a2a_agent("agent-1", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
         assert result.status_code == 422
@@ -6668,9 +6668,9 @@ class TestA2AAgentManagement:
         service = MagicMock()
         service.get_agent = AsyncMock(return_value=SimpleNamespace(name="Agent", agent_type="generic", endpoint_url="http://agent.example.com/"))
         service.invoke_agent = AsyncMock(side_effect=A2AAgentError("Failed to invoke A2A agent: Connection refused"))
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
-        monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin._read_request_json", AsyncMock(return_value={"query": "test"}), raising=True)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.a2a._read_request_json", AsyncMock(return_value={"query": "test"}), raising=True)
 
         result = await admin_test_a2a_agent("agent-1", mock_request, mock_db, user={"email": "test-user", "db": mock_db})
         assert result.status_code == 502
@@ -15262,13 +15262,13 @@ class TestAdminAdditionalCoverage:
         monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
         mock_service = MagicMock()
         mock_service.register_agent = AsyncMock()
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", mock_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", mock_service)
 
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value=None)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+            "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
             MagicMock(
                 return_value={
                     "created_by": "user",
@@ -15293,13 +15293,13 @@ class TestAdminAdditionalCoverage:
         monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
         mock_service = MagicMock()
         mock_service.register_agent = AsyncMock()
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", mock_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", mock_service)
 
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value=None)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+            "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
             MagicMock(
                 return_value={
                     "created_by": "user",
@@ -15325,13 +15325,13 @@ class TestAdminAdditionalCoverage:
         monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
         mock_service = MagicMock()
         mock_service.register_agent = AsyncMock()
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", mock_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", mock_service)
 
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value=None)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+            "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
             MagicMock(
                 return_value={
                     "created_by": "user",
@@ -15356,13 +15356,13 @@ class TestAdminAdditionalCoverage:
         """Editing with protocol_version='0.3' should propagate to A2AAgentUpdate."""
         mock_service = MagicMock()
         mock_service.update_agent = AsyncMock()
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", mock_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", mock_service)
 
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value=None)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.MetadataCapture.extract_modification_metadata",
+            "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata",
             MagicMock(return_value={"modified_by": "user", "modified_from_ip": "127.0.0.1", "modified_via": "ui", "modified_user_agent": "test"}),
         )
 
@@ -15378,17 +15378,17 @@ class TestAdminAdditionalCoverage:
         """Edit A2A agent successfully with oauth config."""
         mock_service = MagicMock()
         mock_service.update_agent = AsyncMock()
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", mock_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", mock_service)
 
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value=None)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
 
         encryption = MagicMock()
         encryption.encrypt_secret_async = AsyncMock(return_value="encrypted")
-        monkeypatch.setattr("mcpgateway.admin.get_encryption_service", lambda *_args, **_kwargs: encryption)
+        monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda *_args, **_kwargs: encryption)
         monkeypatch.setattr(
-            "mcpgateway.admin.MetadataCapture.extract_modification_metadata",
+            "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata",
             MagicMock(return_value={"modified_by": "user", "modified_from_ip": "127.0.0.1", "modified_via": "ui", "modified_user_agent": "test"}),
         )
 
@@ -15415,17 +15415,17 @@ class TestAdminAdditionalCoverage:
 
         mock_service = MagicMock()
         mock_service.update_agent = AsyncMock()
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", mock_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", mock_service)
 
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(side_effect=lambda email, tid: tid)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
 
         encryption = MagicMock()
         encryption.encrypt_secret_async = AsyncMock(return_value="encrypted")
-        monkeypatch.setattr("mcpgateway.admin.get_encryption_service", lambda *_args, **_kwargs: encryption)
+        monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda *_args, **_kwargs: encryption)
         monkeypatch.setattr(
-            "mcpgateway.admin.MetadataCapture.extract_modification_metadata",
+            "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata",
             MagicMock(return_value={"modified_by": "user", "modified_from_ip": "127.0.0.1", "modified_via": "ui", "modified_user_agent": "test"}),
         )
 
@@ -15527,7 +15527,7 @@ class TestAdminAdditionalCoverage:
 
         service = MagicMock()
         service.list_agents = AsyncMock(return_value={"data": [agent], "pagination": pagination, "links": links})
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
         mock_request.state = MagicMock()
         mock_request.state.token_teams = None
 
@@ -18400,7 +18400,7 @@ async def test_admin_get_agent_success(monkeypatch, mock_db, mock_request):
     agent.model_dump.return_value = {"id": "agent-1"}
     service = MagicMock()
     service.get_agent = AsyncMock(return_value=agent)
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
     mock_request.state = MagicMock()
     mock_request.state.token_teams = None
 
@@ -18425,7 +18425,7 @@ async def test_admin_get_agent_generic_exception_is_reraised(monkeypatch, mock_d
     """Cover generic exception handler in admin_get_agent."""
     service = MagicMock()
     service.get_agent = AsyncMock(side_effect=RuntimeError("boom"))
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
     mock_request.state = MagicMock()
     mock_request.state.token_teams = None
 
@@ -18453,7 +18453,7 @@ async def test_admin_get_agent_admin_with_token_teams_none_retrieves_own_private
     }
     service = MagicMock()
     service.get_agent = AsyncMock(return_value=agent)
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
     mock_request.state = MagicMock()
     mock_request.state.token_teams = None
 
@@ -18476,7 +18476,7 @@ async def test_admin_get_agent_admin_with_public_only_token_cannot_retrieve_othe
     """
     service = MagicMock()
     service.get_agent = AsyncMock(side_effect=A2AAgentNotFoundError("Agent not found or access denied"))
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
     mock_request.state = MagicMock()
     mock_request.state.token_teams = []  # Public-only token
 
@@ -18916,7 +18916,7 @@ async def test_get_performance_endpoints(monkeypatch, allow_permission):
 @pytest.mark.asyncio
 async def test_admin_add_a2a_agent_disabled_features(monkeypatch, mock_db, allow_permission):
     request = MagicMock(spec=Request)
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", None)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", None)
     monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
 
     response = await admin_add_a2a_agent(request, mock_db, user={"email": "user@example.com", "db": mock_db})
@@ -18935,19 +18935,19 @@ async def test_admin_add_a2a_agent_oauth_config_parse_error(monkeypatch, mock_db
 
     service = MagicMock()
     service.register_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
     monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
         lambda *_args, **_kwargs: {"created_by": "u", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},
     )
 
     log_error = MagicMock()
-    monkeypatch.setattr("mcpgateway.admin.LOGGER.error", log_error, raising=True)
+    monkeypatch.setattr("mcpgateway.admin.a2a.LOGGER.error", log_error, raising=True)
 
     response = await admin_add_a2a_agent(request, mock_db, user={"email": "user@example.com", "db": mock_db})
     assert response.status_code == 200
@@ -18973,18 +18973,18 @@ async def test_admin_add_a2a_agent_oauth_auto_detect(monkeypatch, mock_db):
 
     service = MagicMock()
     service.register_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
     monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
 
     encryptor = MagicMock()
     encryptor.encrypt_secret_async = AsyncMock(return_value="enc")
-    monkeypatch.setattr("mcpgateway.admin.get_encryption_service", lambda _secret: encryptor)
+    monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda _secret: encryptor)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
         lambda *_args, **_kwargs: {"created_by": "u", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},
     )
 
@@ -19021,18 +19021,18 @@ async def test_admin_add_a2a_agent_oauth_assembled_from_form_fields(monkeypatch,
 
     service = MagicMock()
     service.register_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
     monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
 
     encryptor = MagicMock()
     encryptor.encrypt_secret_async = AsyncMock(return_value="enc")
     monkeypatch.setattr("mcpgateway.admin.common.get_encryption_service", lambda _secret: encryptor)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
         lambda *_args, **_kwargs: {"created_by": "u", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},
     )
 
@@ -19071,18 +19071,18 @@ async def test_admin_add_a2a_agent_oauth_with_audience(monkeypatch, mock_db):
 
     service = MagicMock()
     service.register_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
     monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
 
     encryptor = MagicMock()
     encryptor.encrypt_secret_async = AsyncMock(return_value="enc-secret")
-    monkeypatch.setattr("mcpgateway.admin.get_encryption_service", lambda _secret: encryptor)
+    monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda _secret: encryptor)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
         lambda *_args, **_kwargs: {"created_by": "u", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},
     )
 
@@ -19114,14 +19114,14 @@ async def test_admin_add_a2a_agent_oauth_assembled_minimal_fields_covers_false_b
 
     service = MagicMock()
     service.register_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
     monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
         lambda *_args, **_kwargs: {"created_by": "u", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},
     )
 
@@ -19152,14 +19152,14 @@ async def test_admin_add_a2a_agent_oauth_scopes_parse_empty_and_missing_client_i
 
     service = MagicMock()
     service.register_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
     monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
         lambda *_args, **_kwargs: {"created_by": "u", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},
     )
 
@@ -19188,14 +19188,14 @@ async def test_admin_add_a2a_agent_oauth_config_without_client_secret(monkeypatc
 
     service = MagicMock()
     service.register_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
     monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
         lambda *_args, **_kwargs: {"created_by": "u", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},
     )
 
@@ -19215,15 +19215,15 @@ async def test_admin_add_a2a_agent_error_handlers(monkeypatch, mock_db):
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
         lambda *_args, **_kwargs: {"created_by": "u", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},
     )
 
     service = MagicMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
 
     service.register_agent = AsyncMock(side_effect=A2AAgentError("boom"))
     response = await admin_add_a2a_agent(request, mock_db, user={"email": "user@example.com"})
@@ -19266,17 +19266,17 @@ async def test_admin_edit_a2a_agent_parses_fields(monkeypatch, mock_db):
 
     service = MagicMock()
     service.update_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
 
     encryptor = MagicMock()
     encryptor.encrypt_secret_async = AsyncMock(return_value="enc")
-    monkeypatch.setattr("mcpgateway.admin.get_encryption_service", lambda _secret: encryptor)
+    monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda _secret: encryptor)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_modification_metadata", lambda *_args, **_kwargs: {"modified_by": "u", "modified_from_ip": None, "modified_via": "ui", "modified_user_agent": None}
+        "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata", lambda *_args, **_kwargs: {"modified_by": "u", "modified_from_ip": None, "modified_via": "ui", "modified_user_agent": None}
     )
 
     response = await admin_edit_a2a_agent("agent-1", request, mock_db, user={"email": "user@example.com"})
@@ -19311,13 +19311,13 @@ async def test_admin_edit_a2a_agent_oauth_config_invalid_json(monkeypatch, mock_
 
     service = MagicMock()
     service.update_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_modification_metadata", lambda *_args, **_kwargs: {"modified_by": "u", "modified_from_ip": None, "modified_via": "ui", "modified_user_agent": None}
+        "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata", lambda *_args, **_kwargs: {"modified_by": "u", "modified_from_ip": None, "modified_via": "ui", "modified_user_agent": None}
     )
 
     response = await admin_edit_a2a_agent("agent-1", request, mock_db, user={"email": "user@example.com"})
@@ -19347,17 +19347,17 @@ async def test_admin_edit_a2a_agent_oauth_with_audience(monkeypatch, mock_db):
 
     service = MagicMock()
     service.update_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
 
     encryptor = MagicMock()
     encryptor.encrypt_secret_async = AsyncMock(return_value="enc-secret")
-    monkeypatch.setattr("mcpgateway.admin.get_encryption_service", lambda _secret: encryptor)
+    monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda _secret: encryptor)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_modification_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata",
         lambda *_args, **_kwargs: {"modified_by": "u", "modified_from_ip": None, "modified_via": "ui", "modified_user_agent": None},
     )
 
@@ -19396,13 +19396,13 @@ async def test_admin_edit_a2a_agent_error_handlers(monkeypatch, mock_db):
 
         service = MagicMock()
         service.update_agent = AsyncMock(side_effect=exc)
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
 
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(return_value=str(uuid4()))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.MetadataCapture.extract_modification_metadata",
+            "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata",
             lambda *_args, **_kwargs: {"modified_by": "u", "modified_from_ip": None, "modified_via": "ui", "modified_user_agent": None},
         )
 
@@ -19430,14 +19430,14 @@ async def test_admin_add_a2a_agent_with_custom_headers(monkeypatch, mock_db):
 
     service = MagicMock()
     service.register_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
-    monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=None)
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
         MagicMock(
             return_value={
                 "created_by": "test@example.com",
@@ -19491,14 +19491,14 @@ async def test_admin_edit_a2a_agent_with_custom_headers(monkeypatch, mock_db):
 
     service = MagicMock()
     service.update_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
-    monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=None)
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_modification_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata",
         MagicMock(return_value={"modified_by": "test@example.com", "modified_from_ip": "127.0.0.1", "modified_via": "ui", "modified_user_agent": "test"}),
     )
 
@@ -19542,14 +19542,14 @@ async def test_admin_edit_a2a_agent_empty_custom_headers(monkeypatch, mock_db):
 
     service = MagicMock()
     service.update_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
-    monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=None)
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_modification_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata",
         MagicMock(return_value={"modified_by": "test@example.com", "modified_from_ip": "127.0.0.1", "modified_via": "ui", "modified_user_agent": "test"}),
     )
 
@@ -19581,14 +19581,14 @@ async def test_admin_edit_a2a_agent_invalid_json_headers(monkeypatch, mock_db):
 
     service = MagicMock()
     service.update_agent = AsyncMock()
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", service)
-    monkeypatch.setattr("mcpgateway.admin.settings.mcpgateway_a2a_enabled", True)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.settings.mcpgateway_a2a_enabled", True)
 
     team_service = MagicMock()
     team_service.verify_team_for_user = AsyncMock(return_value=None)
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(
-        "mcpgateway.admin.MetadataCapture.extract_modification_metadata",
+        "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata",
         MagicMock(return_value={"modified_by": "test@example.com", "modified_from_ip": "127.0.0.1", "modified_via": "ui", "modified_user_agent": "test"}),
     )
 
