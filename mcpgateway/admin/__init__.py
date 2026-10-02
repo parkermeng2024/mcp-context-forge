@@ -167,7 +167,7 @@ from mcpgateway.services.gateway_service import (
     GatewayNameConflictError,
     GatewayNotFoundError,
     GatewayToolNameConflictError,
-    GatewayService,
+    GatewayService as GatewayService,
     test_gateway_connectivity,
 )
 from mcpgateway.services.import_service import ConflictStrategy as ConflictStrategy
@@ -240,6 +240,7 @@ from mcpgateway.admin.common import (  # noqa: PLC2701
     prompt_service,
     resource_service,
     root_service,
+    serialize_datetime as serialize_datetime,
     server_service,
     tool_service,
 )
@@ -359,6 +360,13 @@ from mcpgateway.admin.export_import import (  # noqa: PLC2701
     admin_import_preview as admin_import_preview,
     admin_list_import_statuses as admin_list_import_statuses,
     router as _export_import_router,
+)
+from mcpgateway.admin.sections import (  # noqa: PLC2701
+    get_resources_section as get_resources_section,
+    get_prompts_section as get_prompts_section,
+    get_servers_section as get_servers_section,
+    get_gateways_section as get_gateways_section,
+    router as _sections_router,
 )
 from mcpgateway.admin.users import (  # noqa: PLC2701
     _render_user_card_html as _render_user_card_html,
@@ -481,9 +489,6 @@ if logging_service is None:
     LOGGER = logging_service.get_logger("mcpgateway.admin")
 
 
-# Initialize gRPC service only if gRPC features are enabled AND grpcio is installed
-
-
 async def _parse_gateway_data_from_request(request: Request) -> dict[str, Any]:
     """Parse gateway data from either JSON body or form data.
 
@@ -599,68 +604,6 @@ def _gateway_result_payload(result: Any) -> Optional[dict[str, Any]]:
     if isinstance(result, BaseModel):
         return result.model_dump(mode="json", by_alias=True)
     return None
-
-
-def serialize_datetime(obj):
-    """Convert datetime objects to ISO format strings for JSON serialization.
-
-    Args:
-        obj: Object to serialize, potentially a datetime
-
-    Returns:
-        str: ISO format string if obj is datetime, otherwise returns obj unchanged
-
-    Examples:
-        Test with datetime object:
-        >>> from mcpgateway import admin
-        >>> from datetime import datetime, timezone
-        >>> dt = datetime(2025, 1, 15, 10, 30, 45, tzinfo=timezone.utc)
-        >>> admin.serialize_datetime(dt)
-        '2025-01-15T10:30:45+00:00'
-
-        Test with naive datetime:
-        >>> dt_naive = datetime(2025, 3, 20, 14, 15, 30)
-        >>> result = admin.serialize_datetime(dt_naive)
-        >>> '2025-03-20T14:15:30' in result
-        True
-
-        Test with datetime with microseconds:
-        >>> dt_micro = datetime(2025, 6, 10, 9, 25, 12, 500000)
-        >>> result = admin.serialize_datetime(dt_micro)
-        >>> '2025-06-10T09:25:12.500000' in result
-        True
-
-        Test with non-datetime objects (should return unchanged):
-        >>> admin.serialize_datetime("2025-01-15T10:30:45")
-        '2025-01-15T10:30:45'
-        >>> admin.serialize_datetime(12345)
-        12345
-        >>> admin.serialize_datetime(['a', 'list'])
-        ['a', 'list']
-        >>> admin.serialize_datetime({'key': 'value'})
-        {'key': 'value'}
-        >>> admin.serialize_datetime(None)
-        >>> admin.serialize_datetime(True)
-        True
-
-        Test with current datetime:
-        >>> import datetime as dt_module
-        >>> now = dt_module.datetime.now()
-        >>> result = admin.serialize_datetime(now)
-        >>> isinstance(result, str)
-        True
-        >>> 'T' in result  # ISO format contains 'T' separator
-        True
-
-        Test edge case with datetime min/max:
-        >>> dt_min = datetime.min
-        >>> result = admin.serialize_datetime(dt_min)
-        >>> result.startswith('0001-01-01T')
-        True
-    """
-    if isinstance(obj, datetime):
-        return obj.isoformat()
-    return obj
 
 
 admin_router = APIRouter(
@@ -9266,242 +9209,6 @@ async def admin_test_gateway(
     return await test_gateway_connectivity(request, team_id, user, db)
 
 
-@admin_router.get("/sections/resources")
-@require_permission("resources.read", allow_admin_bypass=False)
-async def get_resources_section(
-    request: Request,
-    team_id: Optional[str] = None,
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user_with_permissions),
-):
-    """Get resources data filtered by team.
-
-    Args:
-        request: FastAPI request object
-        team_id: Optional team ID to filter by
-        db: Database session
-        user: Current authenticated user context
-
-    Returns:
-        JSONResponse: Resources data with team filtering applied
-    """
-    try:
-        local_resource_service = ResourceService()
-        user_email, token_teams = get_scoped_resource_access_context(request, user)
-        LOGGER.debug(f"User {user_email} requesting resources section with team_id={team_id}, token_teams={token_teams}")
-
-        # Filter in the service, not here: a strict team_id comparison would drop
-        # globally-public rows owned by other teams.
-        resources_result = await local_resource_service.list_resources(db, include_inactive=True, user_email=user_email, token_teams=token_teams, team_id=team_id)
-        if isinstance(resources_result, tuple):
-            resources_list = resources_result[0]
-        else:
-            resources_list = resources_result
-
-        # Convert to JSON-serializable format
-        resources = []
-        for resource in resources_list:
-            resource_dict = (
-                resource.model_dump(by_alias=True)
-                if hasattr(resource, "model_dump")
-                else {
-                    "id": resource.id,
-                    "name": resource.name,
-                    "description": resource.description,
-                    "uri": resource.uri,
-                    "tags": resource.tags or [],
-                    "isActive": resource.enabled,
-                    "team_id": getattr(resource, "team_id", None),
-                    "visibility": getattr(resource, "visibility", "private"),
-                }
-            )
-            resources.append(resource_dict)
-
-        return ORJSONResponse(content={"resources": resources, "team_id": team_id})
-
-    except Exception as e:
-        LOGGER.error(f"Error loading resources section: {e}")
-        return ORJSONResponse(content={"error": str(e)}, status_code=500)
-
-
-@admin_router.get("/sections/prompts")
-@require_permission("prompts.read", allow_admin_bypass=False)
-async def get_prompts_section(
-    request: Request,
-    team_id: Optional[str] = None,
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user_with_permissions),
-):
-    """Get prompts data filtered by team.
-
-    Args:
-        request: FastAPI request object
-        team_id: Optional team ID to filter by
-        db: Database session
-        user: Current authenticated user context
-
-    Returns:
-        JSONResponse: Prompts data with team filtering applied
-    """
-    try:
-        local_prompt_service = PromptService()
-        user_email, token_teams = get_scoped_resource_access_context(request, user)
-        LOGGER.debug(f"User {user_email} requesting prompts section with team_id={team_id}, token_teams={token_teams}")
-
-        # Filter in the service, not here: a strict team_id comparison would drop
-        # globally-public rows owned by other teams.
-        prompts_result = await local_prompt_service.list_prompts(db, include_inactive=True, user_email=user_email, token_teams=token_teams, team_id=team_id)
-        if isinstance(prompts_result, tuple):
-            prompts_list = prompts_result[0]
-        else:
-            prompts_list = prompts_result
-
-        # Convert to JSON-serializable format
-        prompts = []
-        for prompt in prompts_list:
-            prompt_dict = (
-                prompt.model_dump(by_alias=True)
-                if hasattr(prompt, "model_dump")
-                else {
-                    "id": prompt.id,
-                    "name": prompt.name,
-                    "description": prompt.description,
-                    "arguments": prompt.arguments or [],
-                    "tags": prompt.tags or [],
-                    # Prompt enabled/disabled state is stored on the prompt as `enabled`.
-                    "isActive": getattr(prompt, "enabled", False),
-                    "team_id": getattr(prompt, "team_id", None),
-                    "visibility": getattr(prompt, "visibility", "private"),
-                }
-            )
-            prompts.append(prompt_dict)
-
-        return ORJSONResponse(content={"prompts": prompts, "team_id": team_id})
-
-    except Exception as e:
-        LOGGER.error(f"Error loading prompts section: {e}")
-        return ORJSONResponse(content={"error": str(e)}, status_code=500)
-
-
-@admin_router.get("/sections/servers")
-@require_permission("servers.read", allow_admin_bypass=False)
-async def get_servers_section(
-    request: Request,
-    team_id: Optional[str] = None,
-    include_inactive: bool = False,
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user_with_permissions),
-):
-    """Get servers data filtered by team.
-
-    Args:
-        request: FastAPI request, used to derive the caller's Layer-1 visibility scope
-        team_id: Optional team ID to filter by
-        include_inactive: Whether to include inactive servers
-        db: Database session
-        user: Current authenticated user context
-
-    Returns:
-        JSONResponse: Servers data with team filtering applied
-    """
-    try:
-        local_server_service = ServerService()
-        user_email, token_teams = get_scoped_resource_access_context(request, user)
-        LOGGER.debug(f"User {user_email} requesting servers section with team_id={team_id}, include_inactive={include_inactive}, token_teams={token_teams}")
-
-        # Filter in the service, not here: a strict team_id comparison would drop
-        # globally-public rows owned by other teams.
-        servers_result = await local_server_service.list_servers(db, include_inactive=include_inactive, user_email=user_email, token_teams=token_teams, team_id=team_id)
-        if isinstance(servers_result, tuple):
-            servers_list = servers_result[0]
-        else:
-            servers_list = servers_result
-
-        # Convert to JSON-serializable format
-        servers = []
-        for server in servers_list:
-            server_dict = (
-                server.model_dump(by_alias=True)
-                if hasattr(server, "model_dump")
-                else {
-                    "id": server.id,
-                    "name": server.name,
-                    "description": server.description,
-                    "tags": server.tags or [],
-                    "isActive": server.enabled,
-                    "team_id": getattr(server, "team_id", None),
-                    "visibility": getattr(server, "visibility", "private"),
-                }
-            )
-            servers.append(server_dict)
-
-        return ORJSONResponse(content={"servers": servers, "team_id": team_id})
-
-    except Exception as e:
-        LOGGER.error(f"Error loading servers section: {e}")
-        return ORJSONResponse(content={"error": str(e)}, status_code=500)
-
-
-@admin_router.get("/sections/gateways")
-@require_permission("gateways.read", allow_admin_bypass=False)
-async def get_gateways_section(
-    request: Request,
-    team_id: Optional[str] = None,
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user_with_permissions),
-):
-    """Get gateways data filtered by team.
-
-    Args:
-        request: FastAPI request, used to derive the caller's Layer-1 visibility scope
-        team_id: Optional team ID to filter by
-        db: Database session
-        user: Current authenticated user context
-
-    Returns:
-        JSONResponse: Gateways data with team filtering applied
-    """
-    try:
-        local_gateway_service = GatewayService()
-        user_email, token_teams = get_scoped_resource_access_context(request, user)
-
-        # Filter in the service, not here: a strict team_id comparison would drop
-        # globally-public rows owned by other teams.
-        gateways_list, _ = await local_gateway_service.list_gateways(db, include_inactive=True, user_email=user_email, token_teams=token_teams, team_id=team_id)
-
-        # Convert to JSON-serializable format
-        gateways = []
-        for gateway in gateways_list:
-            if hasattr(gateway, "model_dump"):
-                # Get dict and serialize datetime objects
-                gateway_dict = gateway.model_dump(by_alias=True)
-                # Convert datetime objects to strings
-                for key, value in gateway_dict.items():
-                    gateway_dict[key] = serialize_datetime(value)
-            else:
-                # Parse URL to extract host and port
-                parsed_url = urllib.parse.urlparse(gateway.url) if gateway.url else None
-                gateway_dict = {
-                    "id": gateway.id,
-                    "name": gateway.name,
-                    "host": parsed_url.hostname if parsed_url else "",
-                    "port": parsed_url.port if parsed_url else 80,
-                    "tags": gateway.tags or [],
-                    "isActive": getattr(gateway, "enabled", False),
-                    "team_id": getattr(gateway, "team_id", None),
-                    "visibility": getattr(gateway, "visibility", "private"),
-                    "created_at": serialize_datetime(getattr(gateway, "created_at", None)),
-                    "updated_at": serialize_datetime(getattr(gateway, "updated_at", None)),
-                }
-            gateways.append(gateway_dict)
-
-        return ORJSONResponse(content={"gateways": gateways, "team_id": team_id})
-
-    except Exception as e:
-        LOGGER.error(f"Error loading gateways section: {e}")
-        return ORJSONResponse(content={"error": str(e)}, status_code=500)
-
-
 # FastAPI >= 0.141 include_router() mounts a lazy _IncludedRouter, which would
 # break the flat route list on admin_router; the observability router mirrors
 # admin_router's prefix, tags, and CSRF dependency, so extending is equivalent.
@@ -9521,3 +9228,4 @@ admin_router.routes.extend(_a2a_router.routes)
 admin_router.routes.extend(_grpc_router.routes)
 admin_router.routes.extend(_teams_router.routes)
 admin_router.routes.extend(_users_router.routes)
+admin_router.routes.extend(_sections_router.routes)

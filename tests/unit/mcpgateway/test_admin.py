@@ -17891,7 +17891,7 @@ async def test_get_gateways_section(monkeypatch, mock_db):
 
     gateway_service = MagicMock()
     gateway_service.list_gateways = AsyncMock(return_value=([gateway_a, gateway_b, GatewayModel()], None))
-    monkeypatch.setattr("mcpgateway.admin.GatewayService", lambda: gateway_service)
+    monkeypatch.setattr("mcpgateway.admin.sections.GatewayService", lambda: gateway_service)
 
     mock_request = MagicMock()
     mock_request.state = MagicMock()
@@ -17909,7 +17909,7 @@ async def test_get_gateways_section_exception_returns_500(monkeypatch, mock_db, 
     """Cover get_gateways_section exception handler."""
     gateway_service = MagicMock()
     gateway_service.list_gateways = AsyncMock(side_effect=RuntimeError("boom"))
-    monkeypatch.setattr("mcpgateway.admin.GatewayService", lambda: gateway_service)
+    monkeypatch.setattr("mcpgateway.admin.sections.GatewayService", lambda: gateway_service)
 
     mock_request = MagicMock()
     mock_request.state = MagicMock()

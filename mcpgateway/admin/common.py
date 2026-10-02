@@ -9,6 +9,7 @@ Shared Admin UI helpers: search/list utilities, team-id normalization, redirect 
 # Standard
 import logging
 import math
+from datetime import datetime
 from typing import Any, Dict, Optional, Union
 import urllib.parse
 import uuid
@@ -660,3 +661,65 @@ def _adjust_pagination_for_conversion_failures(pagination: "PaginationMeta", fai
         pagination.has_prev = pagination.page > 1
     # Always set page_items to reflect actual rendered count (even if failed_count == 0)
     pagination.page_items = rendered_count
+
+
+def serialize_datetime(obj):
+    """Convert datetime objects to ISO format strings for JSON serialization.
+
+    Args:
+        obj: Object to serialize, potentially a datetime
+
+    Returns:
+        str: ISO format string if obj is datetime, otherwise returns obj unchanged
+
+    Examples:
+        Test with datetime object:
+        >>> from mcpgateway import admin
+        >>> from datetime import datetime, timezone
+        >>> dt = datetime(2025, 1, 15, 10, 30, 45, tzinfo=timezone.utc)
+        >>> admin.serialize_datetime(dt)
+        '2025-01-15T10:30:45+00:00'
+
+        Test with naive datetime:
+        >>> dt_naive = datetime(2025, 3, 20, 14, 15, 30)
+        >>> result = admin.serialize_datetime(dt_naive)
+        >>> '2025-03-20T14:15:30' in result
+        True
+
+        Test with datetime with microseconds:
+        >>> dt_micro = datetime(2025, 6, 10, 9, 25, 12, 500000)
+        >>> result = admin.serialize_datetime(dt_micro)
+        >>> '2025-06-10T09:25:12.500000' in result
+        True
+
+        Test with non-datetime objects (should return unchanged):
+        >>> admin.serialize_datetime("2025-01-15T10:30:45")
+        '2025-01-15T10:30:45'
+        >>> admin.serialize_datetime(12345)
+        12345
+        >>> admin.serialize_datetime(['a', 'list'])
+        ['a', 'list']
+        >>> admin.serialize_datetime({'key': 'value'})
+        {'key': 'value'}
+        >>> admin.serialize_datetime(None)
+        >>> admin.serialize_datetime(True)
+        True
+
+        Test with current datetime:
+        >>> import datetime as dt_module
+        >>> now = dt_module.datetime.now()
+        >>> result = admin.serialize_datetime(now)
+        >>> isinstance(result, str)
+        True
+        >>> 'T' in result  # ISO format contains 'T' separator
+        True
+
+        Test edge case with datetime min/max:
+        >>> dt_min = datetime.min
+        >>> result = admin.serialize_datetime(dt_min)
+        >>> result.startswith('0001-01-01T')
+        True
+    """
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    return obj
