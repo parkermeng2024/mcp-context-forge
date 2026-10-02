@@ -206,6 +206,19 @@ const hideTabLoadingIndicator = function(tabName) {
   }
 };
 
+/**
+ * Report whether an HTMX target still holds its server-rendered loading stub.
+ *
+ * Each stub pairs a spinner with localized text, so matching that text breaks on
+ * every non-English catalog.
+ *
+ * @param {Element|null} container - Target container to inspect.
+ * @returns {boolean} True when the container still shows the loading stub.
+ */
+const hasLoadingStub = function (container) {
+  return container ? container.querySelector(".animate-spin") !== null : false;
+};
+
 export const isTabAvailable = function (tabName) {
   const normalizedTab = normalizeTabName(tabName);
   if (!normalizedTab) {
@@ -477,18 +490,15 @@ export const showTab = function (tabName) {
         }
 
         if (tabName === "teams") {
-          // Load Teams list if not already loaded
+          // The Teams panel has no hx-get of its own; admin.html owns the loader
+          // that requests /admin/teams/partial with the current filter state.
           const teamsList = safeGetElement("unified-teams-list");
-          if (teamsList) {
-            // Check if it's still showing the loading message or is empty
-            const hasLoadingMessage =
-              teamsList.innerHTML.includes("Loading teams...");
-            const isEmpty = teamsList.innerHTML.trim() === "";
-            if (hasLoadingMessage || isEmpty) {
-              // Trigger HTMX load manually if HTMX is available
-              if (window.htmx && window.htmx.trigger) {
-                window.htmx.trigger(teamsList, "load");
-              }
+          if (typeof window.initializeTeamManagement === "function") {
+            window.initializeTeamManagement();
+          } else if (teamsList && (hasLoadingStub(teamsList) || teamsList.innerHTML.trim() === "")) {
+            // Fallback for pages that render the panel without the inline loader
+            if (window.htmx && window.htmx.trigger) {
+              window.htmx.trigger(teamsList, "load");
             }
           }
         }
@@ -497,9 +507,7 @@ export const showTab = function (tabName) {
           // Load Gateways table if not already loaded
           const gatewaysTable = safeGetElement("gateways-table");
           if (gatewaysTable) {
-            const hasLoadingMessage = gatewaysTable.innerHTML.includes(
-              "Loading gateways..."
-            );
+            const hasLoadingMessage = hasLoadingStub(gatewaysTable);
             const isEmpty = gatewaysTable.innerHTML.trim() === "";
             if (hasLoadingMessage || isEmpty) {
               // Trigger HTMX load manually if HTMX is available
@@ -517,8 +525,7 @@ export const showTab = function (tabName) {
           // Load tokens list if not already loaded
           const tokensTable = document.getElementById("tokens-table");
           if (tokensTable) {
-            const hasLoadingMessage =
-              tokensTable.innerHTML.includes("Loading tokens...");
+            const hasLoadingMessage = hasLoadingStub(tokensTable);
             if (hasLoadingMessage) {
               // Trigger HTMX load manually if HTMX is available
               if (window.htmx && window.htmx.trigger) {
@@ -541,8 +548,7 @@ export const showTab = function (tabName) {
         if (tabName === "catalog") {
           const serversList = safeGetElement("servers-table");
           if (serversList) {
-            const hasLoadingMessage =
-              serversList.innerHTML.includes("Loading servers...");
+            const hasLoadingMessage = hasLoadingStub(serversList);
             if (hasLoadingMessage) {
               if (window.htmx && window.htmx.trigger) {
                 window.htmx.trigger(serversList, "load");
@@ -577,8 +583,7 @@ export const showTab = function (tabName) {
           // Load A2A agents list if not already loaded
           const agentsList = safeGetElement("agents-table");
           if (agentsList) {
-            const hasLoadingMessage =
-              agentsList.innerHTML.includes("Loading agents...");
+            const hasLoadingMessage = hasLoadingStub(agentsList);
             if (hasLoadingMessage) {
               // Trigger HTMX load manually if HTMX is available
               if (window.htmx && window.htmx.trigger) {
@@ -592,10 +597,8 @@ export const showTab = function (tabName) {
           // Load MCP Registry content
           const registryContent = safeGetElement("mcp-registry-servers");
           if (registryContent) {
-            const newLocal = "Loading MCP Registry servers...";
             // Always load on first visit or if showing loading message
-            const hasLoadingMessage =
-              registryContent.innerHTML.includes(newLocal);
+            const hasLoadingMessage = hasLoadingStub(registryContent);
             const needsLoad =
               hasLoadingMessage || !registryContent.getAttribute("data-loaded");
 

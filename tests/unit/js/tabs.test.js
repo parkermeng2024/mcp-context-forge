@@ -784,7 +784,10 @@ describe("showTab", () => {
 
     const serversList = document.createElement("div");
     serversList.id = "servers-table";
-    serversList.innerHTML = "Loading servers...";
+    // Server-rendered stub: spinner plus localized text. Detection must not
+    // depend on the text, which is translated.
+    serversList.innerHTML =
+      '<svg class="animate-spin"></svg><span>正在加载服务器……</span>';
     panel.appendChild(serversList);
 
     const link = document.createElement("a");
@@ -803,6 +806,33 @@ describe("showTab", () => {
     logSpy.mockRestore();
   });
 
+  test("skips catalog reload when the servers list is already loaded", () => {
+    const panel = document.createElement("div");
+    panel.id = "catalog-panel";
+    panel.classList.add("tab-panel", "hidden");
+    document.body.appendChild(panel);
+
+    const serversList = document.createElement("div");
+    serversList.id = "servers-table";
+    serversList.innerHTML = '<table><tbody><tr><td>Server 1</td></tr></tbody></table>';
+    panel.appendChild(serversList);
+
+    const link = document.createElement("a");
+    link.classList.add("sidebar-link");
+    link.href = "#catalog";
+    document.body.appendChild(link);
+
+    const triggerSpy = vi.fn();
+    window.htmx = { trigger: triggerSpy, ajax: vi.fn(), process: vi.fn() };
+
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    showTab("catalog");
+    vi.runAllTimers();
+
+    expect(triggerSpy).not.toHaveBeenCalled();
+    logSpy.mockRestore();
+  });
+
   test("loads a2a-agents tab", () => {
     const panel = document.createElement("div");
     panel.id = "a2a-agents-panel";
@@ -811,7 +841,8 @@ describe("showTab", () => {
 
     const agentsList = document.createElement("div");
     agentsList.id = "agents-table";
-    agentsList.innerHTML = "Loading agents...";
+    agentsList.innerHTML =
+      '<svg class="animate-spin"></svg><span>正在加载智能体……</span>';
     panel.appendChild(agentsList);
 
     const link = document.createElement("a");
@@ -827,6 +858,64 @@ describe("showTab", () => {
     vi.runAllTimers();
 
     expect(triggerSpy).toHaveBeenCalledWith(agentsList, "load");
+    logSpy.mockRestore();
+  });
+
+  test("loads teams tab through the page loader", () => {
+    const panel = document.createElement("div");
+    panel.id = "teams-panel";
+    panel.classList.add("tab-panel", "hidden");
+    document.body.appendChild(panel);
+
+    const teamsList = document.createElement("div");
+    teamsList.id = "unified-teams-list";
+    teamsList.innerHTML =
+      '<svg class="animate-spin"></svg><span>正在加载团队……</span>';
+    panel.appendChild(teamsList);
+
+    const link = document.createElement("a");
+    link.classList.add("sidebar-link");
+    link.href = "#teams";
+    document.body.appendChild(link);
+
+    const loaderSpy = vi.fn();
+    window.initializeTeamManagement = loaderSpy;
+
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    showTab("teams");
+    vi.runAllTimers();
+
+    expect(loaderSpy).toHaveBeenCalled();
+    logSpy.mockRestore();
+    delete window.initializeTeamManagement;
+  });
+
+  test("falls back to a load trigger when the teams loader is absent", () => {
+    const panel = document.createElement("div");
+    panel.id = "teams-panel";
+    panel.classList.add("tab-panel", "hidden");
+    document.body.appendChild(panel);
+
+    const teamsList = document.createElement("div");
+    teamsList.id = "unified-teams-list";
+    teamsList.innerHTML =
+      '<svg class="animate-spin"></svg><span>正在加载团队……</span>';
+    panel.appendChild(teamsList);
+
+    const link = document.createElement("a");
+    link.classList.add("sidebar-link");
+    link.href = "#teams";
+    document.body.appendChild(link);
+
+    delete window.initializeTeamManagement;
+    const triggerSpy = vi.fn();
+    window.htmx = { trigger: triggerSpy, ajax: vi.fn(), process: vi.fn() };
+
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    showTab("teams");
+    vi.runAllTimers();
+
+    expect(triggerSpy).toHaveBeenCalledWith(teamsList, "load");
     logSpy.mockRestore();
   });
 
