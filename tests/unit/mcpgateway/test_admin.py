@@ -20597,7 +20597,7 @@ class TestTeamJoinRequests:
         ts = MagicMock()
         ts.get_team_by_id = AsyncMock(return_value=team)
         ts.get_user_role_in_team = AsyncMock(return_value=None)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         request = MagicMock(spec=Request)
         result = await admin_create_join_request("team-1", request, mock_db, user={"email": "user@test.com"})
@@ -20611,7 +20611,7 @@ class TestTeamJoinRequests:
         ts = MagicMock()
         ts.get_team_by_id = AsyncMock(return_value=team)
         ts.get_user_role_in_team = AsyncMock(return_value="member")
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         request = MagicMock(spec=Request)
         result = await admin_create_join_request("team-1", request, mock_db, user={"email": "user@test.com"})
@@ -20623,7 +20623,7 @@ class TestTeamJoinRequests:
         monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
         ts = MagicMock()
         ts.get_team_by_id = AsyncMock(side_effect=RuntimeError("boom"))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         request = MagicMock(spec=Request)
         request.form = AsyncMock(return_value={})
@@ -20641,7 +20641,7 @@ class TestTeamJoinRequests:
         ts.get_user_role_in_team = AsyncMock(return_value=None)
         ts.get_user_join_requests = AsyncMock(return_value=[])
         ts.create_join_request = AsyncMock(return_value=join_req)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         request = MagicMock(spec=Request)
         request.form = AsyncMock(return_value={"message": "Please add me"})
@@ -20658,7 +20658,7 @@ class TestTeamJoinRequests:
         ts.get_team_by_id = AsyncMock(return_value=team)
         ts.get_user_role_in_team = AsyncMock(return_value=None)
         ts.get_user_join_requests = AsyncMock(return_value=[pending])
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         request = MagicMock(spec=Request)
         result = await admin_create_join_request("team-1", request, mock_db, user={"email": "user@test.com"})
@@ -20670,7 +20670,7 @@ class TestTeamJoinRequests:
         monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
         ts = MagicMock()
         ts.cancel_join_request = AsyncMock(return_value=True)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_cancel_join_request("team-1", "req-1", mock_db, user={"email": "user@test.com"})
         assert result.status_code == 200
@@ -20681,7 +20681,7 @@ class TestTeamJoinRequests:
         monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
         ts = MagicMock()
         ts.cancel_join_request = AsyncMock(return_value=False)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_cancel_join_request("team-1", "req-1", mock_db, user={"email": "user@test.com"})
         assert result.status_code == 400
@@ -20697,7 +20697,7 @@ class TestTeamJoinRequests:
         monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
         ts = MagicMock()
         ts.cancel_join_request = AsyncMock(side_effect=RuntimeError("boom"))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_cancel_join_request("team-1", "req-1", mock_db, user={"email": "user@test.com"})
         assert result.status_code == 400
@@ -20709,7 +20709,7 @@ class TestTeamJoinRequests:
         monkeypatch.setattr("mcpgateway.admin.settings.allow_team_join_requests", False, raising=False)
         ts = MagicMock()
         ts.cancel_join_request = AsyncMock(return_value=True)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_cancel_join_request("team-1", "req-1", mock_db, user={"email": "user@test.com"})
         assert result.status_code == 200
@@ -20724,7 +20724,7 @@ class TestTeamJoinRequests:
         ts.get_user_role_in_team = AsyncMock(return_value=None)
         ts.get_user_join_requests = AsyncMock(return_value=[])
         ts.create_join_request = AsyncMock(side_effect=ValueError("duplicate request"))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         request = MagicMock(spec=Request)
         request.form = AsyncMock(return_value={"message": "join me"})
@@ -20741,7 +20741,7 @@ class TestTeamJoinRequests:
         ts.get_team_by_id = AsyncMock(return_value=team)
         ts.get_user_role_in_team = AsyncMock(return_value="owner")
         ts.list_join_requests = AsyncMock(return_value=[req1])
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -20757,7 +20757,7 @@ class TestTeamJoinRequests:
         ts.get_team_by_id = AsyncMock(return_value=team)
         ts.get_user_role_in_team = AsyncMock(return_value="owner")
         ts.list_join_requests = AsyncMock(return_value=[])
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -20778,7 +20778,7 @@ class TestTeamJoinRequests:
         monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
         ts = MagicMock()
         ts.get_team_by_id = AsyncMock(return_value=None)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -20792,7 +20792,7 @@ class TestTeamJoinRequests:
         ts = MagicMock()
         ts.get_team_by_id = AsyncMock(return_value=team)
         ts.get_user_role_in_team = AsyncMock(return_value="member")
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -20807,7 +20807,7 @@ class TestTeamJoinRequests:
         ts.get_team_by_id = AsyncMock(return_value=team)
         ts.get_user_role_in_team = AsyncMock(return_value="owner")
         ts.list_join_requests = AsyncMock(side_effect=RuntimeError("boom"))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -20822,7 +20822,7 @@ class TestTeamJoinRequests:
         ts = MagicMock()
         ts.get_user_role_in_team = AsyncMock(return_value="owner")
         ts.approve_join_request = AsyncMock(return_value=member)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_approve_join_request("team-1", "req-1", mock_db, user={"email": "owner@test.com"})
         assert result.status_code == 200
@@ -20833,7 +20833,7 @@ class TestTeamJoinRequests:
         monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
         ts = MagicMock()
         ts.get_user_role_in_team = AsyncMock(return_value="member")
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_approve_join_request("team-1", "req-1", mock_db, user={"email": "member@test.com"})
         assert result.status_code == 403
@@ -20850,7 +20850,7 @@ class TestTeamJoinRequests:
         ts = MagicMock()
         ts.get_user_role_in_team = AsyncMock(return_value="owner")
         ts.approve_join_request = AsyncMock(side_effect=JoinRequestNotFoundError("Join request not found or already processed"))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_approve_join_request("team-1", "req-1", mock_db, user={"email": "owner@test.com"})
         assert result.status_code == 404
@@ -20861,7 +20861,7 @@ class TestTeamJoinRequests:
         ts = MagicMock()
         ts.get_user_role_in_team = AsyncMock(return_value="owner")
         ts.approve_join_request = AsyncMock(side_effect=ValueError("some other validation error"))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_approve_join_request("team-1", "req-1", mock_db, user={"email": "owner@test.com"})
         assert result.status_code == 400
@@ -20873,7 +20873,7 @@ class TestTeamJoinRequests:
         ts = MagicMock()
         ts.get_user_role_in_team = AsyncMock(return_value="owner")
         ts.approve_join_request = AsyncMock(side_effect=RuntimeError("boom"))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_approve_join_request("team-1", "req-1", mock_db, user={"email": "owner@test.com"})
         assert result.status_code == 400
@@ -20885,7 +20885,7 @@ class TestTeamJoinRequests:
         ts = MagicMock()
         ts.get_user_role_in_team = AsyncMock(return_value="owner")
         ts.reject_join_request = AsyncMock(return_value=True)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_reject_join_request("team-1", "req-1", mock_db, user={"email": "owner@test.com"})
         assert result.status_code == 200
@@ -20897,7 +20897,7 @@ class TestTeamJoinRequests:
         ts = MagicMock()
         ts.get_user_role_in_team = AsyncMock(return_value="owner")
         ts.reject_join_request = AsyncMock(side_effect=JoinRequestNotFoundError("Join request not found or already processed"))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_reject_join_request("team-1", "req-1", mock_db, user={"email": "owner@test.com"})
         assert result.status_code == 404
@@ -20908,7 +20908,7 @@ class TestTeamJoinRequests:
         ts = MagicMock()
         ts.get_user_role_in_team = AsyncMock(return_value="owner")
         ts.reject_join_request = AsyncMock(side_effect=ValueError("some other validation error"))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_reject_join_request("team-1", "req-1", mock_db, user={"email": "owner@test.com"})
         assert result.status_code == 400
@@ -20926,7 +20926,7 @@ class TestTeamJoinRequests:
         ts = MagicMock()
         ts.get_user_role_in_team = AsyncMock(return_value="owner")
         ts.reject_join_request = AsyncMock(side_effect=RuntimeError("boom"))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.team_join.TeamManagementService", lambda db: ts)
 
         result = await admin_reject_join_request("team-1", "req-1", mock_db, user={"email": "owner@test.com"})
         assert result.status_code == 400

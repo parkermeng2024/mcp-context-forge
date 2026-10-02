@@ -1246,7 +1246,7 @@ async def test_admin_create_join_request_team_not_found(monkeypatch):
     mock_db = MagicMock()
     user = {"email": "user@example.com", "db": mock_db}
     monkeypatch.setattr(admin.settings, "email_auth_enabled", True)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: _StubTeamService(db, team=None))
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: _StubTeamService(db, team=None))
 
     response = await admin.admin_create_join_request("team-1", request, mock_db, user=user)
     assert response.status_code == 404
@@ -1264,7 +1264,7 @@ async def test_admin_create_join_request_pending(monkeypatch):
     team = SimpleNamespace(id="team-1", visibility="public")
     pending = SimpleNamespace(id="req-1", status="pending")
     team_service = _StubTeamService(db=mock_db, team=team, existing_requests=[pending])
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     response = await admin.admin_create_join_request("team-1", request, mock_db, user=user)
     assert response.status_code == 200
@@ -1284,7 +1284,7 @@ async def test_admin_create_join_request_success(monkeypatch):
     team = SimpleNamespace(id="team-1", visibility="public")
     created = SimpleNamespace(id="req-2")
     team_service = _StubTeamService(db=mock_db, team=team, existing_requests=[], create_request=created)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     response = await admin.admin_create_join_request("team-1", request, mock_db, user=user)
     assert response.status_code == 201
@@ -1298,7 +1298,7 @@ async def test_admin_cancel_join_request_failure(monkeypatch):
     user = {"email": "user@example.com"}
     monkeypatch.setattr(admin.settings, "email_auth_enabled", True)
     team_service = _StubTeamService(db=mock_db, cancel_ok=False)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_cancel_join_request("team-1", "req-1", db=mock_db, user=user)
@@ -1312,7 +1312,7 @@ async def test_admin_cancel_join_request_success(monkeypatch):
     user = {"email": "user@example.com"}
     monkeypatch.setattr(admin.settings, "email_auth_enabled", True)
     team_service = _StubTeamService(db=mock_db, cancel_ok=True)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_cancel_join_request("team-1", "req-2", db=mock_db, user=user)
@@ -1329,7 +1329,7 @@ async def test_admin_list_join_requests_owner_no_pending(monkeypatch):
 
     team = SimpleNamespace(id="team-1", name="Alpha")
     team_service = _StubTeamService(db=mock_db, team=team, user_role="owner", join_requests=[])
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_list_join_requests("team-1", request, db=mock_db, user=user)
@@ -1353,7 +1353,7 @@ async def test_admin_list_join_requests_with_entries(monkeypatch):
         requested_at=datetime(2025, 1, 10, 12, 0, 0),
     )
     team_service = _StubTeamService(db=mock_db, team=team, user_role="owner", join_requests=[join_request])
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_list_join_requests("team-1", request, db=mock_db, user=user)
@@ -1372,7 +1372,7 @@ async def test_admin_approve_join_request_success(monkeypatch):
 
     member = SimpleNamespace(user_email="new@example.com")
     team_service = _StubTeamService(db=mock_db, user_role="owner", approve_member=member)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_approve_join_request("team-1", "req-1", db=mock_db, user=user)
@@ -1389,7 +1389,7 @@ async def test_admin_reject_join_request_forwards_team_id(monkeypatch):
     monkeypatch.setattr(admin.settings, "email_auth_enabled", True)
 
     team_service = _StubTeamService(db=mock_db, user_role="owner", reject_ok=True)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_reject_join_request("team-1", "req-1", db=mock_db, user=user)
@@ -1405,7 +1405,7 @@ async def test_admin_reject_join_request_not_owner(monkeypatch):
     monkeypatch.setattr(admin.settings, "email_auth_enabled", True)
 
     team_service = _StubTeamService(db=mock_db, user_role="member")
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_reject_join_request("team-1", "req-1", db=mock_db, user=user)
