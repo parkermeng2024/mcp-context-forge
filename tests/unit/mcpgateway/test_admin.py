@@ -394,6 +394,7 @@ def allow_permission(monkeypatch):
     monkeypatch.setattr("mcpgateway.middleware.rbac.PermissionService", lambda db: mock_perm_service)
     monkeypatch.setattr("mcpgateway.admin.PermissionService", lambda db: mock_perm_service)
     monkeypatch.setattr("mcpgateway.admin.is_unrestricted_platform_admin", AsyncMock(return_value=True))
+    monkeypatch.setattr("mcpgateway.admin.roots.is_unrestricted_platform_admin", AsyncMock(return_value=True))
     monkeypatch.setattr("mcpgateway.plugins.get_plugin_manager", AsyncMock(return_value=None))
     return mock_perm_service
 
@@ -3803,8 +3804,9 @@ class TestAdminRootRoutes:
     @pytest.fixture(autouse=True)
     def _allow_root_admin(self, monkeypatch):
         monkeypatch.setattr("mcpgateway.admin.is_unrestricted_platform_admin", AsyncMock(return_value=True))
+        monkeypatch.setattr("mcpgateway.admin.roots.is_unrestricted_platform_admin", AsyncMock(return_value=True))
 
-    @patch("mcpgateway.admin.root_service.add_root", new_callable=AsyncMock)
+    @patch("mcpgateway.admin.roots.root_service.add_root", new_callable=AsyncMock)
     async def test_admin_add_root_with_special_characters(self, mock_add_root, mock_request):
         """Test adding root with special characters in URI."""
         form_data = FakeForm(
@@ -3819,7 +3821,7 @@ class TestAdminRootRoutes:
 
         mock_add_root.assert_called_once_with("/test/root-with-dashes_and_underscores", "Special-Root_Name")
 
-    @patch("mcpgateway.admin.root_service.add_root", new_callable=AsyncMock)
+    @patch("mcpgateway.admin.roots.root_service.add_root", new_callable=AsyncMock)
     async def test_admin_add_root_without_name(self, mock_add_root, mock_request):
         """Test adding root without optional name."""
         form_data = FakeForm(
@@ -3834,7 +3836,7 @@ class TestAdminRootRoutes:
 
         mock_add_root.assert_called_once_with("/nameless/root", None)
 
-    @patch("mcpgateway.admin.root_service.add_root", new_callable=AsyncMock)
+    @patch("mcpgateway.admin.roots.root_service.add_root", new_callable=AsyncMock)
     async def test_admin_add_root_error_handlers(self, mock_add_root, mock_request, mock_db):
         """Cover RootServiceError and generic exception branches in admin_add_root."""
         # Standard
@@ -3872,7 +3874,7 @@ class TestAdminRootRoutes:
         assert response.status_code == 303
         assert "Invalid input. Please try again." in unquote(response.headers["location"])
 
-    @patch("mcpgateway.admin.root_service.remove_root", new_callable=AsyncMock)
+    @patch("mcpgateway.admin.roots.root_service.remove_root", new_callable=AsyncMock)
     async def test_admin_delete_root_with_error(self, mock_remove_root, mock_request):
         """Test deleting root with error handling."""
         mock_remove_root.side_effect = Exception("Root is in use")
@@ -3883,7 +3885,7 @@ class TestAdminRootRoutes:
 
         assert "Root is in use" in str(excinfo.value)
 
-    @patch("mcpgateway.admin.root_service.remove_root", new_callable=AsyncMock)
+    @patch("mcpgateway.admin.roots.root_service.remove_root", new_callable=AsyncMock)
     async def test_admin_delete_root_redirects(self, mock_remove_root, mock_request, mock_db):
         """Cover redirect logic in admin_delete_root."""
         mock_request.scope = {"root_path": "/root"}
@@ -3894,7 +3896,7 @@ class TestAdminRootRoutes:
         assert response.status_code == 303
         assert response.headers["location"] == "/root/admin/?include_inactive=true#roots"
 
-    @patch("mcpgateway.admin.root_service.remove_root", new_callable=AsyncMock)
+    @patch("mcpgateway.admin.roots.root_service.remove_root", new_callable=AsyncMock)
     async def test_admin_delete_root_redirects_without_include_inactive(self, mock_remove_root, mock_request, mock_db):
         """Cover redirect logic in admin_delete_root when inactive checkbox is not checked."""
         mock_request.scope = {"root_path": "/root"}
@@ -3905,7 +3907,7 @@ class TestAdminRootRoutes:
         assert response.status_code == 303
         assert response.headers["location"] == "/root/admin#roots"
 
-    @patch("mcpgateway.admin.root_service.remove_root", new_callable=AsyncMock)
+    @patch("mcpgateway.admin.roots.root_service.remove_root", new_callable=AsyncMock)
     async def test_admin_delete_root_preserves_team_id(self, mock_remove_root, mock_request, mock_db):
         """Verify team_id is preserved in root delete redirect."""
         uid = "12345678-1234-5678-1234-567812345678"
@@ -5227,6 +5229,7 @@ class TestAdminUIRoute:
         monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True, raising=False)
         monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True, raising=False)
         monkeypatch.setattr("mcpgateway.admin.is_unrestricted_platform_admin", AsyncMock(return_value=True))
+        monkeypatch.setattr("mcpgateway.admin.roots.is_unrestricted_platform_admin", AsyncMock(return_value=True))
 
         team_service_ctor = MagicMock()
         monkeypatch.setattr("mcpgateway.admin.TeamManagementService", team_service_ctor)
@@ -14278,7 +14281,7 @@ async def test_admin_search_roots_returns_matching_by_name(allow_permission, mon
 
     root_tmp = Root(uri="file:///tmp", name="tmp")
     root_home = Root(uri="file:///home", name="home")
-    monkeypatch.setattr("mcpgateway.admin.root_service", MagicMock(list_roots=AsyncMock(return_value=[root_tmp, root_home])))
+    monkeypatch.setattr("mcpgateway.admin.roots.root_service", MagicMock(list_roots=AsyncMock(return_value=[root_tmp, root_home])))
 
     result = await admin_search_roots(q="tmp", limit=10, user={"email": "admin@example.com"})
 
@@ -14294,7 +14297,7 @@ async def test_admin_search_roots_matches_by_uri(allow_permission, monkeypatch):
     from mcpgateway.common.models import Root
 
     root = Root(uri="file:///project/data", name="data")
-    monkeypatch.setattr("mcpgateway.admin.root_service", MagicMock(list_roots=AsyncMock(return_value=[root])))
+    monkeypatch.setattr("mcpgateway.admin.roots.root_service", MagicMock(list_roots=AsyncMock(return_value=[root])))
 
     result = await admin_search_roots(q="project", limit=10, user={"email": "admin@example.com"})
 
@@ -14309,7 +14312,7 @@ async def test_admin_search_roots_empty_query_returns_all(allow_permission, monk
     from mcpgateway.common.models import Root
 
     roots = [Root(uri="file:///tmp", name="tmp"), Root(uri="file:///home", name="home")]
-    monkeypatch.setattr("mcpgateway.admin.root_service", MagicMock(list_roots=AsyncMock(return_value=roots)))
+    monkeypatch.setattr("mcpgateway.admin.roots.root_service", MagicMock(list_roots=AsyncMock(return_value=roots)))
 
     result = await admin_search_roots(q="", limit=10, user={"email": "admin@example.com"})
 
@@ -14323,7 +14326,7 @@ async def test_admin_search_roots_no_match_returns_empty(allow_permission, monke
     from mcpgateway.common.models import Root
 
     roots = [Root(uri="file:///tmp", name="tmp")]
-    monkeypatch.setattr("mcpgateway.admin.root_service", MagicMock(list_roots=AsyncMock(return_value=roots)))
+    monkeypatch.setattr("mcpgateway.admin.roots.root_service", MagicMock(list_roots=AsyncMock(return_value=roots)))
 
     result = await admin_search_roots(q="xyz12345", limit=10, user={"email": "admin@example.com"})
 
@@ -14338,7 +14341,7 @@ async def test_admin_search_roots_respects_limit(allow_permission, monkeypatch):
     from mcpgateway.common.models import Root
 
     roots = [Root(uri=f"file:///dir{i}", name=f"dir{i}") for i in range(10)]
-    monkeypatch.setattr("mcpgateway.admin.root_service", MagicMock(list_roots=AsyncMock(return_value=roots)))
+    monkeypatch.setattr("mcpgateway.admin.roots.root_service", MagicMock(list_roots=AsyncMock(return_value=roots)))
 
     result = await admin_search_roots(q="dir", limit=3, user={"email": "admin@example.com"})
 
@@ -14352,7 +14355,7 @@ async def test_admin_search_roots_case_insensitive(allow_permission, monkeypatch
     from mcpgateway.common.models import Root
 
     root = Root(uri="file:///TMP", name="MyRoot")
-    monkeypatch.setattr("mcpgateway.admin.root_service", MagicMock(list_roots=AsyncMock(return_value=[root])))
+    monkeypatch.setattr("mcpgateway.admin.roots.root_service", MagicMock(list_roots=AsyncMock(return_value=[root])))
 
     result = await admin_search_roots(q="tmp", limit=10, user={"email": "admin@example.com"})
     assert result["count"] == 1
@@ -14368,7 +14371,7 @@ async def test_admin_search_roots_null_name_falls_back_to_uri(allow_permission, 
     from mcpgateway.common.models import Root
 
     root = Root(uri="file:///tmp")
-    monkeypatch.setattr("mcpgateway.admin.root_service", MagicMock(list_roots=AsyncMock(return_value=[root])))
+    monkeypatch.setattr("mcpgateway.admin.roots.root_service", MagicMock(list_roots=AsyncMock(return_value=[root])))
 
     result = await admin_search_roots(q="tmp", limit=10, user={"email": "admin@example.com"})
 
@@ -14493,6 +14496,7 @@ async def test_admin_search_roots_denies_scoped_admin_before_service_access(monk
     root_service = MagicMock(list_roots=AsyncMock())
     monkeypatch.setattr("mcpgateway.admin.root_service", root_service)
     monkeypatch.setattr("mcpgateway.admin.is_unrestricted_platform_admin", AsyncMock(return_value=False))
+    monkeypatch.setattr("mcpgateway.admin.roots.is_unrestricted_platform_admin", AsyncMock(return_value=False))
 
     with pytest.raises(HTTPException) as exc_info:
         await admin_search_roots(q="tmp", limit=10, db=mock_db, user={"email": "admin@example.com"})
@@ -14562,7 +14566,7 @@ async def test_admin_search_roots_clamps_out_of_range_limit(raw_limit, allow_per
     from mcpgateway.config import settings
 
     roots = [Root(uri=f"file:///r{i}", name=f"root{i}") for i in range(3)]
-    monkeypatch.setattr("mcpgateway.admin.root_service", MagicMock(list_roots=AsyncMock(return_value=roots)))
+    monkeypatch.setattr("mcpgateway.admin.roots.root_service", MagicMock(list_roots=AsyncMock(return_value=roots)))
 
     result = await admin_search_roots(q="", limit=raw_limit, user={"email": "admin@example.com"})
 
@@ -21105,7 +21109,7 @@ class TestRootManagement:
     @pytest.mark.asyncio
     async def test_admin_export_root_success(self, monkeypatch, allow_permission):
         root = SimpleNamespace(uri="file:///test", name="TestRoot")
-        monkeypatch.setattr("mcpgateway.admin.root_service.get_root_by_uri", AsyncMock(return_value=root))
+        monkeypatch.setattr("mcpgateway.admin.roots.root_service.get_root_by_uri", AsyncMock(return_value=root))
 
         result = await admin_export_root(uri="file:///test", user={"email": "admin@test.com"})
         assert result.status_code == 200
@@ -21116,7 +21120,7 @@ class TestRootManagement:
 
     @pytest.mark.asyncio
     async def test_admin_export_root_not_found(self, monkeypatch, allow_permission):
-        monkeypatch.setattr("mcpgateway.admin.root_service.get_root_by_uri", AsyncMock(side_effect=RootServiceNotFoundError("not found")))
+        monkeypatch.setattr("mcpgateway.admin.roots.root_service.get_root_by_uri", AsyncMock(side_effect=RootServiceNotFoundError("not found")))
 
         with pytest.raises(HTTPException) as exc_info:
             await admin_export_root(uri="file:///missing", user={"email": "admin@test.com"})
@@ -21124,7 +21128,7 @@ class TestRootManagement:
 
     @pytest.mark.asyncio
     async def test_admin_export_root_generic_exception_returns_500(self, monkeypatch, allow_permission):
-        monkeypatch.setattr("mcpgateway.admin.root_service.get_root_by_uri", AsyncMock(side_effect=RuntimeError("boom")))
+        monkeypatch.setattr("mcpgateway.admin.roots.root_service.get_root_by_uri", AsyncMock(side_effect=RuntimeError("boom")))
 
         with pytest.raises(HTTPException) as exc_info:
             await admin_export_root(uri="file:///test", user={"email": "admin@test.com"})
@@ -21134,14 +21138,14 @@ class TestRootManagement:
     async def test_admin_get_root_success(self, monkeypatch, allow_permission):
         root = MagicMock()
         root.model_dump.return_value = {"uri": "file:///test", "name": "TestRoot"}
-        monkeypatch.setattr("mcpgateway.admin.root_service.get_root_by_uri", AsyncMock(return_value=root))
+        monkeypatch.setattr("mcpgateway.admin.roots.root_service.get_root_by_uri", AsyncMock(return_value=root))
 
         result = await admin_get_root(uri="file:///test", user={"email": "admin@test.com"})
         assert result["uri"] == "file:///test"
 
     @pytest.mark.asyncio
     async def test_admin_get_root_not_found(self, monkeypatch, allow_permission):
-        monkeypatch.setattr("mcpgateway.admin.root_service.get_root_by_uri", AsyncMock(side_effect=RootServiceNotFoundError("missing")))
+        monkeypatch.setattr("mcpgateway.admin.roots.root_service.get_root_by_uri", AsyncMock(side_effect=RootServiceNotFoundError("missing")))
 
         with pytest.raises(HTTPException) as exc_info:
             await admin_get_root(uri="file:///missing", user={"email": "admin@test.com"})
@@ -21149,14 +21153,14 @@ class TestRootManagement:
 
     @pytest.mark.asyncio
     async def test_admin_get_root_generic_exception_is_reraised(self, monkeypatch, allow_permission):
-        monkeypatch.setattr("mcpgateway.admin.root_service.get_root_by_uri", AsyncMock(side_effect=RuntimeError("boom")))
+        monkeypatch.setattr("mcpgateway.admin.roots.root_service.get_root_by_uri", AsyncMock(side_effect=RuntimeError("boom")))
 
         with pytest.raises(RuntimeError):
             await admin_get_root(uri="file:///test", user={"email": "admin@test.com"})
 
     @pytest.mark.asyncio
     async def test_admin_update_root_success(self, monkeypatch, allow_permission):
-        monkeypatch.setattr("mcpgateway.admin.root_service.update_root", AsyncMock())
+        monkeypatch.setattr("mcpgateway.admin.roots.root_service.update_root", AsyncMock())
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -21168,7 +21172,7 @@ class TestRootManagement:
 
     @pytest.mark.asyncio
     async def test_admin_update_root_inactive_redirect(self, monkeypatch, allow_permission):
-        monkeypatch.setattr("mcpgateway.admin.root_service.update_root", AsyncMock())
+        monkeypatch.setattr("mcpgateway.admin.roots.root_service.update_root", AsyncMock())
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -21180,7 +21184,7 @@ class TestRootManagement:
 
     @pytest.mark.asyncio
     async def test_admin_update_root_not_found(self, monkeypatch, allow_permission):
-        monkeypatch.setattr("mcpgateway.admin.root_service.update_root", AsyncMock(side_effect=RootServiceNotFoundError("missing")))
+        monkeypatch.setattr("mcpgateway.admin.roots.root_service.update_root", AsyncMock(side_effect=RootServiceNotFoundError("missing")))
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -21192,7 +21196,7 @@ class TestRootManagement:
 
     @pytest.mark.asyncio
     async def test_admin_update_root_generic_exception_is_reraised(self, monkeypatch, allow_permission):
-        monkeypatch.setattr("mcpgateway.admin.root_service.update_root", AsyncMock(side_effect=RuntimeError("boom")))
+        monkeypatch.setattr("mcpgateway.admin.roots.root_service.update_root", AsyncMock(side_effect=RuntimeError("boom")))
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -27284,6 +27288,7 @@ class TestTransferGatewayOwnership:
         monkeypatch.setattr("mcpgateway.middleware.rbac.PermissionService", lambda db: mock_perm_service)
         monkeypatch.setattr("mcpgateway.admin.PermissionService", lambda db: mock_perm_service)
         monkeypatch.setattr("mcpgateway.admin.is_unrestricted_platform_admin", AsyncMock(return_value=True))
+        monkeypatch.setattr("mcpgateway.admin.roots.is_unrestricted_platform_admin", AsyncMock(return_value=True))
         monkeypatch.setattr("mcpgateway.plugins.get_plugin_manager", AsyncMock(return_value=None))
         return mock_perm_service
 
@@ -27372,6 +27377,7 @@ class TestTransferGatewayOwnership:
         monkeypatch.setattr("mcpgateway.middleware.rbac.PermissionService", lambda db: mock_perm_service)
         monkeypatch.setattr("mcpgateway.admin.PermissionService", lambda db: mock_perm_service)
         monkeypatch.setattr("mcpgateway.admin.is_unrestricted_platform_admin", AsyncMock(return_value=False))
+        monkeypatch.setattr("mcpgateway.admin.roots.is_unrestricted_platform_admin", AsyncMock(return_value=False))
         monkeypatch.setattr("mcpgateway.plugins.get_plugin_manager", AsyncMock(return_value=None))
 
         with pytest.raises(HTTPException) as exc_info:
@@ -27398,6 +27404,7 @@ class TestCatalogPermissionErrorBranches:
         monkeypatch.setattr("mcpgateway.middleware.rbac.PermissionService", lambda db: mock_perm_service)
         monkeypatch.setattr("mcpgateway.admin.PermissionService", lambda db: mock_perm_service)
         monkeypatch.setattr("mcpgateway.admin.is_unrestricted_platform_admin", AsyncMock(return_value=True))
+        monkeypatch.setattr("mcpgateway.admin.roots.is_unrestricted_platform_admin", AsyncMock(return_value=True))
         monkeypatch.setattr("mcpgateway.plugins.get_plugin_manager", AsyncMock(return_value=None))
         return mock_perm_service
 
