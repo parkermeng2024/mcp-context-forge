@@ -124,7 +124,7 @@ def test_register_catalog_server_htmx_success(client):
         oauth_required=False,
     )
 
-    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.settings") as mock_settings:
+    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.mcp_registry.settings") as mock_settings:
         mock_settings.mcpgateway_catalog_enabled = True
         mock_settings.app_root_path = ""
 
@@ -151,7 +151,7 @@ def test_register_catalog_server_htmx_oauth(client):
         oauth_required=True,
     )
 
-    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.settings") as mock_settings:
+    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.mcp_registry.settings") as mock_settings:
         mock_settings.mcpgateway_catalog_enabled = True
         mock_settings.app_root_path = ""
 
@@ -179,7 +179,7 @@ def test_register_catalog_server_htmx_error(client):
         oauth_required=False,
     )
 
-    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.settings") as mock_settings:
+    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.mcp_registry.settings") as mock_settings:
         mock_settings.mcpgateway_catalog_enabled = True
         mock_settings.app_root_path = ""
 
@@ -206,7 +206,7 @@ def test_register_catalog_server_json_response(client):
         oauth_required=False,
     )
 
-    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.settings") as mock_settings:
+    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.mcp_registry.settings") as mock_settings:
         mock_settings.mcpgateway_catalog_enabled = True
 
         response = client.post("/admin/mcp-registry/test-server/register")
@@ -228,7 +228,7 @@ def test_register_catalog_server_htmx_with_api_key(client):
         oauth_required=False,
     )
 
-    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.settings") as mock_settings:
+    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.mcp_registry.settings") as mock_settings:
         mock_settings.mcpgateway_catalog_enabled = True
         mock_settings.app_root_path = ""
 
@@ -254,7 +254,7 @@ def test_register_catalog_server_htmx_error_escaping(client):
         oauth_required=False,
     )
 
-    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.settings") as mock_settings:
+    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.mcp_registry.settings") as mock_settings:
         mock_settings.mcpgateway_catalog_enabled = True
         mock_settings.app_root_path = ""
 
@@ -279,7 +279,7 @@ def test_register_catalog_server_htmx_retry_button_attributes(client):
         oauth_required=False,
     )
 
-    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.settings") as mock_settings:
+    with patch("mcpgateway.admin.catalog_service.register_catalog_server", new_callable=AsyncMock, return_value=mock_result), patch("mcpgateway.admin.mcp_registry.settings") as mock_settings:
         mock_settings.mcpgateway_catalog_enabled = True
         mock_settings.app_root_path = "/api"
 
