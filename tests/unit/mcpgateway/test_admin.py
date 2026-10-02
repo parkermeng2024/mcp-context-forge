@@ -11771,16 +11771,16 @@ async def test_get_overview_partial_renders(monkeypatch, mock_request, mock_db):
 
     plugin_service = MagicMock()
     plugin_service.get_plugin_statistics = AsyncMock(return_value={"total_plugins": 2, "enabled_plugins": 1, "plugins_by_hook": {}})
-    monkeypatch.setattr("mcpgateway.admin.get_plugin_service", lambda: plugin_service)
+    monkeypatch.setattr("mcpgateway.admin.overview.get_plugin_service", lambda: plugin_service)
     # Ensure we cover the false branch for plugin_manager handling.
     mock_request.app.state.plugin_manager = None
 
     engine = MagicMock()
     engine.dialect.name = "sqlite"
-    monkeypatch.setattr("mcpgateway.admin.version_module.engine", engine)
-    monkeypatch.setattr("mcpgateway.admin.version_module._database_version", lambda: ("", True))
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.engine", engine)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module._database_version", lambda: ("", True))
     monkeypatch.setattr(
-        "mcpgateway.admin.version_module._mcp_runtime_status_payload",
+        "mcpgateway.admin.overview.version_module._mcp_runtime_status_payload",
         lambda: {
             "mode": "rust-managed",
             "mounted": "rust",
@@ -11791,8 +11791,8 @@ async def test_get_overview_partial_renders(monkeypatch, mock_request, mock_db):
             "session_auth_reuse_mode": "rust",
         },
     )
-    monkeypatch.setattr("mcpgateway.admin.version_module.REDIS_AVAILABLE", False)
-    monkeypatch.setattr("mcpgateway.admin.version_module.START_TIME", 0)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.REDIS_AVAILABLE", False)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.START_TIME", 0)
 
     class StubService:
         def __init__(self, metrics):
@@ -11801,11 +11801,11 @@ async def test_get_overview_partial_renders(monkeypatch, mock_request, mock_db):
         async def aggregate_metrics(self, _db):
             return self._metrics
 
-    monkeypatch.setattr("mcpgateway.admin.ToolService", lambda: StubService({"total_executions": 1, "successful_executions": 1, "avg_response_time": 0.5}))
-    monkeypatch.setattr("mcpgateway.admin.ServerService", lambda: StubService({"total_executions": 1, "successful_executions": 1, "avg_response_time": 0.4}))
-    monkeypatch.setattr("mcpgateway.admin.PromptService", lambda: StubService({"total_executions": 1, "successful_executions": 1, "avg_response_time": 0.3}))
+    monkeypatch.setattr("mcpgateway.admin.overview.ToolService", lambda: StubService({"total_executions": 1, "successful_executions": 1, "avg_response_time": 0.5}))
+    monkeypatch.setattr("mcpgateway.admin.overview.ServerService", lambda: StubService({"total_executions": 1, "successful_executions": 1, "avg_response_time": 0.4}))
+    monkeypatch.setattr("mcpgateway.admin.overview.PromptService", lambda: StubService({"total_executions": 1, "successful_executions": 1, "avg_response_time": 0.3}))
     # Ensure at least one metric lacks avg_response_time so the avg_time None branch is covered.
-    monkeypatch.setattr("mcpgateway.admin.ResourceService", lambda: StubService({"total_executions": 1, "successful_executions": 1, "avg_response_time": None}))
+    monkeypatch.setattr("mcpgateway.admin.overview.ResourceService", lambda: StubService({"total_executions": 1, "successful_executions": 1, "avg_response_time": None}))
 
     response = await get_overview_partial(mock_request, db=mock_db, user={"email": "user@example.com", "db": mock_db})
     assert isinstance(response, HTMLResponse)
@@ -11845,16 +11845,16 @@ async def test_get_overview_partial_a2a_plugin_manager_redis(monkeypatch, mock_r
     plugin_service = MagicMock()
     plugin_service.set_plugin_manager = MagicMock()
     plugin_service.get_plugin_statistics = AsyncMock(return_value={"total_plugins": 2, "enabled_plugins": 1, "plugins_by_hook": {}})
-    monkeypatch.setattr("mcpgateway.admin.get_plugin_service", lambda: plugin_service)
+    monkeypatch.setattr("mcpgateway.admin.overview.get_plugin_service", lambda: plugin_service)
 
     mock_request.app.state.plugin_manager = MagicMock()
 
     engine = MagicMock()
     engine.dialect.name = "sqlite"
-    monkeypatch.setattr("mcpgateway.admin.version_module.engine", engine)
-    monkeypatch.setattr("mcpgateway.admin.version_module._database_version", lambda: ("", True))
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.engine", engine)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module._database_version", lambda: ("", True))
     monkeypatch.setattr(
-        "mcpgateway.admin.version_module._mcp_runtime_status_payload",
+        "mcpgateway.admin.overview.version_module._mcp_runtime_status_payload",
         lambda: {
             "mode": "python",
             "mounted": "python",
@@ -11865,8 +11865,8 @@ async def test_get_overview_partial_a2a_plugin_manager_redis(monkeypatch, mock_r
             "session_auth_reuse_mode": "python",
         },
     )
-    monkeypatch.setattr("mcpgateway.admin.version_module.REDIS_AVAILABLE", True)
-    monkeypatch.setattr("mcpgateway.admin.version_module.START_TIME", 0)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.REDIS_AVAILABLE", True)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.START_TIME", 0)
 
     monkeypatch.setattr("mcpgateway.utils.redis_client.is_redis_available", AsyncMock(return_value=True))
 
@@ -11914,15 +11914,15 @@ async def test_get_overview_partial_redis_check_exception(monkeypatch, mock_requ
 
     plugin_service = MagicMock()
     plugin_service.get_plugin_statistics = AsyncMock(return_value={"total_plugins": 0, "enabled_plugins": 0, "plugins_by_hook": {}})
-    monkeypatch.setattr("mcpgateway.admin.get_plugin_service", lambda: plugin_service)
+    monkeypatch.setattr("mcpgateway.admin.overview.get_plugin_service", lambda: plugin_service)
     mock_request.app.state.plugin_manager = None
 
     engine = MagicMock()
     engine.dialect.name = "sqlite"
-    monkeypatch.setattr("mcpgateway.admin.version_module.engine", engine)
-    monkeypatch.setattr("mcpgateway.admin.version_module._database_version", lambda: ("", True))
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.engine", engine)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module._database_version", lambda: ("", True))
     monkeypatch.setattr(
-        "mcpgateway.admin.version_module._mcp_runtime_status_payload",
+        "mcpgateway.admin.overview.version_module._mcp_runtime_status_payload",
         lambda: {
             "mode": "python",
             "mounted": "python",
@@ -11933,8 +11933,8 @@ async def test_get_overview_partial_redis_check_exception(monkeypatch, mock_requ
             "session_auth_reuse_mode": "python",
         },
     )
-    monkeypatch.setattr("mcpgateway.admin.version_module.REDIS_AVAILABLE", True)
-    monkeypatch.setattr("mcpgateway.admin.version_module.START_TIME", 0)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.REDIS_AVAILABLE", True)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.START_TIME", 0)
 
     monkeypatch.setattr("mcpgateway.utils.redis_client.is_redis_available", AsyncMock(side_effect=RuntimeError("redis down")))
 
@@ -11978,14 +11978,14 @@ async def test_get_overview_partial_error_returns_html(monkeypatch, mock_request
 
     plugin_service = MagicMock()
     plugin_service.get_plugin_statistics = AsyncMock(side_effect=RuntimeError("boom"))
-    monkeypatch.setattr("mcpgateway.admin.get_plugin_service", lambda: plugin_service)
+    monkeypatch.setattr("mcpgateway.admin.overview.get_plugin_service", lambda: plugin_service)
 
     engine = MagicMock()
     engine.dialect.name = "sqlite"
-    monkeypatch.setattr("mcpgateway.admin.version_module.engine", engine)
-    monkeypatch.setattr("mcpgateway.admin.version_module._database_version", lambda: ("", True))
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.engine", engine)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module._database_version", lambda: ("", True))
     monkeypatch.setattr(
-        "mcpgateway.admin.version_module._mcp_runtime_status_payload",
+        "mcpgateway.admin.overview.version_module._mcp_runtime_status_payload",
         lambda: {
             "mode": "python",
             "mounted": "python",
@@ -11996,8 +11996,8 @@ async def test_get_overview_partial_error_returns_html(monkeypatch, mock_request
             "session_auth_reuse_mode": "python",
         },
     )
-    monkeypatch.setattr("mcpgateway.admin.version_module.REDIS_AVAILABLE", False)
-    monkeypatch.setattr("mcpgateway.admin.version_module.START_TIME", 0)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.REDIS_AVAILABLE", False)
+    monkeypatch.setattr("mcpgateway.admin.overview.version_module.START_TIME", 0)
 
     response = await get_overview_partial(mock_request, db=mock_db, user={"email": "user@example.com", "db": mock_db})
     assert isinstance(response, HTMLResponse)
@@ -15821,7 +15821,7 @@ async def test_cache_invalidation_endpoints(monkeypatch, mock_db, allow_permissi
 
     cache = MagicMock()
     cache.stats.return_value = {"hits": 1}
-    monkeypatch.setattr("mcpgateway.admin.global_config_cache", cache)
+    monkeypatch.setattr("mcpgateway.admin.overview.global_config_cache", cache)
     # invalidate_passthrough_header_caches() calls global_config_cache.invalidate()
     # via its own module reference, so patch there too.
     monkeypatch.setattr("mcpgateway.utils.passthrough_headers.global_config_cache", cache)
@@ -15836,7 +15836,7 @@ async def test_cache_invalidation_endpoints(monkeypatch, mock_db, allow_permissi
 
     a2a_cache = MagicMock()
     a2a_cache.stats.return_value = {"hits": 2}
-    monkeypatch.setattr("mcpgateway.admin.a2a_stats_cache", a2a_cache)
+    monkeypatch.setattr("mcpgateway.admin.overview.a2a_stats_cache", a2a_cache)
 
     result = await _unwrap(invalidate_a2a_stats_cache)(_user={"email": "user@example.com", "db": mock_db})
     assert result["status"] == "invalidated"
