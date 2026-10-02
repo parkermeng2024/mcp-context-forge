@@ -1425,7 +1425,7 @@ async def test_admin_leave_team_personal(monkeypatch):
 
     team = SimpleNamespace(id="team-1", is_personal=True)
     team_service = _StubTeamService(db=mock_db, team=team, user_role="member")
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_leave_team("team-1", request, db=mock_db, user=user)
@@ -1442,7 +1442,7 @@ async def test_admin_leave_team_last_owner(monkeypatch):
 
     team = SimpleNamespace(id="team-1", is_personal=False)
     team_service = _StubTeamService(db=mock_db, team=team, user_role="owner", owner_count=1)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_leave_team("team-1", request, db=mock_db, user=user)
@@ -1459,7 +1459,7 @@ async def test_admin_leave_team_success(monkeypatch):
 
     team = SimpleNamespace(id="team-1", is_personal=False)
     team_service = _StubTeamService(db=mock_db, team=team, user_role="member", remove_member_ok=True)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_leave_team("team-1", request, db=mock_db, user=user)
@@ -1565,9 +1565,9 @@ async def test_admin_get_all_team_ids_admin_and_user(monkeypatch):
     auth_service = _StubAuthService(mock_db)
     team_service = _StubTeamService()
 
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: team_service)
     monkeypatch.setattr("mcpgateway.admin.common.TeamManagementService", lambda db: team_service)
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr(admin.teams, "EmailAuthService", lambda db: auth_service)
     _allow_permissions(monkeypatch)
 
     auth_service._user = SimpleNamespace(is_admin=True)
@@ -1589,8 +1589,8 @@ async def test_admin_get_all_team_ids_user_not_found(monkeypatch):
         async def get_user_by_email(self, _email):
             return None
 
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: _StubAuthService())
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: MagicMock())
+    monkeypatch.setattr(admin.teams, "EmailAuthService", lambda db: _StubAuthService())
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: MagicMock())
     _allow_permissions(monkeypatch)
 
     result = await admin.admin_get_all_team_ids(db=mock_db, user={"email": "missing@example.com"})
@@ -1625,9 +1625,9 @@ async def test_admin_search_teams_admin_and_user(monkeypatch):
     auth_service = _StubAuthService(mock_db)
     team_service = _StubTeamService()
 
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: team_service)
     monkeypatch.setattr("mcpgateway.admin.common.TeamManagementService", lambda db: team_service)
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr(admin.teams, "EmailAuthService", lambda db: auth_service)
     _allow_permissions(monkeypatch)
 
     auth_service._user = SimpleNamespace(is_admin=True)
@@ -1647,8 +1647,8 @@ async def test_admin_search_teams_user_not_found(monkeypatch):
         async def get_user_by_email(self, _email):
             return None
 
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: _StubAuthService())
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: MagicMock())
+    monkeypatch.setattr(admin.teams, "EmailAuthService", lambda db: _StubAuthService())
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: MagicMock())
     _allow_permissions(monkeypatch)
 
     result = await admin.admin_search_teams(db=mock_db, user={"email": "missing@example.com"})
@@ -1661,7 +1661,7 @@ async def test_get_user_team_ids_returns_cached_ids_without_service_lookup(monke
         def __init__(self, _db):
             raise AssertionError("TeamManagementService should not be constructed when cache is present")
 
-    monkeypatch.setattr(admin, "TeamManagementService", _NoCallTeamService)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", _NoCallTeamService)
     cached_team_ids = ["team-1", "team-2"]
 
     result = await admin._get_user_team_ids(user={"email": "user@example.com", "_cached_team_ids": cached_team_ids}, db=MagicMock())

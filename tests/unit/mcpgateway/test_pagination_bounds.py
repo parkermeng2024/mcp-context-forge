@@ -51,7 +51,7 @@ class TestPaginationBoundsMetadata:
 
     def test_admin_search_teams_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import admin_search_teams
+        from mcpgateway.admin.teams import admin_search_teams
 
         le = _get_query_le(admin_search_teams, "limit")
         assert le == settings.pagination_max_page_size
@@ -227,16 +227,16 @@ class TestPaginationBoundsFunction:
     @pytest.mark.asyncio
     async def test_admin_search_teams_limit_200(self, monkeypatch, allow_permission, mock_db):
         # First-Party
-        from mcpgateway.admin import admin_search_teams
+        from mcpgateway.admin.teams import admin_search_teams
 
         mock_auth = MagicMock()
         admin_user = SimpleNamespace(is_admin=True)
         mock_auth.get_user_by_email = AsyncMock(return_value=admin_user)
-        monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: mock_auth)
+        monkeypatch.setattr("mcpgateway.admin.teams.EmailAuthService", lambda db: mock_auth)
 
         ts = MagicMock()
         ts.list_teams = AsyncMock(return_value={"data": []})
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.teams.TeamManagementService", lambda db: ts)
 
         result = await admin_search_teams(q="test", include_inactive=False, limit=200, visibility=None, db=mock_db, user={"email": "admin@test.com"})
         assert result == []
