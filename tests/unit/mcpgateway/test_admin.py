@@ -16932,13 +16932,13 @@ async def test_change_password_required_handler_success(monkeypatch, mock_db):
     request.headers = {"User-Agent": "TestAgent"}
 
     user = SimpleNamespace(email="user@example.com")
-    monkeypatch.setattr("mcpgateway.admin.get_current_user", AsyncMock(return_value=user))
-    monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock())
-    monkeypatch.setattr("mcpgateway.admin.create_access_token", AsyncMock(return_value=("token", 0)))
+    monkeypatch.setattr("mcpgateway.admin.auth.get_current_user", AsyncMock(return_value=user))
+    monkeypatch.setattr("mcpgateway.admin.auth.set_auth_cookie", MagicMock())
+    monkeypatch.setattr("mcpgateway.admin.auth.create_access_token", AsyncMock(return_value=("token", 0)))
 
     auth_service = MagicMock()
     auth_service.change_password = AsyncMock(return_value=True)
-    monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: auth_service)
 
     monkeypatch.setattr("sqlalchemy.inspect", lambda _obj: SimpleNamespace(transient=False, detached=False))
 
@@ -16996,11 +16996,11 @@ async def test_change_password_required_handler_reattach_user_not_found(monkeypa
     request.headers = {"User-Agent": "TestAgent"}
 
     user = SimpleNamespace(email="user@example.com")
-    monkeypatch.setattr("mcpgateway.admin.get_current_user", AsyncMock(return_value=user))
+    monkeypatch.setattr("mcpgateway.admin.auth.get_current_user", AsyncMock(return_value=user))
 
     auth_service = MagicMock()
     auth_service.change_password = AsyncMock(return_value=True)
-    monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: auth_service)
 
     # Force re-attach logic and return None from DB.
     monkeypatch.setattr("sqlalchemy.inspect", lambda _obj: SimpleNamespace(transient=True, detached=False))
@@ -17025,11 +17025,11 @@ async def test_change_password_required_handler_reattach_exception(monkeypatch, 
     request.headers = {"User-Agent": "TestAgent"}
 
     user = SimpleNamespace(email="user@example.com")
-    monkeypatch.setattr("mcpgateway.admin.get_current_user", AsyncMock(return_value=user))
+    monkeypatch.setattr("mcpgateway.admin.auth.get_current_user", AsyncMock(return_value=user))
 
     auth_service = MagicMock()
     auth_service.change_password = AsyncMock(return_value=True)
-    monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: auth_service)
 
     # Make the re-attach block fail to hit the error redirect that avoids creating a token.
     monkeypatch.setattr("sqlalchemy.inspect", MagicMock(side_effect=RuntimeError("inspect failed")))
@@ -17053,14 +17053,14 @@ async def test_change_password_required_handler_cookie_too_large(monkeypatch, mo
     request.headers = {"User-Agent": "TestAgent"}
 
     user = SimpleNamespace(email="user@example.com")
-    monkeypatch.setattr("mcpgateway.admin.get_current_user", AsyncMock(return_value=user))
-    monkeypatch.setattr("mcpgateway.admin.create_access_token", AsyncMock(return_value=("token", 0)))
+    monkeypatch.setattr("mcpgateway.admin.auth.get_current_user", AsyncMock(return_value=user))
+    monkeypatch.setattr("mcpgateway.admin.auth.create_access_token", AsyncMock(return_value=("token", 0)))
     monkeypatch.setattr("sqlalchemy.inspect", lambda _obj: SimpleNamespace(transient=False, detached=False))
 
     auth_service = MagicMock()
     auth_service.change_password = AsyncMock(return_value=True)
-    monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: auth_service)
-    monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock(side_effect=CookieTooLargeError("too big")))
+    monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr("mcpgateway.admin.auth.set_auth_cookie", MagicMock(side_effect=CookieTooLargeError("too big")))
 
     response = await change_password_required_handler(request, db=mock_db)
     assert isinstance(response, RedirectResponse)
@@ -17089,7 +17089,7 @@ async def test_change_password_required_handler_change_password_failures(monkeyp
     request.headers = {"User-Agent": "TestAgent"}
 
     user = SimpleNamespace(email="user@example.com")
-    monkeypatch.setattr("mcpgateway.admin.get_current_user", AsyncMock(return_value=user))
+    monkeypatch.setattr("mcpgateway.admin.auth.get_current_user", AsyncMock(return_value=user))
     monkeypatch.setattr("sqlalchemy.inspect", lambda _obj: SimpleNamespace(transient=False, detached=False))
 
     auth_service = MagicMock()
@@ -17101,7 +17101,7 @@ async def test_change_password_required_handler_change_password_failures(monkeyp
         auth_service.change_password = AsyncMock(side_effect=PasswordValidationError("weak"))
     else:
         auth_service.change_password = AsyncMock(side_effect=RuntimeError("boom"))
-    monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: auth_service)
 
     response = await change_password_required_handler(request, db=mock_db)
     assert isinstance(response, RedirectResponse)
@@ -17124,14 +17124,14 @@ async def test_change_password_required_handler_long_validation_error(monkeypatc
     request.headers = {"User-Agent": "TestAgent"}
 
     user = SimpleNamespace(email="user@example.com")
-    monkeypatch.setattr("mcpgateway.admin.get_current_user", AsyncMock(return_value=user))
+    monkeypatch.setattr("mcpgateway.admin.auth.get_current_user", AsyncMock(return_value=user))
     monkeypatch.setattr("sqlalchemy.inspect", lambda _obj: SimpleNamespace(transient=False, detached=False))
 
     # Create a very long error message that exceeds max_length
     long_error_msg = "Password must contain at least 12 characters including uppercase, lowercase, numbers, and special characters. Your password is too weak and does not meet security requirements."
     auth_service = MagicMock()
     auth_service.change_password = AsyncMock(side_effect=PasswordValidationError(long_error_msg))
-    monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: auth_service)
 
     response = await change_password_required_handler(request, db=mock_db)
     assert isinstance(response, RedirectResponse)
@@ -20044,8 +20044,8 @@ class TestAuthLogin:
 
     @pytest.mark.asyncio
     async def test_admin_login_page_non_admin_with_rbac_admin_redirects(self, monkeypatch):
-        monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", "/app", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.email_auth_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.app_root_path", "/app", raising=False)
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
         request.query_params = {}
@@ -20059,7 +20059,7 @@ class TestAuthLogin:
         monkeypatch.setattr("mcpgateway.auth.validate_token_user", AsyncMock(return_value=mock_user))
         mock_permission_service = MagicMock()
         mock_permission_service.has_admin_permission = AsyncMock(return_value=True)
-        monkeypatch.setattr("mcpgateway.admin.PermissionService", lambda db: mock_permission_service)
+        monkeypatch.setattr("mcpgateway.admin.auth.PermissionService", lambda db: mock_permission_service)
 
         result = await admin_login_page(request)
 
@@ -20164,9 +20164,9 @@ class TestAuthLogin:
 
     @pytest.mark.asyncio
     async def test_admin_login_handler_non_admin_requires_sso(self, monkeypatch, mock_db):
-        monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.sso_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.sso_preserve_admin_auth", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.email_auth_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.sso_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.sso_preserve_admin_auth", True, raising=False)
 
         mock_user = MagicMock()
         mock_user.is_admin = False
@@ -20174,9 +20174,9 @@ class TestAuthLogin:
 
         mock_auth_service = MagicMock()
         mock_auth_service.authenticate_user = AsyncMock(return_value=mock_user)
-        monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: mock_auth_service)
+        monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: mock_auth_service)
         create_access_token_mock = AsyncMock(return_value=("fake-token", None))
-        monkeypatch.setattr("mcpgateway.admin.create_access_token", create_access_token_mock)
+        monkeypatch.setattr("mcpgateway.admin.auth.create_access_token", create_access_token_mock)
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -20194,15 +20194,15 @@ class TestAuthLogin:
         # Standard
         from datetime import timedelta
 
-        monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.password_change_enforcement_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.password_max_age_days", 1, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.detect_default_password_on_login", False, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.secure_cookies", False, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.environment", "development", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.email_auth_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.password_change_enforcement_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.password_max_age_days", 1, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.detect_default_password_on_login", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.secure_cookies", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.environment", "development", raising=False)
 
         now = datetime(2026, 2, 9, tzinfo=timezone.utc)
-        monkeypatch.setattr("mcpgateway.admin.utc_now", lambda: now)
+        monkeypatch.setattr("mcpgateway.admin.auth.utc_now", lambda: now)
 
         mock_user = MagicMock()
         mock_user.password_change_required = False
@@ -20210,9 +20210,9 @@ class TestAuthLogin:
 
         mock_auth_service = MagicMock()
         mock_auth_service.authenticate_user = AsyncMock(return_value=mock_user)
-        monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: mock_auth_service)
-        monkeypatch.setattr("mcpgateway.admin.create_access_token", AsyncMock(return_value=("fake-token", None)))
-        monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", lambda resp, token, remember_me=False: None)
+        monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: mock_auth_service)
+        monkeypatch.setattr("mcpgateway.admin.auth.create_access_token", AsyncMock(return_value=("fake-token", None)))
+        monkeypatch.setattr("mcpgateway.admin.auth.set_auth_cookie", lambda resp, token, remember_me=False: None)
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -20229,18 +20229,18 @@ class TestAuthLogin:
         # First-Party
         from mcpgateway.admin import CookieTooLargeError
 
-        monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.password_change_enforcement_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.detect_default_password_on_login", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.email_auth_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.password_change_enforcement_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.detect_default_password_on_login", False, raising=False)
 
         mock_user = MagicMock()
         mock_user.password_change_required = True
 
         mock_auth_service = MagicMock()
         mock_auth_service.authenticate_user = AsyncMock(return_value=mock_user)
-        monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: mock_auth_service)
-        monkeypatch.setattr("mcpgateway.admin.create_access_token", AsyncMock(return_value=("fake-token", None)))
-        monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock(side_effect=CookieTooLargeError("too big")))
+        monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: mock_auth_service)
+        monkeypatch.setattr("mcpgateway.admin.auth.create_access_token", AsyncMock(return_value=("fake-token", None)))
+        monkeypatch.setattr("mcpgateway.admin.auth.set_auth_cookie", MagicMock(side_effect=CookieTooLargeError("too big")))
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -20256,17 +20256,17 @@ class TestAuthLogin:
         # First-Party
         from mcpgateway.admin import CookieTooLargeError
 
-        monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.password_change_enforcement_enabled", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.email_auth_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.password_change_enforcement_enabled", False, raising=False)
 
         mock_user = MagicMock()
         mock_user.password_change_required = False
 
         mock_auth_service = MagicMock()
         mock_auth_service.authenticate_user = AsyncMock(return_value=mock_user)
-        monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: mock_auth_service)
-        monkeypatch.setattr("mcpgateway.admin.create_access_token", AsyncMock(return_value=("fake-token", None)))
-        monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock(side_effect=CookieTooLargeError("too big")))
+        monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: mock_auth_service)
+        monkeypatch.setattr("mcpgateway.admin.auth.create_access_token", AsyncMock(return_value=("fake-token", None)))
+        monkeypatch.setattr("mcpgateway.admin.auth.set_auth_cookie", MagicMock(side_effect=CookieTooLargeError("too big")))
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -20381,14 +20381,14 @@ class TestAuthLogin:
     @pytest.mark.asyncio
     async def test_admin_login_handler_password_age_eval_exception(self, monkeypatch, mock_db):
         """Cover exception handling when evaluating password age."""
-        monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.password_change_enforcement_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.detect_default_password_on_login", False, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.secure_cookies", False, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.settings.environment", "development", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.email_auth_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.password_change_enforcement_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.detect_default_password_on_login", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.secure_cookies", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.environment", "development", raising=False)
 
         now = datetime(2026, 2, 9, tzinfo=timezone.utc)
-        monkeypatch.setattr("mcpgateway.admin.utc_now", lambda: now)
+        monkeypatch.setattr("mcpgateway.admin.auth.utc_now", lambda: now)
 
         mock_user = MagicMock()
         mock_user.password_change_required = False
@@ -20396,9 +20396,9 @@ class TestAuthLogin:
 
         mock_auth_service = MagicMock()
         mock_auth_service.authenticate_user = AsyncMock(return_value=mock_user)
-        monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: mock_auth_service)
-        monkeypatch.setattr("mcpgateway.admin.create_access_token", AsyncMock(return_value=("fake-token", None)))
-        monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", lambda resp, token, remember_me=False: None)
+        monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: mock_auth_service)
+        monkeypatch.setattr("mcpgateway.admin.auth.create_access_token", AsyncMock(return_value=("fake-token", None)))
+        monkeypatch.setattr("mcpgateway.admin.auth.set_auth_cookie", lambda resp, token, remember_me=False: None)
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -24166,14 +24166,14 @@ class TestAdminTokensPartialSearch:
         request.app.state.templates.TemplateResponse.return_value = HTMLResponse(content="<html></html>")
         request.form = AsyncMock(return_value=FakeForm({}))
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.app_root_path = "/root"
             mock_settings.email_auth_enabled = False
             response = await admin_mod.admin_forgot_password_page(request)
             assert isinstance(response, RedirectResponse)
             assert response.headers["location"].endswith("/root/admin/login")
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.app_root_path = "/root"
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
@@ -24184,45 +24184,45 @@ class TestAdminTokensPartialSearch:
             template_call = request.app.state.templates.TemplateResponse.call_args
             assert template_call[0][1] == "forgot-password.html"
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = False
             response = await admin_mod.admin_forgot_password_handler(request, db=mock_db)
             assert response.headers["location"].endswith("/root/admin/login")
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = False
             response = await admin_mod.admin_forgot_password_handler(request, db=mock_db)
             assert "password_reset_disabled" in response.headers["location"]
 
         request.form = AsyncMock(return_value=FakeForm({"email": ""}))
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
             response = await admin_mod.admin_forgot_password_handler(request, db=mock_db)
             assert "missing_email" in response.headers["location"]
 
         request.form = AsyncMock(return_value=FakeForm({"email": "user@example.com"}))
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
-            with patch("mcpgateway.admin.EmailAuthService") as mock_service_cls:
+            with patch("mcpgateway.admin.auth.EmailAuthService") as mock_service_cls:
                 mock_service_cls.return_value.request_password_reset = AsyncMock(return_value=SimpleNamespace(rate_limited=True))
                 response = await admin_mod.admin_forgot_password_handler(request, db=mock_db)
                 assert "rate_limited" in response.headers["location"]
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
-            with patch("mcpgateway.admin.EmailAuthService") as mock_service_cls:
+            with patch("mcpgateway.admin.auth.EmailAuthService") as mock_service_cls:
                 mock_service_cls.return_value.request_password_reset = AsyncMock(return_value=SimpleNamespace(rate_limited=False))
                 response = await admin_mod.admin_forgot_password_handler(request, db=mock_db)
                 assert "notice=reset_email_sent" in response.headers["location"]
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
-            with patch("mcpgateway.admin.EmailAuthService") as mock_service_cls:
+            with patch("mcpgateway.admin.auth.EmailAuthService") as mock_service_cls:
                 mock_service_cls.return_value.request_password_reset = AsyncMock(side_effect=RuntimeError("boom"))
                 response = await admin_mod.admin_forgot_password_handler(request, db=mock_db)
                 assert "server_error" in response.headers["location"]
@@ -24242,26 +24242,26 @@ class TestAdminTokensPartialSearch:
         request.app.state.templates.TemplateResponse.return_value = HTMLResponse(content="<html></html>")
         request.form = AsyncMock(return_value=FakeForm({}))
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.app_root_path = "/root"
             mock_settings.email_auth_enabled = False
             response = await admin_mod.admin_reset_password_page("token123", request, db=mock_db)
             assert response.headers["location"].endswith("/root/admin/login")
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.app_root_path = "/root"
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = False
             response = await admin_mod.admin_reset_password_page("token123", request, db=mock_db)
             assert "password_reset_disabled" in response.headers["location"]
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.app_root_path = "/root"
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
             mock_settings.password_min_length = 8
             mock_settings.mcpgateway_ui_airgapped = False
-            with patch("mcpgateway.admin.EmailAuthService") as mock_service_cls:
+            with patch("mcpgateway.admin.auth.EmailAuthService") as mock_service_cls:
                 mock_service_cls.return_value.validate_password_reset_token = AsyncMock(return_value=MagicMock())
                 response = await admin_mod.admin_reset_password_page("token123", request, db=mock_db)
                 assert isinstance(response, HTMLResponse)
@@ -24270,13 +24270,13 @@ class TestAdminTokensPartialSearch:
                 assert template_call[0][1] == "reset-password.html"
                 assert template_call[0][2]["token_valid"] is True
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.app_root_path = "/root"
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
             mock_settings.password_min_length = 8
             mock_settings.mcpgateway_ui_airgapped = False
-            with patch("mcpgateway.admin.EmailAuthService") as mock_service_cls:
+            with patch("mcpgateway.admin.auth.EmailAuthService") as mock_service_cls:
                 mock_service_cls.return_value.validate_password_reset_token = AsyncMock(side_effect=AuthenticationError("expired"))
                 response = await admin_mod.admin_reset_password_page("token123", request, db=mock_db)
                 assert isinstance(response, HTMLResponse)
@@ -24284,76 +24284,76 @@ class TestAdminTokensPartialSearch:
                 assert template_call[0][2]["token_valid"] is False
                 assert "expired" in template_call[0][2]["token_error"]
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = False
             response = await admin_mod.admin_reset_password_handler("token123", request, db=mock_db)
             assert response.headers["location"].endswith("/root/admin/login")
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = False
             response = await admin_mod.admin_reset_password_handler("token123", request, db=mock_db)
             assert "password_reset_disabled" in response.headers["location"]
 
         request.form = AsyncMock(return_value=FakeForm({"password": "", "confirm_password": ""}))
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
             response = await admin_mod.admin_reset_password_handler("token123", request, db=mock_db)
             assert "missing_fields" in response.headers["location"]
 
         request.form = AsyncMock(return_value=FakeForm({"password": "abc", "confirm_password": "xyz"}))
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
             response = await admin_mod.admin_reset_password_handler("token123", request, db=mock_db)
             assert "password_mismatch" in response.headers["location"]
 
         request.form = AsyncMock(return_value=FakeForm({"password": "NewPassword123!", "confirm_password": "NewPassword123!"}))  # pragma: allowlist secret
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
-            with patch("mcpgateway.admin.EmailAuthService") as mock_service_cls:
+            with patch("mcpgateway.admin.auth.EmailAuthService") as mock_service_cls:
                 mock_service_cls.return_value.reset_password_with_token = AsyncMock(return_value=True)
                 response = await admin_mod.admin_reset_password_handler("token123", request, db=mock_db)
                 assert "notice=password_reset_success" in response.headers["location"]
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
-            with patch("mcpgateway.admin.EmailAuthService") as mock_service_cls:
+            with patch("mcpgateway.admin.auth.EmailAuthService") as mock_service_cls:
                 mock_service_cls.return_value.reset_password_with_token = AsyncMock(side_effect=PasswordValidationError("weak password"))
                 response = await admin_mod.admin_reset_password_handler("token123", request, db=mock_db)
                 assert "weak%20password" in response.headers["location"]
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
-            with patch("mcpgateway.admin.EmailAuthService") as mock_service_cls:
+            with patch("mcpgateway.admin.auth.EmailAuthService") as mock_service_cls:
                 mock_service_cls.return_value.reset_password_with_token = AsyncMock(side_effect=AuthenticationError("expired token"))
                 response = await admin_mod.admin_reset_password_handler("token123", request, db=mock_db)
                 assert "reset_link_expired" in response.headers["location"]
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
-            with patch("mcpgateway.admin.EmailAuthService") as mock_service_cls:
+            with patch("mcpgateway.admin.auth.EmailAuthService") as mock_service_cls:
                 mock_service_cls.return_value.reset_password_with_token = AsyncMock(side_effect=AuthenticationError("already used"))
                 response = await admin_mod.admin_reset_password_handler("token123", request, db=mock_db)
                 assert "reset_link_used" in response.headers["location"]
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
-            with patch("mcpgateway.admin.EmailAuthService") as mock_service_cls:
+            with patch("mcpgateway.admin.auth.EmailAuthService") as mock_service_cls:
                 mock_service_cls.return_value.reset_password_with_token = AsyncMock(side_effect=AuthenticationError("invalid"))
                 response = await admin_mod.admin_reset_password_handler("token123", request, db=mock_db)
                 assert "reset_link_invalid" in response.headers["location"]
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.auth.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.password_reset_enabled = True
-            with patch("mcpgateway.admin.EmailAuthService") as mock_service_cls:
+            with patch("mcpgateway.admin.auth.EmailAuthService") as mock_service_cls:
                 mock_service_cls.return_value.reset_password_with_token = AsyncMock(side_effect=RuntimeError("boom"))
                 response = await admin_mod.admin_reset_password_handler("token123", request, db=mock_db)
                 assert "server_error" in response.headers["location"]

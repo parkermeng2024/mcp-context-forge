@@ -527,16 +527,16 @@ async def test_admin_login_handler_paths(monkeypatch):
     request.form = AsyncMock(return_value={"email": "admin@example.com", "password": "pw"})  # pragma: allowlist secret
     auth_service = MagicMock()
     auth_service.authenticate_user = AsyncMock(return_value=None)
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr(admin.auth, "EmailAuthService", lambda db: auth_service)
     response = await admin.admin_login_handler(request, mock_db)
     assert "invalid_credentials" in response.headers["location"]
 
     user = SimpleNamespace(email="admin@example.com", password_change_required=True, password_changed_at=None, password_hash="hash", password_hash_type="argon2id")
     auth_service.authenticate_user = AsyncMock(return_value=user)
     monkeypatch.setattr(admin.settings, "password_change_enforcement_enabled", True)
-    monkeypatch.setattr(admin, "create_access_token", AsyncMock(return_value=("token", None)))
+    monkeypatch.setattr(admin.auth, "create_access_token", AsyncMock(return_value=("token", None)))
     set_cookie = MagicMock()
-    monkeypatch.setattr(admin, "set_auth_cookie", set_cookie)
+    monkeypatch.setattr(admin.auth, "set_auth_cookie", set_cookie)
     response = await admin.admin_login_handler(request, mock_db)
     assert "change-password-required" in response.headers["location"]
     assert set_cookie.called
@@ -564,15 +564,15 @@ async def test_admin_login_handler_default_password(monkeypatch):
     user = SimpleNamespace(email="admin@example.com", password_change_required=False, password_changed_at=None, password_hash="hash", password_hash_type="argon2id")
     auth_service = MagicMock()
     auth_service.authenticate_user = AsyncMock(return_value=user)
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr(admin.auth, "EmailAuthService", lambda db: auth_service)
 
     password_service = MagicMock()
     password_service.verify_password_async = AsyncMock(return_value=True)
-    monkeypatch.setattr(admin, "Argon2PasswordService", lambda: password_service)
+    monkeypatch.setattr(admin.auth, "Argon2PasswordService", lambda: password_service)
 
-    monkeypatch.setattr(admin, "create_access_token", AsyncMock(return_value=("token", None)))
+    monkeypatch.setattr(admin.auth, "create_access_token", AsyncMock(return_value=("token", None)))
     set_cookie = MagicMock()
-    monkeypatch.setattr(admin, "set_auth_cookie", set_cookie)
+    monkeypatch.setattr(admin.auth, "set_auth_cookie", set_cookie)
 
     response = await admin.admin_login_handler(request, mock_db)
     assert "change-password-required" in response.headers["location"]
@@ -798,7 +798,7 @@ async def test_admin_logout_without_auth_provider_falls_back_to_local_redirect(m
     request.cookies = {"jwt_token": "jwt-token"}
     request.url = SimpleNamespace(scheme="http", netloc="localhost:4444")
 
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {}}))
+    monkeypatch.setattr(admin.auth, "verify_jwt_token_cached", AsyncMock(return_value={"user": {}}))
     monkeypatch.setattr(admin.settings, "sso_keycloak_enabled", True)
     monkeypatch.setattr(admin.settings, "sso_keycloak_base_url", "http://localhost:8080")
     monkeypatch.setattr(admin.settings, "sso_keycloak_public_base_url", "http://localhost:8080")
@@ -1227,14 +1227,14 @@ async def test_change_password_required_handler(monkeypatch):
     request.headers = {"User-Agent": "TestAgent"}
 
     user = SimpleNamespace(email="user@example.com")
-    monkeypatch.setattr(admin, "get_current_user", AsyncMock(return_value=user))
+    monkeypatch.setattr(admin.auth, "get_current_user", AsyncMock(return_value=user))
 
     auth_service = MagicMock()
     auth_service.change_password = AsyncMock(return_value=True)
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
-    monkeypatch.setattr(admin, "create_access_token", AsyncMock(return_value=("newtoken", None)))
+    monkeypatch.setattr(admin.auth, "EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr(admin.auth, "create_access_token", AsyncMock(return_value=("newtoken", None)))
     set_cookie = MagicMock()
-    monkeypatch.setattr(admin, "set_auth_cookie", set_cookie)
+    monkeypatch.setattr(admin.auth, "set_auth_cookie", set_cookie)
 
     with patch("sqlalchemy.inspect", return_value=SimpleNamespace(transient=False, detached=False)):
         response = await admin.change_password_required_handler(request, mock_db)
