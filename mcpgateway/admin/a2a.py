@@ -80,49 +80,6 @@ router = APIRouter(
 # ============================================================================ #
 
 
-@router.get("/a2a/{agent_id}", response_model=A2AAgentRead)
-@require_permission("a2a.read", allow_admin_bypass=False)
-async def admin_get_agent(
-    agent_id: str,
-    request: Request,
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user_with_permissions),
-) -> Dict[str, Any]:
-    """Get A2A agent details for the admin UI.
-
-    Args:
-        agent_id: Agent ID.
-        request: FastAPI request object (required for token team extraction via request.state.token_teams).
-        db: Database session.
-        user: Authenticated user.
-
-    Returns:
-        Agent details.
-
-    Raises:
-        HTTPException: If the agent is not found.
-        Exception: For any other unexpected errors.
-
-    Examples:
-        >>> callable(admin_get_agent)
-        True
-        >>> admin_get_agent.__name__
-        'admin_get_agent'
-    """
-    LOGGER.debug(f"User {get_user_email(user)} requested details for agent ID {agent_id}")
-    user_email = get_user_email(user)
-    token_teams = get_token_teams_from_request(request)
-
-    try:
-        agent = await a2a_service.get_agent(db, agent_id, user_email=user_email, token_teams=token_teams)
-        return agent.model_dump(by_alias=True)
-    except A2AAgentNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        LOGGER.error(f"Error getting agent {agent_id}: {e}")
-        raise
-
-
 @router.get("/a2a", response_model=PaginatedResponse)
 @require_permission("a2a.read", allow_admin_bypass=False)
 async def admin_list_a2a_agents(
@@ -1148,3 +1105,54 @@ async def admin_search_a2a_agents(
         )
 
     return _build_search_response(entity_key="agents", entity_type="agents", items=agents, query=search_query, tags=normalized_tags, tag_groups=tag_groups)
+
+
+# ============================================================================ #
+#                     A2A AGENT DETAIL ROUTE (MUST STAY LAST)                  #
+# ============================================================================ #
+# FastAPI matches routes in registration order, and ``/a2a/{agent_id}`` also
+# matches ``/a2a/ids``, ``/a2a/partial`` and ``/a2a/search``. Registering this
+# route after those static paths keeps them reachable.
+
+
+@router.get("/a2a/{agent_id}", response_model=A2AAgentRead)
+@require_permission("a2a.read", allow_admin_bypass=False)
+async def admin_get_agent(
+    agent_id: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user_with_permissions),
+) -> Dict[str, Any]:
+    """Get A2A agent details for the admin UI.
+
+    Args:
+        agent_id: Agent ID.
+        request: FastAPI request object (required for token team extraction via request.state.token_teams).
+        db: Database session.
+        user: Authenticated user.
+
+    Returns:
+        Agent details.
+
+    Raises:
+        HTTPException: If the agent is not found.
+        Exception: For any other unexpected errors.
+
+    Examples:
+        >>> callable(admin_get_agent)
+        True
+        >>> admin_get_agent.__name__
+        'admin_get_agent'
+    """
+    LOGGER.debug(f"User {get_user_email(user)} requested details for agent ID {agent_id}")
+    user_email = get_user_email(user)
+    token_teams = get_token_teams_from_request(request)
+
+    try:
+        agent = await a2a_service.get_agent(db, agent_id, user_email=user_email, token_teams=token_teams)
+        return agent.model_dump(by_alias=True)
+    except A2AAgentNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        LOGGER.error(f"Error getting agent {agent_id}: {e}")
+        raise

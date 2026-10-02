@@ -11,6 +11,9 @@ Captures the exact set of (method, path) pairs registered on
 extraction step drops or alters a route.
 """
 
+# Standard
+import re
+
 # First-Party
 from mcpgateway.admin import admin_router
 
@@ -242,6 +245,76 @@ CRITICAL_ENDPOINT_NAMES = frozenset(
     }
 )
 
+# FastAPI matches routes in registration order, so a ``{param}`` route that also
+# matches a static sibling path can hide it. This map records, for every static
+# path that a ``{param}`` sibling also matches, which route wins. The values
+# mirror the pre-split monolith: ``None`` means the static path wins, and a path
+# means that dynamic route is registered first and wins.
+EXPECTED_SHADOWING_ROUTE_OWNERS = {
+    ("GET", "/admin/a2a/ids"): None,
+    ("GET", "/admin/a2a/partial"): None,
+    ("GET", "/admin/a2a/search"): None,
+    ("GET", "/admin/gateways/ids"): None,
+    ("GET", "/admin/gateways/partial"): None,
+    ("GET", "/admin/gateways/search"): None,
+    ("GET", "/admin/plugins/partial"): None,
+    ("GET", "/admin/plugins/stats"): None,
+    ("GET", "/admin/prompts/ids"): None,
+    ("GET", "/admin/prompts/partial"): None,
+    ("GET", "/admin/prompts/search"): None,
+    ("GET", "/admin/resources/ids"): None,
+    ("GET", "/admin/resources/partial"): None,
+    ("GET", "/admin/resources/search"): None,
+    ("GET", "/admin/roots/export"): None,
+    ("GET", "/admin/roots/search"): None,
+    ("GET", "/admin/servers/ids"): "/admin/servers/{server_id}",
+    ("GET", "/admin/servers/partial"): None,
+    ("GET", "/admin/servers/search"): "/admin/servers/{server_id}",
+    ("GET", "/admin/tools/ids"): None,
+    ("GET", "/admin/tools/partial"): None,
+    ("GET", "/admin/tools/search"): None,
+}
+
+
+def _route_pattern(path: str) -> re.Pattern:
+    """Compile a route path to a regex, matching ``{param}`` as one path segment."""
+    segments = ["[^/]+" if segment.startswith("{") and segment.endswith("}") else re.escape(segment) for segment in path.split("/")]
+    return re.compile("^" + "/".join(segments) + "$")
+
+
+def _ordered_route_pairs() -> list:
+    """Return (path, method) pairs in registration order, skipping HEAD/OPTIONS."""
+    pairs = []
+    for route in admin_router.routes:
+        for method in sorted(getattr(route, "methods", None) or ()):
+            if method in ("HEAD", "OPTIONS"):
+                continue
+            pairs.append((route.path, method))
+    return pairs
+
+
+def _shadowing_route_owners(pairs) -> dict:
+    """Map each ambiguous static route to the route that wins for its path."""
+    dynamic_paths = [(path, method) for path, method in pairs if "{" in path]
+    owners = {}
+    for static_path, static_method in pairs:
+        if "{" in static_path:
+            continue
+        siblings = [path for path, method in dynamic_paths if method == static_method and _route_pattern(path).match(static_path)]
+        if not siblings:
+            continue
+        winner = None
+        for path, method in pairs:
+            if method != static_method:
+                continue
+            if path == static_path:
+                break
+            if "{" in path and _route_pattern(path).match(static_path):
+                winner = path
+                break
+        owners[(static_method, static_path)] = winner
+    return owners
+
 
 def _actual_route_pairs() -> set:
     """Collect (method, path) pairs from the live router, skipping HEAD/OPTIONS."""
@@ -277,3 +350,11 @@ def test_admin_router_critical_endpoint_names():
     names = {route.name for route in admin_router.routes}
     missing = CRITICAL_ENDPOINT_NAMES - names
     assert not missing, f"admin_router missing endpoint names: {sorted(missing)}"
+
+
+def test_admin_router_static_route_precedence():
+    """Extraction must not change which route wins for an ambiguous static path."""
+    actual = _shadowing_route_owners(_ordered_route_pairs())
+    assert actual == EXPECTED_SHADOWING_ROUTE_OWNERS, (
+        f"admin_router static route precedence drift:\n  only in expected: {sorted(set(EXPECTED_SHADOWING_ROUTE_OWNERS) - set(actual))}\n  only in actual: {sorted(set(actual) - set(EXPECTED_SHADOWING_ROUTE_OWNERS))}\n  changed winners: {sorted(key for key in set(actual) & set(EXPECTED_SHADOWING_ROUTE_OWNERS) if actual[key] != EXPECTED_SHADOWING_ROUTE_OWNERS[key])}"
+    )
