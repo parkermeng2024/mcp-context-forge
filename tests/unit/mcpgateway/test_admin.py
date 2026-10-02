@@ -17938,7 +17938,7 @@ async def test_get_performance_stats_paths(monkeypatch, mock_request, mock_db, a
 
     service = MagicMock()
     service.get_dashboard = AsyncMock(return_value=Dashboard())
-    monkeypatch.setattr("mcpgateway.admin.get_performance_service", lambda db: service)
+    monkeypatch.setattr("mcpgateway.admin.performance.get_performance_service", lambda db: service)
 
     mock_request.headers = {"hx-request": "true"}
     response = await get_performance_stats(mock_request, db=mock_db, _user={"email": "admin@example.com", "db": mock_db})
@@ -17966,7 +17966,7 @@ async def test_get_performance_stats_exception_raises_500(monkeypatch, mock_requ
 
     service = MagicMock()
     service.get_dashboard = AsyncMock(side_effect=RuntimeError("boom"))
-    monkeypatch.setattr("mcpgateway.admin.get_performance_service", lambda db: service)
+    monkeypatch.setattr("mcpgateway.admin.performance.get_performance_service", lambda db: service)
 
     mock_request.headers = {}
     with pytest.raises(HTTPException) as excinfo:
@@ -21512,7 +21512,7 @@ class TestPerformanceEndpoints:
         mock_metrics.model_dump.return_value = {"cpu": 30.0, "memory": 50.0}
         mock_service = MagicMock()
         mock_service.get_system_metrics.return_value = mock_metrics
-        monkeypatch.setattr("mcpgateway.admin.get_performance_service", lambda db: mock_service)
+        monkeypatch.setattr("mcpgateway.admin.performance.get_performance_service", lambda db: mock_service)
 
         result = await get_performance_system(db=mock_db, _user={"email": "admin@test.com"})
         assert result["cpu"] == 30.0
@@ -21531,7 +21531,7 @@ class TestPerformanceEndpoints:
         mock_worker.model_dump.return_value = {"pid": 1234, "cpu": 10.0}
         mock_service = MagicMock()
         mock_service.get_worker_metrics.return_value = [mock_worker]
-        monkeypatch.setattr("mcpgateway.admin.get_performance_service", lambda db: mock_service)
+        monkeypatch.setattr("mcpgateway.admin.performance.get_performance_service", lambda db: mock_service)
 
         result = await get_performance_workers(db=mock_db, _user={"email": "admin@test.com"})
         assert len(result) == 1
@@ -21551,7 +21551,7 @@ class TestPerformanceEndpoints:
         mock_metrics.model_dump.return_value = {"total": 1000, "errors": 5}
         mock_service = MagicMock()
         mock_service.get_request_metrics.return_value = mock_metrics
-        monkeypatch.setattr("mcpgateway.admin.get_performance_service", lambda db: mock_service)
+        monkeypatch.setattr("mcpgateway.admin.performance.get_performance_service", lambda db: mock_service)
 
         result = await get_performance_requests(db=mock_db, _user={"email": "admin@test.com"})
         assert result["total"] == 1000
@@ -21570,7 +21570,7 @@ class TestPerformanceEndpoints:
         mock_metrics.model_dump.return_value = {"hits": 500, "misses": 50}
         mock_service = MagicMock()
         mock_service.get_cache_metrics = AsyncMock(return_value=mock_metrics)
-        monkeypatch.setattr("mcpgateway.admin.get_performance_service", lambda db: mock_service)
+        monkeypatch.setattr("mcpgateway.admin.performance.get_performance_service", lambda db: mock_service)
 
         result = await get_performance_cache(db=mock_db, _user={"email": "admin@test.com"})
         assert result["hits"] == 500
@@ -21589,7 +21589,7 @@ class TestPerformanceEndpoints:
         mock_history.model_dump.return_value = {"periods": []}
         mock_service = MagicMock()
         mock_service.get_history = AsyncMock(return_value=mock_history)
-        monkeypatch.setattr("mcpgateway.admin.get_performance_service", lambda db: mock_service)
+        monkeypatch.setattr("mcpgateway.admin.performance.get_performance_service", lambda db: mock_service)
 
         result = await get_performance_history(period_type="hourly", hours=24, db=mock_db, _user={"email": "admin@test.com"})
         assert "periods" in result
