@@ -25,6 +25,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 # First-Party
 from mcpgateway import admin
+from mcpgateway.admin import assets as admin_assets
 from mcpgateway.services.permission_service import PermissionService
 from mcpgateway.services.server_service import ServerNotFoundError
 from mcpgateway.utils.passthrough_headers import PassthroughHeadersError
@@ -1562,6 +1563,7 @@ async def test_admin_get_all_team_ids_admin_and_user(monkeypatch):
     team_service = _StubTeamService()
 
     monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.common.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
     _allow_permissions(monkeypatch)
 
@@ -1621,6 +1623,7 @@ async def test_admin_search_teams_admin_and_user(monkeypatch):
     team_service = _StubTeamService()
 
     monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.common.TeamManagementService", lambda db: team_service)
     monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
     _allow_permissions(monkeypatch)
 
@@ -1812,8 +1815,8 @@ def test_get_bundle_js_filename_cache_hit(monkeypatch, tmp_path):
     static_dir = _setup_static_dir(tmp_path)
     (static_dir / "bundle-cached.js").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": "bundle-cached.js"})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": "bundle-cached.js"})
 
     assert admin.get_bundle_js_filename() == "bundle-cached.js"
 
@@ -1823,11 +1826,11 @@ def test_get_bundle_js_filename_stale_cache_reads_manifest(monkeypatch, tmp_path
     static_dir = _setup_static_dir(tmp_path)
     _write_manifest(static_dir, {"file": "bundle-new.js"})
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": "bundle-stale.js"})  # stale; file absent
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": "bundle-stale.js"})  # stale; file absent
 
     assert admin.get_bundle_js_filename() == "bundle-new.js"
-    assert admin._bundle_js_cache["filename"] == "bundle-new.js"
+    assert admin_assets._bundle_js_cache["filename"] == "bundle-new.js"
 
 
 def test_get_bundle_js_filename_reads_manifest(monkeypatch, tmp_path):
@@ -1835,12 +1838,12 @@ def test_get_bundle_js_filename_reads_manifest(monkeypatch, tmp_path):
     static_dir = _setup_static_dir(tmp_path)
     _write_manifest(static_dir, {"file": "bundle-abc123.js"})
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     result = admin.get_bundle_js_filename()
     assert result == "bundle-abc123.js"
-    assert admin._bundle_js_cache["filename"] == "bundle-abc123.js"
+    assert admin_assets._bundle_js_cache["filename"] == "bundle-abc123.js"
 
 
 def test_get_bundle_js_filename_manifest_missing_entry_key_falls_back_to_glob(monkeypatch, tmp_path):
@@ -1851,8 +1854,8 @@ def test_get_bundle_js_filename_manifest_missing_entry_key_falls_back_to_glob(mo
     (vite_dir / "manifest.json").write_text(json.dumps({"other/entry.js": {"file": "other.js"}}))
     (static_dir / "bundle-fallback.js").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == "bundle-fallback.js"
 
@@ -1863,8 +1866,8 @@ def test_get_bundle_js_filename_manifest_missing_file_field_falls_back_to_glob(m
     _write_manifest(static_dir, {"isEntry": True})  # no 'file' key
     (static_dir / "bundle-fallback.js").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == "bundle-fallback.js"
 
@@ -1874,8 +1877,8 @@ def test_get_bundle_js_filename_no_manifest_falls_back_to_glob(monkeypatch, tmp_
     static_dir = _setup_static_dir(tmp_path)
     (static_dir / "bundle-disk.js").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == "bundle-disk.js"
 
@@ -1888,8 +1891,8 @@ def test_get_bundle_js_filename_malformed_manifest_falls_back_to_glob(monkeypatc
     (vite_dir / "manifest.json").write_text("not { valid json <<<")
     (static_dir / "bundle-fallback.js").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == "bundle-fallback.js"
 
@@ -1905,8 +1908,8 @@ def test_get_bundle_js_filename_glob_returns_newest_bundle(monkeypatch, tmp_path
     old_time = time.time() - 60
     os.utime(old_bundle, (old_time, old_time))
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == "bundle-new.js"
 
@@ -1915,8 +1918,8 @@ def test_get_bundle_js_filename_no_bundles_returns_empty_string(monkeypatch, tmp
     """No bundle files anywhere — returns empty string."""
     _setup_static_dir(tmp_path)
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == ""
 
@@ -1931,11 +1934,11 @@ def test_get_bundle_css_files_entry_level_css(monkeypatch, tmp_path):
     static_dir = _setup_static_dir(tmp_path)
     _write_manifest(static_dir, {"file": "bundle-abc123.js", "css": ["assets/index-abc123.css"]})
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == ["assets/index-abc123.css"]
-    assert admin._bundle_css_cache["files"] == ["assets/index-abc123.css"]
+    assert admin_assets._bundle_css_cache["files"] == ["assets/index-abc123.css"]
 
 
 def test_get_bundle_css_files_walks_chunk_imports(monkeypatch, tmp_path):
@@ -1957,8 +1960,8 @@ def test_get_bundle_css_files_walks_chunk_imports(monkeypatch, tmp_path):
     }
     (vite_dir / "manifest.json").write_text(json.dumps(manifest))
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     result = admin.get_bundle_css_files()
     assert "assets/index-abc123.css" in result
@@ -1983,8 +1986,8 @@ def test_get_bundle_css_files_dedupes(monkeypatch, tmp_path):
     }
     (vite_dir / "manifest.json").write_text(json.dumps(manifest))
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == ["assets/shared.css"]
 
@@ -1994,8 +1997,8 @@ def test_get_bundle_css_files_no_css_returns_empty_list(monkeypatch, tmp_path):
     static_dir = _setup_static_dir(tmp_path)
     _write_manifest(static_dir, {"file": "bundle-abc123.js"})
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == []
 
@@ -2004,8 +2007,8 @@ def test_get_bundle_css_files_no_manifest_returns_empty_list(monkeypatch, tmp_pa
     """No manifest on disk — returns an empty list rather than raising."""
     _setup_static_dir(tmp_path)
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == []
 
@@ -2017,8 +2020,8 @@ def test_get_bundle_css_files_malformed_manifest_returns_empty_list(monkeypatch,
     vite_dir.mkdir()
     (vite_dir / "manifest.json").write_text("not { valid json <<<")
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == []
 
@@ -2028,8 +2031,8 @@ def test_get_bundle_css_files_cache_hit(monkeypatch, tmp_path):
     static_dir = _setup_static_dir(tmp_path)
     (static_dir / "cached.css").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": ["cached.css"]})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": ["cached.css"]})
 
     assert admin.get_bundle_css_files() == ["cached.css"]
 
@@ -2039,8 +2042,8 @@ def test_get_bundle_css_files_stale_cache_rereads_manifest(monkeypatch, tmp_path
     static_dir = _setup_static_dir(tmp_path)
     _write_manifest(static_dir, {"file": "bundle-new.js", "css": ["assets/new.css"]})
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": ["assets/stale.css"]})  # stale; file absent
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": ["assets/stale.css"]})  # stale; file absent
 
     assert admin.get_bundle_css_files() == ["assets/new.css"]
 
@@ -2054,8 +2057,8 @@ def test_get_bundle_css_files_falls_back_to_disk_scan_when_manifest_missing(monk
     (assets_dir / "index-abc123.css").touch()
     (assets_dir / "vendor-editor-xyz.css").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     result = admin.get_bundle_css_files()
     assert sorted(result) == ["assets/index-abc123.css", "assets/vendor-editor-xyz.css"]
@@ -2075,8 +2078,8 @@ def test_get_bundle_css_files_disk_fallback_excludes_stale_build(monkeypatch, tm
 
     (assets_dir / "index-new222.css").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == ["assets/index-new222.css"]
 
@@ -2085,7 +2088,7 @@ def test_get_bundle_css_files_no_manifest_no_assets_returns_empty_list(monkeypat
     """Neither manifest nor assets directory exists — returns an empty list rather than raising."""
     _setup_static_dir(tmp_path)
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin" / "__init__.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == []

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Location: ./mcpgateway/admin.py
+"""Location: ./mcpgateway/admin/__init__.py
 Copyright contributors to the MCP-CONTEXT-FORGE project
 SPDX-License-Identifier: Apache-2.0
 
@@ -24,10 +24,8 @@ from collections import defaultdict
 import csv
 from datetime import datetime, timedelta, timezone
 from email.utils import formatdate
-from functools import lru_cache, wraps
 import hashlib
 import html
-import inspect
 import io
 import json
 import logging
@@ -35,7 +33,6 @@ import math
 import os
 from pathlib import Path
 import re
-import secrets
 import tempfile
 import time
 from typing import Any
@@ -102,7 +99,7 @@ from mcpgateway.common.query_params import (
     QueryVisibilityCompact,
 )
 from mcpgateway.common.validators import SecurityValidator
-from mcpgateway.config import settings, UI_HIDABLE_HEADER_ITEMS, UI_HIDABLE_SECTIONS, UI_HIDE_SECTION_ALIASES
+from mcpgateway.config import settings, UI_HIDABLE_HEADER_ITEMS as UI_HIDABLE_HEADER_ITEMS, UI_HIDABLE_SECTIONS as UI_HIDABLE_SECTIONS, UI_HIDE_SECTION_ALIASES as UI_HIDE_SECTION_ALIASES
 from mcpgateway.db import A2AAgent as DbA2AAgent
 from mcpgateway.db import EmailApiToken, EmailTeam, EmailUser, extract_json_field
 from mcpgateway.db import Gateway as DbGateway
@@ -162,15 +159,15 @@ from mcpgateway.schemas import (
     ToolUpdate,
 )
 from mcpgateway.services.a2a_agent_plugin_binding_service import A2AAgentPluginBindingForbiddenError, A2AAgentPluginBindingNotFoundError, A2AAgentPluginBindingService
-from mcpgateway.services.a2a_service import A2AAgentError, A2AAgentNameConflictError, A2AAgentNotFoundError, A2AAgentService
+from mcpgateway.services.a2a_service import A2AAgentError, A2AAgentNameConflictError, A2AAgentNotFoundError, A2AAgentService as A2AAgentService
 from mcpgateway.services.argon2_service import Argon2PasswordService
 from mcpgateway.services.audit_trail_service import get_audit_trail_service
 from mcpgateway.services.catalog_service import catalog_service, CatalogRegistrationPermissionError
 from mcpgateway.services.content_security import ContentSizeError, ContentTypeError, TemplateValidationError
-from mcpgateway.services.csrf_service import get_csrf_service
+from mcpgateway.services.csrf_service import get_csrf_service as get_csrf_service
 from mcpgateway.services.email_auth_service import AuthenticationError, EmailAuthService, PasswordValidationError
 from mcpgateway.services.encryption_service import get_encryption_service
-from mcpgateway.services.export_service import ExportError, ExportService
+from mcpgateway.services.export_service import ExportError, ExportService as ExportService
 from mcpgateway.services.gateway_service import (
     gateway_capability_loaders,
     GatewayConnectionError,
@@ -185,7 +182,7 @@ from mcpgateway.services.gateway_service import (
 )
 from mcpgateway.services.import_service import ConflictStrategy
 from mcpgateway.services.import_service import ImportError as ImportServiceError
-from mcpgateway.services.import_service import ImportService, ImportValidationError
+from mcpgateway.services.import_service import ImportService as ImportService, ImportValidationError
 from mcpgateway.services.logging_service import LoggingService
 from mcpgateway.services.observability_service import ensure_timezone_aware
 from mcpgateway.services.openapi_service import fetch_and_extract_schemas
@@ -195,7 +192,7 @@ from mcpgateway.services.permission_service import PermissionService
 from mcpgateway.services.plugin_service import get_plugin_service, sync_plugin_service_from_runtime
 from mcpgateway.services.prompt_service import PromptArgumentsJSONError, PromptNameConflictError, PromptNotFoundError, PromptService
 from mcpgateway.services.resource_service import ResourceError, ResourceNotFoundError, ResourceService, ResourceURIConflictError, ResourceValidationError
-from mcpgateway.services.root_service import RootService, RootServiceError, RootServiceNotFoundError, RootServiceValidationError
+from mcpgateway.services.root_service import RootService as RootService, RootServiceError, RootServiceNotFoundError, RootServiceValidationError
 from mcpgateway.services.server_service import ServerError, ServerLockConflictError, ServerNameConflictError, ServerNotFoundError, ServerService
 from mcpgateway.services.structured_logger import get_structured_logger
 from mcpgateway.services.tag_service import TagService
@@ -214,9 +211,9 @@ from mcpgateway.utils.paths import is_path_within, open_confined
 from mcpgateway.utils.paths import resolve_root_path as _resolve_root_path
 from mcpgateway.utils.security_cookies import clear_auth_cookie, CookieTooLargeError, set_auth_cookie
 from mcpgateway.utils.services_auth import encode_auth
-from mcpgateway.utils.sqlalchemy_modifier import json_contains_tag_expr
+from mcpgateway.utils.sqlalchemy_modifier import json_contains_tag_expr as json_contains_tag_expr
 from mcpgateway.utils.validate_signature import sign_data
-from mcpgateway.utils.origin import is_allowed_redirect, normalize_origin_parts, origin_from_url
+from mcpgateway.utils.origin import is_allowed_redirect, normalize_origin_parts as normalize_origin_parts, origin_from_url
 from mcpgateway.utils.verify_credentials import verify_jwt_token_cached
 
 # Conditional imports for gRPC support (only if grpcio is installed)
@@ -245,575 +242,74 @@ except ImportError:
         """Placeholder for GrpcServiceNameConflictError when grpcio is not installed."""
 
 
+# Re-export cross-cutting helpers from the focused submodules extracted out of
+# this package so existing ``from mcpgateway.admin import X`` sites (and test
+# patch targets) keep working unchanged.
+from mcpgateway.admin.assets import _bundle_css_cache as _bundle_css_cache, _bundle_js_cache as _bundle_js_cache, get_bundle_css_files, get_bundle_js_filename, load_sri_hashes  # noqa: PLC2701
+from mcpgateway.admin.common import (  # noqa: PLC2701
+    _apply_tag_filter_groups,
+    _build_admin_redirect,
+    _build_search_response,
+    _check_public_visibility_allowed,
+    _escape_like,
+    _form_team_id,
+    _get_user_team_ids,
+    _is_explicit_token_team_scope as _is_explicit_token_team_scope,
+    _like_contains,
+    _merge_select_all_ids,
+    _normalize_int_query,
+    _normalize_search_query,
+    _normalize_tags_query,
+    _normalize_team_id,
+    _owner_access_condition,
+    _parse_tag_filter_groups,
+    _TAG_MAX_GROUPS as _TAG_MAX_GROUPS,
+    _TAG_MAX_TERMS_PER_GROUP as _TAG_MAX_TERMS_PER_GROUP,
+    _validated_team_id_param,
+    a2a_service,
+    export_service,
+    gateway_service,
+    import_service,
+    prompt_service,
+    resource_service,
+    root_service,
+    server_service,
+    tool_service,
+)
+from mcpgateway.admin.security import (  # noqa: PLC2701
+    _admin_cookie_path as _admin_cookie_path,
+    _clear_admin_csrf_cookie,
+    _request_origin_matches as _request_origin_matches,
+    _set_admin_csrf_cookie,
+    ADMIN_CSRF_COOKIE_NAME as ADMIN_CSRF_COOKIE_NAME,
+    ADMIN_CSRF_FORM_FIELD as ADMIN_CSRF_FORM_FIELD,
+    ADMIN_CSRF_HEADER_NAME as ADMIN_CSRF_HEADER_NAME,
+    enforce_admin_csrf,
+    get_client_ip,
+    get_user_agent,
+    rate_limit,
+    rate_limit_storage as rate_limit_storage,
+)
+from mcpgateway.admin.visibility import (  # noqa: PLC2701
+    _extract_permission_from_route as _extract_permission_from_route,
+    _normalize_ui_hide_values as _normalize_ui_hide_values,
+    _SECTION_TO_ROUTE_PATH as _SECTION_TO_ROUTE_PATH,
+    get_hidden_sections_for_user,
+    get_ui_visibility_config,
+    get_user_action_permissions,
+    SECTION_PERMISSIONS as SECTION_PERMISSIONS,
+    UI_ACTION_PERMISSIONS,
+    UI_EMBEDDED_DEFAULT_HIDDEN_HEADER_ITEMS as UI_EMBEDDED_DEFAULT_HIDDEN_HEADER_ITEMS,
+    UI_HIDE_SECTIONS_COOKIE_MAX_AGE,
+    UI_HIDE_SECTIONS_COOKIE_NAME,
+    UI_SECTION_TO_TABS as UI_SECTION_TO_TABS,
+    validate_section_permissions as validate_section_permissions,
+)
+
 # Import the shared logging service from main
 # This will be set by main.py when it imports admin_router
 logging_service: Optional[LoggingService] = None
 LOGGER: logging.Logger = logging.getLogger("mcpgateway.admin")
-UI_SECTION_TO_TABS: Dict[str, tuple[str, ...]] = {
-    "overview": ("overview",),
-    "servers": ("catalog",),
-    "gateways": ("gateways",),
-    "tools": ("tools", "tool-ops"),
-    "prompts": ("prompts",),
-    "resources": ("resources",),
-    "roots": ("roots",),
-    "mcp-registry": ("mcp-registry",),
-    "metrics": ("metrics",),
-    "plugins": ("plugins",),
-    "export-import": ("export-import",),
-    "logs": ("logs",),
-    "version-info": ("version-info",),
-    "maintenance": ("maintenance",),
-    "teams": ("teams",),
-    "users": ("users",),
-    "agents": ("a2a-agents",),
-    "grpc-services": ("grpc-services",),
-    "tokens": ("tokens",),
-    "settings": ("llm-settings",),
-}
-
-# Section-to-permission mapping for menu visibility
-# Maps UI section names to required RBAC permissions
-# NOTE: This mapping must be kept in sync with @require_permission decorators on admin routes.
-# The validate_section_permissions() function (called at startup) verifies consistency.
-SECTION_PERMISSIONS: Dict[str, Optional[str]] = {
-    # Admin-only sections
-    "users": "admin.user_management",
-    "maintenance": "admin.system_config",
-    "logs": "admin.system_config",
-    "export-import": "admin.system_config",
-    "plugins": "admin.plugins",
-    "metrics": "admin.system_config",
-    "version-info": "admin.system_config",
-    "settings": "admin.system_config",
-    "llm-providers": "admin.system_config",
-    "llm-models": "admin.system_config",
-    "llm-api-info": "admin.system_config",
-    # Core sections (accessible to developers and above)
-    "tools": "tools.read",
-    "servers": "servers.read",
-    "resources": "resources.read",
-    "prompts": "prompts.read",
-    "gateways": "gateways.read",
-    # Team management sections
-    "teams": "teams.read",
-    "tokens": "tokens.read",
-    # A2A agents
-    "agents": "a2a.read",
-    # gRPC services (separate from A2A - requires admin.grpc)
-    "grpc-services": "admin.grpc",
-    # Overview and roots
-    "overview": "admin.overview",  # Requires admin permission
-    "roots": "admin.system_config",  # Roots routes use admin.system_config
-    "mcp-registry": "servers.read",  # Catalog is part of servers
-}
-
-# Section-to-route-path mapping for validation
-# NOTE: Only includes routes that exist on admin_router itself.
-# Routes on other routers (version.py, llm_admin_router, etc.) are excluded
-# from validation since they're mounted separately and have their own decorators.
-_SECTION_TO_ROUTE_PATH: Dict[str, str] = {
-    "users": "/admin/users/partial",
-    "maintenance": "/admin/maintenance/partial",
-    "logs": "/admin/logs",
-    "export-import": "/admin/export/configuration",
-    "plugins": "/admin/plugins/partial",
-    "metrics": "/admin/metrics",
-    # "version-info": "/admin/version",  # Route is on version.py router, not admin_router
-    # "settings": "/admin/llm-settings",  # No such route exists
-    # "llm-providers": "/admin/llm/providers/html",  # Route is on llm_admin_router
-    # "llm-models": "/admin/llm/models/html",  # Route is on llm_admin_router
-    # "llm-api-info": "/admin/llm/api-info/html",  # Route is on llm_admin_router
-    "tools": "/admin/tools/partial",
-    "servers": "/admin/servers/partial",
-    "resources": "/admin/resources/partial",
-    "prompts": "/admin/prompts/partial",
-    "gateways": "/admin/gateways/partial",
-    "teams": "/admin/teams/partial",
-    "tokens": "/admin/tokens/partial",
-    "agents": "/admin/a2a/partial",
-    "overview": "/admin/overview/partial",
-    # "roots": "/admin/roots/partial",  # No such route exists on admin_router
-    "mcp-registry": "/admin/servers/partial",
-}
-
-
-def _extract_permission_from_route(route) -> Optional[str]:
-    """Extract the required permission from a route's @require_permission decorator.
-
-    This function reads the permission metadata set by the decorator as a function attribute.
-    This approach is more robust than closure introspection and immune to decorator
-    implementation changes.
-
-    Args:
-        route: FastAPI route object
-
-    Returns:
-        Permission string if found (e.g., "tools.read"), None otherwise
-    """
-    try:
-        if not hasattr(route, "endpoint"):
-            return None
-
-        endpoint = route.endpoint
-
-        # Simply read the metadata attribute set by @require_permission decorator
-        return getattr(endpoint, "_required_permission", None)
-
-    except Exception as e:
-        LOGGER.debug(f"Error extracting permission from route {getattr(route, 'path', 'unknown')}: {e}")
-
-    return None
-
-
-def validate_section_permissions(router) -> None:
-    """Validate that SECTION_PERMISSIONS matches actual route decorators.
-
-    This function is called at application startup to ensure the hardcoded
-    SECTION_PERMISSIONS mapping is consistent with the @require_permission
-    decorators on admin routes. Logs warnings for any mismatches.
-
-    In test/CI environments, raises ValueError on mismatches to fail fast.
-    In production, logs warnings only to avoid breaking deployments.
-
-    Args:
-        router: FastAPI APIRouter instance (admin_router)
-
-    Raises:
-        ValueError: In test/CI environments when mismatches are found
-    """
-    mismatches = []
-
-    for section, expected_perm in SECTION_PERMISSIONS.items():
-        route_path = _SECTION_TO_ROUTE_PATH.get(section)
-
-        if route_path is None:
-            # Section's route located on a different sub-router, skipping validation
-            continue
-
-        # Find matching route
-        actual_perm = None
-        for route in router.routes:
-            if hasattr(route, "path") and route.path == route_path:
-                actual_perm = _extract_permission_from_route(route)
-                break
-
-        # Compare expected vs actual
-        if expected_perm != actual_perm:
-            mismatches.append({"section": section, "route": route_path, "expected": expected_perm, "actual": actual_perm})
-
-    if mismatches:
-        error_msg = f"SECTION_PERMISSIONS validation found {len(mismatches)} mismatches with route decorators:"
-        for m in mismatches:
-            error_msg += f"\n  Section '{m['section']}' (route: {m['route']}): expected '{m['expected']}', found '{m['actual']}'"
-
-        # Detect test/CI environment
-        is_test_env = (
-            os.getenv("PYTEST_CURRENT_TEST") is not None  # pytest is running
-            or os.getenv("CI") is not None  # CI environment (GitHub Actions, GitLab CI, etc.)
-            or os.getenv("GITHUB_ACTIONS") is not None  # GitHub Actions specifically
-        )
-
-        if is_test_env:
-            # Hard error in test/CI to fail fast
-            raise ValueError(error_msg)
-        # Warning only in production to avoid breaking deployments
-        LOGGER.warning(error_msg)
-        LOGGER.warning("This may indicate the mapping needs updating.")
-    else:
-        validated_count = len(_SECTION_TO_ROUTE_PATH)
-        LOGGER.info(f"SECTION_PERMISSIONS validation passed: all {validated_count} mapped sections verified (skipped {len(SECTION_PERMISSIONS) - validated_count} sections on other routers)")
-
-
-UI_EMBEDDED_DEFAULT_HIDDEN_HEADER_ITEMS: frozenset[str] = frozenset({"logout", "team_selector"})
-UI_HIDE_SECTIONS_COOKIE_NAME = "mcpgateway_ui_hide_sections"
-UI_HIDE_SECTIONS_COOKIE_MAX_AGE = 30 * 24 * 60 * 60  # 30 days
-
-# Cache for the bundle filename to avoid reading manifest on every request
-# Using a mutable dict to avoid the need for a global statement in the accessor function
-_bundle_js_cache: dict[str, Optional[str]] = {"filename": None}
-
-# Cache for the bundle's CSS asset paths (e.g. Font Awesome, CodeMirror) emitted by Vite
-_bundle_css_cache: dict[str, Optional[list]] = {"files": None}
-
-
-def get_bundle_js_filename() -> str:
-    """Get the hashed bundle.js filename from Vite manifest.
-
-    Reads the Vite manifest file to get the current hashed bundle filename.
-    Falls back to scanning for bundle-*.js on disk if the manifest is unreadable.
-    Invalidates the cache when the cached bundle file no longer exists on disk.
-
-    Returns:
-        str: The bundle filename (e.g., 'bundle-abc123.js')
-    """
-    # admin is a package (__init__.py), so static assets sit one directory up at the mcpgateway package root
-    static_dir = Path(__file__).parent.parent / "static"
-
-    # Use cache if the bundle file still exists on disk
-    cached = _bundle_js_cache["filename"]
-    if cached is not None and (static_dir / cached).exists():
-        return cached
-
-    manifest_path = static_dir / ".vite" / "manifest.json"
-    try:
-        if manifest_path.exists():
-            with open(manifest_path, "r", encoding="utf-8") as f:
-                manifest = orjson.loads(f.read())
-                # The key is the input path relative to the project root
-                entry_key = "mcpgateway/admin_ui/index.js"
-                if entry_key in manifest and manifest[entry_key].get("file"):
-                    _bundle_js_cache["filename"] = manifest[entry_key]["file"]
-                    return _bundle_js_cache["filename"]  # type: ignore[return-value]
-    except Exception as e:
-        LOGGER.warning(f"Failed to read Vite manifest: {e}")
-
-    # Manifest unreadable or missing entry — find bundle file directly on disk
-    bundles = sorted(static_dir.glob("bundle-*.js"), key=lambda p: p.stat().st_mtime, reverse=True)
-    if bundles:
-        _bundle_js_cache["filename"] = bundles[0].name
-        return _bundle_js_cache["filename"]  # type: ignore[return-value]
-
-    LOGGER.error("No bundle-*.js found in %s — admin UI will not load", static_dir)
-    return ""
-
-
-def get_bundle_css_files() -> list:
-    """Get the hashed CSS asset paths bundled with the admin entry from the Vite manifest.
-
-    Vite emits CSS pulled in via JS imports (Font Awesome, CodeMirror, etc.) as separate
-    files rather than inlining them into the JS bundle or the HTML automatically, so callers
-    must link them explicitly. CSS for a statically-imported chunk (e.g. the CodeMirror/
-    Font Awesome vendor chunk) is listed under that *chunk's own* manifest entry, not the
-    top-level entry, so the entry's "imports" graph must be walked to collect all of it.
-
-    Falls back to scanning ``assets/*.css`` on disk if the manifest is unreadable or has
-    no CSS for the entry, mirroring :func:`get_bundle_js_filename`'s disk fallback. Since a
-    single build can emit more than one CSS file (e.g. the CodeMirror/Font Awesome vendor
-    chunk plus the entry's own CSS), the fallback keeps every file whose mtime is within a
-    few seconds of the newest one, rather than just the single newest file, so it doesn't
-    pick only half of the current build's assets.
-
-    Returns:
-        list[str]: Paths relative to the static dir (e.g. ['assets/index-abc123.css']),
-            or an empty list if neither the manifest nor the assets directory has any CSS.
-    """
-    # admin is a package (__init__.py), so static assets sit one directory up at the mcpgateway package root
-    static_dir = Path(__file__).parent.parent / "static"
-
-    cached = _bundle_css_cache.get("files")
-    if cached is not None and all((static_dir / f).exists() for f in cached):
-        return cached
-
-    manifest_path = static_dir / ".vite" / "manifest.json"
-    try:
-        if manifest_path.exists():
-            with open(manifest_path, "r", encoding="utf-8") as f:
-                manifest = orjson.loads(f.read())
-                entry_key = "mcpgateway/admin_ui/index.js"
-                if entry_key in manifest:
-                    css_files: list = []
-                    seen_chunks: set = set()
-                    queue = [entry_key]
-                    while queue:
-                        chunk_key = queue.pop()
-                        if chunk_key in seen_chunks or chunk_key not in manifest:
-                            continue
-                        seen_chunks.add(chunk_key)
-                        chunk = manifest[chunk_key]
-                        for css_path in chunk.get("css") or []:
-                            if css_path not in css_files:
-                                css_files.append(css_path)
-                        queue.extend(chunk.get("imports") or [])
-                    if css_files:
-                        _bundle_css_cache["files"] = css_files
-                        return css_files
-    except Exception as e:
-        LOGGER.warning(f"Failed to read Vite manifest for CSS assets: {e}")
-
-    # Manifest unreadable, missing, or missing the entry — find CSS assets directly on disk.
-    assets_dir = static_dir / "assets"
-    if assets_dir.exists():
-        css_paths = sorted(assets_dir.glob("*.css"), key=lambda p: p.stat().st_mtime, reverse=True)
-        if css_paths:
-            newest_mtime = css_paths[0].stat().st_mtime
-            recent_paths = [p for p in css_paths if newest_mtime - p.stat().st_mtime < 5]
-            css_files = [f"assets/{p.name}" for p in recent_paths]
-            _bundle_css_cache["files"] = css_files
-            return css_files
-
-    return []
-
-
-def _normalize_ui_hide_values(raw: Any, valid_values: frozenset[str], aliases: Optional[Dict[str, str]] = None) -> set[str]:
-    """Normalize UI hide values from CSV/list input into a validated set.
-
-    Args:
-        raw: Source value (CSV string, iterable, or ``None``).
-        valid_values: Allowed normalized values.
-        aliases: Optional alias mapping to canonical values.
-
-    Returns:
-        set[str]: Lowercase validated values with aliases resolved.
-    """
-    if raw is None:
-        return set()
-
-    tokens: list[str] = []
-    if isinstance(raw, str):
-        tokens = [item.strip() for item in raw.split(",")]
-    elif isinstance(raw, (list, tuple, set)):
-        tokens = [str(item).strip() for item in raw]
-    else:
-        return set()
-
-    normalized: set[str] = set()
-    for token in tokens:
-        if not token:
-            continue
-        item = token.lower()
-        if aliases:
-            item = aliases.get(item, item)
-        if item in valid_values:
-            normalized.add(item)
-    return normalized
-
-
-def get_ui_visibility_config(request: Request, is_admin: bool = False) -> Dict[str, Any]:
-    """Build final UI visibility settings for the current admin request.
-
-    Args:
-        request: Incoming FastAPI request.
-        is_admin: Whether the current user is an admin. Admins use separate
-            hide lists and are not affected by embedded-mode defaults.
-
-    Returns:
-        Dict[str, Any]: Hidden sections/header items/tabs plus cookie update intent.
-    """
-    if is_admin:
-        hidden_sections = _normalize_ui_hide_values(getattr(settings, "mcpgateway_ui_hide_sections_admin", []), UI_HIDABLE_SECTIONS, UI_HIDE_SECTION_ALIASES)
-        hidden_header_items = _normalize_ui_hide_values(getattr(settings, "mcpgateway_ui_hide_header_items_admin", []), UI_HIDABLE_HEADER_ITEMS)
-    else:
-        hidden_sections = _normalize_ui_hide_values(getattr(settings, "mcpgateway_ui_hide_sections", []), UI_HIDABLE_SECTIONS, UI_HIDE_SECTION_ALIASES)
-        hidden_header_items = _normalize_ui_hide_values(getattr(settings, "mcpgateway_ui_hide_header_items", []), UI_HIDABLE_HEADER_ITEMS)
-
-        if bool(getattr(settings, "mcpgateway_ui_embedded", False)):
-            hidden_header_items.update(UI_EMBEDDED_DEFAULT_HIDDEN_HEADER_ITEMS)
-
-    query_ui_hide_raw = request.query_params.get("ui_hide")
-    query_ui_hide_values = _normalize_ui_hide_values(query_ui_hide_raw, UI_HIDABLE_SECTIONS, UI_HIDE_SECTION_ALIASES) if query_ui_hide_raw is not None else set()
-
-    if query_ui_hide_raw is not None:
-        # Query override is additive and also becomes the persisted session value.
-        hidden_sections.update(query_ui_hide_values)
-    else:
-        cookie_ui_hide_raw = request.cookies.get(UI_HIDE_SECTIONS_COOKIE_NAME)
-        hidden_sections.update(_normalize_ui_hide_values(cookie_ui_hide_raw, UI_HIDABLE_SECTIONS, UI_HIDE_SECTION_ALIASES))
-
-    hidden_tabs: set[str] = set()
-    for section in hidden_sections:
-        hidden_tabs.update(UI_SECTION_TO_TABS.get(section, ()))
-
-    cookie_action: Optional[str] = None
-    cookie_value: Optional[str] = None
-    if query_ui_hide_raw is not None:
-        # Empty query clears persisted overrides.
-        if query_ui_hide_values:
-            cookie_action = "set"
-            cookie_value = ",".join(sorted(query_ui_hide_values))
-        else:
-            cookie_action = "delete"
-
-    return {
-        "hidden_sections": sorted(hidden_sections),
-        "hidden_header_items": sorted(hidden_header_items),
-        "hidden_tabs": sorted(hidden_tabs),
-        "cookie_action": cookie_action,
-        "cookie_value": cookie_value,
-    }
-
-
-async def get_hidden_sections_for_user(
-    db: Session,
-    user_email: str,
-    is_admin: bool,
-    token_teams: Optional[List[str]],
-    static_hidden: set[str],
-) -> set[str]:
-    """Determine which menu sections should be hidden based on user permissions.
-
-    This function implements permission-based menu hiding by checking if the user
-    has the required permission for each section. Sections without required permissions
-    are added to the hidden set.
-
-    Args:
-        db: Database session
-        user_email: Email of the authenticated user
-        is_admin: Whether the user is a platform admin
-        token_teams: Normalized token team scope (None for unrestricted admin, [] for public-only)
-        static_hidden: Sections already hidden by static configuration (UI_HIDDEN_SECTIONS)
-
-    Returns:
-        set[str]: Complete set of sections to hide (static + permission-based)
-
-    Examples:
-        >>> import asyncio
-        >>> from unittest.mock import Mock
-        >>> db = Mock()
-        >>> # Platform admin with unrestricted token sees all sections
-        >>> result = asyncio.run(get_hidden_sections_for_user(db, "admin@example.com", True, None, set()))
-        >>> isinstance(result, set)
-        True
-    """
-    # Start with static hidden sections (always hidden regardless of permissions)
-    hidden = set(static_hidden)
-
-    # Platform admins with unrestricted tokens (token_teams=None) bypass permission checks
-    if is_admin and token_teams is None:
-        return hidden
-
-    # Initialize permission service
-    permission_service = PermissionService(db, audit_enabled=False)
-
-    # Batch-fetch all permissions for the user (single DB query) when the real
-    # permission service is available. Some tests patch only check_permission(),
-    # so fall back to per-section checks if get_user_permissions() is absent or
-    # not awaitable on the patched object.
-    user_permissions: Optional[set[str]] = None
-    try:
-        maybe_permissions = permission_service.get_user_permissions(
-            user_email=user_email,
-            team_id=None,  # Check across all teams
-            include_all_teams=True,  # Include all team-scoped roles
-            token_teams=token_teams,  # SECURITY: Respect token narrowing for menu visibility
-        )
-        if inspect.isawaitable(maybe_permissions):
-            user_permissions = await maybe_permissions
-        else:
-            LOGGER.debug(f"Falling back to per-section permission checks for user {user_email}: get_user_permissions() is not awaitable")
-    except Exception as e:
-        LOGGER.debug(f"Falling back to per-section permission checks for user {user_email}: {e}")
-
-    for section, required_permission in SECTION_PERMISSIONS.items():
-        # Skip if already hidden by static config
-        if section in hidden:
-            continue
-
-        # Skip sections with no permission requirement (defensive check for future sections)
-        if required_permission is None:
-            continue
-
-        if user_permissions is not None:
-            # SECURITY: Mirror check_permission() behavior — public-only tokens
-            # (token_teams=[]) must never satisfy admin.* permissions.
-            if required_permission.startswith("admin.") and token_teams is not None and len(token_teams) == 0:
-                has_permission = False
-            else:
-                # In-memory check after a single batched permission fetch.
-                has_permission = required_permission in user_permissions or "*" in user_permissions
-        else:
-            try:
-                has_permission = await permission_service.check_permission(
-                    user_email=user_email,
-                    permission=required_permission,
-                    token_teams=token_teams,
-                    allow_admin_bypass=False,
-                    check_any_team=True,
-                )
-            except Exception as e:
-                LOGGER.warning(
-                    "Error checking permission %s for user %s: %s",
-                    SecurityValidator.sanitize_log_message(required_permission),
-                    SecurityValidator.sanitize_log_message(user_email),
-                    SecurityValidator.sanitize_log_message(str(e)),
-                )
-                has_permission = False
-
-        # Hide section if user doesn't have permission
-        if not has_permission:
-            hidden.add(section)
-            LOGGER.debug(
-                "Hiding section '%s' for user %s: missing permission '%s'",
-                SecurityValidator.sanitize_log_message(section),
-                SecurityValidator.sanitize_log_message(user_email),
-                SecurityValidator.sanitize_log_message(required_permission),
-            )
-
-    return hidden
-
-
-# UI Action Permissions Mapping
-# Maps UI permission flags to required RBAC permissions
-UI_ACTION_PERMISSIONS = {
-    # Create actions
-    "can_create_team": "teams.create",
-    "can_create_server": "servers.create",
-    "can_create_tool": "tools.create",
-    "can_create_resource": "resources.create",
-    "can_create_prompt": "prompts.create",
-    "can_create_gateway": "gateways.create",
-    "can_create_user": "admin.user_management",
-    "can_create_token": "tokens.read",  # Token creation uses tokens.read, setting nosec cause this is false positive as router uses this permission key.  # nosec B105
-    "can_create_agent": "a2a.create",
-}
-
-
-async def get_user_action_permissions(
-    db: Session,
-    user_email: str,
-    is_admin: bool,
-    token_teams: Optional[List[str]],
-) -> Dict[str, bool]:
-    """Batch-check all UI action permissions for a user.
-
-    Returns a dictionary mapping permission flags to boolean values.
-    Platform admins with unrestricted tokens get all permissions.
-
-    Args:
-        db: Database session
-        user_email: User's email
-        is_admin: Whether user is platform admin
-        token_teams: Normalized token team scope (None for unrestricted admin, [] for public-only)
-
-    Returns:
-        Dict mapping permission flags (e.g., "can_create_team") to bool
-
-    Examples:
-        >>> import asyncio
-        >>> from unittest.mock import Mock
-        >>> db = Mock()
-        >>> # Platform admin with unrestricted token gets all permissions
-        >>> result = asyncio.run(get_user_action_permissions(db, "admin@example.com", True, None))
-        >>> result["can_create_team"]
-        True
-        >>> result["can_create_server"]
-        True
-    """
-    # Platform admins with unrestricted tokens bypass all checks
-    if is_admin and token_teams is None:
-        return {flag: True for flag in UI_ACTION_PERMISSIONS}
-
-    # Initialize permission service
-    permission_service = PermissionService(db, audit_enabled=False)
-
-    # Batch check all permissions
-    result = {}
-    for flag, permission in UI_ACTION_PERMISSIONS.items():
-        try:
-            has_permission = await permission_service.check_permission(
-                user_email=user_email,
-                permission=permission,
-                token_teams=token_teams,
-                allow_admin_bypass=False,  # UI visibility matches team-scoped permissions (no admin bypass)
-                check_any_team=True,
-            )
-            result[flag] = has_permission
-        except Exception as e:
-            # Fail-closed: deny permission on error
-            LOGGER.warning("Error checking %s for %s: %s", SecurityValidator.sanitize_log_message(permission), SecurityValidator.sanitize_log_message(user_email), e)
-            result[flag] = False
-
-    return result
 
 
 def set_logging_service(service: LoggingService):
@@ -860,103 +356,8 @@ if logging_service is None:
     LOGGER = logging_service.get_logger("mcpgateway.admin")
 
 
-# Initialize services
-server_service: ServerService = ServerService()
-tool_service: ToolService = ToolService()
-prompt_service: PromptService = PromptService()
-gateway_service: GatewayService = GatewayService()
-resource_service: ResourceService = ResourceService()
-root_service: RootService = RootService()
-export_service: ExportService = ExportService()
-import_service: ImportService = ImportService()
-# Initialize A2A service only if A2A features are enabled
-a2a_service: Optional[A2AAgentService] = A2AAgentService() if settings.mcpgateway_a2a_enabled else None
 # Initialize gRPC service only if gRPC features are enabled AND grpcio is installed
 grpc_service_mgr: Optional[Any] = GrpcService() if (settings.mcpgateway_grpc_enabled and GRPC_AVAILABLE and GrpcService is not None) else None
-
-# Set up basic authentication
-
-# Rate limiting storage
-rate_limit_storage = defaultdict(list)
-
-
-@lru_cache(maxsize=1)
-def load_sri_hashes() -> Dict[str, str]:
-    """Load SRI hashes from sri_hashes.json file.
-
-    Uses lru_cache to ensure the file is only read once per process.
-
-    Returns:
-        Dict[str, str]: Dictionary mapping resource names to SRI hash strings.
-                       Returns empty dict if file not found or invalid.
-    """
-    try:
-        # admin is a package (__init__.py), so sri_hashes.json sits one directory up at the mcpgateway package root
-        sri_file = Path(__file__).parent.parent / "sri_hashes.json"
-        if sri_file.exists():
-            with sri_file.open("r") as f:
-                return json.load(f)
-    except Exception as e:
-        LOGGER.warning("Failed to load SRI hashes: %s", e)
-
-    return {}
-
-
-def _normalize_team_id(team_id: Optional[str]) -> Optional[str]:
-    """Validate and normalize team IDs for UI endpoints.
-
-    Args:
-        team_id: Raw team ID from request params.
-
-    Returns:
-        Normalized team ID string or None.
-
-    Raises:
-        ValueError: If the team ID is not a valid UUID.
-    """
-    if not team_id:
-        return None
-    try:
-        return uuid.UUID(str(team_id)).hex
-    except (ValueError, AttributeError, TypeError) as exc:
-        raise ValueError("Invalid team ID") from exc
-
-
-def _validated_team_id_param(team_id: Optional[str] = Query(None, description="Filter by team ID")) -> Optional[str]:
-    """Normalize team ID query params and raise on invalid UUIDs.
-
-    Args:
-        team_id: Raw team ID from query params.
-
-    Returns:
-        Normalized team ID string or None.
-
-    Raises:
-        HTTPException: If the team ID is not a valid UUID.
-    """
-    try:
-        return _normalize_team_id(team_id)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail="Invalid team ID") from exc
-
-
-def _form_team_id(form: Any) -> Optional[str]:
-    """Extract and normalize team_id from form data, converting whitespace-only values to None.
-
-    Normalizes at the point of extraction so that both the public-visibility guard
-    and ``TeamManagementService.verify_team_for_user`` receive the same value, making
-    ``?team_id=%20`` behave identically to an absent ``team_id`` end-to-end.
-
-    Args:
-        form: The multipart form data object from the request.
-
-    Returns:
-        The stripped team_id string, or None if absent or whitespace-only.
-    """
-    raw = form.get("team_id")
-    if not raw:
-        return None
-    return str(raw).strip() or None
 
 
 async def _assemble_oauth_config_from_fields(fields: Any, *, encrypt_secret: bool, include_resource: bool = True) -> Optional[Dict[str, Any]]:
@@ -1157,225 +558,6 @@ def _gateway_result_payload(result: Any) -> Optional[dict[str, Any]]:
     if isinstance(result, BaseModel):
         return result.model_dump(mode="json", by_alias=True)
     return None
-
-
-def _build_admin_redirect(
-    root_path: str,
-    fragment: str,
-    *,
-    error: Optional[str] = None,
-    message: Optional[str] = None,
-    include_inactive: bool = False,
-    team_id: Optional[str] = None,
-) -> str:
-    """Build an admin redirect URL preserving query parameters.
-
-    Args:
-        root_path: The root path prefix for the application.
-        fragment: The URL fragment/hash (e.g. "tools", "catalog").
-        error: Optional error message to include as a query parameter.
-        message: Optional success/info message to include as a query parameter.
-        include_inactive: Whether the include_inactive flag was set.
-        team_id: Optional team ID to preserve in the redirect.
-
-    Returns:
-        A fully constructed redirect URL string.
-    """
-    params: dict[str, str] = {}
-    if error:
-        params["error"] = error
-    if message:
-        params["message"] = message
-    if include_inactive:
-        params["include_inactive"] = "true"
-    if team_id:
-        try:
-            params["team_id"] = _normalize_team_id(team_id)
-        except ValueError:
-            pass
-    query = urllib.parse.urlencode(params, quote_via=urllib.parse.quote) if params else ""
-    sep = "/?" if query else ""
-    return f"{root_path}/admin{sep}{query}#{fragment}"
-
-
-def get_client_ip(request: Request) -> str:
-    """Extract client IP address from request.
-
-    Args:
-        request: FastAPI request object
-
-    Returns:
-        str: Client IP address
-
-    Examples:
-        >>> from unittest.mock import MagicMock
-        >>>
-        >>> # Test with X-Forwarded-For header
-        >>> mock_request = MagicMock()
-        >>> mock_request.headers = {"X-Forwarded-For": "192.168.1.1, 10.0.0.1"}
-        >>> get_client_ip(mock_request)
-        '192.168.1.1'
-        >>>
-        >>> # Test with X-Real-IP header
-        >>> mock_request.headers = {"X-Real-IP": "10.0.0.5"}
-        >>> get_client_ip(mock_request)
-        '10.0.0.5'
-        >>>
-        >>> # Test with direct client IP
-        >>> mock_request.headers = {}
-        >>> mock_request.client.host = "127.0.0.1"
-        >>> get_client_ip(mock_request)
-        '127.0.0.1'
-        >>>
-        >>> # Test with no client info
-        >>> mock_request.client = None
-        >>> get_client_ip(mock_request)
-        'unknown'
-    """
-    # Check for X-Forwarded-For header (proxy/load balancer)
-    forwarded_for = request.headers.get("X-Forwarded-For")
-    if forwarded_for:
-        return forwarded_for.split(",")[0].strip()
-
-    # Check for X-Real-IP header
-    real_ip = request.headers.get("X-Real-IP")
-    if real_ip:
-        return real_ip
-
-    # Fall back to direct client IP
-    return request.client.host if request.client else "unknown"
-
-
-def get_user_agent(request: Request) -> str:
-    """Extract user agent from request.
-
-    Args:
-        request: FastAPI request object
-
-    Returns:
-        str: User agent string
-
-    Examples:
-        >>> from unittest.mock import MagicMock
-        >>>
-        >>> # Test with User-Agent header
-        >>> mock_request = MagicMock()
-        >>> mock_request.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0)"}
-        >>> get_user_agent(mock_request)
-        'Mozilla/5.0 (Windows NT 10.0)'
-        >>>
-        >>> # Test without User-Agent header
-        >>> mock_request.headers = {}
-        >>> get_user_agent(mock_request)
-        'unknown'
-    """
-    return request.headers.get("User-Agent", "unknown")
-
-
-def rate_limit(requests_per_minute: Optional[int] = None):
-    """Apply rate limiting to admin endpoints.
-
-    Args:
-        requests_per_minute: Maximum requests per minute (uses config default if None)
-
-    Returns:
-        Decorator function that enforces rate limiting
-
-    Examples:
-        Test basic decorator creation:
-        >>> from mcpgateway import admin
-        >>> decorator = admin.rate_limit(10)
-        >>> callable(decorator)
-        True
-
-        Test with None parameter (uses default):
-        >>> default_decorator = admin.rate_limit(None)
-        >>> callable(default_decorator)
-        True
-
-        Test with specific limit:
-        >>> limited_decorator = admin.rate_limit(5)
-        >>> callable(limited_decorator)
-        True
-
-        Test decorator returns wrapper:
-        >>> async def dummy_func():
-        ...     return "success"
-        >>> decorated_func = decorator(dummy_func)
-        >>> callable(decorated_func)
-        True
-
-        Test rate limit storage structure:
-        >>> isinstance(admin.rate_limit_storage, dict)
-        True
-        >>> from collections import defaultdict
-        >>> isinstance(admin.rate_limit_storage, defaultdict)
-        True
-
-        Test decorator with zero limit:
-        >>> zero_limit_decorator = admin.rate_limit(0)
-        >>> callable(zero_limit_decorator)
-        True
-
-        Test decorator with high limit:
-        >>> high_limit_decorator = admin.rate_limit(1000)
-        >>> callable(high_limit_decorator)
-        True
-    """
-
-    def decorator(func_to_wrap):
-        """Decorator that wraps the function with rate limiting logic.
-
-        Args:
-            func_to_wrap: The function to be wrapped with rate limiting
-
-        Returns:
-            The wrapped function with rate limiting applied
-        """
-        signature_params = inspect.signature(func_to_wrap).parameters.values()
-        accepts_request = any(param.name == "request" or param.kind == inspect.Parameter.VAR_KEYWORD for param in signature_params)
-
-        @wraps(func_to_wrap)
-        async def wrapper(*args, request: Optional[Request] = None, **kwargs):
-            """Execute the wrapped function with rate limiting enforcement.
-
-            Args:
-                *args: Positional arguments to pass to the wrapped function
-                request: FastAPI Request object for extracting client IP
-                **kwargs: Keyword arguments to pass to the wrapped function
-
-            Returns:
-                The result of the wrapped function call
-
-            Raises:
-                HTTPException: When rate limit is exceeded (429 status)
-            """
-            # use configured limit if none provided
-            limit = requests_per_minute or settings.validation_max_requests_per_minute
-
-            # request can be None in some edge cases (e.g., tests)
-            client_ip = request.client.host if request and request.client else "unknown"
-            current_time = time.time()
-            minute_ago = current_time - 60
-
-            # prune old timestamps
-            rate_limit_storage[client_ip] = [ts for ts in rate_limit_storage[client_ip] if ts > minute_ago]
-
-            # enforce
-            if len(rate_limit_storage[client_ip]) >= limit:
-                LOGGER.warning(f"Rate limit exceeded for IP {client_ip} on endpoint {func_to_wrap.__name__}")
-                raise HTTPException(
-                    status_code=429,
-                    detail=f"Rate limit exceeded. Maximum {limit} requests per minute.",
-                )
-            rate_limit_storage[client_ip].append(current_time)
-            if accepts_request:
-                return await func_to_wrap(*args, request=request, **kwargs)
-            return await func_to_wrap(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
 
 
 def _get_user_team_roles(db: Session, user_email: str) -> Dict[str, str]:
@@ -1705,192 +887,6 @@ def validate_password_strength(password: str, email: str = "", is_admin: bool = 
             return False, str(e)
 
 
-ADMIN_CSRF_COOKIE_NAME = "mcpgateway_csrf_token"
-ADMIN_CSRF_HEADER_NAME = "x-csrf-token"
-ADMIN_CSRF_FORM_FIELD = "csrf_token"
-
-
-def _admin_cookie_path(request: Request) -> str:
-    """Build admin cookie path honoring ASGI root_path.
-
-    Args:
-        request: Incoming request used to read ASGI ``root_path``.
-
-    Returns:
-        Cookie path scoped to the deployed app root so admin-originated
-        non-/admin mutations can carry the same double-submit token.
-    """
-    root_path = _resolve_root_path(request)
-    return root_path or "/"
-
-
-def _request_origin_matches(request: Request) -> bool:
-    """Return ``True`` when Origin/Referer matches this request origin.
-
-    The function first performs an exact same-origin comparison using the
-    request's forwarded headers (``X-Forwarded-Proto`` / ``X-Forwarded-Host``).
-    When that fails — common behind layered reverse proxies where forwarded
-    headers reflect internal hops rather than the external scheme — it falls
-    back to checking whether the candidate origin is explicitly listed in
-    ``settings.allowed_origins``.  Wildcard entries (``*``, ``null``, ``""``)
-    are excluded from the fallback to preserve fail-closed behavior.
-
-    Args:
-        request: Incoming request carrying Origin/Referer and host headers.
-
-    Returns:
-        ``True`` when candidate origin matches either the request origin or an
-        entry in ``settings.allowed_origins``; otherwise ``False``.
-    """
-    origin = request.headers.get("origin")
-    referer = request.headers.get("referer")
-
-    candidate_origin = origin
-    if not candidate_origin and referer:
-        try:
-            parsed_referer = urllib.parse.urlparse(referer)
-            if parsed_referer.scheme and parsed_referer.netloc:
-                candidate_origin = f"{parsed_referer.scheme}://{parsed_referer.netloc}"
-        except Exception:  # nosec B110 - invalid Referer should fail closed below
-            candidate_origin = None
-
-    if not candidate_origin:
-        return False
-
-    parsed_candidate = urllib.parse.urlparse(candidate_origin)
-    if not parsed_candidate.scheme or not parsed_candidate.netloc:
-        return False
-
-    forwarded_proto = request.headers.get("x-forwarded-proto")
-    forwarded_host = request.headers.get("x-forwarded-host")
-    request_scheme = (forwarded_proto.split(",")[0].strip() if forwarded_proto else request.url.scheme) or "http"
-    request_netloc = (forwarded_host.split(",")[0].strip() if forwarded_host else request.headers.get("host")) or request.url.netloc
-
-    candidate_parts = normalize_origin_parts(parsed_candidate.scheme, parsed_candidate.netloc)
-    request_parts = normalize_origin_parts(request_scheme, request_netloc)
-    if candidate_parts == request_parts:
-        return True
-
-    # Fallback: accept origins explicitly listed in settings.allowed_origins.
-    # Handles reverse-proxy deployments where forwarded headers may not
-    # accurately reflect the external scheme/host.
-    for allowed in settings.allowed_origins:
-        # Normalize each allowed origin to avoid config surprises such as
-        # ["https://a.com "] or [" null "], which could otherwise be
-        # mis-parsed or skipped.
-        allowed_normalized = str(allowed).strip()
-        if not allowed_normalized or allowed_normalized == "*" or allowed_normalized.casefold() == "null":
-            continue
-        try:
-            allowed_parsed = urllib.parse.urlparse(allowed_normalized if "://" in allowed_normalized else f"https://{allowed_normalized}")
-            if not allowed_parsed.scheme or not allowed_parsed.netloc:
-                continue
-            if candidate_parts == normalize_origin_parts(allowed_parsed.scheme, allowed_parsed.netloc):
-                return True
-        except Exception:  # nosec B112 - malformed allowed_origins entry should not crash
-            continue
-
-    return False
-
-
-def _set_admin_csrf_cookie(request: Request, response: Response, *, user_id: str | None = None, session_id: str | None = None) -> str:
-    """Set or refresh admin CSRF cookie and return token value.
-
-    Args:
-        request: Incoming request used for existing token and path scoping.
-        response: Outgoing response where the cookie will be written.
-        user_id: Optional authenticated user binding for HMAC CSRF tokens.
-        session_id: Optional JWT session binding for HMAC CSRF tokens.
-
-    Returns:
-        CSRF token value stored in the response cookie.
-    """
-    if user_id and session_id:
-        csrf_token = get_csrf_service().generate_csrf_token(user_id=user_id, session_id=session_id)
-    else:
-        existing_token = request.cookies.get(ADMIN_CSRF_COOKIE_NAME)
-        csrf_token = existing_token if isinstance(existing_token, str) and len(existing_token) >= 32 else secrets.token_urlsafe(32)
-
-    use_secure = (settings.environment == "production") or settings.secure_cookies
-    max_age = max(300, int(getattr(settings, "token_expiry", 60)) * 60)
-    response.set_cookie(
-        key=ADMIN_CSRF_COOKIE_NAME,
-        value=csrf_token,
-        max_age=max_age,
-        path=_admin_cookie_path(request),
-        httponly=False,
-        secure=use_secure,
-        samesite="strict",
-    )
-    return csrf_token
-
-
-def _clear_admin_csrf_cookie(request: Request, response: Response) -> None:
-    """Clear admin CSRF cookie.
-
-    Args:
-        request: Incoming request used to compute cookie path.
-        response: Outgoing response where cookie deletion is applied.
-    """
-    use_secure = (settings.environment == "production") or settings.secure_cookies
-    response.delete_cookie(
-        key=ADMIN_CSRF_COOKIE_NAME,
-        path=_admin_cookie_path(request),
-        secure=use_secure,
-        httponly=False,
-        samesite="strict",
-    )
-
-
-async def enforce_admin_csrf(request: Request) -> None:
-    """Enforce CSRF protections for cookie-authenticated admin mutations.
-
-    Args:
-        request: Incoming admin request to validate.
-
-    Returns:
-        ``None`` when validation passes.
-
-    Raises:
-        HTTPException: If origin validation fails or CSRF token validation fails.
-    """
-    if request.method.upper() in {"GET", "HEAD", "OPTIONS", "TRACE"}:
-        return
-
-    session_cookie = request.cookies.get("jwt_token") or request.cookies.get("access_token")
-    request_path = getattr(request.url, "path", "") or ""
-    is_login_post = request_path.rstrip("/").endswith("/admin/login")
-    if not session_cookie and not is_login_post:
-        # CSRF is relevant only for browser cookie auth. Token-auth API calls
-        # without session cookies are not subject to browser CSRF. The login
-        # POST is the one exception: it is pre-auth (no session cookie exists
-        # yet) but still a state-changing browser action, so it is validated
-        # against the pre-auth nonce minted by admin_login_page's GET.
-        return
-
-    if not _request_origin_matches(request):
-        raise HTTPException(status_code=403, detail="CSRF origin validation failed")
-
-    csrf_cookie = request.cookies.get(ADMIN_CSRF_COOKIE_NAME)
-    if not isinstance(csrf_cookie, str) or not csrf_cookie:
-        raise HTTPException(status_code=403, detail="CSRF token cookie missing")
-
-    submitted_token = request.headers.get(ADMIN_CSRF_HEADER_NAME)
-    if not submitted_token:
-        content_type = (request.headers.get("content-type") or "").lower()
-        if "application/x-www-form-urlencoded" in content_type:
-            try:
-                form = await request.form()
-                form_token = form.get(ADMIN_CSRF_FORM_FIELD)
-                if isinstance(form_token, str):
-                    submitted_token = form_token
-            except Exception:
-                submitted_token = None
-
-    if not isinstance(submitted_token, str) or not submitted_token or not secrets.compare_digest(submitted_token, csrf_cookie):
-        raise HTTPException(status_code=403, detail="CSRF token validation failed")
-
-
 admin_router = APIRouter(
     prefix="/admin",
     tags=["Admin UI"],
@@ -1900,163 +896,6 @@ admin_router = APIRouter(
 ####################
 # Admin UI Routes  #
 ####################
-
-
-def _escape_like(value: str) -> str:
-    """Escape SQL LIKE wildcard characters.
-
-    Args:
-        value (str): Raw search string.
-
-    Returns:
-        str: Escaped string safe for use in ``LIKE`` expressions with ``ESCAPE '\\'``.
-    """
-    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
-
-
-def _like_contains(column, value: str):
-    """Case-insensitive substring match with proper LIKE wildcard escaping.
-
-    Wraps the escaped *value* with ``%`` wildcards and adds an explicit
-    ``ESCAPE '\\\\'`` clause so that ``%`` and ``_`` in the search term are
-    treated literally on all backends (SQLite requires the clause).
-
-    Args:
-        column: SQLAlchemy column expression (pre-wrapped with ``func.lower``
-            / ``coalesce`` as needed by the caller).
-        value: Raw search term — escaping is applied internally.
-
-    Returns:
-        A SQLAlchemy binary expression suitable for ``.where()``.
-    """
-    return column.like("%" + _escape_like(value) + "%", escape="\\")
-
-
-async def _get_user_team_ids(user: dict, db: Session) -> list:
-    """Return team IDs for the authenticated user.
-
-    When called from :func:`admin_unified_search`, the user dict carries a
-    ``_cached_team_ids`` key so the expensive lookup is executed only once
-    per request instead of once per entity type.
-
-    If the auth context includes explicit ``token_teams`` (API tokens), the
-    returned IDs are derived from that token scope so search endpoints cannot
-    return entities outside the token's team restrictions.
-
-    Args:
-        user (dict): Authenticated user context.
-        db (Session): Database session.
-
-    Returns:
-        list: Team ID list for the user.
-    """
-    cached = user.get("_cached_team_ids")
-    if cached is not None:
-        return cached
-
-    team_ids = extract_token_team_ids(user)
-    if team_ids is not None:
-        return team_ids
-
-    user_email = get_user_email(user)
-    team_service = TeamManagementService(db)
-    user_teams = await team_service.get_user_teams(user_email)
-    return [t.id for t in user_teams]
-
-
-def _check_public_visibility_allowed(visibility: str, team_id: Optional[str] = None) -> None:
-    """Raise HTTP 422 if public visibility is disabled and the request is team-scoped.
-
-    Public visibility is only restricted when a team_id is present — on the
-    global admin view (no team) public entities are still permitted.
-
-    Args:
-        visibility: The visibility value from the incoming form or request body.
-        team_id: The team ID from the form or request body, if any.
-
-    Raises:
-        HTTPException: 422 when flag is false, team_id is set, and visibility is 'public'.
-    """
-    if not settings.allow_public_visibility and visibility == "public" and team_id and team_id.strip():
-        raise HTTPException(
-            status_code=422,
-            detail="Public visibility is disabled by platform configuration (ALLOW_PUBLIC_VISIBILITY=false).",
-        )
-
-
-def _is_explicit_token_team_scope(user: Any) -> bool:
-    """Return whether the auth context carries explicit token team scope.
-
-    Tokens with ``token_teams`` present and not ``None`` are scope-constrained
-    (including public-only tokens with ``[]``). ``None`` denotes admin bypass.
-
-    Args:
-        user (Any): Authenticated user context.
-
-    Returns:
-        bool: True when ``token_teams`` is present and not ``None``.
-    """
-    return extract_token_team_ids(user) is not None
-
-
-def _owner_access_condition(owner_column, team_column, *, user_email: str, team_ids: list[str], user: Any):
-    """Build owner visibility predicate honoring token team scoping.
-
-    For explicit token scopes, owner visibility is constrained to token teams.
-    For legacy/session contexts without explicit scope (or admin bypass), keep
-    existing owner visibility semantics.
-
-    Args:
-        owner_column: SQLAlchemy owner-email column expression.
-        team_column: SQLAlchemy team-id column expression.
-        user_email (str): Current user email.
-        team_ids (list[str]): Team IDs visible to this auth context.
-        user (Any): Authenticated user context.
-
-    Returns:
-        Any: SQLAlchemy boolean predicate for owner visibility.
-    """
-    if _is_explicit_token_team_scope(user):
-        if not team_ids:
-            return false()
-        return and_(owner_column == user_email, team_column.in_(team_ids))
-    return owner_column == user_email
-
-
-def _merge_select_all_ids(form: Any, flag_key: str, all_ids_key: str, checked_list: list[str]) -> list[str]:
-    """Merge server-fetched IDs with UI-checked IDs when "Select All" is active.
-
-    When the user clicks "Select All" in a paginated list, the browser populates
-    *all_ids_key* with IDs fetched from the corresponding /ids endpoint. Because
-    that endpoint may be team-scoped, it can miss platform-public items that are
-    still visible (and checked) in the UI. Taking the union of both sources
-    ensures every explicitly selected item is preserved.
-
-    Note: both sources are client-supplied form values. Downstream persistence
-    code is responsible for enforcing final access control on the merged IDs.
-
-    Args:
-        form: Starlette form object.
-        flag_key (str): Form field that signals "Select All" mode (e.g. ``"selectAllTools"``).
-        all_ids_key (str): Form field holding the JSON-encoded server-fetched IDs.
-        checked_list (list[str]): IDs collected from checked checkboxes in the form.
-
-    Returns:
-        list[str]: Merged, deduplicated list of string IDs; or *checked_list* unchanged
-        when Select All is not active or the JSON payload cannot be parsed.
-    """
-    if form.get(flag_key) != "true":
-        return checked_list
-    raw = form.get(all_ids_key) or "[]"
-    try:
-        server_ids = orjson.loads(raw)
-        # Normalise to str to avoid silent int/str duplicates from different sources.
-        merged = list({str(i) for i in server_ids} | set(checked_list))
-        LOGGER.info("Select All (%s): %d items after merge", all_ids_key, len(merged))
-        return merged
-    except orjson.JSONDecodeError:
-        LOGGER.warning("Failed to parse %s JSON, falling back to checked items", all_ids_key)
-        return checked_list
 
 
 async def _has_permission(
@@ -2092,173 +931,6 @@ async def _has_permission(
         allow_admin_bypass=allow_admin_bypass,
         check_any_team=check_any_team,
     )
-
-
-def _normalize_search_query(query: Optional[str]) -> str:
-    """Normalize search query values for consistent filtering.
-
-    Args:
-        query (Optional[str]): Raw query value or FastAPI ``Query`` wrapper.
-
-    Returns:
-        str: Lowercased, trimmed query string (empty string when unset).
-    """
-    if query is None:
-        return ""
-    if isinstance(query, str):
-        return query.strip().lower()
-
-    # Support direct unit-test invocation where FastAPI Query(...) defaults
-    # can be passed through instead of resolved string values.
-    default_value = getattr(query, "default", None)
-    if default_value is None:
-        return ""
-    if isinstance(default_value, str):
-        return default_value.strip().lower()
-    return str(default_value).strip().lower()
-
-
-def _normalize_tags_query(tags: Any) -> str:
-    """Normalize tags query values.
-
-    Handles plain strings and FastAPI `Query(...)` defaults when handlers are
-    called directly in unit tests.
-
-    Args:
-        tags (Any): Raw tags value or FastAPI ``Query`` wrapper.
-
-    Returns:
-        str: Trimmed tags expression (empty string when unset).
-    """
-    if tags is None:
-        return ""
-    if isinstance(tags, str):
-        return tags.strip()
-
-    default_value = getattr(tags, "default", None)
-    if default_value is None:
-        return ""
-    if isinstance(default_value, str):
-        return default_value.strip()
-    return str(default_value).strip()
-
-
-def _normalize_int_query(value: Any, fallback: int) -> int:
-    """Normalize integer query values, including FastAPI Query defaults.
-
-    Args:
-        value (Any): Raw integer value or FastAPI ``Query`` wrapper.
-        fallback (int): Fallback value when normalization fails.
-
-    Returns:
-        int: Normalized integer value.
-    """
-    if isinstance(value, int):
-        return value
-
-    default_value = getattr(value, "default", None)
-    if isinstance(default_value, int):
-        return default_value
-
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return fallback
-
-
-_TAG_MAX_GROUPS = 20
-_TAG_MAX_TERMS_PER_GROUP = 10
-
-
-def _parse_tag_filter_groups(tags: Optional[str]) -> list[list[str]]:
-    """Parse tag filter expressions.
-
-    Expression syntax:
-    - `,` separates OR groups (capped at :data:`_TAG_MAX_GROUPS`)
-    - `+` separates AND terms inside a group (capped at :data:`_TAG_MAX_TERMS_PER_GROUP`)
-
-    Examples:
-      - `"prod,staging"` => [["prod"], ["staging"]]
-      - `"mcp+critical"` => [["mcp", "critical"]]
-      - `"mcp+critical,ui"` => [["mcp", "critical"], ["ui"]]
-
-    Args:
-        tags (Optional[str]): Tag expression with comma-separated OR groups and
-            plus-separated AND terms.
-
-    Returns:
-        list[list[str]]: Parsed tag groups ready for SQL filter construction.
-    """
-    if not tags:
-        return []
-
-    groups: list[list[str]] = []
-    for raw_group in tags.split(","):
-        if len(groups) >= _TAG_MAX_GROUPS:
-            break
-        candidate = [term.strip() for term in raw_group.split("+") if term.strip()][:_TAG_MAX_TERMS_PER_GROUP]
-        if candidate:
-            groups.append(candidate)
-    return groups
-
-
-def _apply_tag_filter_groups(query: Any, db: Session, column: Any, tag_groups: list[list[str]]) -> Any:
-    """Apply parsed tag filter groups to a SQLAlchemy query.
-
-    Args:
-        query (Any): SQLAlchemy ``select`` query to update.
-        db (Session): Database session.
-        column (Any): SQLAlchemy model column containing tags.
-        tag_groups (list[list[str]]): Parsed OR-of-AND tag groups.
-
-    Returns:
-        Any: Updated query with tag filters applied.
-    """
-    if not tag_groups:
-        return query
-
-    group_exprs = []
-    for group in tag_groups:
-        # Single term group => OR semantics (term exists)
-        # Multi-term group => AND semantics (all terms exist)
-        group_exprs.append(json_contains_tag_expr(db, column, group, match_any=len(group) == 1))
-
-    if len(group_exprs) == 1:
-        return query.where(group_exprs[0])
-    return query.where(or_(*group_exprs))
-
-
-def _build_search_response(
-    *,
-    entity_key: str,
-    entity_type: str,
-    items: list[dict[str, Any]],
-    query: str,
-    tags: str,
-    tag_groups: list[list[str]],
-) -> dict[str, Any]:
-    """Build a consistent search response while preserving legacy keys.
-
-    Args:
-        entity_key (str): Legacy entity key (for example ``tools``).
-        entity_type (str): Canonical entity type label.
-        items (list[dict[str, Any]]): Serialized entity items.
-        query (str): Normalized free-text query.
-        tags (str): Normalized tag expression.
-        tag_groups (list[list[str]]): Parsed tag groups.
-
-    Returns:
-        dict[str, Any]: Unified search payload with legacy and standard keys.
-    """
-    filters_applied = {"q": query, "tags": tags, "tag_groups": tag_groups}
-    return {
-        entity_key: items,  # legacy key for backward compatibility
-        "items": items,
-        "count": len(items),
-        "entity_type": entity_type,
-        "query": query,
-        "filters_applied": filters_applied,
-    }
 
 
 @admin_router.get("/overview/partial")

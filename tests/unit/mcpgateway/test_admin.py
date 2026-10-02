@@ -316,6 +316,8 @@ def setup_team_service(monkeypatch, team_ids):
     team_service = MagicMock()
     team_service.get_user_teams = AsyncMock(return_value=[SimpleNamespace(id=team_id) for team_id in team_ids])
     monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+    # _get_user_team_ids lives in mcpgateway.admin.common and reads the class from that module's globals.
+    monkeypatch.setattr("mcpgateway.admin.common.TeamManagementService", lambda db: team_service)
     return team_service
 
 
@@ -4946,7 +4948,7 @@ class TestAdminUIRoute:
         monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", False, raising=False)
         monkeypatch.setattr("mcpgateway.admin.create_jwt_token", fake_create_jwt_token)
         monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock())
-        monkeypatch.setattr("mcpgateway.admin.get_csrf_service", lambda: mock_csrf_service)
+        monkeypatch.setattr("mcpgateway.admin.security.get_csrf_service", lambda: mock_csrf_service)
 
         response = await admin_ui(
             request=mock_request,
@@ -4994,7 +4996,7 @@ class TestAdminUIRoute:
         monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", False, raising=False)
         monkeypatch.setattr("mcpgateway.admin.create_jwt_token", AsyncMock(side_effect=RuntimeError("jwt mint failed")))
         monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", mock_set_auth_cookie)
-        monkeypatch.setattr("mcpgateway.admin.secrets.token_urlsafe", mock_token_urlsafe)
+        monkeypatch.setattr("mcpgateway.admin.security.secrets.token_urlsafe", mock_token_urlsafe)
 
         with pytest.raises(HTTPException) as exc_info:
             await admin_ui(
@@ -5049,7 +5051,7 @@ class TestAdminUIRoute:
         monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock())
         mock_csrf_service = MagicMock()
         mock_csrf_service.generate_csrf_token.return_value = "bound-csrf-token"
-        monkeypatch.setattr("mcpgateway.admin.get_csrf_service", lambda: mock_csrf_service)
+        monkeypatch.setattr("mcpgateway.admin.security.get_csrf_service", lambda: mock_csrf_service)
         monkeypatch.setattr(
             "mcpgateway.admin.verify_jwt_token_cached",
             AsyncMock(return_value={"sub": "admin@example.com", "jti": "old-jti", "token_use": "session", "teams": ["team-1"], "auth_provider": "local"}),
@@ -5107,7 +5109,7 @@ class TestAdminUIRoute:
         monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock())
         mock_csrf_service = MagicMock()
         mock_csrf_service.generate_csrf_token.return_value = "bound-csrf-token"
-        monkeypatch.setattr("mcpgateway.admin.get_csrf_service", lambda: mock_csrf_service)
+        monkeypatch.setattr("mcpgateway.admin.security.get_csrf_service", lambda: mock_csrf_service)
         monkeypatch.setattr(
             "mcpgateway.admin.verify_jwt_token_cached",
             AsyncMock(return_value={"sub": "old@example.com", "jti": "old-jti", "token_use": "session", "teams": ["old-team"], "auth_provider": "local"}),
@@ -5164,7 +5166,7 @@ class TestAdminUIRoute:
         monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock())
         mock_csrf_service = MagicMock()
         mock_csrf_service.generate_csrf_token.return_value = "bound-csrf-token"
-        monkeypatch.setattr("mcpgateway.admin.get_csrf_service", lambda: mock_csrf_service)
+        monkeypatch.setattr("mcpgateway.admin.security.get_csrf_service", lambda: mock_csrf_service)
         monkeypatch.setattr(
             "mcpgateway.admin.verify_jwt_token_cached",
             AsyncMock(return_value={"sub": "admin@example.com", "jti": "old-jti", "token_use": "session", "teams": [], "auth_provider": "local"}),
@@ -12138,7 +12140,7 @@ async def test_admin_servers_partial_html_propagates_search_and_tags_to_paginati
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
     monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
-    monkeypatch.setattr("mcpgateway.admin.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
+    monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
     mock_request.headers = {}
@@ -12256,7 +12258,7 @@ async def test_admin_tools_partial_html_propagates_search_and_tags_to_pagination
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
     monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
-    monkeypatch.setattr("mcpgateway.admin.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
+    monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
     mock_request.headers = {}
@@ -12535,7 +12537,7 @@ async def test_admin_prompts_partial_html_propagates_search_and_tags_to_paginati
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
     monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
-    monkeypatch.setattr("mcpgateway.admin.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
+    monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
     mock_request.headers = {}
@@ -12683,7 +12685,7 @@ async def test_admin_resources_partial_html_propagates_search_and_tags_to_pagina
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
     monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
-    monkeypatch.setattr("mcpgateway.admin.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
+    monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
     mock_request.headers = {}
@@ -12830,7 +12832,7 @@ async def test_admin_gateways_partial_html_propagates_search_and_tags_to_paginat
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
     monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
-    monkeypatch.setattr("mcpgateway.admin.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
+    monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
     mock_request.headers = {}
@@ -13054,7 +13056,7 @@ async def test_admin_a2a_partial_html_propagates_search_and_tags_to_pagination(m
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
     monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
-    monkeypatch.setattr("mcpgateway.admin.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
+    monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
     mock_request.headers = {}
@@ -13756,7 +13758,7 @@ async def test_get_user_team_ids_empty_token_teams_returns_empty(monkeypatch, mo
 async def test_get_user_team_ids_admin_bypass_falls_back_to_db(monkeypatch, mock_db):
     mock_team_service = MagicMock()
     mock_team_service.get_user_teams = AsyncMock(return_value=[SimpleNamespace(id="db-team-1"), SimpleNamespace(id="db-team-2")])
-    monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda _db: mock_team_service)
+    monkeypatch.setattr("mcpgateway.admin.common.TeamManagementService", lambda _db: mock_team_service)
 
     result = await _get_user_team_ids({"email": "user@example.com", "token_teams": None}, mock_db)
 
@@ -13841,7 +13843,7 @@ def test_apply_tag_filter_groups_builds_where_clauses(monkeypatch, mock_db):
         # Use a deterministic boolean expression regardless of session/dialect.
         return sa.true() if match_any else sa.false()
 
-    monkeypatch.setattr(admin_module, "json_contains_tag_expr", fake_json_contains_tag_expr)
+    monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", fake_json_contains_tag_expr)
 
     base_query = sa.select(sa.literal(1))
     tags_col = sa.column("tags")
@@ -21056,6 +21058,7 @@ class TestTeamLookups:
         ts.get_user_teams = AsyncMock(return_value=[team1, team2, team3])
 
         monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.common.TeamManagementService", lambda db: ts)
 
         result = await admin_search_teams(q="zzz", include_inactive=False, limit=10, visibility="public", db=mock_db, user={"email": "user@test.com"})
         assert [t["id"] for t in result] == ["t3"]
@@ -21071,6 +21074,7 @@ class TestTeamLookups:
         ts = MagicMock()
         ts.get_user_teams = AsyncMock(return_value=[team1])
         monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.common.TeamManagementService", lambda db: ts)
 
         result = await admin_search_teams(q="engineering", include_inactive=False, limit=10, visibility="public", db=mock_db, user={"email": "user@test.com"})
         assert len(result) == 1
@@ -24453,7 +24457,7 @@ class TestLoadSriHashes:
         sri_file.write_text(json.dumps(test_hashes))
 
         # Mock __file__ to point to our temp directory
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
+        with patch("mcpgateway.admin.assets.__file__", str(tmp_path / "admin" / "assets.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
@@ -24468,7 +24472,7 @@ class TestLoadSriHashes:
         from mcpgateway import admin as admin_mod
 
         # Mock __file__ to point to directory without sri_hashes.json
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
+        with patch("mcpgateway.admin.assets.__file__", str(tmp_path / "admin" / "assets.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
@@ -24486,7 +24490,7 @@ class TestLoadSriHashes:
         sri_file.write_text("{ invalid json }")
 
         # Mock __file__ to point to our temp directory
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
+        with patch("mcpgateway.admin.assets.__file__", str(tmp_path / "admin" / "assets.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
@@ -24507,7 +24511,7 @@ class TestLoadSriHashes:
         admin_mod.load_sri_hashes.cache_clear()
 
         # Mock __file__ and patch Path.open to raise PermissionError
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
+        with patch("mcpgateway.admin.assets.__file__", str(tmp_path / "admin" / "assets.py")):
             with patch("pathlib.Path.open", side_effect=PermissionError("Access denied")):
                 result = admin_mod.load_sri_hashes()
 
@@ -24524,7 +24528,7 @@ class TestLoadSriHashes:
         sri_file.write_text(json.dumps(test_hashes))
 
         # Mock __file__ to point to our temp directory
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
+        with patch("mcpgateway.admin.assets.__file__", str(tmp_path / "admin" / "assets.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
@@ -24551,7 +24555,7 @@ class TestLoadSriHashes:
         sri_file.write_text("{}")
 
         # Mock __file__ to point to our temp directory
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
+        with patch("mcpgateway.admin.assets.__file__", str(tmp_path / "admin" / "assets.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
@@ -24586,7 +24590,7 @@ class TestLoadSriHashes:
         sri_file.write_text(json.dumps(test_hashes), encoding="utf-8")
 
         # Mock __file__ to point to our temp directory
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
+        with patch("mcpgateway.admin.assets.__file__", str(tmp_path / "admin" / "assets.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
