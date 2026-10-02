@@ -449,9 +449,9 @@ def mock_metrics():
 class TestAdminServerRoutes:
     """Test admin routes for server management with enhanced coverage."""
 
-    @patch("mcpgateway.admin.paginate_query")
-    @patch("mcpgateway.admin.TeamManagementService")
-    @patch("mcpgateway.admin.server_service")
+    @patch("mcpgateway.admin.servers.paginate_query")
+    @patch("mcpgateway.admin.servers.TeamManagementService")
+    @patch("mcpgateway.admin.servers.server_service")
     async def test_admin_list_servers_with_various_states(self, mock_server_service, mock_team_service_class, mock_paginate, mock_db):
         """Test listing servers with various states and configurations."""
         # First-Party
@@ -1124,9 +1124,9 @@ class TestAdminServerRoutes:
         # Mock verify_team_for_user to return whatever team_id is passed
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(side_effect=lambda email, tid: tid)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.servers.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.MetadataCapture.extract_modification_metadata",
+            "mcpgateway.admin.servers.MetadataCapture.extract_modification_metadata",
             lambda *_args, **_kwargs: {"modified_by": "u", "modified_from_ip": None, "modified_via": "ui", "modified_user_agent": None, "version": 1},
         )
 
@@ -1166,9 +1166,9 @@ class TestAdminServerRoutes:
 
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(side_effect=lambda email, tid: tid)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.servers.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.MetadataCapture.extract_modification_metadata",
+            "mcpgateway.admin.servers.MetadataCapture.extract_modification_metadata",
             lambda *_args, **_kwargs: {"modified_by": "u", "modified_from_ip": None, "modified_via": "ui", "modified_user_agent": None, "version": 1},
         )
 
@@ -12032,13 +12032,13 @@ async def test_get_configuration_settings_does_not_mask_empty_sensitive_values(m
 async def test_admin_servers_partial_html_renders(monkeypatch, mock_request, mock_db, render):
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.servers.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="srv-1", name="Server 1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     server_service = MagicMock()
     server_service.convert_server_to_read.return_value = {"id": "srv-1", "name": "Server 1"}
-    monkeypatch.setattr("mcpgateway.admin.server_service", server_service)
+    monkeypatch.setattr("mcpgateway.admin.servers.server_service", server_service)
 
     mock_request.headers = {}
     response = await admin_servers_partial_html(
@@ -12059,13 +12059,13 @@ async def test_admin_servers_partial_html_all_teams_view(monkeypatch, mock_reque
     """Cover All Teams view access conditions when team_id is not provided."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.servers.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="srv-1", name="Server 1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     server_service = MagicMock()
     server_service.convert_server_to_read.return_value = {"id": "srv-1", "name": "Server 1"}
-    monkeypatch.setattr("mcpgateway.admin.server_service", server_service)
+    monkeypatch.setattr("mcpgateway.admin.servers.server_service", server_service)
 
     mock_request.headers = {}
     response = await admin_servers_partial_html(
@@ -12085,11 +12085,11 @@ async def test_admin_servers_partial_html_all_teams_view(monkeypatch, mock_reque
 async def test_admin_servers_partial_html_team_filter_denied(monkeypatch, mock_request, mock_db):
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.servers.paginate_query",
         AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, [])
-    monkeypatch.setattr("mcpgateway.admin.server_service", MagicMock(convert_server_to_read=MagicMock(return_value={"id": "srv-2"})))
+    monkeypatch.setattr("mcpgateway.admin.servers.server_service", MagicMock(convert_server_to_read=MagicMock(return_value={"id": "srv-2"})))
 
     mock_request.headers = {}
     response = await admin_servers_partial_html(
@@ -12110,13 +12110,13 @@ async def test_admin_servers_partial_html_include_inactive_query_param(monkeypat
     """Cover include_inactive query-param propagation for pagination links."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.servers.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="srv-1", name="Server 1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     server_service = MagicMock()
     server_service.convert_server_to_read.return_value = {"id": "srv-1", "name": "Server 1"}
-    monkeypatch.setattr("mcpgateway.admin.server_service", server_service)
+    monkeypatch.setattr("mcpgateway.admin.servers.server_service", server_service)
 
     mock_request.app.state.templates.TemplateResponse.reset_mock()
     mock_request.headers = {}
@@ -12144,7 +12144,7 @@ async def test_admin_servers_partial_html_propagates_search_and_tags_to_paginati
 
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
+    monkeypatch.setattr("mcpgateway.admin.servers.paginate_query", paginate_mock)
     monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
@@ -12173,13 +12173,13 @@ async def test_admin_servers_partial_html_conversion_error_is_logged_and_skipped
     """Cover conversion failure branch in admin_servers_partial_html."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.servers.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="srv-1", name="Server 1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     server_service = MagicMock()
     server_service.convert_server_to_read.side_effect = ValueError("bad server model")
-    monkeypatch.setattr("mcpgateway.admin.server_service", server_service)
+    monkeypatch.setattr("mcpgateway.admin.servers.server_service", server_service)
 
     mock_request.headers = {}
     response = await admin_servers_partial_html(
@@ -12201,13 +12201,13 @@ async def test_admin_servers_partial_html_default_includes_inactive(monkeypatch,
     """Verify include_inactive defaults to True so inactive servers appear on first load (issue #3234)."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.servers.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="srv-1", name="Server 1", team_id="team-1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     server_service = MagicMock()
     server_service.convert_server_to_read.return_value = {"id": "srv-1", "name": "Server 1"}
-    monkeypatch.setattr("mcpgateway.admin.server_service", server_service)
+    monkeypatch.setattr("mcpgateway.admin.servers.server_service", server_service)
 
     mock_request.app.state.templates.TemplateResponse.reset_mock()
     mock_request.headers = {}
@@ -13897,6 +13897,7 @@ async def test_admin_search_endpoints_support_tags_without_query(monkeypatch, mo
     monkeypatch.setattr("mcpgateway.admin.gateways._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
     monkeypatch.setattr("mcpgateway.admin.prompts._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
     monkeypatch.setattr("mcpgateway.admin.resources._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
+    monkeypatch.setattr("mcpgateway.admin.servers._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
 
     result = MagicMock()
     result.all.return_value = []
