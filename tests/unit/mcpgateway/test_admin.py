@@ -393,6 +393,7 @@ def allow_permission(monkeypatch):
     mock_perm_service.check_permission = AsyncMock(return_value=True)
     monkeypatch.setattr("mcpgateway.middleware.rbac.PermissionService", lambda db: mock_perm_service)
     monkeypatch.setattr("mcpgateway.admin.PermissionService", lambda db: mock_perm_service)
+    monkeypatch.setattr("mcpgateway.admin.common.PermissionService", lambda db: mock_perm_service)
     monkeypatch.setattr("mcpgateway.admin.is_unrestricted_platform_admin", AsyncMock(return_value=True))
     monkeypatch.setattr("mcpgateway.admin.roots.is_unrestricted_platform_admin", AsyncMock(return_value=True))
     monkeypatch.setattr("mcpgateway.plugins.get_plugin_manager", AsyncMock(return_value=None))
@@ -4817,8 +4818,8 @@ class TestAdminUIRoute:
         # Ensure no sections are hidden (env may set MCPGATEWAY_UI_HIDE_SECTIONS)
         # Patch logger to verify logging occurred
         with (
-            patch("mcpgateway.admin.LOGGER.exception") as mock_log,
-            patch("mcpgateway.admin.resource_service.list_resources", new=mock_resources),
+            patch("mcpgateway.admin.dashboard.LOGGER.exception") as mock_log,
+            patch("mcpgateway.admin.dashboard.resource_service.list_resources", new=mock_resources),
             patch.object(settings, "mcpgateway_ui_hide_sections", []),
         ):
             response = await admin_ui(
@@ -4949,9 +4950,9 @@ class TestAdminUIRoute:
         mock_csrf_service = MagicMock()
         mock_csrf_service.generate_csrf_token.return_value = "bound-csrf-token"
 
-        monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", False, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.create_jwt_token", fake_create_jwt_token)
-        monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock())
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.email_auth_enabled", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.create_jwt_token", fake_create_jwt_token)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.set_auth_cookie", MagicMock())
         monkeypatch.setattr("mcpgateway.admin.security.get_csrf_service", lambda: mock_csrf_service)
 
         response = await admin_ui(
@@ -4997,9 +4998,9 @@ class TestAdminUIRoute:
 
         mock_set_auth_cookie = MagicMock()
         mock_token_urlsafe = MagicMock(return_value="random-csrf-token")
-        monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", False, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.create_jwt_token", AsyncMock(side_effect=RuntimeError("jwt mint failed")))
-        monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", mock_set_auth_cookie)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.email_auth_enabled", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.create_jwt_token", AsyncMock(side_effect=RuntimeError("jwt mint failed")))
+        monkeypatch.setattr("mcpgateway.admin.dashboard.set_auth_cookie", mock_set_auth_cookie)
         monkeypatch.setattr("mcpgateway.admin.security.secrets.token_urlsafe", mock_token_urlsafe)
 
         with pytest.raises(HTTPException) as exc_info:
@@ -5050,14 +5051,14 @@ class TestAdminUIRoute:
             captured_payload.update(payload)
             return "refreshed-session-jwt"
 
-        monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", False, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.create_jwt_token", fake_create_jwt_token)
-        monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock())
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.email_auth_enabled", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.create_jwt_token", fake_create_jwt_token)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.set_auth_cookie", MagicMock())
         mock_csrf_service = MagicMock()
         mock_csrf_service.generate_csrf_token.return_value = "bound-csrf-token"
         monkeypatch.setattr("mcpgateway.admin.security.get_csrf_service", lambda: mock_csrf_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.verify_jwt_token_cached",
+            "mcpgateway.admin.dashboard.verify_jwt_token_cached",
             AsyncMock(return_value={"sub": "admin@example.com", "jti": "old-jti", "token_use": "session", "teams": ["team-1"], "auth_provider": "local"}),
         )
 
@@ -5108,14 +5109,14 @@ class TestAdminUIRoute:
             captured_payload.update(payload)
             return "refreshed-session-jwt"
 
-        monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", False, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.create_jwt_token", fake_create_jwt_token)
-        monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock())
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.email_auth_enabled", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.create_jwt_token", fake_create_jwt_token)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.set_auth_cookie", MagicMock())
         mock_csrf_service = MagicMock()
         mock_csrf_service.generate_csrf_token.return_value = "bound-csrf-token"
         monkeypatch.setattr("mcpgateway.admin.security.get_csrf_service", lambda: mock_csrf_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.verify_jwt_token_cached",
+            "mcpgateway.admin.dashboard.verify_jwt_token_cached",
             AsyncMock(return_value={"sub": "old@example.com", "jti": "old-jti", "token_use": "session", "teams": ["old-team"], "auth_provider": "local"}),
         )
 
@@ -5165,14 +5166,14 @@ class TestAdminUIRoute:
             captured_payload.update(payload)
             return "refreshed-session-jwt"
 
-        monkeypatch.setattr("mcpgateway.admin.settings.email_auth_enabled", False, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.create_jwt_token", fake_create_jwt_token)
-        monkeypatch.setattr("mcpgateway.admin.set_auth_cookie", MagicMock())
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.email_auth_enabled", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.create_jwt_token", fake_create_jwt_token)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.set_auth_cookie", MagicMock())
         mock_csrf_service = MagicMock()
         mock_csrf_service.generate_csrf_token.return_value = "bound-csrf-token"
         monkeypatch.setattr("mcpgateway.admin.security.get_csrf_service", lambda: mock_csrf_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.verify_jwt_token_cached",
+            "mcpgateway.admin.dashboard.verify_jwt_token_cached",
             AsyncMock(return_value={"sub": "admin@example.com", "jti": "old-jti", "token_use": "session", "teams": [], "auth_provider": "local"}),
         )
 
@@ -5228,20 +5229,20 @@ class TestAdminUIRoute:
         )
         monkeypatch.setattr(settings, "mcpgateway_a2a_enabled", True, raising=False)
         monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True, raising=False)
-        monkeypatch.setattr("mcpgateway.admin.is_unrestricted_platform_admin", AsyncMock(return_value=True))
+        monkeypatch.setattr("mcpgateway.admin.dashboard.is_unrestricted_platform_admin", AsyncMock(return_value=True))
         monkeypatch.setattr("mcpgateway.admin.roots.is_unrestricted_platform_admin", AsyncMock(return_value=True))
 
         team_service_ctor = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", team_service_ctor)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.TeamManagementService", team_service_ctor)
 
         a2a_service_mock = MagicMock()
         a2a_service_mock.list_agents_for_user = AsyncMock(return_value=[])
-        monkeypatch.setattr("mcpgateway.admin.a2a_service", a2a_service_mock)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.a2a_service", a2a_service_mock)
 
         grpc_service_mgr_mock = MagicMock()
         grpc_service_mgr_mock.list_services = AsyncMock(return_value=[])
-        monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", True)
-        monkeypatch.setattr("mcpgateway.admin.grpc_service_mgr", grpc_service_mgr_mock)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.GRPC_AVAILABLE", True)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.grpc_service_mgr", grpc_service_mgr_mock)
 
         response = await admin_ui(
             request=mock_request,
@@ -5530,7 +5531,7 @@ class TestAdminUIRoute:
         team_service_mock = MagicMock()
         team_service_mock.get_teams_for_user = MagicMock(return_value=[])
         team_service_ctor = MagicMock(return_value=team_service_mock)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", team_service_ctor)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.TeamManagementService", team_service_ctor)
 
         response = await admin_ui(
             request=mock_request,
@@ -5585,7 +5586,7 @@ class TestAdminUIRoute:
         team_service_mock = MagicMock()
         team_service_mock.get_teams_for_user = MagicMock(return_value=[])
         team_service_ctor = MagicMock(return_value=team_service_mock)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", team_service_ctor)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.TeamManagementService", team_service_ctor)
 
         response = await admin_ui(
             request=mock_request,
@@ -5643,7 +5644,7 @@ class TestAdminUIRoute:
         team_service_mock.get_member_counts_batch_cached = AsyncMock(return_value={})
         team_service_mock.get_user_roles_batch = MagicMock(return_value={})
         team_service_ctor = MagicMock(return_value=team_service_mock)
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", team_service_ctor)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.TeamManagementService", team_service_ctor)
 
         response = await admin_ui(
             request=mock_request,
@@ -5697,7 +5698,7 @@ class TestAdminUIRoute:
         team_service.get_user_teams = AsyncMock(return_value=[good_team, bad_team])
         team_service.get_member_counts_batch_cached = AsyncMock(return_value={"team-1": 2})
         team_service.get_user_roles_batch = MagicMock(return_value={"team-1": "owner"})
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(settings, "email_auth_enabled", True)
 
         mock_servers.return_value = []
@@ -5741,7 +5742,7 @@ class TestAdminUIRoute:
         """Cover admin_ui when team loading fails and team_id is rejected with 403."""
         team_service = MagicMock()
         team_service.get_user_teams = AsyncMock(side_effect=RuntimeError("db down"))
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(settings, "email_auth_enabled", True)
 
         mock_servers.return_value = []
@@ -5815,9 +5816,9 @@ class TestAdminUIRoute:
 
         grpc_service = MagicMock()
         grpc_service.model_dump.return_value = {"id": "svc-1", "team_id": "team-1"}
-        monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", True)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.GRPC_AVAILABLE", True)
         monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True)
-        monkeypatch.setattr("mcpgateway.admin.grpc_service_mgr", MagicMock(list_services=AsyncMock(return_value=[grpc_service])))
+        monkeypatch.setattr("mcpgateway.admin.dashboard.grpc_service_mgr", MagicMock(list_services=AsyncMock(return_value=[grpc_service])))
 
         response = await admin_ui(
             request=mock_request,
@@ -5869,9 +5870,9 @@ class TestAdminUIRoute:
         mock_resources.return_value = []
         mock_roots.return_value = []
 
-        monkeypatch.setattr("mcpgateway.admin.GRPC_AVAILABLE", True)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.GRPC_AVAILABLE", True)
         monkeypatch.setattr(settings, "mcpgateway_grpc_enabled", True)
-        monkeypatch.setattr("mcpgateway.admin.grpc_service_mgr", MagicMock(list_services=AsyncMock(side_effect=RuntimeError("grpc down"))))
+        monkeypatch.setattr("mcpgateway.admin.dashboard.grpc_service_mgr", MagicMock(list_services=AsyncMock(side_effect=RuntimeError("grpc down"))))
 
         response = await admin_ui(
             request=mock_request,
@@ -8502,7 +8503,7 @@ class TestAdminNonMemberTeamBanner:
         team_service.get_user_teams = AsyncMock(return_value=user_teams)
         team_service.get_member_counts_batch_cached = AsyncMock(return_value={"team-1": 2})
         team_service.get_user_roles_batch = MagicMock(return_value={"team-1": "member"})
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(settings, "email_auth_enabled", True)
 
         # Mock service responses
@@ -8566,7 +8567,7 @@ class TestAdminNonMemberTeamBanner:
         team_service.get_user_teams = AsyncMock(return_value=user_teams)
         team_service.get_member_counts_batch_cached = AsyncMock(return_value={"team-1": 2})
         team_service.get_user_roles_batch = MagicMock(return_value={"team-1": "owner"})
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(settings, "email_auth_enabled", True)
 
         # Mock service responses
@@ -8628,7 +8629,7 @@ class TestAdminNonMemberTeamBanner:
         team_service.get_user_teams = AsyncMock(return_value=user_teams)
         team_service.get_member_counts_batch_cached = AsyncMock(return_value={"team-1": 2})
         team_service.get_user_roles_batch = MagicMock(return_value={"team-1": "member"})
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(settings, "email_auth_enabled", True)
 
         # Mock service responses
@@ -8689,7 +8690,7 @@ class TestAdminNonMemberTeamBanner:
         team_service.get_user_teams = AsyncMock(return_value=user_teams)
         team_service.get_member_counts_batch_cached = AsyncMock(return_value={"team-1": 2})
         team_service.get_user_roles_batch = MagicMock(return_value={"team-1": "member"})
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(settings, "email_auth_enabled", True)
 
         # Mock service responses
@@ -13925,8 +13926,8 @@ async def test_admin_search_endpoints_support_tags_without_query(monkeypatch, mo
 async def test_admin_search_catalog_returns_open_catalog_matches(monkeypatch, mock_db, allow_permission):
     catalog_search = AsyncMock(return_value=SimpleNamespace(servers=[SimpleNamespace(id="cloudflare-docs", name="Cloudflare Docs", description="Cloudflare documentation")]))
     access_context = MagicMock(return_value=("user@example.com", ["team-1"]))
-    monkeypatch.setattr("mcpgateway.admin.catalog_service.get_catalog_servers", catalog_search)
-    monkeypatch.setattr("mcpgateway.admin.get_scoped_resource_access_context", access_context)
+    monkeypatch.setattr("mcpgateway.admin.search.catalog_service.get_catalog_servers", catalog_search)
+    monkeypatch.setattr("mcpgateway.admin.search.get_scoped_resource_access_context", access_context)
     request = MagicMock(spec=Request)
     user = {"email": "user@example.com", "db": mock_db}
 
@@ -13988,23 +13989,23 @@ async def test_admin_search_catalog_disabled_returns_empty(monkeypatch, mock_db,
 
 @pytest.mark.asyncio
 async def test_admin_unified_search_aggregates_results(monkeypatch, mock_db, allow_permission):
-    monkeypatch.setattr("mcpgateway.admin.admin_search_servers", AsyncMock(return_value={"servers": [{"id": "srv-1", "name": "Server 1"}], "count": 1}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_gateways", AsyncMock(return_value={"gateways": [{"id": "gw-1", "name": "Gateway 1"}], "count": 1}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_servers", AsyncMock(return_value={"servers": [{"id": "srv-1", "name": "Server 1"}], "count": 1}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_gateways", AsyncMock(return_value={"gateways": [{"id": "gw-1", "name": "Gateway 1"}], "count": 1}))
     monkeypatch.setattr(
-        "mcpgateway.admin.admin_search_tools",
+        "mcpgateway.admin.search.admin_search_tools",
         AsyncMock(return_value={"tools": [{"id": "550e8400e29b41d4a7164466554400b1", "name": "Tool 1"}], "count": 1}),  # pragma: allowlist secret
     )
     monkeypatch.setattr(
-        "mcpgateway.admin.admin_search_resources",
+        "mcpgateway.admin.search.admin_search_resources",
         AsyncMock(return_value={"resources": [{"id": "550e8400e29b41d4a7164466554400c1", "name": "Resource 1"}], "count": 1}),  # pragma: allowlist secret
     )  # pragma: allowlist secret
     monkeypatch.setattr(
-        "mcpgateway.admin.admin_search_prompts",
+        "mcpgateway.admin.search.admin_search_prompts",
         AsyncMock(return_value={"prompts": [{"id": "550e8400e29b41d4a7164466554400d1", "name": "Prompt 1"}], "count": 1}),  # pragma: allowlist secret
     )  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.admin_search_a2a_agents", AsyncMock(return_value={"agents": [{"id": "agent-1", "name": "Agent 1"}], "count": 1}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_teams", AsyncMock(return_value={"teams": [{"id": "team-1", "name": "Team 1"}], "count": 1}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_users", AsyncMock(return_value={"users": [{"id": "user-1", "email": "user@example.com"}], "count": 1}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_a2a_agents", AsyncMock(return_value={"agents": [{"id": "agent-1", "name": "Agent 1"}], "count": 1}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_teams", AsyncMock(return_value={"teams": [{"id": "team-1", "name": "Team 1"}], "count": 1}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_users", AsyncMock(return_value={"users": [{"id": "user-1", "email": "user@example.com"}], "count": 1}))
 
     result = await admin_unified_search(
         q="core",
@@ -14027,17 +14028,17 @@ async def test_admin_unified_search_aggregates_results(monkeypatch, mock_db, all
 
 @pytest.mark.asyncio
 async def test_admin_unified_search_default_excludes_users(monkeypatch, mock_db, allow_permission):
-    monkeypatch.setattr("mcpgateway.admin.admin_search_servers", AsyncMock(return_value={"servers": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_gateways", AsyncMock(return_value={"gateways": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_tools", AsyncMock(return_value={"tools": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_resources", AsyncMock(return_value={"resources": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_prompts", AsyncMock(return_value={"prompts": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_a2a_agents", AsyncMock(return_value={"agents": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_teams", AsyncMock(return_value={"teams": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_servers", AsyncMock(return_value={"servers": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_gateways", AsyncMock(return_value={"gateways": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_tools", AsyncMock(return_value={"tools": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_resources", AsyncMock(return_value={"resources": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_prompts", AsyncMock(return_value={"prompts": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_a2a_agents", AsyncMock(return_value={"agents": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_teams", AsyncMock(return_value={"teams": [], "count": 0}))
     users_search = AsyncMock(return_value={"users": [{"id": "user-1"}], "count": 1})
     catalog_search = AsyncMock(return_value={"catalog": [{"id": "catalog-1"}], "count": 1})
-    monkeypatch.setattr("mcpgateway.admin.admin_search_users", users_search)
-    monkeypatch.setattr("mcpgateway.admin.admin_search_catalog", catalog_search)
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_users", users_search)
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_catalog", catalog_search)
 
     result = await admin_unified_search(
         q="core",
@@ -14061,7 +14062,7 @@ async def test_admin_unified_search_default_excludes_users(monkeypatch, mock_db,
 async def test_admin_unified_search_catalog_is_explicit_and_permission_safe(monkeypatch, mock_db, allow_permission):
     setup_team_service(monkeypatch, ["team-1"])
     catalog_search = AsyncMock(return_value={"catalog": [{"id": "catalog-1", "name": "Catalog 1"}], "count": 1})
-    monkeypatch.setattr("mcpgateway.admin.admin_search_catalog", catalog_search)
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_catalog", catalog_search)
 
     result = await admin_unified_search(
         q="catalog",
@@ -14098,7 +14099,7 @@ async def test_admin_unified_search_catalog_is_explicit_and_permission_safe(monk
 
 @pytest.mark.asyncio
 async def test_admin_unified_search_users_only_requires_admin_user_management(monkeypatch, mock_db, allow_permission):
-    monkeypatch.setattr("mcpgateway.admin._has_permission", AsyncMock(return_value=False))
+    monkeypatch.setattr("mcpgateway.admin.search._has_permission", AsyncMock(return_value=False))
 
     with pytest.raises(HTTPException) as excinfo:
         await admin_unified_search(
@@ -14118,11 +14119,11 @@ async def test_admin_unified_search_users_only_requires_admin_user_management(mo
 
 @pytest.mark.asyncio
 async def test_admin_unified_search_drops_users_when_not_permitted(monkeypatch, mock_db, allow_permission):
-    monkeypatch.setattr("mcpgateway.admin._has_permission", AsyncMock(return_value=False))
+    monkeypatch.setattr("mcpgateway.admin.search._has_permission", AsyncMock(return_value=False))
     tools_search = AsyncMock(return_value={"tools": [{"id": "550e8400e29b41d4a7164466554400b1", "name": "Tool 1"}], "count": 1})  # pragma: allowlist secret
     users_search = AsyncMock(return_value={"users": [{"id": "user-1"}], "count": 1})
-    monkeypatch.setattr("mcpgateway.admin.admin_search_tools", tools_search)
-    monkeypatch.setattr("mcpgateway.admin.admin_search_users", users_search)
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_tools", tools_search)
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_users", users_search)
 
     result = await admin_unified_search(
         q="core",
@@ -14145,10 +14146,10 @@ async def test_admin_unified_search_drops_users_when_not_permitted(monkeypatch, 
 @pytest.mark.asyncio
 async def test_admin_unified_search_accepts_legacy_team_search_list_shape(monkeypatch, mock_db, allow_permission):
     monkeypatch.setattr(
-        "mcpgateway.admin.admin_search_tools",
+        "mcpgateway.admin.search.admin_search_tools",
         AsyncMock(return_value={"tools": [{"id": "550e8400e29b41d4a7164466554400b1", "name": "Tool 1"}], "count": 1}),  # pragma: allowlist secret
     )  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.admin_search_teams", AsyncMock(return_value=[{"id": "team-1", "name": "Team 1"}]))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_teams", AsyncMock(return_value=[{"id": "team-1", "name": "Team 1"}]))
 
     result = await admin_unified_search(
         q="core",
@@ -14171,10 +14172,10 @@ async def test_admin_unified_search_accepts_legacy_team_search_list_shape(monkey
 @pytest.mark.asyncio
 async def test_admin_unified_search_entity_types_parses_a2a_alias(monkeypatch, mock_db, allow_permission):
     monkeypatch.setattr(
-        "mcpgateway.admin.admin_search_tools",
+        "mcpgateway.admin.search.admin_search_tools",
         AsyncMock(return_value={"tools": [{"id": "550e8400e29b41d4a7164466554400b1", "name": "Tool 1"}], "count": 1}),  # pragma: allowlist secret
     )  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.admin_search_a2a_agents", AsyncMock(return_value={"agents": [{"id": "agent-1", "name": "Agent 1"}], "count": 1}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_a2a_agents", AsyncMock(return_value={"agents": [{"id": "agent-1", "name": "Agent 1"}], "count": 1}))
 
     result = await admin_unified_search(
         q="core",
@@ -14213,7 +14214,7 @@ async def test_admin_unified_search_invalid_entity_types_returns_400(mock_db, al
 
 @pytest.mark.asyncio
 async def test_admin_unified_search_clamps_limit_per_type_and_handles_forbidden_search(monkeypatch, mock_db, allow_permission):
-    monkeypatch.setattr("mcpgateway.admin.admin_search_servers", AsyncMock(side_effect=HTTPException(status_code=403, detail="forbidden")))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_servers", AsyncMock(side_effect=HTTPException(status_code=403, detail="forbidden")))
 
     result = await admin_unified_search(
         q="core",
@@ -14236,7 +14237,7 @@ async def test_admin_unified_search_clamps_limit_per_type_and_handles_forbidden_
 
 @pytest.mark.asyncio
 async def test_admin_unified_search_propagates_non_auth_http_exceptions(monkeypatch, mock_db, allow_permission):
-    monkeypatch.setattr("mcpgateway.admin.admin_search_servers", AsyncMock(side_effect=HTTPException(status_code=500, detail="boom")))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_servers", AsyncMock(side_effect=HTTPException(status_code=500, detail="boom")))
 
     with pytest.raises(HTTPException) as excinfo:
         await admin_unified_search(
@@ -14394,15 +14395,15 @@ async def test_admin_search_roots_null_name_falls_back_to_uri(allow_permission, 
 @pytest.mark.asyncio
 async def test_admin_unified_search_includes_roots_by_default(monkeypatch, mock_db, allow_permission):
     """Roots are included in the default entity_types for unified search."""
-    monkeypatch.setattr("mcpgateway.admin.admin_search_servers", AsyncMock(return_value={"servers": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_gateways", AsyncMock(return_value={"gateways": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_tools", AsyncMock(return_value={"tools": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_resources", AsyncMock(return_value={"resources": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_prompts", AsyncMock(return_value={"prompts": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_a2a_agents", AsyncMock(return_value={"agents": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_teams", AsyncMock(return_value={"teams": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_servers", AsyncMock(return_value={"servers": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_gateways", AsyncMock(return_value={"gateways": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_tools", AsyncMock(return_value={"tools": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_resources", AsyncMock(return_value={"resources": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_prompts", AsyncMock(return_value={"prompts": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_a2a_agents", AsyncMock(return_value={"agents": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_teams", AsyncMock(return_value={"teams": [], "count": 0}))
     roots_search = AsyncMock(return_value={"roots": [{"id": "file:///tmp", "name": "tmp", "uri": "file:///tmp"}], "count": 1})
-    monkeypatch.setattr("mcpgateway.admin.admin_search_roots", roots_search)
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_roots", roots_search)
 
     result = await admin_unified_search(
         q="tmp",
@@ -14424,7 +14425,7 @@ async def test_admin_unified_search_includes_roots_by_default(monkeypatch, mock_
 async def test_admin_unified_search_roots_only(monkeypatch, mock_db, allow_permission):
     """Unified search with entity_types=roots returns only root results."""
     roots_search = AsyncMock(return_value={"roots": [{"id": "file:///tmp", "name": "tmp", "uri": "file:///tmp"}], "count": 1})
-    monkeypatch.setattr("mcpgateway.admin.admin_search_roots", roots_search)
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_roots", roots_search)
 
     result = await admin_unified_search(
         q="tmp",
@@ -14452,14 +14453,14 @@ async def test_admin_unified_search_roots_swallows_http_exception(monkeypatch, m
     """
     tools_search = AsyncMock(return_value={"tools": [{"id": "550e8400e29b41d4a7164466554400b1", "name": "Tool 1"}], "count": 1})  # pragma: allowlist secret
     roots_search = AsyncMock(side_effect=HTTPException(status_code=403, detail="forbidden"))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_tools", tools_search)
-    monkeypatch.setattr("mcpgateway.admin.admin_search_servers", AsyncMock(return_value={"servers": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_gateways", AsyncMock(return_value={"gateways": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_resources", AsyncMock(return_value={"resources": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_prompts", AsyncMock(return_value={"prompts": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_a2a_agents", AsyncMock(return_value={"agents": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_teams", AsyncMock(return_value={"teams": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_roots", roots_search)
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_tools", tools_search)
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_servers", AsyncMock(return_value={"servers": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_gateways", AsyncMock(return_value={"gateways": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_resources", AsyncMock(return_value={"resources": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_prompts", AsyncMock(return_value={"prompts": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_a2a_agents", AsyncMock(return_value={"agents": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_teams", AsyncMock(return_value={"teams": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_roots", roots_search)
 
     result = await admin_unified_search(
         q="tmp",
@@ -14527,14 +14528,14 @@ async def test_admin_unified_search_roots_empty_for_non_admin(monkeypatch, mock_
     than a mocked HTTPException, proving the silent-suppression contract end-to-end.
     """
     tools_search = AsyncMock(return_value={"tools": [{"id": "550e8400e29b41d4a7164466554400b1", "name": "Tool 1"}], "count": 1})  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.admin_search_tools", tools_search)
-    monkeypatch.setattr("mcpgateway.admin.admin_search_servers", AsyncMock(return_value={"servers": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_gateways", AsyncMock(return_value={"gateways": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_resources", AsyncMock(return_value={"resources": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_prompts", AsyncMock(return_value={"prompts": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_a2a_agents", AsyncMock(return_value={"agents": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_teams", AsyncMock(return_value={"teams": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_users", AsyncMock(return_value={"users": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_tools", tools_search)
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_servers", AsyncMock(return_value={"servers": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_gateways", AsyncMock(return_value={"gateways": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_resources", AsyncMock(return_value={"resources": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_prompts", AsyncMock(return_value={"prompts": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_a2a_agents", AsyncMock(return_value={"agents": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_teams", AsyncMock(return_value={"teams": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_users", AsyncMock(return_value={"users": [], "count": 0}))
 
     async def _check_permission(**kwargs):
         return kwargs.get("permission") != "admin.system_config"
@@ -14582,13 +14583,13 @@ async def test_admin_search_roots_clamps_out_of_range_limit(raw_limit, allow_per
 async def test_admin_unified_search_roots_ignores_tag_filter(monkeypatch, mock_db, allow_permission):
     """Roots lack tag metadata; a tag filter must not suppress the roots branch."""
     roots_search = AsyncMock(return_value={"roots": [{"id": "file:///tmp", "name": "tmp", "uri": "file:///tmp"}], "count": 1})
-    monkeypatch.setattr("mcpgateway.admin.admin_search_roots", roots_search)
-    monkeypatch.setattr("mcpgateway.admin.admin_search_servers", AsyncMock(return_value={"servers": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_gateways", AsyncMock(return_value={"gateways": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_tools", AsyncMock(return_value={"tools": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_resources", AsyncMock(return_value={"resources": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_prompts", AsyncMock(return_value={"prompts": [], "count": 0}))
-    monkeypatch.setattr("mcpgateway.admin.admin_search_a2a_agents", AsyncMock(return_value={"agents": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_roots", roots_search)
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_servers", AsyncMock(return_value={"servers": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_gateways", AsyncMock(return_value={"gateways": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_tools", AsyncMock(return_value={"tools": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_resources", AsyncMock(return_value={"resources": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_prompts", AsyncMock(return_value={"prompts": [], "count": 0}))
+    monkeypatch.setattr("mcpgateway.admin.search.admin_search_a2a_agents", AsyncMock(return_value={"agents": [], "count": 0}))
 
     result = await admin_unified_search(
         q="tmp",
@@ -25068,7 +25069,7 @@ class TestAdminCsrfProtection:
         # First-Party
         from mcpgateway import admin as admin_mod
 
-        monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", "/fallback", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.app_root_path", "/fallback", raising=False)
         request = MagicMock()
         request.scope = {"root_path": "/mounted"}
 
@@ -25078,7 +25079,7 @@ class TestAdminCsrfProtection:
         # First-Party
         from mcpgateway import admin as admin_mod
 
-        monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", "/api/proxy/mcp", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.app_root_path", "/api/proxy/mcp", raising=False)
         request = MagicMock()
         request.scope = {"root_path": ""}
 
@@ -25088,7 +25089,7 @@ class TestAdminCsrfProtection:
         # First-Party
         from mcpgateway import admin as admin_mod
 
-        monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", "", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.app_root_path", "", raising=False)
         request = MagicMock()
         request.scope = {"root_path": ""}
 
@@ -25098,7 +25099,7 @@ class TestAdminCsrfProtection:
         # First-Party
         from mcpgateway import admin as admin_mod
 
-        monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", "api/proxy/mcp", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.app_root_path", "api/proxy/mcp", raising=False)
         request = MagicMock()
         request.scope = {"root_path": ""}
 
@@ -25108,7 +25109,7 @@ class TestAdminCsrfProtection:
         # First-Party
         from mcpgateway import admin as admin_mod
 
-        monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", "", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.app_root_path", "", raising=False)
         request = MagicMock()
         request.scope = {"root_path": "/mounted/"}
 
@@ -25118,7 +25119,7 @@ class TestAdminCsrfProtection:
         # First-Party
         from mcpgateway import admin as admin_mod
 
-        monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", "/api/proxy/mcp", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.app_root_path", "/api/proxy/mcp", raising=False)
         request = MagicMock()
         request.scope = {}
 
@@ -25128,7 +25129,7 @@ class TestAdminCsrfProtection:
         # First-Party
         from mcpgateway import admin as admin_mod
 
-        monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", None, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.app_root_path", None, raising=False)
         request = MagicMock()
         request.scope = {"root_path": ""}
 
@@ -25138,7 +25139,7 @@ class TestAdminCsrfProtection:
         # First-Party
         from mcpgateway import admin as admin_mod
 
-        monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", "/fallback", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.app_root_path", "/fallback", raising=False)
         request = MagicMock()
         request.scope = {"root_path": None}
 
@@ -25148,7 +25149,7 @@ class TestAdminCsrfProtection:
         # First-Party
         from mcpgateway import admin as admin_mod
 
-        monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", "", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.app_root_path", "", raising=False)
         request = MagicMock()
         request.scope = {"root_path": "//evil.com"}
 
@@ -25158,7 +25159,7 @@ class TestAdminCsrfProtection:
         # First-Party
         from mcpgateway import admin as admin_mod
 
-        monkeypatch.setattr("mcpgateway.admin.settings.app_root_path", "/fallback", raising=False)
+        monkeypatch.setattr("mcpgateway.admin.dashboard.settings.app_root_path", "/fallback", raising=False)
         request = MagicMock()
         request.scope = {"root_path": "   "}
 

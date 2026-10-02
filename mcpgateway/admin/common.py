@@ -29,6 +29,7 @@ from mcpgateway.services.encryption_service import get_encryption_service
 from mcpgateway.services.export_service import ExportService
 from mcpgateway.services.gateway_service import GatewayService
 from mcpgateway.services.import_service import ImportService
+from mcpgateway.services.permission_service import PermissionService
 from mcpgateway.services.prompt_service import PromptService
 from mcpgateway.services.resource_service import ResourceService
 from mcpgateway.services.root_service import RootService
@@ -723,3 +724,38 @@ def serialize_datetime(obj):
     if isinstance(obj, datetime):
         return obj.isoformat()
     return obj
+
+
+async def _has_permission(
+    *,
+    db: Session,
+    user: dict,
+    permission: str,
+    team_id: Optional[str] = None,
+    allow_admin_bypass: bool = False,
+    check_any_team: bool = False,
+) -> bool:
+    """Check a permission for the current user context.
+
+    Args:
+        db (Session): Database session.
+        user (dict): Authenticated user context.
+        permission (str): Permission to evaluate.
+        team_id (Optional[str]): Optional team scope for the permission check.
+        allow_admin_bypass (bool): Whether admin bypass is allowed.
+        check_any_team (bool): Whether to check across all team-scoped roles.
+
+    Returns:
+        bool: True when permission is granted.
+    """
+    permission_service = PermissionService(db)
+    return await permission_service.check_permission(
+        user_email=get_user_email(user),
+        permission=permission,
+        team_id=team_id,
+        token_teams=user.get("token_teams"),
+        ip_address=user.get("ip_address"),
+        user_agent=user.get("user_agent"),
+        allow_admin_bypass=allow_admin_bypass,
+        check_any_team=check_any_team,
+    )

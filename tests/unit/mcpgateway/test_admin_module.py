@@ -107,12 +107,12 @@ def _configure_admin_ui_test_dependencies(monkeypatch):
     async def list_roots():
         return []
 
-    monkeypatch.setattr(admin, "TeamManagementService", FakeTeamService)
-    monkeypatch.setattr(admin.tool_service, "list_tools", list_tools)
-    monkeypatch.setattr(admin.server_service, "list_servers", list_servers)
-    monkeypatch.setattr(admin.resource_service, "list_resources", list_resources)
-    monkeypatch.setattr(admin.prompt_service, "list_prompts", list_prompts)
-    monkeypatch.setattr(admin.gateway_service, "list_gateways", list_gateways)
+    monkeypatch.setattr(admin.dashboard, "TeamManagementService", FakeTeamService)
+    monkeypatch.setattr(admin.dashboard.tool_service, "list_tools", list_tools)
+    monkeypatch.setattr(admin.dashboard.server_service, "list_servers", list_servers)
+    monkeypatch.setattr(admin.dashboard.resource_service, "list_resources", list_resources)
+    monkeypatch.setattr(admin.dashboard.prompt_service, "list_prompts", list_prompts)
+    monkeypatch.setattr(admin.dashboard.gateway_service, "list_gateways", list_gateways)
     monkeypatch.setattr(admin.root_service, "list_roots", list_roots)
 
 
@@ -174,8 +174,8 @@ async def test_admin_ui_loads_roots_for_unrestricted_admin(monkeypatch):
     root = MagicMock()
     root.model_dump.return_value = {"uri": "https://example.com/root"}
     list_roots = AsyncMock(return_value=[root])
-    monkeypatch.setattr(admin.root_service, "list_roots", list_roots)
-    monkeypatch.setattr(admin, "is_unrestricted_platform_admin", AsyncMock(return_value=True))
+    monkeypatch.setattr(admin.dashboard.root_service, "list_roots", list_roots)
+    monkeypatch.setattr(admin.dashboard, "is_unrestricted_platform_admin", AsyncMock(return_value=True))
 
     await admin.admin_ui(request, None, False, db, user={"email": "admin@example.com", "is_admin": True, "db": db})
 
@@ -902,7 +902,7 @@ async def test_admin_ui_with_team_filter_and_cookie(monkeypatch):
         def get_user_roles_batch(self, email, team_ids):
             return {"team-1": "owner"}
 
-    monkeypatch.setattr(admin, "TeamManagementService", FakeTeamService)
+    monkeypatch.setattr(admin.dashboard, "TeamManagementService", FakeTeamService)
 
     class DummyModel:
         def __init__(self, **data):
@@ -929,15 +929,15 @@ async def test_admin_ui_with_team_filter_and_cookie(monkeypatch):
     async def list_roots():
         return [DummyModel(id="root-1")]
 
-    monkeypatch.setattr(admin.tool_service, "list_tools", list_tools)
-    monkeypatch.setattr(admin.server_service, "list_servers", list_servers)
-    monkeypatch.setattr(admin.resource_service, "list_resources", list_resources)
-    monkeypatch.setattr(admin.prompt_service, "list_prompts", list_prompts)
-    monkeypatch.setattr(admin.gateway_service, "list_gateways", list_gateways)
-    monkeypatch.setattr(admin.root_service, "list_roots", list_roots)
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "keycloak"}}))
+    monkeypatch.setattr(admin.dashboard.tool_service, "list_tools", list_tools)
+    monkeypatch.setattr(admin.dashboard.server_service, "list_servers", list_servers)
+    monkeypatch.setattr(admin.dashboard.resource_service, "list_resources", list_resources)
+    monkeypatch.setattr(admin.dashboard.prompt_service, "list_prompts", list_prompts)
+    monkeypatch.setattr(admin.dashboard.gateway_service, "list_gateways", list_gateways)
+    monkeypatch.setattr(admin.dashboard.root_service, "list_roots", list_roots)
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "keycloak"}}))
     create_jwt = AsyncMock(return_value="jwt")
-    monkeypatch.setattr(admin, "create_jwt_token", create_jwt)
+    monkeypatch.setattr(admin.dashboard, "create_jwt_token", create_jwt)
     mock_db.query.return_value.filter.return_value.first.return_value = None  # no EmailUser row → sub falls back to email
 
     response = await admin.admin_ui(request, "team-1", True, mock_db, user=user)
@@ -984,8 +984,8 @@ async def test_admin_ui_rejects_invalid_team_id(monkeypatch):
         def get_user_roles_batch(self, email, team_ids):
             return {"team-1": "member"}
 
-    monkeypatch.setattr(admin, "TeamManagementService", FakeTeamService)
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
+    monkeypatch.setattr(admin.dashboard, "TeamManagementService", FakeTeamService)
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
     monkeypatch.setattr(admin, "create_jwt_token", AsyncMock(return_value="jwt"))
 
     # Non-admin requesting non-member team: selected_team_id silently reset to None
@@ -1026,8 +1026,8 @@ async def test_admin_ui_rejects_team_id_when_teams_unavailable(monkeypatch):
         def get_user_roles_batch(self, email, team_ids):
             return {}
 
-    monkeypatch.setattr(admin, "TeamManagementService", FailingTeamService)
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
+    monkeypatch.setattr(admin.dashboard, "TeamManagementService", FailingTeamService)
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
     monkeypatch.setattr(admin, "create_jwt_token", AsyncMock(return_value="jwt"))
 
     with pytest.raises(HTTPException) as exc_info:
@@ -1046,7 +1046,7 @@ async def test_admin_ui_no_team_id_returns_public_items(monkeypatch):
 
     _configure_admin_ui_test_dependencies(monkeypatch)
 
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
     monkeypatch.setattr(admin, "create_jwt_token", AsyncMock(return_value="jwt"))
 
     response = await admin.admin_ui(request, None, False, mock_db, user=user)
@@ -1066,7 +1066,7 @@ async def test_admin_ui_admin_bypasses_team_membership_check(monkeypatch):
 
     _configure_admin_ui_test_dependencies(monkeypatch)
 
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
     monkeypatch.setattr(admin, "create_jwt_token", AsyncMock(return_value="jwt"))
 
     # Admin with token_teams=None (unrestricted) is NOT a member of "other-team",
@@ -1107,7 +1107,7 @@ async def test_admin_ui_team_scoped_admin_rejected_for_other_team(monkeypatch):
         def get_user_roles_batch(self, email, team_ids):
             return {"team-1": "admin"}
 
-    monkeypatch.setattr(admin, "TeamManagementService", FakeTeamService)
+    monkeypatch.setattr(admin.dashboard, "TeamManagementService", FakeTeamService)
     monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
     monkeypatch.setattr(admin, "create_jwt_token", AsyncMock(return_value="jwt"))
 
@@ -1130,7 +1130,7 @@ async def test_admin_ui_refresh_uses_dict_user_auth_provider(monkeypatch):
     _configure_admin_ui_test_dependencies(monkeypatch)
 
     create_jwt = AsyncMock(return_value="jwt")
-    monkeypatch.setattr(admin, "create_jwt_token", create_jwt)
+    monkeypatch.setattr(admin.dashboard, "create_jwt_token", create_jwt)
     mock_db.query.return_value.filter.return_value.first.return_value = None  # no EmailUser row → sub falls back to email
 
     response = await admin.admin_ui(request, None, False, mock_db, user=user)
@@ -1152,7 +1152,7 @@ async def test_admin_ui_refresh_uses_object_user_full_name_and_provider(monkeypa
     _configure_admin_ui_test_dependencies(monkeypatch)
 
     create_jwt = AsyncMock(return_value="jwt")
-    monkeypatch.setattr(admin, "create_jwt_token", create_jwt)
+    monkeypatch.setattr(admin.dashboard, "create_jwt_token", create_jwt)
     mock_db.query.return_value.filter.return_value.first.return_value = None  # no EmailUser row → sub falls back to email
 
     admin_ui_func = _unwrap(admin.admin_ui)
@@ -1174,9 +1174,9 @@ async def test_admin_ui_refresh_falls_back_to_top_level_provider_from_existing_c
     user = {"email": "user@example.com", "is_admin": True, "db": mock_db}
 
     _configure_admin_ui_test_dependencies(monkeypatch)
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"auth_provider": " keycloak "}))
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"auth_provider": " keycloak "}))
     create_jwt = AsyncMock(return_value="jwt")
-    monkeypatch.setattr(admin, "create_jwt_token", create_jwt)
+    monkeypatch.setattr(admin.dashboard, "create_jwt_token", create_jwt)
 
     response = await admin.admin_ui(request, None, False, mock_db, user=user)
 
@@ -1194,9 +1194,9 @@ async def test_admin_ui_refresh_provider_lookup_failure_keeps_local_provider(mon
     user = {"email": "user@example.com", "is_admin": True, "db": mock_db}
 
     _configure_admin_ui_test_dependencies(monkeypatch)
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(side_effect=RuntimeError("boom")))
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(side_effect=RuntimeError("boom")))
     create_jwt = AsyncMock(return_value="jwt")
-    monkeypatch.setattr(admin, "create_jwt_token", create_jwt)
+    monkeypatch.setattr(admin.dashboard, "create_jwt_token", create_jwt)
     mock_db.query.return_value.filter.return_value.first.return_value = None  # no EmailUser row → sub falls back to email
 
     response = await admin.admin_ui(request, None, False, mock_db, user=user)
