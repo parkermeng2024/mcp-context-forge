@@ -7272,7 +7272,7 @@ class TestOAuthFunctionality:
         team_service.verify_team_for_user = AsyncMock(return_value=None)
         with (
             patch("mcpgateway.admin.TeamManagementService", lambda db: team_service),
-            patch("mcpgateway.admin.get_encryption_service") as mock_get_encryption,
+            patch("mcpgateway.admin.common.get_encryption_service") as mock_get_encryption,
             patch("mcpgateway.admin.MetadataCapture.extract_modification_metadata") as mock_meta,
         ):
             mock_encryption = MagicMock()
@@ -19030,7 +19030,7 @@ async def test_admin_add_a2a_agent_oauth_assembled_from_form_fields(monkeypatch,
 
     encryptor = MagicMock()
     encryptor.encrypt_secret_async = AsyncMock(return_value="enc")
-    monkeypatch.setattr("mcpgateway.admin.get_encryption_service", lambda _secret: encryptor)
+    monkeypatch.setattr("mcpgateway.admin.common.get_encryption_service", lambda _secret: encryptor)
     monkeypatch.setattr(
         "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
         lambda *_args, **_kwargs: {"created_by": "u", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},

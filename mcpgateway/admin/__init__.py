@@ -197,7 +197,7 @@ from mcpgateway.utils.create_jwt_token import create_jwt_token, get_jwt_token
 from mcpgateway.utils.error_formatter import ErrorFormatter, sanitize_validation_error_for_log
 from mcpgateway.utils.log_sanitizer import sanitize_for_log
 from mcpgateway.utils.metadata_capture import MetadataCapture
-from mcpgateway.utils.oauth_resource import parse_oauth_resource_form
+from mcpgateway.utils.oauth_resource import parse_oauth_resource_form as parse_oauth_resource_form
 from mcpgateway.utils.orjson_response import ORJSONResponse
 from mcpgateway.utils.pagination import paginate_query
 from mcpgateway.utils.passthrough_headers import PassthroughHeadersError
@@ -207,7 +207,7 @@ from mcpgateway.utils.security_cookies import clear_auth_cookie, CookieTooLargeE
 from mcpgateway.utils.services_auth import encode_auth
 from mcpgateway.utils.sqlalchemy_modifier import json_contains_tag_expr as json_contains_tag_expr
 from mcpgateway.utils.validate_signature import sign_data
-from mcpgateway.utils.origin import is_allowed_redirect, normalize_origin_parts as normalize_origin_parts, origin_from_url
+from mcpgateway.utils.origin import is_allowed_redirect as is_allowed_redirect, normalize_origin_parts as normalize_origin_parts, origin_from_url as origin_from_url
 from mcpgateway.utils.verify_credentials import verify_jwt_token_cached
 
 # Conditional imports for gRPC support (only if grpcio is installed)
@@ -242,6 +242,7 @@ except ImportError:
 from mcpgateway.admin.assets import _bundle_css_cache as _bundle_css_cache, _bundle_js_cache as _bundle_js_cache, get_bundle_css_files, get_bundle_js_filename, load_sri_hashes  # noqa: PLC2701
 from mcpgateway.admin.common import (  # noqa: PLC2701
     _apply_tag_filter_groups,
+    _assemble_oauth_config_from_fields as _assemble_oauth_config_from_fields,
     _build_admin_redirect,
     _build_search_response,
     _check_public_visibility_allowed,
@@ -257,6 +258,7 @@ from mcpgateway.admin.common import (  # noqa: PLC2701
     _normalize_team_id,
     _owner_access_condition,
     _parse_tag_filter_groups,
+    _read_request_json as _read_request_json,
     _TAG_MAX_GROUPS as _TAG_MAX_GROUPS,
     _TAG_MAX_TERMS_PER_GROUP as _TAG_MAX_TERMS_PER_GROUP,
     _validated_team_id_param,
@@ -409,89 +411,6 @@ if logging_service is None:
 
 # Initialize gRPC service only if gRPC features are enabled AND grpcio is installed
 grpc_service_mgr: Optional[Any] = GrpcService() if (settings.mcpgateway_grpc_enabled and GRPC_AVAILABLE and GrpcService is not None) else None
-
-
-async def _assemble_oauth_config_from_fields(fields: Any, *, encrypt_secret: bool, include_resource: bool = True) -> Optional[Dict[str, Any]]:
-    """Assemble an ``oauth_config`` dict from individual OAuth form/JSON fields.
-
-    Shared by all four admin OAuth form handlers (gateway create/edit, A2A
-    agent create/edit), which previously carried four near-identical copies of
-    this block — a duplication that already caused one create-form site to be
-    missed in review.  Field semantics:
-
-    * ``oauth_resource`` is parsed via
-      :func:`mcpgateway.utils.oauth_resource.parse_oauth_resource_form`
-      (single URI → ``str``, multiple → ``list[str]``, RFC 7519 §4.1.3 shapes).
-      Pass ``include_resource=False`` for entity types that do not consume
-      ``oauth_config["resource"]`` (A2A agents) so the value is neither
-      assembled nor able to trigger assembly on its own.
-    * ``encrypt_secret=True`` encrypts ``client_secret`` before storage
-      (UI edit/add handlers); ``False`` stores it as submitted (the gateway
-      create path, where encryption happens downstream in the service layer).
-
-    Args:
-        fields: Mapping with ``.get()`` (a form dict or parsed JSON body)
-            containing the ``oauth_*`` keys.
-        encrypt_secret: Whether to encrypt a submitted ``client_secret``.
-        include_resource: Whether to read and emit ``oauth_resource``.
-
-    Returns:
-        Assembled ``oauth_config`` dict, or ``None`` when no meaningful OAuth
-        field was provided.
-    """
-    oauth_grant_type = str(fields.get("oauth_grant_type", ""))
-    oauth_issuer = str(fields.get("oauth_issuer", ""))
-    oauth_token_url = str(fields.get("oauth_token_url", ""))
-    oauth_authorization_url = str(fields.get("oauth_authorization_url", ""))
-    oauth_redirect_uri = str(fields.get("oauth_redirect_uri", ""))
-    oauth_redirect_uri_after_oauth = str(fields.get("redirect_uri_after_success", "")).strip()
-    oauth_client_id = str(fields.get("oauth_client_id", ""))
-    oauth_client_secret = str(fields.get("oauth_client_secret", ""))
-    oauth_username = str(fields.get("oauth_username", ""))
-    oauth_password = str(fields.get("oauth_password", ""))
-    oauth_scopes_str = str(fields.get("oauth_scopes", ""))
-    oauth_audience = str(fields.get("oauth_audience", "")).strip()
-    oauth_resource = parse_oauth_resource_form(fields.get("oauth_resource")) if include_resource else None
-
-    if not any([oauth_grant_type, oauth_issuer, oauth_token_url, oauth_authorization_url, oauth_client_id, oauth_resource]):
-        return None
-
-    oauth_config: Dict[str, Any] = {}
-    if oauth_grant_type:
-        oauth_config["grant_type"] = oauth_grant_type
-    if oauth_issuer:
-        oauth_config["issuer"] = oauth_issuer
-    if oauth_token_url:
-        oauth_config["token_url"] = oauth_token_url
-    if oauth_authorization_url:
-        oauth_config["authorization_url"] = oauth_authorization_url
-    if oauth_redirect_uri:
-        oauth_config["redirect_uri"] = oauth_redirect_uri
-    if oauth_redirect_uri_after_oauth:
-        if not is_allowed_redirect(oauth_redirect_uri_after_oauth, str(settings.app_domain), settings.oauth_redirect_allowed_origin):
-            raise ValueError(f"redirect_uri_after_oauth must use this gateway origin ({origin_from_url(str(settings.app_domain))}) or the origin in OAUTH_REDIRECT_ALLOWED_ORIGIN")
-        oauth_config["redirect_uri_after_oauth"] = oauth_redirect_uri_after_oauth
-    if oauth_client_id:
-        oauth_config["client_id"] = oauth_client_id
-    if oauth_client_secret:
-        if encrypt_secret:
-            encryption = get_encryption_service(settings.auth_encryption_secret)
-            oauth_config["client_secret"] = await encryption.encrypt_secret_async(oauth_client_secret)
-        else:
-            oauth_config["client_secret"] = oauth_client_secret
-    if oauth_username:
-        oauth_config["username"] = oauth_username
-    if oauth_password:
-        oauth_config["password"] = oauth_password
-    if oauth_audience:
-        oauth_config["audience"] = oauth_audience
-    if oauth_scopes_str:
-        scopes = [s.strip() for s in oauth_scopes_str.replace(",", " ").split() if s.strip()]
-        if scopes:
-            oauth_config["scopes"] = scopes
-    if oauth_resource:
-        oauth_config["resource"] = oauth_resource
-    return oauth_config
 
 
 async def _parse_gateway_data_from_request(request: Request) -> dict[str, Any]:
@@ -13260,24 +13179,6 @@ async def admin_list_tags(
     except Exception as e:
         LOGGER.error(f"Failed to retrieve tags for admin: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to retrieve tags")
-
-
-async def _read_request_json(request: Request) -> Any:
-    """Read JSON payload using orjson, falling back to request.json for mocks.
-
-    Args:
-        request: Incoming FastAPI request to read JSON from.
-
-    Returns:
-        Parsed JSON payload (dict/list/etc.).
-    """
-    body = await request.body()
-    if isinstance(body, (bytes, bytearray, memoryview)):
-        if body:
-            return orjson.loads(body)
-    elif isinstance(body, str) and body:
-        return orjson.loads(body)
-    return await request.json()
 
 
 @admin_router.post("/tools/import/")
