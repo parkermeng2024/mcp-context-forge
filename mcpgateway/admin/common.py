@@ -8,6 +8,7 @@ Shared Admin UI helpers: search/list utilities, team-id normalization, redirect 
 
 # Standard
 import logging
+import math
 from typing import Any, Dict, Optional, Union
 import urllib.parse
 import uuid
@@ -19,6 +20,7 @@ from sqlalchemy import and_, false, or_
 from sqlalchemy.orm import Session
 
 # First-Party
+from mcpgateway.auth import get_user_team_roles
 from mcpgateway.auth_context import extract_token_team_ids, get_user_email
 from mcpgateway.config import settings
 from mcpgateway.services.a2a_service import A2AAgentService
@@ -30,6 +32,7 @@ from mcpgateway.services.prompt_service import PromptService
 from mcpgateway.services.resource_service import ResourceService
 from mcpgateway.services.root_service import RootService
 from mcpgateway.services.server_service import ServerService
+from mcpgateway.schemas import PaginationMeta
 from mcpgateway.services.team_management_service import TeamManagementService
 from mcpgateway.services.tool_service import ToolService
 from mcpgateway.utils.oauth_resource import parse_oauth_resource_form
@@ -620,3 +623,40 @@ async def _read_request_json(request: Request) -> Any:
     elif isinstance(body, str) and body:
         return orjson.loads(body)
     return await request.json()
+
+
+def _get_user_team_roles(db: Session, user_email: str) -> Dict[str, str]:
+    """Return a {team_id: role} mapping for a user's active memberships.
+
+    Args:
+        db: The SQLAlchemy database session.
+        user_email: Email address of the user to query memberships for.
+
+    Returns:
+        Dict mapping team_id to the user's role in that team.
+    """
+    return get_user_team_roles(db, user_email)
+
+
+def _adjust_pagination_for_conversion_failures(pagination: "PaginationMeta", failed_count: int, rendered_count: int) -> None:
+    """Adjust pagination metadata to account for DB-to-Pydantic conversion failures.
+
+    When items on the current page fail to convert, the "Showing X of Y" display
+    would otherwise count items that aren't actually displayed. This adjusts
+    total_items and recomputes derived fields (total_pages, has_next, has_prev).
+    Also sets page_items to the actual number of successfully rendered items.
+
+    Args:
+        pagination: The PaginationMeta object to adjust (modified in-place).
+        failed_count: Number of items that failed conversion on the current page.
+        rendered_count: Number of items successfully converted and rendered on the current page.
+    """
+    if failed_count > 0:
+        pagination.total_items = max(0, pagination.total_items - failed_count)
+        pagination.total_pages = math.ceil(pagination.total_items / pagination.per_page) if pagination.total_items > 0 else 0
+        # Do NOT clamp pagination.page — data was already fetched for this page,
+        # so the page number must match the displayed data.
+        pagination.has_next = pagination.page < pagination.total_pages
+        pagination.has_prev = pagination.page > 1
+    # Always set page_items to reflect actual rendered count (even if failed_count == 0)
+    pagination.page_items = rendered_count

@@ -8,26 +8,49 @@ and connectivity test.
 """
 
 # Standard
+import binascii
 import logging
 import time
 from typing import Any, Dict, Optional
 
 # Third-Party
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 import orjson
 from pydantic import ValidationError
 from pydantic_core import ValidationError as CoreValidationError
+from sqlalchemy import and_, case, desc, false, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.functions import coalesce
 
 # First-Party
-from mcpgateway.admin.common import _assemble_oauth_config_from_fields, _build_admin_redirect, _check_public_visibility_allowed, _form_team_id, _read_request_json, a2a_service
+from mcpgateway.admin.common import (
+    _adjust_pagination_for_conversion_failures,
+    _apply_tag_filter_groups,
+    _assemble_oauth_config_from_fields,
+    _build_admin_redirect,
+    _build_search_response,
+    _check_public_visibility_allowed,
+    _form_team_id,
+    _get_user_team_ids,
+    _get_user_team_roles,
+    _like_contains,
+    _normalize_search_query,
+    _normalize_tags_query,
+    _owner_access_condition,
+    _parse_tag_filter_groups,
+    _read_request_json,
+    _validated_team_id_param,
+    a2a_service,
+)
 from mcpgateway.admin.security import enforce_admin_csrf
 from mcpgateway.auth_context import get_token_teams_from_request, get_user_email
+from mcpgateway.common.query_params import QueryGatewayIdList, QueryRenderMode, QueryTagsFilter
 from mcpgateway.common.validators import SecurityValidator
 from mcpgateway.config import settings
-from mcpgateway.db import A2AAgent as DbA2AAgent, get_db
+from mcpgateway.db import A2AAgent as DbA2AAgent, EmailTeam, get_db
 from mcpgateway.middleware.rbac import get_current_user_with_permissions, require_permission
 from mcpgateway.schemas import A2AAgentCreate, A2AAgentRead, A2AAgentUpdate, PaginatedResponse, PaginationMeta
 from mcpgateway.services.a2a_service import A2AAgentError, A2AAgentNameConflictError, A2AAgentNotFoundError
@@ -36,6 +59,7 @@ from mcpgateway.services.team_management_service import TeamManagementService
 from mcpgateway.utils.error_formatter import ErrorFormatter
 from mcpgateway.utils.metadata_capture import MetadataCapture
 from mcpgateway.utils.orjson_response import ORJSONResponse
+from mcpgateway.utils.pagination import paginate_query
 from mcpgateway.utils.paths import resolve_root_path as _resolve_root_path
 
 LOGGER: logging.Logger = logging.getLogger("mcpgateway.admin")
@@ -794,3 +818,385 @@ async def admin_test_a2a_agent(
             content={"success": False, "error": str(e), "error_type": "internal_error", "agent_id": agent_id},
             status_code=500,
         )
+
+
+@router.get("/a2a/partial", response_class=HTMLResponse)
+@require_permission("a2a.read", allow_admin_bypass=False)
+async def admin_a2a_partial_html(
+    request: Request,
+    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
+    per_page: int = Query(settings.pagination_default_page_size, ge=1, le=settings.pagination_max_page_size, description="Items per page"),
+    q: str = Query("", max_length=500, description="Search query"),
+    tags: QueryTagsFilter = None,
+    include_inactive: bool = False,
+    render: QueryRenderMode = None,
+    gateway_id: QueryGatewayIdList = None,
+    team_id: Optional[str] = Depends(_validated_team_id_param),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user_with_permissions),
+):
+    """Return paginated a2a agents HTML partials for the admin UI.
+
+    This HTMX endpoint returns only the partial HTML used by the admin UI for
+    a2a agents. It supports three render modes:
+
+    - default: full table partial (rows + controls)
+    - ``render="controls"``: return only pagination controls
+    - ``render="selector"``: return selector items for infinite scroll
+
+    Args:
+        request (Request): FastAPI request object used by the template engine.
+        page (int): Page number (1-indexed).
+        per_page (int): Number of items per page (bounded by settings).
+        q (str): Free-text query string.
+        tags (Optional[str]): Tag filter expression (comma=OR, plus=AND).
+        include_inactive (bool): If True, include inactive a2a agents in results.
+        render (Optional[str]): Render mode; one of None, "controls", "selector".
+        gateway_id (Optional[str]): Filter by gateway ID(s), comma-separated.
+        team_id (Optional[str]): Filter by team ID.
+        db (Session): Database session (dependency-injected).
+        user: Authenticated user object from dependency injection.
+
+    Returns:
+        Union[HTMLResponse, TemplateResponse]: A rendered template response
+        containing either the table partial, pagination controls, or selector
+        items depending on ``render``. The response contains JSON-serializable
+        encoded a2a agent data when templates expect it.
+    """
+    LOGGER.debug(
+        f"User {get_user_email(user)} requested a2a_agents HTML partial (page={page}, per_page={per_page}, include_inactive={include_inactive}, render={render}, gateway_id={gateway_id}, team_id={team_id})"
+    )
+    search_query = _normalize_search_query(q)
+    normalized_tags = _normalize_tags_query(tags)
+    tag_groups = _parse_tag_filter_groups(normalized_tags)
+    # Normalize per_page within configured bounds
+    per_page = max(settings.pagination_min_page_size, min(per_page, settings.pagination_max_page_size))
+
+    user_email = get_user_email(user)
+
+    # Team scoping
+    team_ids = await _get_user_team_ids(user, db)
+
+    # Build base query
+    query = select(DbA2AAgent)
+
+    # Note: A2A agents don't have gateway_id field, they connect directly via endpoint_url
+    # The gateway_id parameter is ignored for A2A agents
+
+    if not include_inactive:
+        query = query.where(DbA2AAgent.enabled.is_(True))
+
+    # Build access conditions
+    # When team_id is specified, show ONLY items from that team (team-scoped view)
+    # Otherwise, show all accessible items (All Teams view)
+    if team_id:
+        # Team-specific view: only show a2a agents from the specified team
+        if team_id in team_ids:
+            # Apply visibility check: team/public resources + user's own resources (including private)
+            team_access = [
+                and_(DbA2AAgent.team_id == team_id, DbA2AAgent.visibility.in_(["team", "public"])),
+                and_(DbA2AAgent.team_id == team_id, DbA2AAgent.owner_email == user_email),
+            ]
+            query = query.where(or_(*team_access))
+            LOGGER.debug(f"Filtering a2a agents by team_id: {team_id}")
+        else:
+            # User is not a member of this team, return no results using SQLAlchemy's false()
+            LOGGER.warning(f"User {user_email} attempted to filter by team {team_id} but is not a member")
+            query = query.where(false())
+    else:
+        # All Teams view: apply standard access conditions (owner, team, public)
+        access_conditions = []
+        access_conditions.append(_owner_access_condition(DbA2AAgent.owner_email, DbA2AAgent.team_id, user_email=user_email, team_ids=team_ids, user=user))
+        if team_ids:
+            access_conditions.append(and_(DbA2AAgent.team_id.in_(team_ids), DbA2AAgent.visibility.in_(["team", "public"])))
+        access_conditions.append(DbA2AAgent.visibility == "public")
+        query = query.where(or_(*access_conditions))
+
+    if search_query:
+        query = query.where(
+            or_(
+                _like_contains(func.lower(DbA2AAgent.id), search_query),
+                _like_contains(func.lower(DbA2AAgent.name), search_query),
+                _like_contains(func.lower(coalesce(DbA2AAgent.endpoint_url, "")), search_query),
+                _like_contains(func.lower(coalesce(DbA2AAgent.description, "")), search_query),
+            )
+        )
+
+    query = _apply_tag_filter_groups(query, db, DbA2AAgent.tags, tag_groups)
+
+    # Apply pagination ordering for cursor support
+    query = query.order_by(desc(DbA2AAgent.created_at), desc(DbA2AAgent.id))
+
+    # Build query params for pagination links
+    query_params = {}
+    if include_inactive:
+        query_params["include_inactive"] = "true"
+    if gateway_id:
+        query_params["gateway_id"] = gateway_id
+    if team_id:
+        query_params["team_id"] = team_id
+    if search_query:
+        query_params["q"] = search_query
+    if normalized_tags:
+        query_params["tags"] = normalized_tags
+
+    # Use unified pagination function
+    root_path = _resolve_root_path(request)
+    base_url = f"{root_path}/admin/a2a/partial"
+    paginated_result = await paginate_query(
+        db=db,
+        query=query,
+        page=page,
+        per_page=per_page,
+        cursor=None,  # HTMX partials use page-based navigation
+        base_url=base_url,
+        query_params=query_params,
+        use_cursor_threshold=False,  # Disable auto-cursor switching for UI
+    )
+
+    # Extract paginated a2a_agents (DbA2AAgent objects)
+    a2a_agents_db = paginated_result["data"]
+    pagination = paginated_result["pagination"]
+    links = paginated_result["links"]
+
+    # Batch fetch team names for the a2a_agents to avoid N+1 queries
+    team_ids_set = {p.team_id for p in a2a_agents_db if p.team_id}
+    team_map = {}
+    if team_ids_set:
+        teams = db.execute(select(EmailTeam.id, EmailTeam.name).where(EmailTeam.id.in_(team_ids_set), EmailTeam.is_active.is_(True))).all()
+        team_map = {team.id: team.name for team in teams}
+
+    # Apply team names to DB objects before conversion
+    for p in a2a_agents_db:
+        p.team = team_map.get(p.team_id) if p.team_id else None
+
+    # Batch convert to Pydantic models using a2a service
+    # This eliminates the N+1 query problem from calling get_a2a_details() in a loop
+    a2a_agents_pydantic = []
+    failed_count = 0
+    for a in a2a_agents_db:
+        try:
+            a2a_agents_pydantic.append(a2a_service.convert_agent_to_read(a, include_metrics=False))
+        except (ValidationError, ValueError, KeyError, TypeError, binascii.Error) as e:
+            failed_count += 1
+            LOGGER.exception(f"Failed to convert a2a agent {getattr(a, 'id', 'unknown')} ({getattr(a, 'name', 'unknown')}): {e}")
+    _adjust_pagination_for_conversion_failures(pagination, failed_count, len(a2a_agents_pydantic))
+    data = jsonable_encoder(a2a_agents_pydantic)
+
+    # End the read-only transaction before template rendering to avoid idle-in-transaction timeouts.
+    db.commit()
+
+    if render == "controls":
+        return request.app.state.templates.TemplateResponse(
+            request,
+            "pagination_controls.html",
+            {
+                "request": request,
+                "pagination": pagination.model_dump(),
+                "base_url": base_url,
+                "hx_target": "#agents-table-body",
+                "hx_indicator": "#agents-loading",
+                "query_params": query_params,
+                "root_path": _resolve_root_path(request),
+            },
+        )
+
+    if render == "selector":
+        return request.app.state.templates.TemplateResponse(
+            request,
+            "agents_selector_items.html",
+            {
+                "request": request,
+                "data": data,
+                "pagination": pagination.model_dump(),
+                "root_path": _resolve_root_path(request),
+                "gateway_id": gateway_id,
+            },
+        )
+
+    _is_admin = bool(user.get("is_admin", False) if isinstance(user, dict) else getattr(user, "is_admin", False))
+    _team_roles = _get_user_team_roles(db, user_email) if not _is_admin else {}
+    return request.app.state.templates.TemplateResponse(
+        request,
+        "agents_partial.html",
+        {
+            "request": request,
+            "data": data,
+            "pagination": pagination.model_dump(),
+            "links": links.model_dump() if links else None,
+            "root_path": _resolve_root_path(request),
+            "include_inactive": include_inactive,
+            "query_params": query_params,
+            "current_user_email": user_email,
+            "is_admin": _is_admin,
+            "user_team_roles": _team_roles,
+        },
+    )
+
+
+@router.get("/a2a/ids", response_class=JSONResponse)
+@require_permission("a2a.read", allow_admin_bypass=False)
+async def admin_get_all_agent_ids(
+    include_inactive: bool = False,
+    team_id: Optional[str] = Depends(_validated_team_id_param),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user_with_permissions),
+):
+    """Return all agent IDs accessible to the current user (select-all helper).
+
+    This endpoint is used by UI "Select All" helpers to fetch only the IDs
+    of a2a agents the requesting user can access (owner, team, or public).
+
+    Args:
+        include_inactive (bool): When True include a2a agents that are inactive.
+        team_id (Optional[str]): Filter by team ID.
+        db (Session): Database session (injected dependency).
+        user: Authenticated user object from dependency injection.
+
+    Returns:
+        dict: A dictionary containing two keys:
+            - "agent_ids": List[str] of accessible agent IDs.
+            - "count": int number of IDs returned.
+    """
+    user_email = get_user_email(user)
+    team_ids = await _get_user_team_ids(user, db)
+
+    query = select(DbA2AAgent.id)
+
+    if not include_inactive:
+        query = query.where(DbA2AAgent.enabled.is_(True))
+
+    # Build access conditions
+    # When team_id is specified, show ONLY items from that team (team-scoped view)
+    # Otherwise, show all accessible items (All Teams view)
+    if team_id:
+        if team_id in team_ids:
+            # Apply visibility check: team/public resources + user's own resources (including private)
+            team_access = [
+                and_(DbA2AAgent.team_id == team_id, DbA2AAgent.visibility.in_(["team", "public"])),
+                and_(DbA2AAgent.team_id == team_id, DbA2AAgent.owner_email == user_email),
+            ]
+            query = query.where(or_(*team_access))
+            LOGGER.debug(f"Filtering A2A agent IDs by team_id: {team_id}")
+        else:
+            LOGGER.warning(f"User {user_email} attempted to filter A2A agent IDs by team {team_id} but is not a member")
+            query = query.where(false())
+    else:
+        # All Teams view: apply standard access conditions (owner, team, public)
+        access_conditions = []
+        access_conditions.append(_owner_access_condition(DbA2AAgent.owner_email, DbA2AAgent.team_id, user_email=user_email, team_ids=team_ids, user=user))
+        access_conditions.append(DbA2AAgent.visibility == "public")
+        if team_ids:
+            access_conditions.append(and_(DbA2AAgent.team_id.in_(team_ids), DbA2AAgent.visibility.in_(["team", "public"])))
+        query = query.where(or_(*access_conditions))
+
+    agent_ids = [row[0] for row in db.execute(query).all()]
+    return {"agent_ids": agent_ids, "count": len(agent_ids)}
+
+
+@router.get("/a2a/search", response_class=JSONResponse)
+@require_permission("a2a.read", allow_admin_bypass=False)
+async def admin_search_a2a_agents(
+    q: str = Query("", max_length=500, description="Search query"),
+    tags: QueryTagsFilter = None,
+    include_inactive: bool = False,
+    limit: int = Query(settings.pagination_default_page_size, ge=1, le=settings.pagination_max_page_size),
+    team_id: Optional[str] = Depends(_validated_team_id_param),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user_with_permissions),
+):
+    """Search a2a agents by name or description for selector search.
+
+    Performs a case-insensitive search over prompt names and descriptions
+    and returns a limited list of matching a2a agents suitable for selector
+    UIs (id, name, description).
+
+    Args:
+        q (str): Search query string.
+        tags (Optional[str]): Tag filter expression (comma=OR, plus=AND).
+        include_inactive (bool): When True include a2a agents that are inactive.
+        limit (int): Maximum number of results to return (bounded by the query parameter).
+        team_id (Optional[str]): Filter by team ID.
+        db (Session): Database session (injected dependency).
+        user: Authenticated user object from dependency injection.
+
+    Returns:
+        dict: A dictionary containing:
+            - "agents": List[dict] where each dict has keys "id", "name", "description".
+            - "count": int number of matched a2a agents returned.
+    """
+    user_email = get_user_email(user)
+    search_query = _normalize_search_query(q)
+    normalized_tags = _normalize_tags_query(tags)
+    tag_groups = _parse_tag_filter_groups(normalized_tags)
+    if not search_query and not tag_groups:
+        return _build_search_response(entity_key="agents", entity_type="agents", items=[], query=search_query, tags=normalized_tags, tag_groups=tag_groups)
+
+    team_ids = await _get_user_team_ids(user, db)
+
+    query = select(DbA2AAgent.id, DbA2AAgent.name, DbA2AAgent.endpoint_url, DbA2AAgent.description)
+
+    if not include_inactive:
+        query = query.where(DbA2AAgent.enabled.is_(True))
+
+    # Build access conditions
+    # When team_id is specified, show ONLY items from that team (team-scoped view)
+    # Otherwise, show all accessible items (All Teams view)
+    if team_id:
+        if team_id in team_ids:
+            # Apply visibility check: team/public resources + user's own resources (including private)
+            team_access = [
+                and_(DbA2AAgent.team_id == team_id, DbA2AAgent.visibility.in_(["team", "public"])),
+                and_(DbA2AAgent.team_id == team_id, DbA2AAgent.owner_email == user_email),
+            ]
+            query = query.where(or_(*team_access))
+            LOGGER.debug(f"Filtering A2A agent search by team_id: {team_id}")
+        else:
+            LOGGER.warning(f"User {user_email} attempted to filter A2A agent search by team {team_id} but is not a member")
+            query = query.where(false())
+    else:
+        # All Teams view: apply standard access conditions (owner, team, public)
+        access_conditions = []
+        access_conditions.append(_owner_access_condition(DbA2AAgent.owner_email, DbA2AAgent.team_id, user_email=user_email, team_ids=team_ids, user=user))
+        access_conditions.append(DbA2AAgent.visibility == "public")
+        if team_ids:
+            access_conditions.append(and_(DbA2AAgent.team_id.in_(team_ids), DbA2AAgent.visibility.in_(["team", "public"])))
+        query = query.where(or_(*access_conditions))
+
+    if search_query:
+        search_conditions = [
+            _like_contains(func.lower(DbA2AAgent.id), search_query),
+            _like_contains(func.lower(DbA2AAgent.name), search_query),
+            _like_contains(func.lower(coalesce(DbA2AAgent.endpoint_url, "")), search_query),
+            _like_contains(func.lower(coalesce(DbA2AAgent.description, "")), search_query),
+        ]
+        query = query.where(or_(*search_conditions))
+
+    query = _apply_tag_filter_groups(query, db, DbA2AAgent.tags, tag_groups)
+
+    if search_query:
+        query = query.order_by(
+            case(
+                (func.lower(DbA2AAgent.name).startswith(search_query), 1),
+                (func.lower(coalesce(DbA2AAgent.endpoint_url, "")).startswith(search_query), 1),
+                else_=2,
+            ),
+            func.lower(DbA2AAgent.name),
+        )
+    else:
+        query = query.order_by(func.lower(DbA2AAgent.name))
+    query = query.limit(limit)
+
+    results = db.execute(query).all()
+    agents = []
+    for row in results:
+        agents.append(
+            {
+                "id": row.id,
+                "name": row.name,
+                "endpoint_url": row.endpoint_url,
+                "description": row.description,
+            }
+        )
+
+    return _build_search_response(entity_key="agents", entity_type="agents", items=agents, query=search_query, tags=normalized_tags, tag_groups=tag_groups)

@@ -13025,14 +13025,14 @@ async def test_admin_resources_partial_html_gateway_filters_include_inactive_and
 async def test_admin_a2a_partial_html_renders(monkeypatch, mock_request, mock_db, render):
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.a2a.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="agent-1", team_id="team-1", name="Agent 1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     mock_db.execute.return_value.all.return_value = [SimpleNamespace(id="team-1", name="Team 1")]
     a2a_service = MagicMock()
     a2a_service.convert_agent_to_read.return_value = {"id": "agent-1", "name": "Agent 1"}
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", a2a_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", a2a_service)
 
     mock_request.headers = {}
     response = await admin_a2a_partial_html(
@@ -13057,7 +13057,7 @@ async def test_admin_a2a_partial_html_propagates_search_and_tags_to_pagination(m
 
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
+    monkeypatch.setattr("mcpgateway.admin.a2a.paginate_query", paginate_mock)
     monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
@@ -13087,14 +13087,14 @@ async def test_admin_a2a_partial_html_all_teams_view(monkeypatch, mock_request, 
     """Cover All Teams view access conditions in A2A partial."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.a2a.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="agent-1", team_id="team-1", name="Agent 1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     mock_db.execute.return_value.all.return_value = [SimpleNamespace(id="team-1", name="Team 1")]
     a2a_service = MagicMock()
     a2a_service.convert_agent_to_read.return_value = {"id": "agent-1", "name": "Agent 1"}
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", a2a_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", a2a_service)
 
     mock_request.headers = {}
     response = await admin_a2a_partial_html(
@@ -13116,14 +13116,14 @@ async def test_admin_a2a_partial_html_include_inactive_convert_error_and_denied_
     """Cover include_inactive query params, denied team filter, and conversion error handling for A2A partial."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.a2a.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="agent-1", team_id="team-1", name="Agent 1")], "pagination": pagination, "links": None}),
     )
     setup_team_service(monkeypatch, ["team-1"])
     mock_db.execute.return_value.all.return_value = [SimpleNamespace(id="team-1", name="Team 1")]
     a2a_service = MagicMock()
     a2a_service.convert_agent_to_read.side_effect = ValueError("bad agent")
-    monkeypatch.setattr("mcpgateway.admin.a2a_service", a2a_service)
+    monkeypatch.setattr("mcpgateway.admin.a2a.a2a_service", a2a_service)
 
     mock_request.headers = {}
     response = await admin_a2a_partial_html(
@@ -13889,6 +13889,7 @@ async def test_admin_search_tools_supports_tags_without_query(monkeypatch, mock_
 async def test_admin_search_endpoints_support_tags_without_query(monkeypatch, mock_db, allow_permission):
     """Cover tags-only search paths (ordering else-branches) for non-tool entities."""
     setup_team_service(monkeypatch, [])
+    monkeypatch.setattr("mcpgateway.admin.a2a._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
     monkeypatch.setattr("mcpgateway.admin._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
 
     result = MagicMock()
@@ -23252,7 +23253,7 @@ class TestGetUserTeamRolesWrapper:
     def test_get_user_team_roles_delegates_to_auth(self):
         """Calls auth.get_user_team_roles() with correct args."""
         mock_db = MagicMock(spec=Session)
-        with patch("mcpgateway.admin.get_user_team_roles", return_value={"team-1": "owner"}) as mock_auth_fn:
+        with patch("mcpgateway.admin.common.get_user_team_roles", return_value={"team-1": "owner"}) as mock_auth_fn:
             result = _get_user_team_roles(mock_db, "user@example.com")
 
             mock_auth_fn.assert_called_once_with(mock_db, "user@example.com")
