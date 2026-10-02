@@ -3067,8 +3067,8 @@ class TestAdminResourceUriConflictMessage:
 class TestAdminPromptRoutes:
     """Test admin routes for prompt management with enhanced coverage."""
 
-    @patch("mcpgateway.admin.prompt_service")
-    @patch("mcpgateway.admin.TeamManagementService")
+    @patch("mcpgateway.admin.prompts.prompt_service")
+    @patch("mcpgateway.admin.prompts.TeamManagementService")
     async def test_admin_list_prompts_with_complex_arguments(self, mock_team_service_class, mock_prompt_service, mock_db):
         """Test listing prompts with complex argument structures."""
         # First-Party
@@ -12509,14 +12509,14 @@ async def test_admin_tool_ops_partial_html_team_filter_denied(monkeypatch, mock_
 async def test_admin_prompts_partial_html_renders(monkeypatch, mock_request, mock_db, render):
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.prompts.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400d1", team_id="team-1")], "pagination": pagination, "links": None}),  # pragma: allowlist secret
     )
     setup_team_service(monkeypatch, ["team-1"])
     mock_db.execute.return_value.all.return_value = [SimpleNamespace(id="team-1", name="Team 1")]
     prompt_service = MagicMock()
     prompt_service.convert_prompt_to_read.return_value = {"id": "550e8400e29b41d4a7164466554400d1", "name": "Prompt 1"}  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.prompt_service", prompt_service)
+    monkeypatch.setattr("mcpgateway.admin.prompts.prompt_service", prompt_service)
 
     mock_request.headers = {}
     response = await admin_prompts_partial_html(
@@ -12541,7 +12541,7 @@ async def test_admin_prompts_partial_html_propagates_search_and_tags_to_paginati
 
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
+    monkeypatch.setattr("mcpgateway.admin.prompts.paginate_query", paginate_mock)
     monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
@@ -12571,14 +12571,14 @@ async def test_admin_prompts_partial_html_all_teams_view(monkeypatch, mock_reque
     """Cover All Teams view access conditions in prompts partial."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.prompts.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400d1", team_id="team-1")], "pagination": pagination, "links": None}),  # pragma: allowlist secret
     )
     setup_team_service(monkeypatch, ["team-1"])
     mock_db.execute.return_value.all.return_value = [SimpleNamespace(id="team-1", name="Team 1")]
     prompt_service = MagicMock()
     prompt_service.convert_prompt_to_read.return_value = {"id": "550e8400e29b41d4a7164466554400d1", "name": "Prompt 1"}  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.prompt_service", prompt_service)
+    monkeypatch.setattr("mcpgateway.admin.prompts.prompt_service", prompt_service)
 
     mock_request.headers = {}
     response = await admin_prompts_partial_html(
@@ -12600,7 +12600,7 @@ async def test_admin_prompts_partial_html_gateway_filters_include_inactive_and_c
     """Cover gateway filter branches, include_inactive query params, denied team filter, and conversion errors."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.prompts.paginate_query",
         AsyncMock(
             return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400d1", team_id="team-1", name="Prompt 1")], "pagination": pagination, "links": None}  # pragma: allowlist secret
         ),  # pragma: allowlist secret
@@ -12609,7 +12609,7 @@ async def test_admin_prompts_partial_html_gateway_filters_include_inactive_and_c
     mock_db.execute.return_value.all.return_value = [SimpleNamespace(id="team-1", name="Team 1")]
     prompt_service = MagicMock()
     prompt_service.convert_prompt_to_read.side_effect = ValueError("bad prompt")
-    monkeypatch.setattr("mcpgateway.admin.prompt_service", prompt_service)
+    monkeypatch.setattr("mcpgateway.admin.prompts.prompt_service", prompt_service)
 
     mock_request.headers = {}
     response = await admin_prompts_partial_html(
@@ -13895,6 +13895,7 @@ async def test_admin_search_endpoints_support_tags_without_query(monkeypatch, mo
     monkeypatch.setattr("mcpgateway.admin.a2a._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
     monkeypatch.setattr("mcpgateway.admin._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
     monkeypatch.setattr("mcpgateway.admin.gateways._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
+    monkeypatch.setattr("mcpgateway.admin.prompts._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
 
     result = MagicMock()
     result.all.return_value = []
@@ -25970,13 +25971,13 @@ async def test_admin_prompts_selector_template_includes_team_id_and_include_publ
     """When render=selector, the prompts template context must include team_id and include_public."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.prompts.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400d1", team_id="team-1")], "pagination": pagination, "links": None}),  # pragma: allowlist secret
     )
     setup_team_service(monkeypatch, ["team-1"])
     prompt_service = MagicMock()
     prompt_service.convert_prompt_to_read.return_value = {"id": "550e8400e29b41d4a7164466554400d1", "name": "Prompt 1"}  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.prompt_service", prompt_service)
+    monkeypatch.setattr("mcpgateway.admin.prompts.prompt_service", prompt_service)
 
     captured_context = {}
     original_template_response = mock_request.app.state.templates.TemplateResponse
@@ -26100,9 +26101,9 @@ async def test_admin_resources_partial_include_public_denied_for_non_member(monk
 async def test_admin_prompts_partial_include_public_denied_for_non_member(monkeypatch, mock_request, mock_db):
     """include_public=True should not bypass team membership check for prompts."""
     pagination = make_pagination_meta()
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
+    monkeypatch.setattr("mcpgateway.admin.prompts.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
     setup_team_service(monkeypatch, [])
-    monkeypatch.setattr("mcpgateway.admin.prompt_service", MagicMock(convert_prompt_to_read=MagicMock(return_value={"id": "p-x"})))
+    monkeypatch.setattr("mcpgateway.admin.prompts.prompt_service", MagicMock(convert_prompt_to_read=MagicMock(return_value={"id": "p-x"})))
 
     mock_request.headers = {}
     response = await admin_prompts_partial_html(
