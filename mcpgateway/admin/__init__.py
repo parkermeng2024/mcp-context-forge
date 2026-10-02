@@ -447,7 +447,8 @@ def get_bundle_js_filename() -> str:
     Returns:
         str: The bundle filename (e.g., 'bundle-abc123.js')
     """
-    static_dir = Path(__file__).parent / "static"
+    # admin is a package (__init__.py), so static assets sit one directory up at the mcpgateway package root
+    static_dir = Path(__file__).parent.parent / "static"
 
     # Use cache if the bundle file still exists on disk
     cached = _bundle_js_cache["filename"]
@@ -497,7 +498,8 @@ def get_bundle_css_files() -> list:
         list[str]: Paths relative to the static dir (e.g. ['assets/index-abc123.css']),
             or an empty list if neither the manifest nor the assets directory has any CSS.
     """
-    static_dir = Path(__file__).parent / "static"
+    # admin is a package (__init__.py), so static assets sit one directory up at the mcpgateway package root
+    static_dir = Path(__file__).parent.parent / "static"
 
     cached = _bundle_css_cache.get("files")
     if cached is not None and all((static_dir / f).exists() for f in cached):
@@ -889,7 +891,8 @@ def load_sri_hashes() -> Dict[str, str]:
                        Returns empty dict if file not found or invalid.
     """
     try:
-        sri_file = Path(__file__).parent / "sri_hashes.json"
+        # admin is a package (__init__.py), so sri_hashes.json sits one directory up at the mcpgateway package root
+        sri_file = Path(__file__).parent.parent / "sri_hashes.json"
         if sri_file.exists():
             with sri_file.open("r") as f:
                 return json.load(f)

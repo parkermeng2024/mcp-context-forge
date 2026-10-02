@@ -121,7 +121,7 @@ def test_rbac_router_uses_admin_permission_decorator() -> None:
 
 
 def test_admin_py_never_allows_admin_bypass() -> None:
-    source = _read("mcpgateway/admin.py")
+    source = _read("mcpgateway/admin/__init__.py")
     bypass_true = source.count("allow_admin_bypass=True")
     bypass_false = source.count("allow_admin_bypass=False")
     assert bypass_true == 0, f"admin.py: {bypass_true} endpoints with allow_admin_bypass=True (should be 0)"

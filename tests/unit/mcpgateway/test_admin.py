@@ -24453,7 +24453,7 @@ class TestLoadSriHashes:
         sri_file.write_text(json.dumps(test_hashes))
 
         # Mock __file__ to point to our temp directory
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin.py")):
+        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
@@ -24468,7 +24468,7 @@ class TestLoadSriHashes:
         from mcpgateway import admin as admin_mod
 
         # Mock __file__ to point to directory without sri_hashes.json
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin.py")):
+        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
@@ -24486,7 +24486,7 @@ class TestLoadSriHashes:
         sri_file.write_text("{ invalid json }")
 
         # Mock __file__ to point to our temp directory
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin.py")):
+        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
@@ -24507,7 +24507,7 @@ class TestLoadSriHashes:
         admin_mod.load_sri_hashes.cache_clear()
 
         # Mock __file__ and patch Path.open to raise PermissionError
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin.py")):
+        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
             with patch("pathlib.Path.open", side_effect=PermissionError("Access denied")):
                 result = admin_mod.load_sri_hashes()
 
@@ -24524,7 +24524,7 @@ class TestLoadSriHashes:
         sri_file.write_text(json.dumps(test_hashes))
 
         # Mock __file__ to point to our temp directory
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin.py")):
+        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
@@ -24551,7 +24551,7 @@ class TestLoadSriHashes:
         sri_file.write_text("{}")
 
         # Mock __file__ to point to our temp directory
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin.py")):
+        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
@@ -24586,7 +24586,7 @@ class TestLoadSriHashes:
         sri_file.write_text(json.dumps(test_hashes), encoding="utf-8")
 
         # Mock __file__ to point to our temp directory
-        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin.py")):
+        with patch("mcpgateway.admin.__file__", str(tmp_path / "admin" / "__init__.py")):
             # Clear the lru_cache before testing
             admin_mod.load_sri_hashes.cache_clear()
 
