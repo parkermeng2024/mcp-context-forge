@@ -2591,7 +2591,7 @@ class TestAdminBulkImportRoutes:
 class TestAdminResourceRoutes:
     """Test admin routes for resource management with enhanced coverage."""
 
-    @patch("mcpgateway.admin.resource_service")
+    @patch("mcpgateway.admin.resources.resource_service")
     async def test_admin_list_resources_with_complex_data(self, mock_resource_service, mock_db):
         """Test listing resources with complex data structures."""
         # Standard
@@ -2867,9 +2867,9 @@ class TestAdminResourceUriConflictMessage:
         """Stub team resolution, metadata capture and resource notifications."""
         team_service = MagicMock()
         team_service.verify_team_for_user = AsyncMock(side_effect=lambda _email, team_id: team_id or "team-1")
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: team_service)
+        monkeypatch.setattr("mcpgateway.admin.resources.TeamManagementService", lambda db: team_service)
         monkeypatch.setattr(
-            "mcpgateway.admin.MetadataCapture.extract_creation_metadata",
+            "mcpgateway.admin.resources.MetadataCapture.extract_creation_metadata",
             lambda *_args, **_kwargs: {"created_by": "owner@example.com", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},
         )
         monkeypatch.setattr(ResourceService, "_notify_resource_added", AsyncMock())
@@ -12657,14 +12657,14 @@ async def test_admin_prompts_partial_html_gateway_filters_include_inactive_and_c
 async def test_admin_resources_partial_html_renders(monkeypatch, mock_request, mock_db, render):
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.resources.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400c1", team_id="team-1")], "pagination": pagination, "links": None}),  # pragma: allowlist secret
     )
     setup_team_service(monkeypatch, ["team-1"])
     mock_db.execute.return_value.all.return_value = [SimpleNamespace(id="team-1", name="Team 1")]
     resource_service = MagicMock()
     resource_service.convert_resource_to_read.return_value = {"id": "550e8400e29b41d4a7164466554400c1", "name": "Resource 1"}  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.resource_service", resource_service)
+    monkeypatch.setattr("mcpgateway.admin.resources.resource_service", resource_service)
 
     mock_request.headers = {}
     response = await admin_resources_partial_html(
@@ -12689,7 +12689,7 @@ async def test_admin_resources_partial_html_propagates_search_and_tags_to_pagina
 
     pagination = make_pagination_meta()
     paginate_mock = AsyncMock(return_value={"data": [], "pagination": pagination, "links": None})
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", paginate_mock)
+    monkeypatch.setattr("mcpgateway.admin.resources.paginate_query", paginate_mock)
     monkeypatch.setattr("mcpgateway.admin.common.json_contains_tag_expr", lambda *_args, **_kwargs: sa.true())
     setup_team_service(monkeypatch, ["team-1"])
 
@@ -12944,14 +12944,14 @@ async def test_admin_resources_partial_html_all_teams_view(monkeypatch, mock_req
     """Cover All Teams view access conditions in resources partial."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.resources.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400c1", team_id="team-1", uri="r://1")], "pagination": pagination, "links": None}),  # pragma: allowlist secret
     )
     setup_team_service(monkeypatch, ["team-1"])
     mock_db.execute.return_value.all.return_value = [SimpleNamespace(id="team-1", name="Team 1")]
     resource_service = MagicMock()
     resource_service.convert_resource_to_read.return_value = {"id": "550e8400e29b41d4a7164466554400c1", "name": "Resource 1"}  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.resource_service", resource_service)
+    monkeypatch.setattr("mcpgateway.admin.resources.resource_service", resource_service)
 
     mock_request.headers = {}
     response = await admin_resources_partial_html(
@@ -12973,14 +12973,14 @@ async def test_admin_resources_partial_html_gateway_filters_include_inactive_and
     """Cover gateway filter branches, include_inactive query params, denied team filter, and conversion errors for resources partial."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.resources.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400c1", team_id="team-1", uri="r://1")], "pagination": pagination, "links": None}),  # pragma: allowlist secret
     )
     setup_team_service(monkeypatch, ["team-1"])
     mock_db.execute.return_value.all.return_value = [SimpleNamespace(id="team-1", name="Team 1")]
     resource_service = MagicMock()
     resource_service.convert_resource_to_read.side_effect = ValueError("bad resource")
-    monkeypatch.setattr("mcpgateway.admin.resource_service", resource_service)
+    monkeypatch.setattr("mcpgateway.admin.resources.resource_service", resource_service)
 
     mock_request.headers = {}
     response = await admin_resources_partial_html(
@@ -13896,6 +13896,7 @@ async def test_admin_search_endpoints_support_tags_without_query(monkeypatch, mo
     monkeypatch.setattr("mcpgateway.admin._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
     monkeypatch.setattr("mcpgateway.admin.gateways._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
     monkeypatch.setattr("mcpgateway.admin.prompts._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
+    monkeypatch.setattr("mcpgateway.admin.resources._apply_tag_filter_groups", lambda query, *_args, **_kwargs: query)
 
     result = MagicMock()
     result.all.return_value = []
@@ -25929,13 +25930,13 @@ async def test_admin_resources_selector_template_includes_team_id_and_include_pu
     """When render=selector, the resources template context must include team_id and include_public."""
     pagination = make_pagination_meta()
     monkeypatch.setattr(
-        "mcpgateway.admin.paginate_query",
+        "mcpgateway.admin.resources.paginate_query",
         AsyncMock(return_value={"data": [SimpleNamespace(id="550e8400e29b41d4a7164466554400c1", team_id="team-1")], "pagination": pagination, "links": None}),  # pragma: allowlist secret
     )
     setup_team_service(monkeypatch, ["team-1"])
     resource_service = MagicMock()
     resource_service.convert_resource_to_read.return_value = {"id": "550e8400e29b41d4a7164466554400c1", "name": "Resource 1"}  # pragma: allowlist secret
-    monkeypatch.setattr("mcpgateway.admin.resource_service", resource_service)
+    monkeypatch.setattr("mcpgateway.admin.resources.resource_service", resource_service)
 
     captured_context = {}
     original_template_response = mock_request.app.state.templates.TemplateResponse
@@ -26077,9 +26078,9 @@ async def test_admin_tools_partial_include_public_denied_for_non_member(monkeypa
 async def test_admin_resources_partial_include_public_denied_for_non_member(monkeypatch, mock_request, mock_db):
     """include_public=True should not bypass team membership check for resources."""
     pagination = make_pagination_meta()
-    monkeypatch.setattr("mcpgateway.admin.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
+    monkeypatch.setattr("mcpgateway.admin.resources.paginate_query", AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}))
     setup_team_service(monkeypatch, [])
-    monkeypatch.setattr("mcpgateway.admin.resource_service", MagicMock(convert_resource_to_read=MagicMock(return_value={"id": "r-x"})))
+    monkeypatch.setattr("mcpgateway.admin.resources.resource_service", MagicMock(convert_resource_to_read=MagicMock(return_value={"id": "r-x"})))
 
     mock_request.headers = {}
     response = await admin_resources_partial_html(
