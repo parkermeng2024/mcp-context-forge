@@ -15710,7 +15710,7 @@ class TestAdminAdditionalCoverage:
         """Cover exclude_types and tags parsing branches."""
         export_service = MagicMock()
         export_service.export_configuration = AsyncMock(return_value={"tools": []})
-        monkeypatch.setattr("mcpgateway.admin.export_service", export_service)
+        monkeypatch.setattr("mcpgateway.admin.export_import.export_service", export_service)
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": "/"}
@@ -15732,7 +15732,7 @@ class TestAdminAdditionalCoverage:
         """Export selective configuration successfully."""
         export_service = MagicMock()
         export_service.export_selective = AsyncMock(return_value={"tools": ["550e8400e29b41d4a7164466554400b1"]})  # pragma: allowlist secret
-        monkeypatch.setattr("mcpgateway.admin.export_service", export_service)
+        monkeypatch.setattr("mcpgateway.admin.export_import.export_service", export_service)
 
         request = MagicMock(spec=Request)
         request.body = AsyncMock(return_value=b'{"entity_selections": {"tools": ["550e8400e29b41d4a7164466554400b1"]}, "include_dependencies": false}')  # pragma: allowlist secret
@@ -15749,7 +15749,7 @@ class TestAdminAdditionalCoverage:
     async def test_admin_export_configuration_errors(self, monkeypatch, mock_db):
         """Cover ExportError and generic exception branches in admin_export_configuration."""
         export_service = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.export_service", export_service)
+        monkeypatch.setattr("mcpgateway.admin.export_import.export_service", export_service)
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": "/"}
@@ -15777,7 +15777,7 @@ class TestAdminAdditionalCoverage:
     async def test_admin_export_selective_errors(self, monkeypatch, mock_db):
         """Cover ExportError and generic exception branches in admin_export_selective."""
         export_service = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.export_service", export_service)
+        monkeypatch.setattr("mcpgateway.admin.export_import.export_service", export_service)
 
         request = MagicMock(spec=Request)
         request.body = AsyncMock(return_value=b'{"entity_selections": {"tools": ["550e8400e29b41d4a7164466554400b1"]}, "include_dependencies": false}')  # pragma: allowlist secret
@@ -21637,7 +21637,7 @@ class TestMaintenanceMisc:
     @pytest.mark.asyncio
     async def test_admin_import_preview_missing_data(self, monkeypatch, allow_permission, mock_db):
         monkeypatch.setattr(
-            "mcpgateway.admin._read_request_json",
+            "mcpgateway.admin.export_import._read_request_json",
             AsyncMock(return_value={"something": "else"}),
         )
 
@@ -21649,7 +21649,7 @@ class TestMaintenanceMisc:
     @pytest.mark.asyncio
     async def test_admin_import_preview_invalid_json(self, monkeypatch, allow_permission, mock_db):
         monkeypatch.setattr(
-            "mcpgateway.admin._read_request_json",
+            "mcpgateway.admin.export_import._read_request_json",
             AsyncMock(side_effect=ValueError("bad json")),
         )
 
@@ -21665,11 +21665,11 @@ class TestMaintenanceMisc:
         from mcpgateway.services.import_service import ImportValidationError
 
         monkeypatch.setattr(
-            "mcpgateway.admin._read_request_json",
+            "mcpgateway.admin.export_import._read_request_json",
             AsyncMock(return_value={"data": {"servers": [], "tools": []}}),
         )
         monkeypatch.setattr(
-            "mcpgateway.admin.import_service.preview_import",
+            "mcpgateway.admin.export_import.import_service.preview_import",
             AsyncMock(side_effect=ImportValidationError("bad schema")),
         )
 
