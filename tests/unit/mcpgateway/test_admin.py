@@ -195,22 +195,13 @@ from mcpgateway.admin import (  # admin_get_metrics,
     change_password_required_handler,
     change_password_required_page,
     check_catalog_server_status,
-    delete_observability_query,
     get_a2a_stats_cache_stats,
     get_aggregated_metrics,
     get_client_ip,
     get_configuration_settings,
     get_gateways_section,
     get_global_passthrough_headers,
-    get_latency_heatmap,
-    get_latency_percentiles,
     get_maintenance_partial,
-    get_observability_metrics_partial,
-    get_observability_partial,
-    get_observability_query,
-    get_observability_stats,
-    get_observability_trace_detail,
-    get_observability_traces,
     get_overview_partial,
     get_passthrough_headers_cache_stats,
     get_performance_cache,
@@ -222,18 +213,42 @@ from mcpgateway.admin import (  # admin_get_metrics,
     get_plugin_details,
     get_plugin_stats,
     get_plugins_partial,
+    get_prompts_section,
+    get_resources_section,
+    get_servers_section,
+    get_system_stats,
+    get_ui_visibility_config,
+    get_user_agent,
+    get_user_email,
+    get_user_id,
+    invalidate_a2a_stats_cache,
+    invalidate_passthrough_headers_cache,
+    list_catalog_servers,
+    list_plugins,
+    register_catalog_server,
+    serialize_datetime,
+    transfer_gateway_ownership,
+    UI_HIDE_SECTIONS_COOKIE_NAME,
+    update_global_passthrough_headers,
+)
+from mcpgateway.admin.observability import (
+    delete_observability_query,
+    get_latency_heatmap,
+    get_latency_percentiles,
+    get_observability_metrics_partial,
+    get_observability_partial,
+    get_observability_query,
+    get_observability_stats,
+    get_observability_trace_detail,
+    get_observability_traces,
     get_prompt_performance,
     get_prompt_usage,
     get_prompts_errors,
     get_prompts_partial,
-    get_prompts_section,
     get_resource_performance,
     get_resource_usage,
     get_resources_errors,
     get_resources_partial,
-    get_resources_section,
-    get_servers_section,
-    get_system_stats,
     get_timeseries_metrics,
     get_tool_chains,
     get_tool_errors,
@@ -243,22 +258,9 @@ from mcpgateway.admin import (  # admin_get_metrics,
     get_top_error_endpoints,
     get_top_slow_endpoints,
     get_top_volume_endpoints,
-    get_ui_visibility_config,
-    get_user_agent,
-    get_user_email,
-    get_user_id,
-    invalidate_a2a_stats_cache,
-    invalidate_passthrough_headers_cache,
-    list_catalog_servers,
     list_observability_queries,
-    list_plugins,
-    register_catalog_server,
     save_observability_query,
-    serialize_datetime,
     track_query_usage,
-    transfer_gateway_ownership,
-    UI_HIDE_SECTIONS_COOKIE_NAME,
-    update_global_passthrough_headers,
     update_observability_query,
 )
 from mcpgateway.config import settings, UI_HIDABLE_HEADER_ITEMS, UI_HIDABLE_SECTIONS, UI_HIDE_SECTION_ALIASES
@@ -11678,7 +11680,7 @@ def test_get_span_entity_performance_aggregates(monkeypatch):
             return self._results
 
     fake_db.query.return_value = FakeQuery(spans)
-    monkeypatch.setattr("mcpgateway.admin.extract_json_field", lambda *args, **kwargs: MagicMock())
+    monkeypatch.setattr("mcpgateway.admin.observability.extract_json_field", lambda *args, **kwargs: MagicMock())
 
     now = datetime.now(timezone.utc)
     items = _get_span_entity_performance(
@@ -16835,7 +16837,7 @@ async def test_get_observability_traces_with_filters(monkeypatch, mock_request, 
     span_query.subquery.return_value = SimpleNamespace(c=SimpleNamespace(trace_id=column("trace_id")))
 
     mock_db.query.side_effect = [trace_query, span_query]
-    monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_db]))
+    monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_db]))
 
     response = await get_observability_traces(
         mock_request,
@@ -16870,7 +16872,7 @@ def _mock_top_query_result(result):
 async def test_get_top_slow_endpoints(monkeypatch, mock_db):
     row = SimpleNamespace(http_url="/slow", http_method="GET", count=2, avg_duration=12.34, max_duration=50.0)
     mock_db.query.return_value = _mock_top_query_result(row)
-    monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_db]))
+    monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_db]))
 
     result = await get_top_slow_endpoints(request=MagicMock(), hours=1, limit=5, _user={"email": "admin@example.com", "db": mock_db})
     assert result["endpoints"][0]["avg_duration_ms"] == 12.34
@@ -16880,7 +16882,7 @@ async def test_get_top_slow_endpoints(monkeypatch, mock_db):
 async def test_get_top_volume_endpoints(monkeypatch, mock_db):
     row = SimpleNamespace(http_url="/vol", http_method="POST", count=10, avg_duration=None)
     mock_db.query.return_value = _mock_top_query_result(row)
-    monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_db]))
+    monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_db]))
 
     result = await get_top_volume_endpoints(request=MagicMock(), hours=1, limit=5, _user={"email": "admin@example.com", "db": mock_db})
     assert result["endpoints"][0]["avg_duration_ms"] == 0
@@ -16890,7 +16892,7 @@ async def test_get_top_volume_endpoints(monkeypatch, mock_db):
 async def test_get_top_error_endpoints(monkeypatch, mock_db):
     row = SimpleNamespace(http_url="/err", http_method="DELETE", total_count=4, error_count=2)
     mock_db.query.return_value = _mock_top_query_result(row)
-    monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_db]))
+    monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_db]))
 
     result = await get_top_error_endpoints(request=MagicMock(), hours=1, limit=5, _user={"email": "admin@example.com", "db": mock_db})
     assert result["endpoints"][0]["error_rate"] == 50.0
@@ -18781,7 +18783,7 @@ async def test_observability_query_crud(monkeypatch, allow_permission):
     def _get_db():
         yield db
 
-    monkeypatch.setattr("mcpgateway.admin.get_db", _get_db)
+    monkeypatch.setattr("mcpgateway.admin.observability.get_db", _get_db)
     user = {"email": "user@example.com", "db": db}
 
     result = await list_observability_queries(request=MagicMock(spec=Request), user=user)
@@ -18813,7 +18815,7 @@ async def test_observability_query_not_found(monkeypatch, allow_permission):
     def _get_db():
         yield db
 
-    monkeypatch.setattr("mcpgateway.admin.get_db", _get_db)
+    monkeypatch.setattr("mcpgateway.admin.observability.get_db", _get_db)
     user = {"email": "user@example.com", "db": db}
 
     with pytest.raises(HTTPException) as exc:
@@ -18837,7 +18839,7 @@ async def test_update_and_track_observability_query_error_paths(monkeypatch, all
     def _get_db():
         yield db
 
-    monkeypatch.setattr("mcpgateway.admin.get_db", _get_db)
+    monkeypatch.setattr("mcpgateway.admin.observability.get_db", _get_db)
     user = {"email": "user@example.com", "db": db}
 
     db.query.return_value = EmptyQuery()
@@ -18896,8 +18898,8 @@ async def test_get_performance_endpoints(monkeypatch, allow_permission):
     def _get_db():
         yield db
 
-    monkeypatch.setattr("mcpgateway.admin.get_db", _get_db)
-    monkeypatch.setattr("mcpgateway.admin._get_span_entity_performance", lambda **_kwargs: [{"name": "x"}])
+    monkeypatch.setattr("mcpgateway.admin.observability.get_db", _get_db)
+    monkeypatch.setattr("mcpgateway.admin.observability._get_span_entity_performance", lambda **_kwargs: [{"name": "x"}])
     user = {"email": "u@example.com", "db": db}
     request = MagicMock(spec=Request)
 
@@ -21365,7 +21367,7 @@ class TestObservability:
         mock_session.execute.return_value.one.return_value = mock_result
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -21383,7 +21385,7 @@ class TestObservability:
         mock_session.query.return_value.filter_by.return_value.options.return_value.first.return_value = mock_trace
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
@@ -21400,7 +21402,7 @@ class TestObservability:
         mock_session.query.return_value.filter_by.return_value.options.return_value.first.return_value = None
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         request = MagicMock(spec=Request)
         with pytest.raises(HTTPException) as exc_info:
@@ -21422,10 +21424,10 @@ class TestObservability:
         mock_session.commit = MagicMock()
         mock_session.refresh = MagicMock(side_effect=lambda q: setattr(q, "id", 1))
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         # Patch so that the created ObservabilitySavedQuery picks up our attrs
-        monkeypatch.setattr("mcpgateway.admin.ObservabilitySavedQuery", lambda **kw: mock_query)
+        monkeypatch.setattr("mcpgateway.admin.observability.ObservabilitySavedQuery", lambda **kw: mock_query)
 
         request = MagicMock(spec=Request)
         user = {"email": "admin@test.com"}
@@ -21447,9 +21449,9 @@ class TestObservability:
         mock_session.rollback = MagicMock()
         mock_session.commit = MagicMock(side_effect=[RuntimeError("commit-failed"), None])
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
-        monkeypatch.setattr("mcpgateway.admin.ObservabilitySavedQuery", lambda **kw: mock_query)
+        monkeypatch.setattr("mcpgateway.admin.observability.ObservabilitySavedQuery", lambda **kw: mock_query)
 
         request = MagicMock(spec=Request)
         user = {"email": "admin@test.com"}
@@ -21466,7 +21468,7 @@ class TestObservability:
         mock_session.delete = MagicMock()
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         request = MagicMock(spec=Request)
         user = {"email": "admin@test.com"}
@@ -21479,7 +21481,7 @@ class TestObservability:
         mock_session.query.return_value.filter.return_value.first.return_value = None
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         request = MagicMock(spec=Request)
         user = {"email": "admin@test.com"}
@@ -22031,7 +22033,7 @@ def _make_obs_session(monkeypatch, query_result):
     mock_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = query_result
     mock_session.commit = MagicMock()
     mock_session.close = MagicMock()
-    monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+    monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
     return mock_session
 
 
@@ -22084,7 +22086,7 @@ class TestToolUsageErrorsChains:
         mock_session.query.return_value.filter.return_value.order_by.return_value.all.return_value = spans
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         request = MagicMock(spec=Request)
         result = await get_tool_chains(request, hours=24, limit=20, _user={"email": "admin@test.com"}, db=mock_session)
@@ -22101,7 +22103,7 @@ class TestToolUsageErrorsChains:
         mock_session.query.return_value.filter.return_value.order_by.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         request = MagicMock(spec=Request)
         result = await get_tool_chains(request, hours=24, limit=20, _user={"email": "admin@test.com"}, db=mock_session)
@@ -22131,7 +22133,7 @@ class TestPromptResourceUsageErrors:
         mock_session.query.return_value.filter.return_value.group_by.return_value.all.return_value = [row]
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         result = await get_prompts_errors(hours=24, limit=20, _user={"email": "admin@test.com"}, db=mock_session)
         assert result["prompts"][0]["prompt_id"] == "p1"
@@ -22157,7 +22159,7 @@ class TestPromptResourceUsageErrors:
         mock_session.query.return_value.filter.return_value.group_by.return_value.all.return_value = [row]
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         result = await get_resources_errors(hours=24, limit=20, _user={"email": "admin@test.com"}, db=mock_session)
         assert result["resources"][0]["resource_uri"] == "r1"
@@ -22195,7 +22197,7 @@ class TestObservabilityExceptionHandlers:
         session.query.side_effect = RuntimeError("boom")
         session.commit = MagicMock()
         session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([session]))
 
         request = MagicMock(spec=Request)
         with pytest.raises(HTTPException) as excinfo:
@@ -22245,7 +22247,7 @@ class TestLatencyPercentiles:
         mock_session.query.return_value.filter.return_value.order_by.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         request = MagicMock(spec=Request)
         result = await get_latency_percentiles(request, hours=24, interval_minutes=60, _user={"email": "admin@test.com"}, db=mock_session)
@@ -22260,7 +22262,7 @@ class TestLatencyPercentiles:
         mock_session.execute.return_value.fetchall.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
 
         request = MagicMock(spec=Request)
         result = await get_latency_percentiles(request, hours=24, interval_minutes=60, _user={"email": "admin@test.com"}, db=mock_session)
@@ -22314,7 +22316,7 @@ class TestTimeseriesMetrics:
         mock_session.query.return_value.filter.return_value.order_by.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_timeseries_metrics(request, hours=24, interval_minutes=60, _user={"email": "admin@test.com"}, db=mock_session)
         assert result == {"timestamps": [], "request_count": [], "success_count": [], "error_count": [], "error_rate": []}
@@ -22328,7 +22330,7 @@ class TestTimeseriesMetrics:
         mock_session.execute.return_value.fetchall.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_timeseries_metrics(request, hours=24, interval_minutes=60, _user={"email": "admin@test.com"}, db=mock_session)
         assert result == {"timestamps": [], "request_count": [], "success_count": [], "error_count": [], "error_rate": []}
@@ -22394,7 +22396,7 @@ class TestLatencyHeatmap:
         mock_session.query.return_value.filter.return_value.order_by.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_latency_heatmap(request, hours=24, time_buckets=10, latency_buckets=5, _user={"email": "admin@test.com"}, db=mock_session)
         assert result == {"time_labels": [], "latency_labels": [], "data": []}
@@ -22407,8 +22409,8 @@ class TestLatencyHeatmap:
         mock_session.get_bind.return_value = mock_bind
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
-        monkeypatch.setattr("mcpgateway.admin._get_latency_heatmap_postgresql", lambda *_args, **_kwargs: {"ok": True})
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability._get_latency_heatmap_postgresql", lambda *_args, **_kwargs: {"ok": True})
 
         request = MagicMock(spec=Request)
         result = await get_latency_heatmap(request, hours=24, time_buckets=10, latency_buckets=5, _user={"email": "admin@test.com"}, db=mock_session)
@@ -22424,7 +22426,7 @@ class TestTopEndpoints:
         mock_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_top_slow_endpoints(request, hours=24, limit=10, _user={"email": "admin@test.com"}, db=mock_session)
         assert result == {"endpoints": []}
@@ -22441,7 +22443,7 @@ class TestTopEndpoints:
         mock_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = [row]
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_top_slow_endpoints(request, hours=24, limit=10, _user={"email": "admin@test.com"}, db=mock_session)
         assert len(result["endpoints"]) == 1
@@ -22456,7 +22458,7 @@ class TestTopEndpoints:
         mock_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_top_volume_endpoints(request, hours=24, limit=10, _user={"email": "admin@test.com"}, db=mock_session)
         assert result == {"endpoints": []}
@@ -22472,7 +22474,7 @@ class TestTopEndpoints:
         mock_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = [row]
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_top_volume_endpoints(request, hours=24, limit=10, _user={"email": "admin@test.com"}, db=mock_session)
         assert len(result["endpoints"]) == 1
@@ -22484,7 +22486,7 @@ class TestTopEndpoints:
         mock_session.query.return_value.filter.return_value.group_by.return_value.having.return_value.order_by.return_value.limit.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_top_error_endpoints(request, hours=24, limit=10, _user={"email": "admin@test.com"}, db=mock_session)
         assert result == {"endpoints": []}
@@ -22500,7 +22502,7 @@ class TestTopEndpoints:
         mock_session.query.return_value.filter.return_value.group_by.return_value.having.return_value.order_by.return_value.limit.return_value.all.return_value = [row]
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_top_error_endpoints(request, hours=24, limit=10, _user={"email": "admin@test.com"}, db=mock_session)
         assert len(result["endpoints"]) == 1
@@ -22519,7 +22521,7 @@ class TestObservabilityTraces:
         mock_query.order_by.return_value.limit.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
         template_resp = MagicMock()
@@ -22552,7 +22554,7 @@ class TestObservabilityTraces:
         mock_query.filter.return_value.order_by.return_value.limit.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         request.scope = {"root_path": ""}
         template_resp = MagicMock()
@@ -22616,7 +22618,7 @@ class TestToolPromptResourcePerformanceEndpoints:
         mock_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_tool_performance(request, hours=24, limit=20, _user={"email": "admin@test.com"}, db=mock_session)
         assert result["tools"] == []
@@ -22629,7 +22631,7 @@ class TestToolPromptResourcePerformanceEndpoints:
         mock_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_prompt_performance(request, hours=24, limit=20, _user={"email": "admin@test.com"}, db=mock_session)
         assert result["prompts"] == []
@@ -22642,7 +22644,7 @@ class TestToolPromptResourcePerformanceEndpoints:
         mock_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
         mock_session.commit = MagicMock()
         mock_session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_session]))
         request = MagicMock(spec=Request)
         result = await get_resource_performance(request, hours=24, limit=20, _user={"email": "admin@test.com"}, db=mock_session)
         assert result["resources"] == []
