@@ -46,7 +46,9 @@ async def _require_unrestricted_root_admin(request: Optional[Request], user: Any
     tests replace it there.
     """
     # First-Party
-    import mcpgateway.admin as _admin  # pylint: disable=import-outside-toplevel
+    # The back-reference to mcpgateway.admin is deliberate: tests replace the
+    # helper on the package, so the import cannot move to module scope.
+    import mcpgateway.admin as _admin  # pylint: disable=import-outside-toplevel,cyclic-import
 
     if not await _admin.is_unrestricted_platform_admin(request, user, db):
         raise HTTPException(status_code=403, detail=_ACCESS_DENIED_MSG)

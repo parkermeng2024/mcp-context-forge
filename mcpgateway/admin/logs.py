@@ -56,7 +56,9 @@ def _get_logging_service() -> Optional[LoggingService]:
     startup, so read the anchor from the package instead of binding it here.
     """
     # First-Party
-    import mcpgateway.admin as _admin  # pylint: disable=import-outside-toplevel
+    # The back-reference to mcpgateway.admin is deliberate: the package owns the
+    # anchor and appends this router, so the import cannot move to module scope.
+    import mcpgateway.admin as _admin  # pylint: disable=import-outside-toplevel,cyclic-import
 
     return typing_cast(Any, _admin.logging_service)
 

@@ -38,6 +38,9 @@ from mcpgateway.admin.common import (
     _normalize_search_query,
     _normalize_tags_query,
     _owner_access_condition,
+    _parse_auth_headers_field,
+    _parse_oauth_config_json_field,
+    _parse_passthrough_headers_field,
     _parse_tag_filter_groups,
     _validated_team_id_param,
     gateway_service,
@@ -1286,43 +1289,13 @@ async def admin_edit_gateway(
         visibility = str(form.get("visibility", "private"))
         _check_public_visibility_allowed(visibility, team_id=team_id)
 
-        # Parse auth_headers JSON if present
-        auth_headers_json = form.get("auth_headers") or ""
-        auth_headers = []
-        if auth_headers_json:
-            try:
-                auth_headers = orjson.loads(auth_headers_json)
-            except (orjson.JSONDecodeError, ValueError):
-                auth_headers = []
+        auth_headers = _parse_auth_headers_field(form)
 
-        # Handle passthrough_headers
-        passthrough_headers = str(form.get("passthrough_headers"))
-        if passthrough_headers and passthrough_headers.strip():
-            try:
-                passthrough_headers = orjson.loads(passthrough_headers)
-            except (orjson.JSONDecodeError, ValueError):
-                # Fallback to comma-separated parsing
-                passthrough_headers = [h.strip() for h in passthrough_headers.split(",") if h.strip()]
-        else:
-            passthrough_headers = None
+        passthrough_headers = _parse_passthrough_headers_field(form)
 
-        # Parse OAuth configuration - support both JSON string and individual form fields
-        oauth_config_json = str(form.get("oauth_config"))
-        oauth_config: Optional[dict[str, Any]] = None
+        oauth_config: Optional[dict[str, Any]] = await _parse_oauth_config_json_field(form.get("oauth_config"), encrypt_client_secret=True)
 
-        # Option 1: Pre-assembled oauth_config JSON (from API calls)
-        if oauth_config_json and oauth_config_json != "None":
-            try:
-                oauth_config = orjson.loads(oauth_config_json)
-                # Encrypt the client secret if present and not empty
-                if oauth_config and "client_secret" in oauth_config and oauth_config["client_secret"]:
-                    encryption = get_encryption_service(settings.auth_encryption_secret)
-                    oauth_config["client_secret"] = await encryption.encrypt_secret_async(oauth_config["client_secret"])
-            except (orjson.JSONDecodeError, ValueError) as e:
-                LOGGER.error(f"Failed to parse OAuth config: {e}")
-                oauth_config = None
-
-        # Option 2: Assemble from individual UI form fields
+        # Assemble from individual UI form fields when no pre-assembled JSON was sent.
         if not oauth_config:
             oauth_config = await _assemble_oauth_config_from_fields(form, encrypt_secret=True)
             if oauth_config:

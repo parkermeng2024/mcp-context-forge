@@ -40,6 +40,9 @@ from mcpgateway.admin.common import (
     _normalize_search_query,
     _normalize_tags_query,
     _owner_access_condition,
+    _parse_auth_headers_field,
+    _parse_oauth_config_json_field,
+    _parse_passthrough_headers_field,
     _parse_tag_filter_groups,
     _read_request_json,
     _validated_team_id_param,
@@ -54,7 +57,6 @@ from mcpgateway.db import A2AAgent as DbA2AAgent, EmailTeam, get_db
 from mcpgateway.middleware.rbac import get_current_user_with_permissions, require_permission
 from mcpgateway.schemas import A2AAgentCreate, A2AAgentRead, A2AAgentUpdate, PaginatedResponse, PaginationMeta
 from mcpgateway.services.a2a_service import A2AAgentError, A2AAgentNameConflictError, A2AAgentNotFoundError
-from mcpgateway.services.encryption_service import get_encryption_service
 from mcpgateway.services.team_management_service import TeamManagementService
 from mcpgateway.utils.error_formatter import ErrorFormatter
 from mcpgateway.utils.metadata_capture import MetadataCapture
@@ -238,35 +240,19 @@ async def admin_add_a2a_agent(
         tags_str = ts_val if isinstance(ts_val, str) else ""
         tags = [tag.strip() for tag in tags_str.split(",") if tag.strip()] if tags_str else []
 
-        # Parse auth_headers JSON if present
-        auth_headers_json = form.get("auth_headers") or ""
-        auth_headers: list[dict[str, Any]] = []
-        if auth_headers_json:
-            try:
-                auth_headers = orjson.loads(auth_headers_json)
-            except (orjson.JSONDecodeError, ValueError):
-                auth_headers = []
+        auth_headers: list[dict[str, Any]] = _parse_auth_headers_field(form)
 
         # Parse OAuth configuration - support both JSON string and individual form fields
         oauth_config_json = str(form.get("oauth_config"))
-        oauth_config: Optional[dict[str, Any]] = None
 
         LOGGER.info(f"DEBUG: oauth_config_json from form = '{oauth_config_json}'")
         LOGGER.info(f"DEBUG: Individual OAuth fields - grant_type='{form.get('oauth_grant_type')}', issuer='{form.get('oauth_issuer')}'")
 
-        # Option 1: Pre-assembled oauth_config JSON (from API calls)
-        if oauth_config_json and oauth_config_json != "None":
-            try:
-                oauth_config = orjson.loads(oauth_config_json)
-                # Encrypt the client secret if present
-                if oauth_config and "client_secret" in oauth_config:
-                    encryption = get_encryption_service(settings.auth_encryption_secret)
-                    oauth_config["client_secret"] = await encryption.encrypt_secret_async(oauth_config["client_secret"])
-            except (orjson.JSONDecodeError, ValueError) as e:
-                LOGGER.error(f"Failed to parse OAuth config: {e}")
-                oauth_config = None
+        # Pre-assembled oauth_config JSON (from API calls). The create path encrypts
+        # any submitted secret, including an empty one, unlike the edit path.
+        oauth_config: Optional[dict[str, Any]] = await _parse_oauth_config_json_field(oauth_config_json, encrypt_client_secret=True, skip_empty_client_secret=False)
 
-        # Option 2: Assemble from individual UI form fields.
+        # Assemble from individual UI form fields when no pre-assembled JSON was sent.
         # include_resource=False: A2A agents do not consume oauth_config["resource"]
         # (no per-user token storage / audience validation on the A2A path), so the
         # field is not offered on A2A forms and is not assembled here.
@@ -275,15 +261,7 @@ async def admin_add_a2a_agent(
             if oauth_config:
                 LOGGER.info(f"✅ Assembled OAuth config from UI form fields: grant_type={oauth_config.get('grant_type')}, issuer={oauth_config.get('issuer')}")
 
-        passthrough_headers = str(form.get("passthrough_headers"))
-        if passthrough_headers and passthrough_headers.strip():
-            try:
-                passthrough_headers = orjson.loads(passthrough_headers)
-            except (orjson.JSONDecodeError, ValueError):
-                # Fallback to comma-separated parsing
-                passthrough_headers = [h.strip() for h in passthrough_headers.split(",") if h.strip()]
-        else:
-            passthrough_headers = None
+        passthrough_headers = _parse_passthrough_headers_field(form)
 
         # Auto-detect OAuth: if oauth_config is present and auth_type not explicitly set, use "oauth"
         auth_type_from_form = str(form.get("auth_type", ""))
@@ -455,43 +433,13 @@ async def admin_edit_a2a_agent(
             except (ValueError, orjson.JSONDecodeError):
                 config = {}
 
-        # Parse auth_headers JSON if present
-        auth_headers_json = form.get("auth_headers") or ""
-        auth_headers = []
-        if auth_headers_json:
-            try:
-                auth_headers = orjson.loads(auth_headers_json)
-            except (orjson.JSONDecodeError, ValueError):
-                auth_headers = []
+        auth_headers = _parse_auth_headers_field(form)
 
-        # Passthrough headers
-        passthrough_headers = str(form.get("passthrough_headers"))
-        if passthrough_headers and passthrough_headers.strip():
-            try:
-                passthrough_headers = orjson.loads(passthrough_headers)
-            except (orjson.JSONDecodeError, ValueError):
-                # Fallback to comma-separated parsing
-                passthrough_headers = [h.strip() for h in passthrough_headers.split(",") if h.strip()]
-        else:
-            passthrough_headers = None
+        passthrough_headers = _parse_passthrough_headers_field(form)
 
-        # Parse OAuth configuration - support both JSON string and individual form fields
-        oauth_config_json = str(form.get("oauth_config"))
-        oauth_config: Optional[dict[str, Any]] = None
+        oauth_config: Optional[dict[str, Any]] = await _parse_oauth_config_json_field(form.get("oauth_config"), encrypt_client_secret=True)
 
-        # Option 1: Pre-assembled oauth_config JSON (from API calls)
-        if oauth_config_json and oauth_config_json != "None":
-            try:
-                oauth_config = orjson.loads(oauth_config_json)
-                # Encrypt the client secret if present and not empty
-                if oauth_config and "client_secret" in oauth_config and oauth_config["client_secret"]:
-                    encryption = get_encryption_service(settings.auth_encryption_secret)
-                    oauth_config["client_secret"] = await encryption.encrypt_secret_async(oauth_config["client_secret"])
-            except (orjson.JSONDecodeError, ValueError) as e:
-                LOGGER.error(f"Failed to parse OAuth config: {e}")
-                oauth_config = None
-
-        # Option 2: Assemble from individual UI form fields.
+        # Assemble from individual UI form fields when no pre-assembled JSON was sent.
         # include_resource=False: A2A agents do not consume oauth_config["resource"]
         # (no per-user token storage / audience validation on the A2A path), so the
         # field is not offered on A2A forms and is not assembled here.

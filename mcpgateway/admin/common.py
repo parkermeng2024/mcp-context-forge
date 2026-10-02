@@ -10,7 +10,7 @@ Shared Admin UI helpers: search/list utilities, team-id normalization, redirect 
 import logging
 import math
 from datetime import datetime
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast as typing_cast
 import urllib.parse
 import uuid
 
@@ -607,6 +607,70 @@ async def _assemble_oauth_config_from_fields(fields: Any, *, encrypt_secret: boo
     if oauth_resource:
         oauth_config["resource"] = oauth_resource
     return oauth_config
+
+
+def _parse_auth_headers_field(form: Any) -> List[Dict[str, Any]]:
+    """Parse the ``auth_headers`` JSON field of a submitted form or body.
+
+    Args:
+        form: Submitted form or body mapping with ``.get()``.
+
+    Returns:
+        Parsed header list, or an empty list when the field is absent or malformed.
+    """
+    auth_headers_json = form.get("auth_headers") or ""
+    if not auth_headers_json:
+        return []
+    try:
+        return typing_cast(List[Dict[str, Any]], orjson.loads(auth_headers_json))
+    except (orjson.JSONDecodeError, ValueError):
+        return []
+
+
+def _parse_passthrough_headers_field(form: Any) -> Any:
+    """Parse the ``passthrough_headers`` field of a submitted form or body.
+
+    The field accepts JSON or a comma-separated string.
+
+    Args:
+        form: Submitted form or body mapping with ``.get()``.
+
+    Returns:
+        Parsed passthrough headers, or ``None`` when the field is empty.
+    """
+    passthrough_headers = str(form.get("passthrough_headers"))
+    if passthrough_headers and passthrough_headers.strip():
+        try:
+            return orjson.loads(passthrough_headers)
+        except (orjson.JSONDecodeError, ValueError):
+            return [h.strip() for h in passthrough_headers.split(",") if h.strip()]
+    return None
+
+
+async def _parse_oauth_config_json_field(raw: Any, *, encrypt_client_secret: bool, skip_empty_client_secret: bool = True) -> Optional[Dict[str, Any]]:
+    """Parse a pre-assembled ``oauth_config`` JSON field.
+
+    Args:
+        raw: Raw field value (JSON string, or the string ``"None"`` when unset).
+        encrypt_client_secret: Whether to encrypt ``client_secret`` before storage.
+        skip_empty_client_secret: Whether an empty ``client_secret`` stays untouched.
+
+    Returns:
+        Parsed ``oauth_config``, or ``None`` when the field is absent or malformed.
+    """
+    oauth_config_json = str(raw)
+    if not oauth_config_json or oauth_config_json == "None":
+        return None
+    try:
+        oauth_config = typing_cast(Dict[str, Any], orjson.loads(oauth_config_json))
+        if encrypt_client_secret and oauth_config and "client_secret" in oauth_config:
+            if not skip_empty_client_secret or oauth_config["client_secret"]:
+                encryption = get_encryption_service(settings.auth_encryption_secret)
+                oauth_config["client_secret"] = await encryption.encrypt_secret_async(oauth_config["client_secret"])
+        return oauth_config
+    except (orjson.JSONDecodeError, ValueError) as e:
+        LOGGER.error(f"Failed to parse OAuth config: {e}")
+        return None
 
 
 async def _read_request_json(request: Request) -> Any:

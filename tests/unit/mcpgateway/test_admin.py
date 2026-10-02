@@ -6968,7 +6968,7 @@ class TestOAuthFunctionality:
         mock_request.form = AsyncMock(return_value=form_data)
 
         # Mock OAuth encryption
-        with patch("mcpgateway.admin.gateways.get_encryption_service") as mock_get_encryption:
+        with patch("mcpgateway.admin.common.get_encryption_service") as mock_get_encryption:
             mock_encryption = MagicMock()
             mock_encryption.encrypt_secret_async = AsyncMock(return_value="encrypted-edit-secret")
             mock_get_encryption.return_value = mock_encryption
@@ -15396,7 +15396,7 @@ class TestAdminAdditionalCoverage:
 
         encryption = MagicMock()
         encryption.encrypt_secret_async = AsyncMock(return_value="encrypted")
-        monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda *_args, **_kwargs: encryption)
+        monkeypatch.setattr("mcpgateway.admin.common.get_encryption_service", lambda *_args, **_kwargs: encryption)
         monkeypatch.setattr(
             "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata",
             MagicMock(return_value={"modified_by": "user", "modified_from_ip": "127.0.0.1", "modified_via": "ui", "modified_user_agent": "test"}),
@@ -15433,7 +15433,7 @@ class TestAdminAdditionalCoverage:
 
         encryption = MagicMock()
         encryption.encrypt_secret_async = AsyncMock(return_value="encrypted")
-        monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda *_args, **_kwargs: encryption)
+        monkeypatch.setattr("mcpgateway.admin.common.get_encryption_service", lambda *_args, **_kwargs: encryption)
         monkeypatch.setattr(
             "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata",
             MagicMock(return_value={"modified_by": "user", "modified_from_ip": "127.0.0.1", "modified_via": "ui", "modified_user_agent": "test"}),
@@ -18992,7 +18992,7 @@ async def test_admin_add_a2a_agent_oauth_auto_detect(monkeypatch, mock_db):
 
     encryptor = MagicMock()
     encryptor.encrypt_secret_async = AsyncMock(return_value="enc")
-    monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda _secret: encryptor)
+    monkeypatch.setattr("mcpgateway.admin.common.get_encryption_service", lambda _secret: encryptor)
     monkeypatch.setattr(
         "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
         lambda *_args, **_kwargs: {"created_by": "u", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},
@@ -19090,7 +19090,7 @@ async def test_admin_add_a2a_agent_oauth_with_audience(monkeypatch, mock_db):
 
     encryptor = MagicMock()
     encryptor.encrypt_secret_async = AsyncMock(return_value="enc-secret")
-    monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda _secret: encryptor)
+    monkeypatch.setattr("mcpgateway.admin.common.get_encryption_service", lambda _secret: encryptor)
     monkeypatch.setattr(
         "mcpgateway.admin.a2a.MetadataCapture.extract_creation_metadata",
         lambda *_args, **_kwargs: {"created_by": "u", "created_from_ip": None, "created_via": "ui", "created_user_agent": None, "import_batch_id": None, "federation_source": None},
@@ -19284,7 +19284,7 @@ async def test_admin_edit_a2a_agent_parses_fields(monkeypatch, mock_db):
 
     encryptor = MagicMock()
     encryptor.encrypt_secret_async = AsyncMock(return_value="enc")
-    monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda _secret: encryptor)
+    monkeypatch.setattr("mcpgateway.admin.common.get_encryption_service", lambda _secret: encryptor)
     monkeypatch.setattr(
         "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata", lambda *_args, **_kwargs: {"modified_by": "u", "modified_from_ip": None, "modified_via": "ui", "modified_user_agent": None}
     )
@@ -19365,7 +19365,7 @@ async def test_admin_edit_a2a_agent_oauth_with_audience(monkeypatch, mock_db):
 
     encryptor = MagicMock()
     encryptor.encrypt_secret_async = AsyncMock(return_value="enc-secret")
-    monkeypatch.setattr("mcpgateway.admin.a2a.get_encryption_service", lambda _secret: encryptor)
+    monkeypatch.setattr("mcpgateway.admin.common.get_encryption_service", lambda _secret: encryptor)
     monkeypatch.setattr(
         "mcpgateway.admin.a2a.MetadataCapture.extract_modification_metadata",
         lambda *_args, **_kwargs: {"modified_by": "u", "modified_from_ip": None, "modified_via": "ui", "modified_user_agent": None},
