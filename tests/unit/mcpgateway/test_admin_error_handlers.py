@@ -89,8 +89,8 @@ class TestAdminAddServerErrors:
         from mcpgateway.admin import admin_add_server
 
         with (
-            patch("mcpgateway.admin.server_service") as mock_service,
-            patch("mcpgateway.admin.TeamManagementService") as mock_team_service,
+            patch("mcpgateway.admin.servers.server_service") as mock_service,
+            patch("mcpgateway.admin.servers.TeamManagementService") as mock_team_service,
         ):
             mock_team_svc_instance = MagicMock()
             mock_team_svc_instance.verify_team_for_user = AsyncMock(return_value=None)
@@ -108,8 +108,8 @@ class TestAdminAddServerErrors:
         from mcpgateway.admin import admin_add_server
 
         with (
-            patch("mcpgateway.admin.server_service") as mock_service,
-            patch("mcpgateway.admin.TeamManagementService") as mock_team_service,
+            patch("mcpgateway.admin.servers.server_service") as mock_service,
+            patch("mcpgateway.admin.servers.TeamManagementService") as mock_team_service,
         ):
             mock_team_svc_instance = MagicMock()
             mock_team_svc_instance.verify_team_for_user = AsyncMock(return_value=None)
@@ -127,8 +127,8 @@ class TestAdminAddServerErrors:
         from mcpgateway.admin import admin_add_server
 
         with (
-            patch("mcpgateway.admin.server_service") as mock_service,
-            patch("mcpgateway.admin.TeamManagementService") as mock_team_service,
+            patch("mcpgateway.admin.servers.server_service") as mock_service,
+            patch("mcpgateway.admin.servers.TeamManagementService") as mock_team_service,
         ):
             mock_team_svc_instance = MagicMock()
             mock_team_svc_instance.verify_team_for_user = AsyncMock(return_value=None)
@@ -146,8 +146,8 @@ class TestAdminAddServerErrors:
         from mcpgateway.admin import admin_add_server
 
         with (
-            patch("mcpgateway.admin.server_service") as mock_service,
-            patch("mcpgateway.admin.TeamManagementService") as mock_team_service,
+            patch("mcpgateway.admin.servers.server_service") as mock_service,
+            patch("mcpgateway.admin.servers.TeamManagementService") as mock_team_service,
         ):
             mock_team_svc_instance = MagicMock()
             mock_team_svc_instance.verify_team_for_user = AsyncMock(return_value=None)
@@ -165,8 +165,8 @@ class TestAdminAddServerErrors:
         from mcpgateway.admin import admin_add_server
 
         with (
-            patch("mcpgateway.admin.server_service") as mock_service,
-            patch("mcpgateway.admin.TeamManagementService") as mock_team_service,
+            patch("mcpgateway.admin.servers.server_service") as mock_service,
+            patch("mcpgateway.admin.servers.TeamManagementService") as mock_team_service,
         ):
             mock_team_svc_instance = MagicMock()
             mock_team_svc_instance.verify_team_for_user = AsyncMock(return_value=None)
@@ -185,8 +185,8 @@ class TestAdminAddServerErrors:
         from mcpgateway.admin import admin_add_server
 
         with (
-            patch("mcpgateway.admin.server_service") as mock_service,
-            patch("mcpgateway.admin.TeamManagementService") as mock_team_service,
+            patch("mcpgateway.admin.servers.server_service") as mock_service,
+            patch("mcpgateway.admin.servers.TeamManagementService") as mock_team_service,
         ):
             mock_team_svc_instance = MagicMock()
             mock_team_svc_instance.verify_team_for_user = AsyncMock(return_value=None)
@@ -233,8 +233,8 @@ class TestAdminEditServerErrors:
         from mcpgateway.admin import admin_edit_server
 
         with (
-            patch("mcpgateway.admin.server_service") as mock_service,
-            patch("mcpgateway.admin.TeamManagementService") as mock_team_service,
+            patch("mcpgateway.admin.servers.server_service") as mock_service,
+            patch("mcpgateway.admin.servers.TeamManagementService") as mock_team_service,
         ):
             mock_team_svc_instance = MagicMock()
             mock_team_svc_instance.verify_team_for_user = AsyncMock(return_value=None)
@@ -252,8 +252,8 @@ class TestAdminEditServerErrors:
         from mcpgateway.admin import admin_edit_server
 
         with (
-            patch("mcpgateway.admin.server_service") as mock_service,
-            patch("mcpgateway.admin.TeamManagementService") as mock_team_service,
+            patch("mcpgateway.admin.servers.server_service") as mock_service,
+            patch("mcpgateway.admin.servers.TeamManagementService") as mock_team_service,
         ):
             mock_team_svc_instance = MagicMock()
             mock_team_svc_instance.verify_team_for_user = AsyncMock(return_value=None)
@@ -271,8 +271,8 @@ class TestAdminEditServerErrors:
         from mcpgateway.admin import admin_edit_server
 
         with (
-            patch("mcpgateway.admin.server_service") as mock_service,
-            patch("mcpgateway.admin.TeamManagementService") as mock_team_service,
+            patch("mcpgateway.admin.servers.server_service") as mock_service,
+            patch("mcpgateway.admin.servers.TeamManagementService") as mock_team_service,
         ):
             mock_team_svc_instance = MagicMock()
             mock_team_svc_instance.verify_team_for_user = AsyncMock(return_value=None)

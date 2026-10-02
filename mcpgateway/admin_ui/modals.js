@@ -4,7 +4,7 @@
 
 import { cleanupA2ATestModal } from "./a2aAgents.js";
 import { AppState } from "./appState.js";
-import { cleanupGatewayTestModal } from "./gateways.js";
+import { cleanupGatewayDeleteImpactModal, cleanupGatewayTestModal } from "./gateways.js";
 import { cleanupPromptTestModal } from "./prompts.js";
 import { cleanupResourceTestModal } from "./resources.js";
 import { escapeHtml } from "./security.js";
@@ -61,6 +61,8 @@ export function closeModal(modalId, clearId = null) {
     try {
       if (modalId === "gateway-test-modal") {
         cleanupGatewayTestModal();
+      } else if (modalId === "gateway-delete-impact-modal") {
+        cleanupGatewayDeleteImpactModal();
       } else if (modalId === "tool-test-modal") {
         cleanupToolTestModal();
       } else if (modalId === "prompt-test-modal") {

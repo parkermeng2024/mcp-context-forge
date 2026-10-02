@@ -54,10 +54,10 @@ def patched_search(monkeypatch):
         "catalog": AsyncMock(return_value={"catalog": [{"id": "cloudflare-docs", "name": "Cloudflare Docs"}], "count": 1}),
     }
     for name, mock in mocks.items():
-        monkeypatch.setattr(f"mcpgateway.admin.admin_search_{name}", mock)
+        monkeypatch.setattr(f"mcpgateway.admin.search.admin_search_{name}", mock)
     # Deterministic team scope and user-management permission (grant by default).
-    monkeypatch.setattr("mcpgateway.admin._get_user_team_ids", AsyncMock(return_value=[]))
-    monkeypatch.setattr("mcpgateway.admin._has_permission", AsyncMock(return_value=True))
+    monkeypatch.setattr("mcpgateway.admin.search._get_user_team_ids", AsyncMock(return_value=[]))
+    monkeypatch.setattr("mcpgateway.admin.search._has_permission", AsyncMock(return_value=True))
     return mocks
 
 
@@ -207,7 +207,7 @@ async def test_authenticated_http_request_supports_explicit_catalog(mock_db, pat
 @pytest.mark.asyncio
 async def test_users_dropped_when_not_permitted(mock_db, patched_search, monkeypatch):
     """Without user-management permission, users are silently dropped (no leak)."""
-    monkeypatch.setattr("mcpgateway.admin._has_permission", AsyncMock(return_value=False))
+    monkeypatch.setattr("mcpgateway.admin.search._has_permission", AsyncMock(return_value=False))
 
     result = await unified_search(
         q="alice",
@@ -230,7 +230,7 @@ async def test_users_dropped_when_not_permitted(mock_db, patched_search, monkeyp
 @pytest.mark.asyncio
 async def test_users_only_request_forbidden_when_not_permitted(mock_db, patched_search, monkeypatch):
     """Explicitly requesting only users without permission -> 403 (matches /admin/search)."""
-    monkeypatch.setattr("mcpgateway.admin._has_permission", AsyncMock(return_value=False))
+    monkeypatch.setattr("mcpgateway.admin.search._has_permission", AsyncMock(return_value=False))
 
     with pytest.raises(HTTPException) as excinfo:
         await unified_search(

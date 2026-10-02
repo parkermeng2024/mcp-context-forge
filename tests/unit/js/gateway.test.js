@@ -13,10 +13,12 @@ import {
   initGatewaySelect,
   getSelectedGatewayIds,
   testGateway,
+  buildRefreshSummary,
   refreshToolsForSelectedGateways,
 } from "../../../mcpgateway/admin_ui/gateways.js";
-import { fetchWithTimeout, showErrorMessage, showSuccessMessage } from "../../../mcpgateway/admin_ui/utils";
-import { openModal } from "../../../mcpgateway/admin_ui/modals";
+import { fetchWithTimeout, showErrorMessage, showSuccessMessage, showWarningMessage } from "../../../mcpgateway/admin_ui/utils";
+import { closeModal, openModal } from "../../../mcpgateway/admin_ui/modals";
+import { handleDeleteSubmit, handleFormSubmitAndRefresh } from "../../../mcpgateway/admin_ui/formHandlers.js";
 
 vi.mock("../../../mcpgateway/admin_ui/auth.js", () => ({
   getAuthHeaders: vi.fn().mockResolvedValue({ "X-CSRF-Token": "csrf-abc" }),
@@ -25,6 +27,11 @@ vi.mock("../../../mcpgateway/admin_ui/auth.js", () => ({
 }));
 vi.mock("../../../mcpgateway/admin_ui/constants.js", () => ({
   MASKED_AUTH_VALUE: "*****",
+}));
+vi.mock("../../../mcpgateway/admin_ui/formHandlers.js", () => ({
+  ENTITY_DISPLAY_NAMES: { gateways: "common.entityLower.gateway" },
+  handleDeleteSubmit: vi.fn(),
+  handleFormSubmitAndRefresh: vi.fn(),
 }));
 vi.mock("../../../mcpgateway/admin_ui/modals", () => ({
   closeModal: vi.fn(),
@@ -68,6 +75,7 @@ vi.mock("../../../mcpgateway/admin_ui/utils", () => ({
   safeGetElement: vi.fn((id) => document.getElementById(id)),
   showErrorMessage: vi.fn(),
   showSuccessMessage: vi.fn(),
+  showWarningMessage: vi.fn(),
 }));
 
 afterEach(() => {
@@ -1557,7 +1565,7 @@ describe("refreshGatewayTools", () => {
     await refreshGatewayTools("gw-123", "Test Gateway", button);
 
     expect(global.fetch).toHaveBeenCalledWith(
-      "/gateways/gw-123/tools/refresh",
+      "/gateways/gw-123/tools/refresh?include_resources=true&include_prompts=true",
       expect.objectContaining({
         method: "POST",
         credentials: "include", // pragma: allowlist secret
@@ -1566,7 +1574,7 @@ describe("refreshGatewayTools", () => {
     );
 
     expect(showSuccessMessage).toHaveBeenCalledWith(
-      "Test Gateway: 5 added, 2 updated, 1 removed"
+      "Test Gateway: 5 tool(s) added, 2 tool(s) updated, 1 tool(s) removed"
     );
 
     expect(window.htmx.ajax).toHaveBeenCalledWith(
@@ -1725,7 +1733,7 @@ describe("refreshGatewayTools", () => {
     expect(showSuccessMessage).toHaveBeenCalled();
   });
 
-  test("formats message with zero deltas", async () => {
+  test("shows up-to-date message with zero deltas", async () => {
     window.ROOT_PATH = "";
     document.body.innerHTML = `
       <button id="btn">Refresh</button>
@@ -1750,7 +1758,7 @@ describe("refreshGatewayTools", () => {
     await refreshGatewayTools("gw-1", "Gateway", button);
 
     expect(showSuccessMessage).toHaveBeenCalledWith(
-      "Gateway: 0 added, 0 updated, 0 removed"
+      "Gateway: up to date"
     );
   });
 
@@ -1776,7 +1784,7 @@ describe("refreshGatewayTools", () => {
     await refreshGatewayTools("gw-1", "GW", button);
 
     expect(showSuccessMessage).toHaveBeenCalledWith(
-      "GW: 0 added, 0 updated, 0 removed"
+      "GW: up to date"
     );
   });
 
@@ -1857,6 +1865,156 @@ describe("refreshGatewayTools", () => {
       expect.any(Object)
     );
   });
+
+  test("shows warning with per-tool errors when validationErrors are present", async () => {
+    window.ROOT_PATH = "";
+    document.body.innerHTML = `
+      <button id="btn">Refresh</button>
+      <div id="gateways-table"></div>
+    `;
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        success: true,
+        toolsAdded: 2,
+        toolsUpdated: 0,
+        toolsRemoved: 0,
+        resourcesRemoved: 1,
+        validationErrors: ["my-tool: field required (inputSchema)"],
+      }),
+    });
+
+    window.htmx = { ajax: vi.fn() };
+
+    const button = document.getElementById("btn");
+    const { refreshGatewayTools } = await import("../../../mcpgateway/admin_ui/gateways.js");
+
+    await refreshGatewayTools("gw-1", "gw-prod", button);
+
+    expect(showSuccessMessage).not.toHaveBeenCalled();
+    expect(showWarningMessage).toHaveBeenCalledWith(
+      "gw-prod: 2 tool(s) added, 1 resource(s) removed\n" +
+        "1 tool(s) skipped\n" +
+        "my-tool: field required (inputSchema)"
+    );
+
+    expect(window.htmx.ajax).toHaveBeenCalledWith(
+      "GET",
+      expect.stringContaining("/admin/gateways/partial"),
+      expect.objectContaining({
+        target: "#gateways-table",
+        swap: "outerHTML",
+      })
+    );
+  });
+
+  test("shows up-to-date warning when only validationErrors are present", async () => {
+    window.ROOT_PATH = "";
+    document.body.innerHTML = `
+      <button id="btn">Refresh</button>
+      <div id="gateways-table"></div>
+    `;
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        success: true,
+        validationErrors: ["tool-a: bad schema", "tool-b: missing name"],
+      }),
+    });
+
+    window.htmx = { ajax: vi.fn() };
+
+    const button = document.getElementById("btn");
+    const { refreshGatewayTools } = await import("../../../mcpgateway/admin_ui/gateways.js");
+
+    await refreshGatewayTools("gw-1", "GW", button);
+
+    expect(showWarningMessage).toHaveBeenCalledWith(
+      "GW: up to date\n2 tool(s) skipped\ntool-a: bad schema\ntool-b: missing name"
+    );
+  });
+
+  test("shows specific message on HTTP 409 refresh in progress", async () => {
+    window.ROOT_PATH = "";
+    document.body.innerHTML = `
+      <button id="btn">Refresh</button>
+      <div id="gateways-table"></div>
+    `;
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 409,
+      json: () => Promise.resolve({ detail: "Refresh already in progress" }),
+    });
+
+    window.htmx = { ajax: vi.fn() };
+
+    const button = document.getElementById("btn");
+    const { refreshGatewayTools } = await import("../../../mcpgateway/admin_ui/gateways.js");
+
+    await refreshGatewayTools("gw-1", "GW", button);
+
+    expect(showErrorMessage).toHaveBeenCalledWith(
+      "Refresh already in progress for GW"
+    );
+    expect(showSuccessMessage).not.toHaveBeenCalled();
+    expect(window.htmx.ajax).not.toHaveBeenCalled();
+    expect(button.disabled).toBe(false);
+    expect(button.textContent).toBe("Refresh");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildRefreshSummary
+// ---------------------------------------------------------------------------
+describe("buildRefreshSummary", () => {
+  test("returns no changes when all counters are zero", () => {
+    const { hasChanges, parts } = buildRefreshSummary({
+      toolsAdded: 0,
+      toolsUpdated: 0,
+      toolsRemoved: 0,
+      resourcesAdded: 0,
+      resourcesUpdated: 0,
+      resourcesRemoved: 0,
+      promptsAdded: 0,
+      promptsUpdated: 0,
+      promptsRemoved: 0,
+    });
+
+    expect(hasChanges).toBe(false);
+    expect(parts).toEqual([]);
+  });
+
+  test("returns no changes when counters are missing", () => {
+    const { hasChanges, parts } = buildRefreshSummary({ success: true });
+
+    expect(hasChanges).toBe(false);
+    expect(parts).toEqual([]);
+  });
+
+  test("lists only non-zero counters across tools, resources, and prompts", () => {
+    const { hasChanges, parts } = buildRefreshSummary({
+      toolsAdded: 2,
+      toolsUpdated: 1,
+      toolsRemoved: 0,
+      resourcesAdded: 0,
+      resourcesUpdated: 0,
+      resourcesRemoved: 1,
+      promptsAdded: 0,
+      promptsUpdated: 3,
+      promptsRemoved: 0,
+    });
+
+    expect(hasChanges).toBe(true);
+    expect(parts).toEqual([
+      "2 tool(s) added",
+      "1 tool(s) updated",
+      "1 resource(s) removed",
+      "3 prompt(s) updated",
+    ]);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -1902,11 +2060,11 @@ describe("refreshToolsForSelectedGateways", () => {
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith(
-      "/gateways/gw-1/tools/refresh",
+      "/gateways/gw-1/tools/refresh?include_resources=true&include_prompts=true",
       expect.objectContaining({ method: "POST" })
     );
     expect(showSuccessMessage).toHaveBeenCalledWith(
-      "2 added, 1 updated, 0 removed"
+      "2 tool(s) added, 1 tool(s) updated"
     );
 
     const [, opts] = global.fetch.mock.calls[0];
@@ -1964,7 +2122,7 @@ describe("refreshToolsForSelectedGateways", () => {
 
     expect(global.fetch).toHaveBeenCalledTimes(2);
     expect(showSuccessMessage).toHaveBeenCalledWith(
-      "5 added, 1 updated, 1 removed"
+      "5 tool(s) added, 1 tool(s) updated, 1 tool(s) removed"
     );
   });
 
@@ -1997,7 +2155,7 @@ describe("refreshToolsForSelectedGateways", () => {
     await refreshToolsForSelectedGateways(button);
 
     expect(showErrorMessage).toHaveBeenCalledWith(
-      "1 gateway(s) failed. 1 added, 0 updated, 0 removed"
+      "1 gateway(s) failed. 1 tool(s) added"
     );
   });
 
@@ -2101,5 +2259,236 @@ describe("refreshToolsForSelectedGateways", () => {
     expect(showErrorMessage).toHaveBeenCalledWith(
       "1 gateway(s) failed. No changes detected"
     );
+  });
+
+  test("includes resource/prompt counters and skipped-tools count in aggregate toast", async () => {
+    window.ROOT_PATH = "";
+    document.body.innerHTML = `
+      <div id="associatedGateways">
+        <input type="checkbox" value="gw-1" checked />
+      </div>
+      <button id="refresh-btn">Refresh</button>
+    `;
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        success: true,
+        toolsAdded: 1,
+        resourcesAdded: 2,
+        promptsRemoved: 1,
+        validationErrors: ["tool-a: bad schema", "tool-b: missing name"],
+      }),
+    });
+
+    const button = document.getElementById("refresh-btn");
+    await refreshToolsForSelectedGateways(button);
+
+    expect(showSuccessMessage).toHaveBeenCalledWith(
+      "1 tool(s) added, 2 resource(s) added, 1 prompt(s) removed, 2 tool(s) skipped"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// handleGatewayDeleteSubmit
+// ---------------------------------------------------------------------------
+describe("handleGatewayDeleteSubmit", () => {
+  const setupDeleteImpactDom = () => {
+    document.body.innerHTML = `
+      <form id="delete-form" method="POST" action="/admin/gateways/gw-1/delete"></form>
+      <div id="gateway-delete-impact-modal" class="hidden"></div>
+      <p id="gateway-delete-impact-status"></p>
+      <div id="gateway-delete-impact-list-wrapper" class="hidden">
+        <ul id="gateway-delete-impact-list"></ul>
+      </div>
+      <button id="gateway-delete-impact-confirm" type="button"></button>
+    `;
+  };
+
+  const makeEvent = () => ({
+    preventDefault: vi.fn(),
+    target: document.getElementById("delete-form"),
+  });
+
+  test("fetches the impact preview and opens the modal with the server list", async () => {
+    window.ROOT_PATH = "";
+    setupDeleteImpactDom();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          gatewayId: "gw-1",
+          servers: [
+            { id: "srv-1", name: "Server One" },
+            { id: "srv-2", name: "Server Two" },
+          ],
+        }),
+    });
+
+    const { handleGatewayDeleteSubmit } = await import("../../../mcpgateway/admin_ui/gateways.js");
+    const event = makeEvent();
+    await handleGatewayDeleteSubmit(event, "gateway", "My GW", "gateways");
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/gateways/gw-1/impact-preview",
+      expect.objectContaining({
+        credentials: "include", // pragma: allowlist secret
+        headers: { Accept: "application/json", "X-CSRF-Token": "csrf-abc" },
+      })
+    );
+    expect(openModal).toHaveBeenCalledWith("gateway-delete-impact-modal");
+
+    const wrapper = document.getElementById("gateway-delete-impact-list-wrapper");
+    expect(wrapper.classList.contains("hidden")).toBe(false);
+    const items = document.querySelectorAll("#gateway-delete-impact-list li");
+    expect(items).toHaveLength(2);
+    expect(items[0].textContent).toBe("Server One");
+    expect(items[1].textContent).toBe("Server Two");
+
+    expect(handleDeleteSubmit).not.toHaveBeenCalled();
+  });
+
+  test("shows the none state when no virtual servers are affected", async () => {
+    window.ROOT_PATH = "";
+    setupDeleteImpactDom();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ gatewayId: "gw-1", servers: [] }),
+    });
+
+    const { handleGatewayDeleteSubmit } = await import("../../../mcpgateway/admin_ui/gateways.js");
+    await handleGatewayDeleteSubmit(makeEvent(), "gateway", "My GW", "gateways");
+
+    const status = document.getElementById("gateway-delete-impact-status");
+    expect(status.textContent).toBe(
+      "No virtual servers use this gateway's tools, resources, or prompts."
+    );
+    const wrapper = document.getElementById("gateway-delete-impact-list-wrapper");
+    expect(wrapper.classList.contains("hidden")).toBe(true);
+    expect(handleDeleteSubmit).not.toHaveBeenCalled();
+  });
+
+  test("falls back to the plain confirm flow when the preview fetch throws", async () => {
+    window.ROOT_PATH = "";
+    setupDeleteImpactDom();
+    global.fetch = vi.fn().mockRejectedValue(new Error("network down"));
+
+    const { handleGatewayDeleteSubmit } = await import("../../../mcpgateway/admin_ui/gateways.js");
+    const event = makeEvent();
+    await handleGatewayDeleteSubmit(event, "gateway", "My GW", "gateways");
+
+    expect(closeModal).toHaveBeenCalledWith("gateway-delete-impact-modal");
+    expect(handleDeleteSubmit).toHaveBeenCalledWith(event, "gateway", "My GW", "gateways");
+    expect(handleFormSubmitAndRefresh).not.toHaveBeenCalled();
+  });
+
+  test("falls back to the plain confirm flow on a 404 response", async () => {
+    window.ROOT_PATH = "";
+    setupDeleteImpactDom();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+      statusText: "Not Found",
+      json: () => Promise.resolve({ detail: "Gateway not found" }),
+    });
+
+    const { handleGatewayDeleteSubmit } = await import("../../../mcpgateway/admin_ui/gateways.js");
+    const event = makeEvent();
+    await handleGatewayDeleteSubmit(event, "gateway", "My GW", "gateways");
+
+    expect(handleDeleteSubmit).toHaveBeenCalledWith(event, "gateway", "My GW", "gateways");
+  });
+
+  test("shows the error state when the preview payload is malformed", async () => {
+    window.ROOT_PATH = "";
+    setupDeleteImpactDom();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ gatewayId: "gw-1" }),
+    });
+
+    const { handleGatewayDeleteSubmit } = await import("../../../mcpgateway/admin_ui/gateways.js");
+    await handleGatewayDeleteSubmit(makeEvent(), "gateway", "My GW", "gateways");
+
+    const status = document.getElementById("gateway-delete-impact-status");
+    expect(status.textContent).toBe(
+      "Could not load the impact preview. You can still delete this gateway."
+    );
+    expect(handleDeleteSubmit).not.toHaveBeenCalled();
+  });
+
+  test("confirm runs the purge-metrics prompt and submits the form", async () => {
+    window.ROOT_PATH = "";
+    setupDeleteImpactDom();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          gatewayId: "gw-1",
+          servers: [{ id: "srv-1", name: "Server One" }],
+        }),
+    });
+    global.confirm = vi.fn(() => true);
+
+    const { handleGatewayDeleteSubmit } = await import("../../../mcpgateway/admin_ui/gateways.js");
+    const event = makeEvent();
+    await handleGatewayDeleteSubmit(event, "gateway", "My GW", "gateways");
+
+    document.getElementById("gateway-delete-impact-confirm").click();
+
+    expect(global.confirm).toHaveBeenCalled();
+    const purgeField = event.target.querySelector('input[name="purge_metrics"]');
+    expect(purgeField).not.toBeNull();
+    expect(purgeField.value).toBe("true");
+    expect(handleFormSubmitAndRefresh).toHaveBeenCalledWith(event, "gateways");
+    expect(handleDeleteSubmit).not.toHaveBeenCalled();
+  });
+
+  test("confirm skips the purge field when purge-metrics is declined", async () => {
+    window.ROOT_PATH = "";
+    setupDeleteImpactDom();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ gatewayId: "gw-1", servers: [] }),
+    });
+    global.confirm = vi.fn(() => false);
+
+    const { handleGatewayDeleteSubmit } = await import("../../../mcpgateway/admin_ui/gateways.js");
+    const event = makeEvent();
+    await handleGatewayDeleteSubmit(event, "gateway", "My GW", "gateways");
+
+    document.getElementById("gateway-delete-impact-confirm").click();
+
+    expect(event.target.querySelector('input[name="purge_metrics"]')).toBeNull();
+    expect(handleFormSubmitAndRefresh).toHaveBeenCalledWith(event, "gateways");
+  });
+
+  test("cancel closes the modal without submitting anything", async () => {
+    window.ROOT_PATH = "";
+    setupDeleteImpactDom();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          gatewayId: "gw-1",
+          servers: [{ id: "srv-1", name: "Server One" }],
+        }),
+    });
+
+    const { handleGatewayDeleteSubmit, cleanupGatewayDeleteImpactModal } = await import(
+      "../../../mcpgateway/admin_ui/gateways.js"
+    );
+    const event = makeEvent();
+    await handleGatewayDeleteSubmit(event, "gateway", "My GW", "gateways");
+
+    // Cancel path: closeModal runs the modal cleanup, then nothing else.
+    cleanupGatewayDeleteImpactModal();
+    document.getElementById("gateway-delete-impact-confirm").click();
+
+    expect(handleFormSubmitAndRefresh).not.toHaveBeenCalled();
+    expect(handleDeleteSubmit).not.toHaveBeenCalled();
+    expect(event.target.querySelector('input[name="purge_metrics"]')).toBeNull();
   });
 });

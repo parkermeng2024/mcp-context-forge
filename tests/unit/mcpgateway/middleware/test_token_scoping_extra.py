@@ -153,6 +153,172 @@ def test_check_usage_limits_db_failure_fails_open():
     mock_db.close.assert_called_once()
 
 
+def _freeze_now(monkeypatch: pytest.MonkeyPatch, frozen: datetime) -> None:
+    """Patch the middleware module clock to return a fixed datetime.
+
+    Args:
+        monkeypatch: Pytest monkeypatch fixture.
+        frozen: Timezone-aware datetime returned by the patched clock.
+    """
+
+    class FakeDateTime:
+        @classmethod
+        def now(cls, tz=None):
+            return frozen
+
+    monkeypatch.setattr("mcpgateway.middleware.token_scoping.datetime", FakeDateTime)
+
+
+# 2025-01-06 is a Monday; 2025-01-05 is a Sunday; 2025-01-07 is a Tuesday.
+_MONDAY_10AM_UTC = datetime(2025, 1, 6, 10, 0, tzinfo=timezone.utc)
+
+
+@pytest.mark.parametrize(
+    "hour,expected",
+    [
+        (10, True),  # Within the window
+        (9, True),  # Inclusive start boundary
+        (17, True),  # Inclusive end boundary
+        (8, False),  # Before the window
+        (18, False),  # After the window
+    ],
+)
+def test_check_time_restrictions_start_end_window(monkeypatch: pytest.MonkeyPatch, hour: int, expected: bool):
+    middleware = TokenScopingMiddleware()
+    _freeze_now(monkeypatch, datetime(2025, 1, 6, hour, 0, tzinfo=timezone.utc))
+
+    assert middleware._check_time_restrictions({"start_time": "09:00", "end_time": "17:00"}) is expected
+
+
+@pytest.mark.parametrize(
+    "hour,expected",
+    [
+        (23, True),  # After the overnight start
+        (3, True),  # Before the overnight end
+        (22, True),  # Inclusive overnight start boundary
+        (6, True),  # Inclusive overnight end boundary
+        (12, False),  # Outside the overnight window
+    ],
+)
+def test_check_time_restrictions_overnight_window(monkeypatch: pytest.MonkeyPatch, hour: int, expected: bool):
+    middleware = TokenScopingMiddleware()
+    _freeze_now(monkeypatch, datetime(2025, 1, 6, hour, 0, tzinfo=timezone.utc))
+
+    assert middleware._check_time_restrictions({"start_time": "22:00", "end_time": "06:00"}) is expected
+
+
+def test_check_time_restrictions_open_ended_start(monkeypatch: pytest.MonkeyPatch):
+    middleware = TokenScopingMiddleware()
+    _freeze_now(monkeypatch, _MONDAY_10AM_UTC)
+
+    assert middleware._check_time_restrictions({"start_time": "09:00"}) is True
+    assert middleware._check_time_restrictions({"start_time": "11:00"}) is False
+
+
+def test_check_time_restrictions_open_ended_end(monkeypatch: pytest.MonkeyPatch):
+    middleware = TokenScopingMiddleware()
+    _freeze_now(monkeypatch, _MONDAY_10AM_UTC)
+
+    assert middleware._check_time_restrictions({"end_time": "17:00"}) is True
+    assert middleware._check_time_restrictions({"end_time": "08:00"}) is False
+
+
+def test_check_time_restrictions_equal_bounds_allow_whole_day(monkeypatch: pytest.MonkeyPatch):
+    middleware = TokenScopingMiddleware()
+    _freeze_now(monkeypatch, _MONDAY_10AM_UTC)
+
+    assert middleware._check_time_restrictions({"start_time": "09:00", "end_time": "09:00"}) is True
+
+
+def test_check_time_restrictions_timezone_window(monkeypatch: pytest.MonkeyPatch):
+    middleware = TokenScopingMiddleware()
+    # 15:00 UTC is 10:00 in America/New_York (EST, January)
+    _freeze_now(monkeypatch, datetime(2025, 1, 6, 15, 0, tzinfo=timezone.utc))
+
+    restrictions = {"start_time": "09:00", "end_time": "17:00", "timezone": "America/New_York"}
+    assert middleware._check_time_restrictions(restrictions) is True
+
+    # 12:00 UTC is 07:00 in America/New_York — outside the window
+    _freeze_now(monkeypatch, datetime(2025, 1, 6, 12, 0, tzinfo=timezone.utc))
+    assert middleware._check_time_restrictions(restrictions) is False
+
+
+def test_check_time_restrictions_invalid_timezone_fails_closed(monkeypatch: pytest.MonkeyPatch):
+    middleware = TokenScopingMiddleware()
+    _freeze_now(monkeypatch, _MONDAY_10AM_UTC)
+
+    assert middleware._check_time_restrictions({"start_time": "09:00", "timezone": "Not/AZone"}) is False
+    assert middleware._check_time_restrictions({"days": ["Monday"], "timezone": "Mars/Olympus_Mons"}) is False
+    assert middleware._check_time_restrictions({"start_time": "09:00", "timezone": 120}) is False
+
+
+@pytest.mark.parametrize("bad_time", ["9am", "25:00", "09:60", "09:00:00", ":", 900, 9.5])
+def test_check_time_restrictions_invalid_time_format_fails_closed(monkeypatch: pytest.MonkeyPatch, bad_time):
+    middleware = TokenScopingMiddleware()
+    _freeze_now(monkeypatch, _MONDAY_10AM_UTC)
+
+    assert middleware._check_time_restrictions({"start_time": bad_time}) is False
+
+
+def test_check_time_restrictions_days_allow_and_deny(monkeypatch: pytest.MonkeyPatch):
+    middleware = TokenScopingMiddleware()
+    _freeze_now(monkeypatch, _MONDAY_10AM_UTC)
+
+    assert middleware._check_time_restrictions({"days": ["Monday", "Tuesday"]}) is True
+    assert middleware._check_time_restrictions({"days": ["Saturday", "Sunday"]}) is False
+
+
+def test_check_time_restrictions_days_evaluated_in_effective_timezone(monkeypatch: pytest.MonkeyPatch):
+    middleware = TokenScopingMiddleware()
+    # 2025-01-06 02:00 UTC is Sunday 21:00 in America/New_York
+    _freeze_now(monkeypatch, datetime(2025, 1, 6, 2, 0, tzinfo=timezone.utc))
+
+    assert middleware._check_time_restrictions({"days": ["Sunday"], "timezone": "America/New_York"}) is True
+    assert middleware._check_time_restrictions({"days": ["Monday"], "timezone": "America/New_York"}) is False
+
+
+def test_check_time_restrictions_invalid_days_fail_closed(monkeypatch: pytest.MonkeyPatch):
+    middleware = TokenScopingMiddleware()
+    _freeze_now(monkeypatch, _MONDAY_10AM_UTC)
+
+    assert middleware._check_time_restrictions({"days": ["Funday"]}) is False
+    assert middleware._check_time_restrictions({"days": "Monday"}) is False
+    assert middleware._check_time_restrictions({"days": ["Monday", 3]}) is False
+
+
+def test_check_time_restrictions_empty_days_is_no_restriction(monkeypatch: pytest.MonkeyPatch):
+    middleware = TokenScopingMiddleware()
+    _freeze_now(monkeypatch, _MONDAY_10AM_UTC)
+
+    assert middleware._check_time_restrictions({"days": []}) is True
+
+
+def test_check_time_restrictions_combined_restrictions_are_anded(monkeypatch: pytest.MonkeyPatch):
+    middleware = TokenScopingMiddleware()
+    restrictions = {"start_time": "09:00", "end_time": "17:00", "days": ["Tuesday"]}
+
+    # Within the window but the wrong weekday denies
+    _freeze_now(monkeypatch, _MONDAY_10AM_UTC)
+    assert middleware._check_time_restrictions(restrictions) is False
+
+    # Within the window and the right weekday allows
+    _freeze_now(monkeypatch, datetime(2025, 1, 7, 10, 0, tzinfo=timezone.utc))
+    assert middleware._check_time_restrictions(restrictions) is True
+
+
+def test_check_time_restrictions_legacy_keys_still_apply_with_new_keys(monkeypatch: pytest.MonkeyPatch):
+    middleware = TokenScopingMiddleware()
+    restrictions = {"business_hours_only": True, "start_time": "09:00"}
+
+    # Inside both UTC business hours and the window allows
+    _freeze_now(monkeypatch, _MONDAY_10AM_UTC)
+    assert middleware._check_time_restrictions(restrictions) is True
+
+    # Outside UTC business hours denies even though the window is open-ended
+    _freeze_now(monkeypatch, datetime(2025, 1, 6, 18, 0, tzinfo=timezone.utc))
+    assert middleware._check_time_restrictions(restrictions) is False
+
+
 def test_check_server_and_permission_restrictions():
     middleware = TokenScopingMiddleware()
     assert middleware._check_server_restriction("/servers/abc/tools", "abc") is True

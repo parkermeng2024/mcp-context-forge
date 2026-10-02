@@ -66,7 +66,9 @@ def _capture_admin_logger_records():
     spy.critical.side_effect = _record("critical")
     spy.exception.side_effect = _record("error")
 
-    with patch.object(admin_module, "LOGGER", spy):
+    # The plugin handlers live in mcpgateway.admin.plugins, so patch the logger
+    # of the package and of that submodule.
+    with patch.object(admin_module, "LOGGER", spy), patch.object(admin_module.plugins, "LOGGER", spy):
         yield captured
 
 
@@ -162,7 +164,7 @@ def mock_plugin_service(monkeypatch: pytest.MonkeyPatch):
     service = MagicMock()
     service.set_plugin_manager = MagicMock()
     service.get_all_plugins = MagicMock(return_value=[{"name": "RateLimiterPlugin"}, {"name": "OtherPlugin"}])
-    monkeypatch.setattr(admin_module, "get_plugin_service", lambda: service)
+    monkeypatch.setattr(admin_module.plugins, "get_plugin_service", lambda: service)
     # ``update_plugin_mode`` validates against the configured plugin set rather
     # than the live manager so freshly-disabled nodes can still pre-stage per-
     # plugin overrides. Stub the helper here so tests exercise the real path.
@@ -460,7 +462,7 @@ class TestUpdatePluginModeConfiguredValidation:
         # YAML config at startup, so the configured names helper is populated.
         stub_service = MagicMock()
         stub_service.get_all_plugins = MagicMock(return_value=[])
-        monkeypatch.setattr(admin_module, "get_plugin_service", lambda: stub_service)
+        monkeypatch.setattr(admin_module.plugins, "get_plugin_service", lambda: stub_service)
         monkeypatch.setattr("mcpgateway.plugins.list_configured_plugin_names", lambda: ["PreStagePlugin"])
 
         response = await admin_module.update_plugin_mode(

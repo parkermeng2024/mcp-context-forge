@@ -1,5 +1,10 @@
 import { getAuthHeaders, loadAuthHeaders, updateAuthHeadersJSON } from "./auth.js";
 import { MASKED_AUTH_VALUE } from "./constants.js";
+import {
+  ENTITY_DISPLAY_NAMES,
+  handleDeleteSubmit,
+  handleFormSubmitAndRefresh,
+} from "./formHandlers.js";
 import { t } from "./i18n.js";
 import { closeModal, openModal } from "./modals.js";
 import { initPromptSelect } from "./prompts.js";
@@ -28,6 +33,7 @@ import {
   safeGetElement,
   showErrorMessage,
   showSuccessMessage,
+  showWarningMessage,
 } from "./utils.js";
 
 /**
@@ -1814,6 +1820,42 @@ export const cleanupGatewayTestModal = function () {
 };
 
 /**
+ * Query params for the unified gateway refresh endpoint so the response
+ * also covers resources and prompts, not only tools.
+ */
+const GATEWAY_REFRESH_PARAMS = "include_resources=true&include_prompts=true";
+
+/**
+ * Build a human-readable delta summary from a gateway refresh response.
+ * Covers all nine counters (tools/resources/prompts x added/updated/removed)
+ * and omits zero counts.
+ *
+ * @param {Object} data - GatewayRefreshResponse payload
+ * @returns {{hasChanges: boolean, parts: string[]}} Summary parts, one per non-zero counter
+ */
+export const buildRefreshSummary = function (data) {
+  const counters = [
+    ["toolsAdded", "gateways.refresh.part.toolsAdded"],
+    ["toolsUpdated", "gateways.refresh.part.toolsUpdated"],
+    ["toolsRemoved", "gateways.refresh.part.toolsRemoved"],
+    ["resourcesAdded", "gateways.refresh.part.resourcesAdded"],
+    ["resourcesUpdated", "gateways.refresh.part.resourcesUpdated"],
+    ["resourcesRemoved", "gateways.refresh.part.resourcesRemoved"],
+    ["promptsAdded", "gateways.refresh.part.promptsAdded"],
+    ["promptsUpdated", "gateways.refresh.part.promptsUpdated"],
+    ["promptsRemoved", "gateways.refresh.part.promptsRemoved"],
+  ];
+  const parts = [];
+  for (const [field, key] of counters) {
+    const count = data?.[field] ?? 0;
+    if (count > 0) {
+      parts.push(t(key, { count }));
+    }
+  }
+  return { hasChanges: parts.length > 0, parts };
+};
+
+/**
  * Refresh (or first-time fetch) tools for a gateway via the unified refresh endpoint.
  * Works for all auth types. Shows a toast with delta counts on success.
  *
@@ -1831,13 +1873,20 @@ export const refreshGatewayTools = async function (gatewayId, gatewayName, butto
   try {
     const authHeaders = await getAuthHeaders(false);
     const response = await fetch(
-      `${window.ROOT_PATH}/gateways/${gatewayId}/tools/refresh`,
+      `${window.ROOT_PATH}/gateways/${gatewayId}/tools/refresh?${GATEWAY_REFRESH_PARAMS}`,
       {
         method: "POST",
         credentials: "include", // pragma: allowlist secret
         headers: { Accept: "application/json", ...authHeaders },
       }
     );
+
+    if (response.status === 409) {
+      showErrorMessage(
+        t("gateways.refresh.inProgress", { name: gatewayName })
+      );
+      return;
+    }
 
     const data = await response.json();
     if (!response.ok) {
@@ -1849,9 +1898,27 @@ export const refreshGatewayTools = async function (gatewayId, gatewayName, butto
       throw new Error(data.error || "Refresh failed on the server");
     }
 
-    showSuccessMessage(
-      `${gatewayName}: ${data.toolsAdded ?? 0} added, ${data.toolsUpdated ?? 0} updated, ${data.toolsRemoved ?? 0} removed`
-    );
+    const { hasChanges, parts } = buildRefreshSummary(data);
+    const summary = hasChanges
+      ? `${gatewayName}: ${parts.join(", ")}`
+      : t("gateways.refresh.upToDate", { name: gatewayName });
+
+    const validationErrors = Array.isArray(data.validationErrors)
+      ? data.validationErrors
+      : [];
+    if (validationErrors.length > 0) {
+      showWarningMessage(
+        [
+          summary,
+          t("gateways.refresh.toolsSkipped", {
+            count: validationErrors.length,
+          }),
+          ...validationErrors,
+        ].join("\n")
+      );
+    } else {
+      showSuccessMessage(summary);
+    }
 
     // Reload the gateways partial table via HTMX to reflect updated tool counts / button labels.
     // Use buildTableUrl to preserve current pagination, search, filter, and team scope.
@@ -1913,6 +1980,13 @@ export const refreshToolsForSelectedGateways = async function(buttonEl) {
   let added = 0;
   let updated = 0;
   let removed = 0;
+  let resAdded = 0;
+  let resUpdated = 0;
+  let resRemoved = 0;
+  let promptAdded = 0;
+  let promptUpdated = 0;
+  let promptRemoved = 0;
+  let skipped = 0;
   let failed = 0;
 
   const authHeaders = await getAuthHeaders(false);
@@ -1920,7 +1994,7 @@ export const refreshToolsForSelectedGateways = async function(buttonEl) {
     realGwIds.map(async (gid) => {
       try {
         const res = await fetch(
-          `${window.ROOT_PATH}/gateways/${gid}/tools/refresh`,
+          `${window.ROOT_PATH}/gateways/${gid}/tools/refresh?${GATEWAY_REFRESH_PARAMS}`,
           {
             method: "POST",
             credentials: "include", // pragma: allowlist secret
@@ -1932,6 +2006,15 @@ export const refreshToolsForSelectedGateways = async function(buttonEl) {
           added += data.toolsAdded ?? 0;
           updated += data.toolsUpdated ?? 0;
           removed += data.toolsRemoved ?? 0;
+          resAdded += data.resourcesAdded ?? 0;
+          resUpdated += data.resourcesUpdated ?? 0;
+          resRemoved += data.resourcesRemoved ?? 0;
+          promptAdded += data.promptsAdded ?? 0;
+          promptUpdated += data.promptsUpdated ?? 0;
+          promptRemoved += data.promptsRemoved ?? 0;
+          skipped += Array.isArray(data.validationErrors)
+            ? data.validationErrors.length
+            : 0;
         } else {
           failed++;
         }
@@ -1944,10 +2027,21 @@ export const refreshToolsForSelectedGateways = async function(buttonEl) {
   buttonEl.disabled = false;
   buttonEl.textContent = origText;
 
-  const deltaMsg =
-    added || updated || removed
-      ? `${added} added, ${updated} updated, ${removed} removed`
-      : t("gateways.test.noChanges");
+  const { hasChanges, parts } = buildRefreshSummary({
+    toolsAdded: added,
+    toolsUpdated: updated,
+    toolsRemoved: removed,
+    resourcesAdded: resAdded,
+    resourcesUpdated: resUpdated,
+    resourcesRemoved: resRemoved,
+    promptsAdded: promptAdded,
+    promptsUpdated: promptUpdated,
+    promptsRemoved: promptRemoved,
+  });
+  let deltaMsg = hasChanges ? parts.join(", ") : t("gateways.test.noChanges");
+  if (skipped > 0) {
+    deltaMsg += `, ${t("gateways.refresh.toolsSkipped", { count: skipped })}`;
+  }
   if (failed) {
     showErrorMessage(
       t("gateways.test.bulkPartial", { failed, message: deltaMsg })
@@ -1964,3 +2058,181 @@ export const refreshToolsForSelectedGateways = async function(buttonEl) {
     reloadAssociatedItems();
   }
 }
+
+// ===================================================================
+// GATEWAY DELETE IMPACT PREVIEW
+// ===================================================================
+const GATEWAY_DELETE_IMPACT_MODAL_ID = "gateway-delete-impact-modal";
+
+// Pending delete context captured when the impact modal opens. Null when no
+// gateway deletion is awaiting confirmation.
+let pendingGatewayDelete = null;
+
+/**
+ * Render one of the four impact-preview modal states.
+ *
+ * @param {string} state - "loading" | "list" | "none" | "error"
+ * @param {Array} servers - Virtual servers returned by the impact preview (list state only)
+ */
+function showGatewayDeleteImpactState(state, servers = []) {
+  const statusEl = safeGetElement("gateway-delete-impact-status");
+  const listWrapper = safeGetElement("gateway-delete-impact-list-wrapper");
+  const listEl = safeGetElement("gateway-delete-impact-list");
+  const confirmButton = safeGetElement("gateway-delete-impact-confirm");
+
+  if (listWrapper) {
+    listWrapper.classList.add("hidden");
+  }
+  if (listEl) {
+    listEl.innerHTML = "";
+  }
+  if (confirmButton) {
+    confirmButton.disabled = state === "loading";
+  }
+
+  if (statusEl) {
+    if (state === "loading") {
+      statusEl.textContent = t("gateways.deleteImpact.loading");
+    } else if (state === "none") {
+      statusEl.textContent = t("gateways.deleteImpact.none");
+    } else if (state === "error") {
+      statusEl.textContent = t("gateways.deleteImpact.error");
+    } else {
+      statusEl.textContent = "";
+    }
+  }
+
+  if (state === "list" && listWrapper && listEl) {
+    listWrapper.classList.remove("hidden");
+    servers.forEach((server) => {
+      const li = document.createElement("li");
+      li.textContent = server.name || server.id;
+      listEl.appendChild(li);
+    });
+  }
+}
+
+/**
+ * Run the tail of the standard gateway delete sequence after the impact
+ * modal's Confirm button: purge-metrics prompt, then form submit + refresh.
+ */
+function confirmGatewayDelete() {
+  const pending = pendingGatewayDelete;
+  closeModal(GATEWAY_DELETE_IMPACT_MODAL_ID);
+  if (!pending) {
+    return;
+  }
+
+  const purgeConfirmation = confirm(
+    t("common.confirm.purgeMetrics", { target: pending.targetName })
+  );
+  if (purgeConfirmation) {
+    const purgeField = document.createElement("input");
+    purgeField.type = "hidden";
+    purgeField.name = "purge_metrics";
+    purgeField.value = "true";
+    pending.event.target.appendChild(purgeField);
+  }
+
+  return handleFormSubmitAndRefresh(pending.event, pending.toggleType);
+}
+
+export const cleanupGatewayDeleteImpactModal = function () {
+  pendingGatewayDelete = null;
+  const confirmButton = safeGetElement("gateway-delete-impact-confirm");
+  if (confirmButton) {
+    confirmButton.onclick = null;
+    confirmButton.disabled = false;
+  }
+  const statusEl = safeGetElement("gateway-delete-impact-status");
+  if (statusEl) {
+    statusEl.textContent = "";
+  }
+  const listWrapper = safeGetElement("gateway-delete-impact-list-wrapper");
+  if (listWrapper) {
+    listWrapper.classList.add("hidden");
+  }
+  const listEl = safeGetElement("gateway-delete-impact-list");
+  if (listEl) {
+    listEl.innerHTML = "";
+  }
+};
+
+/**
+ * Gateway delete submit handler with an impact-preview step. Fetches the
+ * virtual servers that will lose this gateway's entities and shows them in a
+ * modal before the user confirms. Falls back to the plain confirmation flow
+ * whenever the preview cannot be loaded, so deletion is never blocked.
+ */
+export const handleGatewayDeleteSubmit = async function (
+  event,
+  type,
+  name = "",
+  inactiveType = ""
+) {
+  event.preventDefault();
+
+  let gatewayId = null;
+  try {
+    const actionUrl = new URL(event.target.action, window.location.href);
+    const match = actionUrl.pathname.match(/\/gateways\/([^/]+)\/delete\/?$/);
+    gatewayId = match ? decodeURIComponent(match[1]) : null;
+  } catch (parseError) {
+    console.warn("Could not parse gateway id from delete form action:", parseError);
+  }
+
+  if (!gatewayId) {
+    return handleDeleteSubmit(event, type, name, inactiveType);
+  }
+
+  const displayName = t(ENTITY_DISPLAY_NAMES[type] || type);
+  const targetName = name
+    ? t("common.confirm.entityQuoted", { entity: displayName, name })
+    : t("common.confirm.entityThis", { entity: displayName });
+
+  showGatewayDeleteImpactState("loading");
+  openModal(GATEWAY_DELETE_IMPACT_MODAL_ID);
+
+  let preview;
+  try {
+    const authHeaders = await getAuthHeaders(false);
+    const response = await fetch(
+      `${window.ROOT_PATH}/gateways/${encodeURIComponent(gatewayId)}/impact-preview`,
+      {
+        credentials: "include", // pragma: allowlist secret
+        headers: { Accept: "application/json", ...authHeaders },
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    preview = await response.json();
+  } catch (error) {
+    console.warn(
+      "Gateway impact preview unavailable; using standard delete confirmation:",
+      error
+    );
+    closeModal(GATEWAY_DELETE_IMPACT_MODAL_ID);
+    return handleDeleteSubmit(event, type, name, inactiveType);
+  }
+
+  pendingGatewayDelete = {
+    event,
+    toggleType: inactiveType || type,
+    targetName,
+  };
+
+  const confirmButton = safeGetElement("gateway-delete-impact-confirm");
+  if (confirmButton) {
+    confirmButton.onclick = () => confirmGatewayDelete();
+  }
+
+  const servers = preview && Array.isArray(preview.servers) ? preview.servers : null;
+  if (servers === null) {
+    showGatewayDeleteImpactState("error");
+  } else if (servers.length === 0) {
+    showGatewayDeleteImpactState("none");
+  } else {
+    showGatewayDeleteImpactState("list", servers);
+  }
+};

@@ -25,6 +25,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 # First-Party
 from mcpgateway import admin
+from mcpgateway.admin import assets as admin_assets
 from mcpgateway.services.permission_service import PermissionService
 from mcpgateway.services.server_service import ServerNotFoundError
 from mcpgateway.utils.passthrough_headers import PassthroughHeadersError
@@ -106,12 +107,12 @@ def _configure_admin_ui_test_dependencies(monkeypatch):
     async def list_roots():
         return []
 
-    monkeypatch.setattr(admin, "TeamManagementService", FakeTeamService)
-    monkeypatch.setattr(admin.tool_service, "list_tools", list_tools)
-    monkeypatch.setattr(admin.server_service, "list_servers", list_servers)
-    monkeypatch.setattr(admin.resource_service, "list_resources", list_resources)
-    monkeypatch.setattr(admin.prompt_service, "list_prompts", list_prompts)
-    monkeypatch.setattr(admin.gateway_service, "list_gateways", list_gateways)
+    monkeypatch.setattr(admin.dashboard, "TeamManagementService", FakeTeamService)
+    monkeypatch.setattr(admin.dashboard.tool_service, "list_tools", list_tools)
+    monkeypatch.setattr(admin.dashboard.server_service, "list_servers", list_servers)
+    monkeypatch.setattr(admin.dashboard.resource_service, "list_resources", list_resources)
+    monkeypatch.setattr(admin.dashboard.prompt_service, "list_prompts", list_prompts)
+    monkeypatch.setattr(admin.dashboard.gateway_service, "list_gateways", list_gateways)
     monkeypatch.setattr(admin.root_service, "list_roots", list_roots)
 
 
@@ -173,8 +174,8 @@ async def test_admin_ui_loads_roots_for_unrestricted_admin(monkeypatch):
     root = MagicMock()
     root.model_dump.return_value = {"uri": "https://example.com/root"}
     list_roots = AsyncMock(return_value=[root])
-    monkeypatch.setattr(admin.root_service, "list_roots", list_roots)
-    monkeypatch.setattr(admin, "is_unrestricted_platform_admin", AsyncMock(return_value=True))
+    monkeypatch.setattr(admin.dashboard.root_service, "list_roots", list_roots)
+    monkeypatch.setattr(admin.dashboard, "is_unrestricted_platform_admin", AsyncMock(return_value=True))
 
     await admin.admin_ui(request, None, False, db, user={"email": "admin@example.com", "is_admin": True, "db": db})
 
@@ -190,8 +191,8 @@ async def test_admin_add_gateway_includes_gateway_payload(monkeypatch):
     db = MagicMock()
     user = {"email": "admin@example.com"}
     result = {"id": "gw-1", "status": "pending", "name": "gw"}
-    monkeypatch.setattr(admin, "_parse_gateway_data_from_request", AsyncMock(return_value={"name": "gw", "url": "http://example.com", "transport": "SSE"}))
-    monkeypatch.setattr(admin, "TeamManagementService", _GatewayPayloadTeamService)
+    monkeypatch.setattr(admin.gateways, "_parse_gateway_data_from_request", AsyncMock(return_value={"name": "gw", "url": "http://example.com", "transport": "SSE"}))
+    monkeypatch.setattr(admin.gateways, "TeamManagementService", _GatewayPayloadTeamService)
     monkeypatch.setattr(admin.MetadataCapture, "extract_creation_metadata", MagicMock(return_value={"created_by": "admin@example.com", "created_from_ip": "127.0.0.1", "created_via": "test", "created_user_agent": "pytest"}))
     monkeypatch.setattr(admin.gateway_service, "register_gateway", AsyncMock(return_value=result))
 
@@ -209,8 +210,8 @@ async def test_admin_update_gateway_rest_includes_gateway_payload(monkeypatch):
     db.get.return_value = SimpleNamespace(owner_email="admin@example.com", team_id="team-1")
     user = {"email": "admin@example.com"}
     result = {"id": "gw-1", "status": "pending", "name": "gw"}
-    monkeypatch.setattr(admin, "_parse_gateway_data_from_request", AsyncMock(return_value={"name": "gw", "url": "http://example.com", "transport": "SSE"}))
-    monkeypatch.setattr(admin, "TeamManagementService", _GatewayPayloadTeamService)
+    monkeypatch.setattr(admin.gateways, "_parse_gateway_data_from_request", AsyncMock(return_value={"name": "gw", "url": "http://example.com", "transport": "SSE"}))
+    monkeypatch.setattr(admin.gateways, "TeamManagementService", _GatewayPayloadTeamService)
     monkeypatch.setattr(admin.MetadataCapture, "extract_modification_metadata", MagicMock(return_value={"modified_by": "admin@example.com", "modified_from_ip": "127.0.0.1", "modified_via": "test", "modified_user_agent": "pytest"}))
     monkeypatch.setattr(admin.gateway_service, "update_gateway", AsyncMock(return_value=result))
 
@@ -229,7 +230,7 @@ async def test_admin_edit_gateway_includes_gateway_payload(monkeypatch):
     db.get.return_value = SimpleNamespace(owner_email="admin@example.com", team_id="team-1")
     user = {"email": "admin@example.com"}
     result = {"id": "gw-1", "status": "pending", "name": "gw"}
-    monkeypatch.setattr(admin, "TeamManagementService", _GatewayPayloadTeamService)
+    monkeypatch.setattr(admin.gateways, "TeamManagementService", _GatewayPayloadTeamService)
     monkeypatch.setattr(admin.MetadataCapture, "extract_modification_metadata", MagicMock(return_value={"modified_by": "admin@example.com", "modified_from_ip": "127.0.0.1", "modified_via": "test", "modified_user_agent": "pytest"}))
     monkeypatch.setattr(admin.gateway_service, "update_gateway", AsyncMock(return_value=result))
 
@@ -419,8 +420,11 @@ def test_admin_module_grpc_import_error_fallback(monkeypatch):
 
     monkeypatch.setattr(builtins, "__import__", _guarded_import)
 
-    admin_path = Path(admin.__file__)
-    spec = importlib.util.spec_from_file_location("mcpgateway_admin_no_grpc", admin_path)
+    # First-Party
+    from mcpgateway.admin import grpc as admin_grpc
+
+    grpc_path = Path(admin_grpc.__file__)
+    spec = importlib.util.spec_from_file_location("mcpgateway_admin_no_grpc", grpc_path)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore[union-attr]
@@ -523,16 +527,16 @@ async def test_admin_login_handler_paths(monkeypatch):
     request.form = AsyncMock(return_value={"email": "admin@example.com", "password": "pw"})  # pragma: allowlist secret
     auth_service = MagicMock()
     auth_service.authenticate_user = AsyncMock(return_value=None)
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr(admin.auth, "EmailAuthService", lambda db: auth_service)
     response = await admin.admin_login_handler(request, mock_db)
     assert "invalid_credentials" in response.headers["location"]
 
     user = SimpleNamespace(email="admin@example.com", password_change_required=True, password_changed_at=None, password_hash="hash", password_hash_type="argon2id")
     auth_service.authenticate_user = AsyncMock(return_value=user)
     monkeypatch.setattr(admin.settings, "password_change_enforcement_enabled", True)
-    monkeypatch.setattr(admin, "create_access_token", AsyncMock(return_value=("token", None)))
+    monkeypatch.setattr(admin.auth, "create_access_token", AsyncMock(return_value=("token", None)))
     set_cookie = MagicMock()
-    monkeypatch.setattr(admin, "set_auth_cookie", set_cookie)
+    monkeypatch.setattr(admin.auth, "set_auth_cookie", set_cookie)
     response = await admin.admin_login_handler(request, mock_db)
     assert "change-password-required" in response.headers["location"]
     assert set_cookie.called
@@ -560,15 +564,15 @@ async def test_admin_login_handler_default_password(monkeypatch):
     user = SimpleNamespace(email="admin@example.com", password_change_required=False, password_changed_at=None, password_hash="hash", password_hash_type="argon2id")
     auth_service = MagicMock()
     auth_service.authenticate_user = AsyncMock(return_value=user)
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr(admin.auth, "EmailAuthService", lambda db: auth_service)
 
     password_service = MagicMock()
     password_service.verify_password_async = AsyncMock(return_value=True)
-    monkeypatch.setattr(admin, "Argon2PasswordService", lambda: password_service)
+    monkeypatch.setattr(admin.auth, "Argon2PasswordService", lambda: password_service)
 
-    monkeypatch.setattr(admin, "create_access_token", AsyncMock(return_value=("token", None)))
+    monkeypatch.setattr(admin.auth, "create_access_token", AsyncMock(return_value=("token", None)))
     set_cookie = MagicMock()
-    monkeypatch.setattr(admin, "set_auth_cookie", set_cookie)
+    monkeypatch.setattr(admin.auth, "set_auth_cookie", set_cookie)
 
     response = await admin.admin_login_handler(request, mock_db)
     assert "change-password-required" in response.headers["location"]
@@ -794,7 +798,7 @@ async def test_admin_logout_without_auth_provider_falls_back_to_local_redirect(m
     request.cookies = {"jwt_token": "jwt-token"}
     request.url = SimpleNamespace(scheme="http", netloc="localhost:4444")
 
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {}}))
+    monkeypatch.setattr(admin.auth, "verify_jwt_token_cached", AsyncMock(return_value={"user": {}}))
     monkeypatch.setattr(admin.settings, "sso_keycloak_enabled", True)
     monkeypatch.setattr(admin.settings, "sso_keycloak_base_url", "http://localhost:8080")
     monkeypatch.setattr(admin.settings, "sso_keycloak_public_base_url", "http://localhost:8080")
@@ -898,7 +902,7 @@ async def test_admin_ui_with_team_filter_and_cookie(monkeypatch):
         def get_user_roles_batch(self, email, team_ids):
             return {"team-1": "owner"}
 
-    monkeypatch.setattr(admin, "TeamManagementService", FakeTeamService)
+    monkeypatch.setattr(admin.dashboard, "TeamManagementService", FakeTeamService)
 
     class DummyModel:
         def __init__(self, **data):
@@ -925,15 +929,15 @@ async def test_admin_ui_with_team_filter_and_cookie(monkeypatch):
     async def list_roots():
         return [DummyModel(id="root-1")]
 
-    monkeypatch.setattr(admin.tool_service, "list_tools", list_tools)
-    monkeypatch.setattr(admin.server_service, "list_servers", list_servers)
-    monkeypatch.setattr(admin.resource_service, "list_resources", list_resources)
-    monkeypatch.setattr(admin.prompt_service, "list_prompts", list_prompts)
-    monkeypatch.setattr(admin.gateway_service, "list_gateways", list_gateways)
-    monkeypatch.setattr(admin.root_service, "list_roots", list_roots)
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "keycloak"}}))
+    monkeypatch.setattr(admin.dashboard.tool_service, "list_tools", list_tools)
+    monkeypatch.setattr(admin.dashboard.server_service, "list_servers", list_servers)
+    monkeypatch.setattr(admin.dashboard.resource_service, "list_resources", list_resources)
+    monkeypatch.setattr(admin.dashboard.prompt_service, "list_prompts", list_prompts)
+    monkeypatch.setattr(admin.dashboard.gateway_service, "list_gateways", list_gateways)
+    monkeypatch.setattr(admin.dashboard.root_service, "list_roots", list_roots)
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "keycloak"}}))
     create_jwt = AsyncMock(return_value="jwt")
-    monkeypatch.setattr(admin, "create_jwt_token", create_jwt)
+    monkeypatch.setattr(admin.dashboard, "create_jwt_token", create_jwt)
     mock_db.query.return_value.filter.return_value.first.return_value = None  # no EmailUser row → sub falls back to email
 
     response = await admin.admin_ui(request, "team-1", True, mock_db, user=user)
@@ -980,8 +984,8 @@ async def test_admin_ui_rejects_invalid_team_id(monkeypatch):
         def get_user_roles_batch(self, email, team_ids):
             return {"team-1": "member"}
 
-    monkeypatch.setattr(admin, "TeamManagementService", FakeTeamService)
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
+    monkeypatch.setattr(admin.dashboard, "TeamManagementService", FakeTeamService)
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
     monkeypatch.setattr(admin, "create_jwt_token", AsyncMock(return_value="jwt"))
 
     # Non-admin requesting non-member team: selected_team_id silently reset to None
@@ -1022,8 +1026,8 @@ async def test_admin_ui_rejects_team_id_when_teams_unavailable(monkeypatch):
         def get_user_roles_batch(self, email, team_ids):
             return {}
 
-    monkeypatch.setattr(admin, "TeamManagementService", FailingTeamService)
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
+    monkeypatch.setattr(admin.dashboard, "TeamManagementService", FailingTeamService)
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
     monkeypatch.setattr(admin, "create_jwt_token", AsyncMock(return_value="jwt"))
 
     with pytest.raises(HTTPException) as exc_info:
@@ -1042,7 +1046,7 @@ async def test_admin_ui_no_team_id_returns_public_items(monkeypatch):
 
     _configure_admin_ui_test_dependencies(monkeypatch)
 
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
     monkeypatch.setattr(admin, "create_jwt_token", AsyncMock(return_value="jwt"))
 
     response = await admin.admin_ui(request, None, False, mock_db, user=user)
@@ -1062,7 +1066,7 @@ async def test_admin_ui_admin_bypasses_team_membership_check(monkeypatch):
 
     _configure_admin_ui_test_dependencies(monkeypatch)
 
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
     monkeypatch.setattr(admin, "create_jwt_token", AsyncMock(return_value="jwt"))
 
     # Admin with token_teams=None (unrestricted) is NOT a member of "other-team",
@@ -1103,7 +1107,7 @@ async def test_admin_ui_team_scoped_admin_rejected_for_other_team(monkeypatch):
         def get_user_roles_batch(self, email, team_ids):
             return {"team-1": "admin"}
 
-    monkeypatch.setattr(admin, "TeamManagementService", FakeTeamService)
+    monkeypatch.setattr(admin.dashboard, "TeamManagementService", FakeTeamService)
     monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"user": {"auth_provider": "local"}}))
     monkeypatch.setattr(admin, "create_jwt_token", AsyncMock(return_value="jwt"))
 
@@ -1126,7 +1130,7 @@ async def test_admin_ui_refresh_uses_dict_user_auth_provider(monkeypatch):
     _configure_admin_ui_test_dependencies(monkeypatch)
 
     create_jwt = AsyncMock(return_value="jwt")
-    monkeypatch.setattr(admin, "create_jwt_token", create_jwt)
+    monkeypatch.setattr(admin.dashboard, "create_jwt_token", create_jwt)
     mock_db.query.return_value.filter.return_value.first.return_value = None  # no EmailUser row → sub falls back to email
 
     response = await admin.admin_ui(request, None, False, mock_db, user=user)
@@ -1148,7 +1152,7 @@ async def test_admin_ui_refresh_uses_object_user_full_name_and_provider(monkeypa
     _configure_admin_ui_test_dependencies(monkeypatch)
 
     create_jwt = AsyncMock(return_value="jwt")
-    monkeypatch.setattr(admin, "create_jwt_token", create_jwt)
+    monkeypatch.setattr(admin.dashboard, "create_jwt_token", create_jwt)
     mock_db.query.return_value.filter.return_value.first.return_value = None  # no EmailUser row → sub falls back to email
 
     admin_ui_func = _unwrap(admin.admin_ui)
@@ -1170,9 +1174,9 @@ async def test_admin_ui_refresh_falls_back_to_top_level_provider_from_existing_c
     user = {"email": "user@example.com", "is_admin": True, "db": mock_db}
 
     _configure_admin_ui_test_dependencies(monkeypatch)
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(return_value={"auth_provider": " keycloak "}))
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(return_value={"auth_provider": " keycloak "}))
     create_jwt = AsyncMock(return_value="jwt")
-    monkeypatch.setattr(admin, "create_jwt_token", create_jwt)
+    monkeypatch.setattr(admin.dashboard, "create_jwt_token", create_jwt)
 
     response = await admin.admin_ui(request, None, False, mock_db, user=user)
 
@@ -1190,9 +1194,9 @@ async def test_admin_ui_refresh_provider_lookup_failure_keeps_local_provider(mon
     user = {"email": "user@example.com", "is_admin": True, "db": mock_db}
 
     _configure_admin_ui_test_dependencies(monkeypatch)
-    monkeypatch.setattr(admin, "verify_jwt_token_cached", AsyncMock(side_effect=RuntimeError("boom")))
+    monkeypatch.setattr(admin.dashboard, "verify_jwt_token_cached", AsyncMock(side_effect=RuntimeError("boom")))
     create_jwt = AsyncMock(return_value="jwt")
-    monkeypatch.setattr(admin, "create_jwt_token", create_jwt)
+    monkeypatch.setattr(admin.dashboard, "create_jwt_token", create_jwt)
     mock_db.query.return_value.filter.return_value.first.return_value = None  # no EmailUser row → sub falls back to email
 
     response = await admin.admin_ui(request, None, False, mock_db, user=user)
@@ -1223,14 +1227,14 @@ async def test_change_password_required_handler(monkeypatch):
     request.headers = {"User-Agent": "TestAgent"}
 
     user = SimpleNamespace(email="user@example.com")
-    monkeypatch.setattr(admin, "get_current_user", AsyncMock(return_value=user))
+    monkeypatch.setattr(admin.auth, "get_current_user", AsyncMock(return_value=user))
 
     auth_service = MagicMock()
     auth_service.change_password = AsyncMock(return_value=True)
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
-    monkeypatch.setattr(admin, "create_access_token", AsyncMock(return_value=("newtoken", None)))
+    monkeypatch.setattr(admin.auth, "EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr(admin.auth, "create_access_token", AsyncMock(return_value=("newtoken", None)))
     set_cookie = MagicMock()
-    monkeypatch.setattr(admin, "set_auth_cookie", set_cookie)
+    monkeypatch.setattr(admin.auth, "set_auth_cookie", set_cookie)
 
     with patch("sqlalchemy.inspect", return_value=SimpleNamespace(transient=False, detached=False)):
         response = await admin.change_password_required_handler(request, mock_db)
@@ -1245,7 +1249,7 @@ async def test_admin_create_join_request_team_not_found(monkeypatch):
     mock_db = MagicMock()
     user = {"email": "user@example.com", "db": mock_db}
     monkeypatch.setattr(admin.settings, "email_auth_enabled", True)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: _StubTeamService(db, team=None))
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: _StubTeamService(db, team=None))
 
     response = await admin.admin_create_join_request("team-1", request, mock_db, user=user)
     assert response.status_code == 404
@@ -1263,7 +1267,7 @@ async def test_admin_create_join_request_pending(monkeypatch):
     team = SimpleNamespace(id="team-1", visibility="public")
     pending = SimpleNamespace(id="req-1", status="pending")
     team_service = _StubTeamService(db=mock_db, team=team, existing_requests=[pending])
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     response = await admin.admin_create_join_request("team-1", request, mock_db, user=user)
     assert response.status_code == 200
@@ -1283,7 +1287,7 @@ async def test_admin_create_join_request_success(monkeypatch):
     team = SimpleNamespace(id="team-1", visibility="public")
     created = SimpleNamespace(id="req-2")
     team_service = _StubTeamService(db=mock_db, team=team, existing_requests=[], create_request=created)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     response = await admin.admin_create_join_request("team-1", request, mock_db, user=user)
     assert response.status_code == 201
@@ -1297,7 +1301,7 @@ async def test_admin_cancel_join_request_failure(monkeypatch):
     user = {"email": "user@example.com"}
     monkeypatch.setattr(admin.settings, "email_auth_enabled", True)
     team_service = _StubTeamService(db=mock_db, cancel_ok=False)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_cancel_join_request("team-1", "req-1", db=mock_db, user=user)
@@ -1311,7 +1315,7 @@ async def test_admin_cancel_join_request_success(monkeypatch):
     user = {"email": "user@example.com"}
     monkeypatch.setattr(admin.settings, "email_auth_enabled", True)
     team_service = _StubTeamService(db=mock_db, cancel_ok=True)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_cancel_join_request("team-1", "req-2", db=mock_db, user=user)
@@ -1328,7 +1332,7 @@ async def test_admin_list_join_requests_owner_no_pending(monkeypatch):
 
     team = SimpleNamespace(id="team-1", name="Alpha")
     team_service = _StubTeamService(db=mock_db, team=team, user_role="owner", join_requests=[])
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_list_join_requests("team-1", request, db=mock_db, user=user)
@@ -1352,7 +1356,7 @@ async def test_admin_list_join_requests_with_entries(monkeypatch):
         requested_at=datetime(2025, 1, 10, 12, 0, 0),
     )
     team_service = _StubTeamService(db=mock_db, team=team, user_role="owner", join_requests=[join_request])
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_list_join_requests("team-1", request, db=mock_db, user=user)
@@ -1371,7 +1375,7 @@ async def test_admin_approve_join_request_success(monkeypatch):
 
     member = SimpleNamespace(user_email="new@example.com")
     team_service = _StubTeamService(db=mock_db, user_role="owner", approve_member=member)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_approve_join_request("team-1", "req-1", db=mock_db, user=user)
@@ -1388,7 +1392,7 @@ async def test_admin_reject_join_request_forwards_team_id(monkeypatch):
     monkeypatch.setattr(admin.settings, "email_auth_enabled", True)
 
     team_service = _StubTeamService(db=mock_db, user_role="owner", reject_ok=True)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_reject_join_request("team-1", "req-1", db=mock_db, user=user)
@@ -1404,7 +1408,7 @@ async def test_admin_reject_join_request_not_owner(monkeypatch):
     monkeypatch.setattr(admin.settings, "email_auth_enabled", True)
 
     team_service = _StubTeamService(db=mock_db, user_role="member")
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.team_join, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_reject_join_request("team-1", "req-1", db=mock_db, user=user)
@@ -1421,7 +1425,7 @@ async def test_admin_leave_team_personal(monkeypatch):
 
     team = SimpleNamespace(id="team-1", is_personal=True)
     team_service = _StubTeamService(db=mock_db, team=team, user_role="member")
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_leave_team("team-1", request, db=mock_db, user=user)
@@ -1438,7 +1442,7 @@ async def test_admin_leave_team_last_owner(monkeypatch):
 
     team = SimpleNamespace(id="team-1", is_personal=False)
     team_service = _StubTeamService(db=mock_db, team=team, user_role="owner", owner_count=1)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_leave_team("team-1", request, db=mock_db, user=user)
@@ -1455,7 +1459,7 @@ async def test_admin_leave_team_success(monkeypatch):
 
     team = SimpleNamespace(id="team-1", is_personal=False)
     team_service = _StubTeamService(db=mock_db, team=team, user_role="member", remove_member_ok=True)
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: team_service)
 
     _allow_permissions(monkeypatch)
     response = await admin.admin_leave_team("team-1", request, db=mock_db, user=user)
@@ -1561,8 +1565,9 @@ async def test_admin_get_all_team_ids_admin_and_user(monkeypatch):
     auth_service = _StubAuthService(mock_db)
     team_service = _StubTeamService()
 
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.common.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.teams, "EmailAuthService", lambda db: auth_service)
     _allow_permissions(monkeypatch)
 
     auth_service._user = SimpleNamespace(is_admin=True)
@@ -1584,8 +1589,8 @@ async def test_admin_get_all_team_ids_user_not_found(monkeypatch):
         async def get_user_by_email(self, _email):
             return None
 
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: _StubAuthService())
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: MagicMock())
+    monkeypatch.setattr(admin.teams, "EmailAuthService", lambda db: _StubAuthService())
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: MagicMock())
     _allow_permissions(monkeypatch)
 
     result = await admin.admin_get_all_team_ids(db=mock_db, user={"email": "missing@example.com"})
@@ -1620,8 +1625,9 @@ async def test_admin_search_teams_admin_and_user(monkeypatch):
     auth_service = _StubAuthService(mock_db)
     team_service = _StubTeamService()
 
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: team_service)
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: auth_service)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr("mcpgateway.admin.common.TeamManagementService", lambda db: team_service)
+    monkeypatch.setattr(admin.teams, "EmailAuthService", lambda db: auth_service)
     _allow_permissions(monkeypatch)
 
     auth_service._user = SimpleNamespace(is_admin=True)
@@ -1641,8 +1647,8 @@ async def test_admin_search_teams_user_not_found(monkeypatch):
         async def get_user_by_email(self, _email):
             return None
 
-    monkeypatch.setattr(admin, "EmailAuthService", lambda db: _StubAuthService())
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: MagicMock())
+    monkeypatch.setattr(admin.teams, "EmailAuthService", lambda db: _StubAuthService())
+    monkeypatch.setattr(admin.teams, "TeamManagementService", lambda db: MagicMock())
     _allow_permissions(monkeypatch)
 
     result = await admin.admin_search_teams(db=mock_db, user={"email": "missing@example.com"})
@@ -1655,7 +1661,7 @@ async def test_get_user_team_ids_returns_cached_ids_without_service_lookup(monke
         def __init__(self, _db):
             raise AssertionError("TeamManagementService should not be constructed when cache is present")
 
-    monkeypatch.setattr(admin, "TeamManagementService", _NoCallTeamService)
+    monkeypatch.setattr(admin.teams, "TeamManagementService", _NoCallTeamService)
     cached_team_ids = ["team-1", "team-2"]
 
     result = await admin._get_user_team_ids(user={"email": "user@example.com", "_cached_team_ids": cached_team_ids}, db=MagicMock())
@@ -1743,8 +1749,8 @@ async def test_admin_servers_partial_html_render_variants(monkeypatch):
         links.model_dump.return_value = {"self": "/admin/servers/partial?page=1"}
         return {"data": [MagicMock()], "pagination": pagination, "links": links}
 
-    monkeypatch.setattr(admin, "TeamManagementService", lambda db: _StubTeamService(db))
-    monkeypatch.setattr(admin, "paginate_query", _fake_paginate_query)
+    monkeypatch.setattr(admin.servers, "TeamManagementService", lambda db: _StubTeamService(db))
+    monkeypatch.setattr(admin.servers, "paginate_query", _fake_paginate_query)
     monkeypatch.setattr(admin.server_service, "convert_server_to_read", lambda _s, include_metrics=False: {"id": "server-1"})
 
     response = await admin.admin_servers_partial_html(
@@ -1812,8 +1818,8 @@ def test_get_bundle_js_filename_cache_hit(monkeypatch, tmp_path):
     static_dir = _setup_static_dir(tmp_path)
     (static_dir / "bundle-cached.js").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": "bundle-cached.js"})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": "bundle-cached.js"})
 
     assert admin.get_bundle_js_filename() == "bundle-cached.js"
 
@@ -1823,11 +1829,11 @@ def test_get_bundle_js_filename_stale_cache_reads_manifest(monkeypatch, tmp_path
     static_dir = _setup_static_dir(tmp_path)
     _write_manifest(static_dir, {"file": "bundle-new.js"})
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": "bundle-stale.js"})  # stale; file absent
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": "bundle-stale.js"})  # stale; file absent
 
     assert admin.get_bundle_js_filename() == "bundle-new.js"
-    assert admin._bundle_js_cache["filename"] == "bundle-new.js"
+    assert admin_assets._bundle_js_cache["filename"] == "bundle-new.js"
 
 
 def test_get_bundle_js_filename_reads_manifest(monkeypatch, tmp_path):
@@ -1835,12 +1841,12 @@ def test_get_bundle_js_filename_reads_manifest(monkeypatch, tmp_path):
     static_dir = _setup_static_dir(tmp_path)
     _write_manifest(static_dir, {"file": "bundle-abc123.js"})
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     result = admin.get_bundle_js_filename()
     assert result == "bundle-abc123.js"
-    assert admin._bundle_js_cache["filename"] == "bundle-abc123.js"
+    assert admin_assets._bundle_js_cache["filename"] == "bundle-abc123.js"
 
 
 def test_get_bundle_js_filename_manifest_missing_entry_key_falls_back_to_glob(monkeypatch, tmp_path):
@@ -1851,8 +1857,8 @@ def test_get_bundle_js_filename_manifest_missing_entry_key_falls_back_to_glob(mo
     (vite_dir / "manifest.json").write_text(json.dumps({"other/entry.js": {"file": "other.js"}}))
     (static_dir / "bundle-fallback.js").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == "bundle-fallback.js"
 
@@ -1863,8 +1869,8 @@ def test_get_bundle_js_filename_manifest_missing_file_field_falls_back_to_glob(m
     _write_manifest(static_dir, {"isEntry": True})  # no 'file' key
     (static_dir / "bundle-fallback.js").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == "bundle-fallback.js"
 
@@ -1874,8 +1880,8 @@ def test_get_bundle_js_filename_no_manifest_falls_back_to_glob(monkeypatch, tmp_
     static_dir = _setup_static_dir(tmp_path)
     (static_dir / "bundle-disk.js").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == "bundle-disk.js"
 
@@ -1888,8 +1894,8 @@ def test_get_bundle_js_filename_malformed_manifest_falls_back_to_glob(monkeypatc
     (vite_dir / "manifest.json").write_text("not { valid json <<<")
     (static_dir / "bundle-fallback.js").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == "bundle-fallback.js"
 
@@ -1905,8 +1911,8 @@ def test_get_bundle_js_filename_glob_returns_newest_bundle(monkeypatch, tmp_path
     old_time = time.time() - 60
     os.utime(old_bundle, (old_time, old_time))
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == "bundle-new.js"
 
@@ -1915,8 +1921,8 @@ def test_get_bundle_js_filename_no_bundles_returns_empty_string(monkeypatch, tmp
     """No bundle files anywhere — returns empty string."""
     _setup_static_dir(tmp_path)
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_js_cache", {"filename": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_js_cache", {"filename": None})
 
     assert admin.get_bundle_js_filename() == ""
 
@@ -1931,11 +1937,11 @@ def test_get_bundle_css_files_entry_level_css(monkeypatch, tmp_path):
     static_dir = _setup_static_dir(tmp_path)
     _write_manifest(static_dir, {"file": "bundle-abc123.js", "css": ["assets/index-abc123.css"]})
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == ["assets/index-abc123.css"]
-    assert admin._bundle_css_cache["files"] == ["assets/index-abc123.css"]
+    assert admin_assets._bundle_css_cache["files"] == ["assets/index-abc123.css"]
 
 
 def test_get_bundle_css_files_walks_chunk_imports(monkeypatch, tmp_path):
@@ -1957,8 +1963,8 @@ def test_get_bundle_css_files_walks_chunk_imports(monkeypatch, tmp_path):
     }
     (vite_dir / "manifest.json").write_text(json.dumps(manifest))
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     result = admin.get_bundle_css_files()
     assert "assets/index-abc123.css" in result
@@ -1983,8 +1989,8 @@ def test_get_bundle_css_files_dedupes(monkeypatch, tmp_path):
     }
     (vite_dir / "manifest.json").write_text(json.dumps(manifest))
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == ["assets/shared.css"]
 
@@ -1994,8 +2000,8 @@ def test_get_bundle_css_files_no_css_returns_empty_list(monkeypatch, tmp_path):
     static_dir = _setup_static_dir(tmp_path)
     _write_manifest(static_dir, {"file": "bundle-abc123.js"})
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == []
 
@@ -2004,8 +2010,8 @@ def test_get_bundle_css_files_no_manifest_returns_empty_list(monkeypatch, tmp_pa
     """No manifest on disk — returns an empty list rather than raising."""
     _setup_static_dir(tmp_path)
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == []
 
@@ -2017,8 +2023,8 @@ def test_get_bundle_css_files_malformed_manifest_returns_empty_list(monkeypatch,
     vite_dir.mkdir()
     (vite_dir / "manifest.json").write_text("not { valid json <<<")
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == []
 
@@ -2028,8 +2034,8 @@ def test_get_bundle_css_files_cache_hit(monkeypatch, tmp_path):
     static_dir = _setup_static_dir(tmp_path)
     (static_dir / "cached.css").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": ["cached.css"]})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": ["cached.css"]})
 
     assert admin.get_bundle_css_files() == ["cached.css"]
 
@@ -2039,8 +2045,8 @@ def test_get_bundle_css_files_stale_cache_rereads_manifest(monkeypatch, tmp_path
     static_dir = _setup_static_dir(tmp_path)
     _write_manifest(static_dir, {"file": "bundle-new.js", "css": ["assets/new.css"]})
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": ["assets/stale.css"]})  # stale; file absent
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": ["assets/stale.css"]})  # stale; file absent
 
     assert admin.get_bundle_css_files() == ["assets/new.css"]
 
@@ -2054,8 +2060,8 @@ def test_get_bundle_css_files_falls_back_to_disk_scan_when_manifest_missing(monk
     (assets_dir / "index-abc123.css").touch()
     (assets_dir / "vendor-editor-xyz.css").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     result = admin.get_bundle_css_files()
     assert sorted(result) == ["assets/index-abc123.css", "assets/vendor-editor-xyz.css"]
@@ -2075,8 +2081,8 @@ def test_get_bundle_css_files_disk_fallback_excludes_stale_build(monkeypatch, tm
 
     (assets_dir / "index-new222.css").touch()
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == ["assets/index-new222.css"]
 
@@ -2085,7 +2091,7 @@ def test_get_bundle_css_files_no_manifest_no_assets_returns_empty_list(monkeypat
     """Neither manifest nor assets directory exists — returns an empty list rather than raising."""
     _setup_static_dir(tmp_path)
 
-    monkeypatch.setattr(admin, "__file__", str(tmp_path / "admin.py"))
-    monkeypatch.setattr(admin, "_bundle_css_cache", {"files": None})
+    monkeypatch.setattr(admin_assets, "__file__", str(tmp_path / "admin" / "assets.py"))
+    monkeypatch.setattr(admin_assets, "_bundle_css_cache", {"files": None})
 
     assert admin.get_bundle_css_files() == []

@@ -33,6 +33,7 @@ assembled gateway exists.
 # Standard
 import contextlib
 import inspect
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 # Third-Party
@@ -255,8 +256,10 @@ def test_admin_login_binds_csrf_to_email_not_sub_claim():
     # First-Party
     from mcpgateway import admin
 
-    source = inspect.getsource(admin)
-    assert 'csrf_user_id = admin_email' in source, "csrf_user_id must bind to the admin's email (CSRFMiddleware's identity), not the JWT sub claim"
+    # The admin routes are split across submodules, so scan the package.
+    package_dir = Path(inspect.getfile(admin)).parent
+    source = "\n".join(path.read_text(encoding="utf-8") for path in sorted(package_dir.glob("*.py")))
+    assert "csrf_user_id = admin_email" in source, "csrf_user_id must bind to the admin's email (CSRFMiddleware's identity), not the JWT sub claim"
     assert 'csrf_user_id = str(payload["sub"])' not in source, "csrf_user_id must not bind to the JWT sub claim (EmailUser.id) — CSRFMiddleware validates against .email"
 
 

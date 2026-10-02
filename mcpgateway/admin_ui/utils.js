@@ -283,6 +283,21 @@ export function showSuccessMessage(message) {
   }, 3000);
 }
 
+// Show warning messages
+export function showWarningMessage(message) {
+  const warningDiv = document.createElement("div");
+  warningDiv.className =
+    "fixed top-4 right-4 bg-yellow-600 text-white px-4 py-2 rounded shadow-lg z-50 whitespace-pre-line";
+  warningDiv.textContent = message;
+  document.body.appendChild(warningDiv);
+
+  setTimeout(() => {
+    if (warningDiv.parentNode) {
+      warningDiv.parentNode.removeChild(warningDiv);
+    }
+  }, 5000);
+}
+
 // Show a persistent modal warning listing tools that were skipped during gateway import.
 // Returns a Promise that resolves when the user dismisses the modal.
 export function showSkippedToolsWarning(skippedTools) {

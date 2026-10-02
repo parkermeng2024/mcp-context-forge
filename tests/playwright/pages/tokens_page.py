@@ -33,8 +33,8 @@ class TokensPage(BasePage):
 
     @property
     def token_expiry_input(self) -> Locator:
-        """Token expiry input field (number of days)."""
-        return self.create_token_form.locator('input[name="expires_in_days"]')
+        """Token expiry select field (number of days)."""
+        return self.create_token_form.locator('select[name="expires_in_days"]')
 
     @property
     def create_token_form(self) -> Locator:
@@ -139,10 +139,7 @@ class TokensPage(BasePage):
 
         # Set expiry if provided
         if expiry_days is not None:
-            expiry_input = self.token_expiry_input
-            expiry_input.click()
-            expiry_input.fill("")
-            expiry_input.type(str(expiry_days))
+            self.token_expiry_input.select_option(str(expiry_days))
 
         # Submit form (JavaScript will handle the submission)
         self.click_locator(self.create_token_submit_btn)

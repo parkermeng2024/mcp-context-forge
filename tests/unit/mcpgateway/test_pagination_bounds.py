@@ -51,7 +51,7 @@ class TestPaginationBoundsMetadata:
 
     def test_admin_search_teams_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import admin_search_teams
+        from mcpgateway.admin.teams import admin_search_teams
 
         le = _get_query_le(admin_search_teams, "limit")
         assert le == settings.pagination_max_page_size
@@ -79,21 +79,21 @@ class TestPaginationBoundsMetadata:
 
     def test_get_top_slow_endpoints_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import get_top_slow_endpoints
+        from mcpgateway.admin.observability import get_top_slow_endpoints
 
         le = _get_query_le(get_top_slow_endpoints, "limit")
         assert le == settings.pagination_max_page_size
 
     def test_get_top_volume_endpoints_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import get_top_volume_endpoints
+        from mcpgateway.admin.observability import get_top_volume_endpoints
 
         le = _get_query_le(get_top_volume_endpoints, "limit")
         assert le == settings.pagination_max_page_size
 
     def test_get_top_error_endpoints_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import get_top_error_endpoints
+        from mcpgateway.admin.observability import get_top_error_endpoints
 
         le = _get_query_le(get_top_error_endpoints, "limit")
         assert le == settings.pagination_max_page_size
@@ -101,63 +101,63 @@ class TestPaginationBoundsMetadata:
     def test_get_latency_heatmap_time_buckets_not_pagination(self):
         """time_buckets is a visualization param — should keep le=100, not pagination_max_page_size."""
         # First-Party
-        from mcpgateway.admin import get_latency_heatmap
+        from mcpgateway.admin.observability import get_latency_heatmap
 
         le = _get_query_le(get_latency_heatmap, "time_buckets")
         assert le == 100
 
     def test_get_tool_usage_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import get_tool_usage
+        from mcpgateway.admin.observability import get_tool_usage
 
         le = _get_query_le(get_tool_usage, "limit")
         assert le == settings.pagination_max_page_size
 
     def test_get_tool_performance_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import get_tool_performance
+        from mcpgateway.admin.observability import get_tool_performance
 
         le = _get_query_le(get_tool_performance, "limit")
         assert le == settings.pagination_max_page_size
 
     def test_get_tool_errors_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import get_tool_errors
+        from mcpgateway.admin.observability import get_tool_errors
 
         le = _get_query_le(get_tool_errors, "limit")
         assert le == settings.pagination_max_page_size
 
     def test_get_tool_chains_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import get_tool_chains
+        from mcpgateway.admin.observability import get_tool_chains
 
         le = _get_query_le(get_tool_chains, "limit")
         assert le == settings.pagination_max_page_size
 
     def test_get_prompt_usage_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import get_prompt_usage
+        from mcpgateway.admin.observability import get_prompt_usage
 
         le = _get_query_le(get_prompt_usage, "limit")
         assert le == settings.pagination_max_page_size
 
     def test_get_prompt_performance_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import get_prompt_performance
+        from mcpgateway.admin.observability import get_prompt_performance
 
         le = _get_query_le(get_prompt_performance, "limit")
         assert le == settings.pagination_max_page_size
 
     def test_get_resource_usage_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import get_resource_usage
+        from mcpgateway.admin.observability import get_resource_usage
 
         le = _get_query_le(get_resource_usage, "limit")
         assert le == settings.pagination_max_page_size
 
     def test_get_resource_performance_limit_bound(self):
         # First-Party
-        from mcpgateway.admin import get_resource_performance
+        from mcpgateway.admin.observability import get_resource_performance
 
         le = _get_query_le(get_resource_performance, "limit")
         assert le == settings.pagination_max_page_size
@@ -227,16 +227,16 @@ class TestPaginationBoundsFunction:
     @pytest.mark.asyncio
     async def test_admin_search_teams_limit_200(self, monkeypatch, allow_permission, mock_db):
         # First-Party
-        from mcpgateway.admin import admin_search_teams
+        from mcpgateway.admin.teams import admin_search_teams
 
         mock_auth = MagicMock()
         admin_user = SimpleNamespace(is_admin=True)
         mock_auth.get_user_by_email = AsyncMock(return_value=admin_user)
-        monkeypatch.setattr("mcpgateway.admin.EmailAuthService", lambda db: mock_auth)
+        monkeypatch.setattr("mcpgateway.admin.teams.EmailAuthService", lambda db: mock_auth)
 
         ts = MagicMock()
         ts.list_teams = AsyncMock(return_value={"data": []})
-        monkeypatch.setattr("mcpgateway.admin.TeamManagementService", lambda db: ts)
+        monkeypatch.setattr("mcpgateway.admin.teams.TeamManagementService", lambda db: ts)
 
         result = await admin_search_teams(q="test", include_inactive=False, limit=200, visibility=None, db=mock_db, user={"email": "admin@test.com"})
         assert result == []
@@ -244,7 +244,7 @@ class TestPaginationBoundsFunction:
     @pytest.mark.asyncio
     async def test_get_top_slow_endpoints_limit_200(self, monkeypatch, mock_db):
         # First-Party
-        from mcpgateway.admin import get_top_slow_endpoints
+        from mcpgateway.admin.observability import get_top_slow_endpoints
 
         row = SimpleNamespace(http_url="/slow", http_method="GET", count=1, avg_duration=10.0, max_duration=20.0)
         query_mock = MagicMock()
@@ -254,7 +254,7 @@ class TestPaginationBoundsFunction:
         query_mock.limit.return_value = query_mock
         query_mock.all.return_value = [row]
         mock_db.query.return_value = query_mock
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([mock_db]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([mock_db]))
 
         result = await get_top_slow_endpoints(request=MagicMock(), hours=24, limit=200, _user={"email": "admin@test.com", "db": mock_db})
         assert "endpoints" in result
@@ -263,14 +263,14 @@ class TestPaginationBoundsFunction:
     @pytest.mark.asyncio
     async def test_get_tool_usage_limit_200(self, monkeypatch, allow_permission):
         # First-Party
-        from mcpgateway.admin import get_tool_usage
+        from mcpgateway.admin.observability import get_tool_usage
 
         request = MagicMock()
         session = MagicMock()
         session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
         session.commit = MagicMock()
         session.close = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.get_db", lambda: iter([session]))
+        monkeypatch.setattr("mcpgateway.admin.observability.get_db", lambda: iter([session]))
 
         result = await get_tool_usage(request, hours=24, limit=200, _user={"email": "admin@test.com"}, db=session)
         assert "tools" in result

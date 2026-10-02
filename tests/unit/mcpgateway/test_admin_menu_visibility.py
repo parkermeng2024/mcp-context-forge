@@ -39,7 +39,7 @@ async def test_static_hidden_sections_always_hidden():
     db = Mock()
     static_hidden = {"tools", "servers"}
 
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
         mock_service.check_permission = AsyncMock(return_value=True)
         mock_service_class.return_value = mock_service
@@ -64,7 +64,7 @@ async def test_developer_sees_core_sections_hides_admin_sections():
     static_hidden = set()
 
     # Mock permission service to grant core permissions, deny admin permissions
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
 
         async def check_permission_side_effect(user_email, permission, **kwargs):
@@ -109,7 +109,7 @@ async def test_viewer_sees_only_read_sections():
     db = Mock()
     static_hidden = set()
 
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
 
         async def check_permission_side_effect(user_email, permission, **kwargs):
@@ -147,7 +147,7 @@ async def test_public_only_token_hides_admin_sections():
     db = Mock()
     static_hidden = set()
 
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
 
         async def check_permission_side_effect(user_email, permission, **kwargs):
@@ -182,7 +182,7 @@ async def test_permission_check_error_hides_section():
     db = Mock()
     static_hidden = set()
 
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
         mock_service.check_permission = AsyncMock(side_effect=Exception("Database error"))
         mock_service_class.return_value = mock_service
@@ -207,7 +207,7 @@ async def test_sections_without_permission_requirement_not_hidden():
     db = Mock()
     static_hidden = set()
 
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
         mock_service.check_permission = AsyncMock(return_value=False)  # Deny all
         mock_service_class.return_value = mock_service
@@ -232,7 +232,7 @@ async def test_team_admin_sees_team_sections():
     db = Mock()
     static_hidden = set()
 
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
 
         async def check_permission_side_effect(user_email, permission, **kwargs):
@@ -274,7 +274,7 @@ async def test_combined_static_and_permission_hiding():
     db = Mock()
     static_hidden = {"metrics", "plugins"}  # Statically hidden
 
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
 
         async def check_permission_side_effect(user_email, permission, **kwargs):
@@ -312,7 +312,7 @@ async def test_batch_permission_path_used_when_available():
     db = Mock()
     static_hidden = set()
 
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
         # Return an awaitable set of permissions from get_user_permissions
         mock_service.get_user_permissions = AsyncMock(return_value={"tools.read", "servers.read", "resources.read"})
@@ -348,7 +348,7 @@ async def test_batch_permission_path_wildcard_grants_all():
     db = Mock()
     static_hidden = set()
 
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
         mock_service.get_user_permissions = AsyncMock(return_value={"*"})
         mock_service.check_permission = AsyncMock(return_value=False)
@@ -372,7 +372,7 @@ async def test_batch_permission_fallback_on_exception():
     db = Mock()
     static_hidden = set()
 
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
         # get_user_permissions raises, triggering fallback
         mock_service.get_user_permissions = AsyncMock(side_effect=Exception("Not implemented"))
@@ -399,7 +399,7 @@ async def test_batch_path_denies_admin_perms_for_public_only_token():
     db = Mock()
     static_hidden = set()
 
-    with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
         mock_service = Mock()
         # Batch path returns admin permissions, but token is public-only
         mock_service.get_user_permissions = AsyncMock(return_value={"admin.system_config", "tools.read", "*"})
@@ -431,8 +431,8 @@ async def test_none_permission_sections_never_hidden():
     db = Mock()
     static_hidden = set()
 
-    with patch("mcpgateway.admin.SECTION_PERMISSIONS", {"visible_section": None, "tools": "tools.read"}):
-        with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+    with patch("mcpgateway.admin.visibility.SECTION_PERMISSIONS", {"visible_section": None, "tools": "tools.read"}):
+        with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
             mock_service = Mock()
             mock_service.get_user_permissions = AsyncMock(return_value=set())  # No permissions
             mock_service.check_permission = AsyncMock(return_value=False)

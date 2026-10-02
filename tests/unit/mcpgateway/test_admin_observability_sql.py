@@ -22,7 +22,7 @@ import pytest
 from tests.utils.rbac_mocks import create_mock_user_context
 
 # First-Party
-from mcpgateway.admin import (
+from mcpgateway.admin.observability import (
     _get_latency_heatmap_postgresql,
     _get_latency_heatmap_python,
     _get_latency_percentiles_postgresql,
@@ -327,7 +327,7 @@ class TestToolUsageStatistics:
         mock_db.query.return_value = mock_query
 
         # Import and call the function
-        from mcpgateway.admin import get_tool_usage
+        from mcpgateway.admin.observability import get_tool_usage
         from fastapi import Request
 
         # Mock request and dependencies
@@ -336,7 +336,7 @@ class TestToolUsageStatistics:
         mock_user["db"] = mock_db  # Use the same mock_db so dialect is consistent
 
         # This should not raise GroupingError
-        with patch("mcpgateway.admin.get_db", return_value=iter([mock_db])):
+        with patch("mcpgateway.admin.observability.get_db", return_value=iter([mock_db])):
             with patch("mcpgateway.admin.get_current_user_with_permissions", return_value=mock_user):
                 import asyncio
 
@@ -372,14 +372,14 @@ class TestToolErrorStatistics:
 
         mock_db.query.return_value = mock_query
 
-        from mcpgateway.admin import get_tool_errors
+        from mcpgateway.admin.observability import get_tool_errors
         from fastapi import Request
 
         mock_request = MagicMock(spec=Request)
         mock_user = create_mock_user_context()
         mock_user["db"] = mock_db  # Use the same mock_db so dialect is consistent
 
-        with patch("mcpgateway.admin.get_db", return_value=iter([mock_db])):
+        with patch("mcpgateway.admin.observability.get_db", return_value=iter([mock_db])):
             with patch("mcpgateway.admin.get_current_user_with_permissions", return_value=mock_user):
                 import asyncio
 
@@ -419,14 +419,14 @@ class TestToolChains:
 
         mock_db.query.return_value = mock_query
 
-        from mcpgateway.admin import get_tool_chains
+        from mcpgateway.admin.observability import get_tool_chains
         from fastapi import Request
 
         mock_request = MagicMock(spec=Request)
         mock_user = create_mock_user_context()
         mock_user["db"] = mock_db  # Use the same mock_db so dialect is consistent
 
-        with patch("mcpgateway.admin.get_db", return_value=iter([mock_db])):
+        with patch("mcpgateway.admin.observability.get_db", return_value=iter([mock_db])):
             with patch("mcpgateway.admin.get_current_user_with_permissions", return_value=mock_user):
                 import asyncio
 
@@ -461,14 +461,14 @@ class TestPromptStatistics:
 
         mock_db.query.return_value = mock_query
 
-        from mcpgateway.admin import get_prompt_usage
+        from mcpgateway.admin.observability import get_prompt_usage
         from fastapi import Request
 
         mock_request = MagicMock(spec=Request)
         mock_user = create_mock_user_context()
         mock_user["db"] = mock_db  # Use the same mock_db so dialect is consistent
 
-        with patch("mcpgateway.admin.get_db", return_value=iter([mock_db])):
+        with patch("mcpgateway.admin.observability.get_db", return_value=iter([mock_db])):
             with patch("mcpgateway.admin.get_current_user_with_permissions", return_value=mock_user):
                 import asyncio
 
@@ -498,14 +498,14 @@ class TestPromptStatistics:
 
         mock_db.query.return_value = mock_query
 
-        from mcpgateway.admin import get_prompts_errors
+        from mcpgateway.admin.observability import get_prompts_errors
         from fastapi import Request
 
         mock_request = MagicMock(spec=Request)
         mock_user = create_mock_user_context()
         mock_user["db"] = mock_db  # Use the same mock_db so dialect is consistent
 
-        with patch("mcpgateway.admin.get_db", return_value=iter([mock_db])):
+        with patch("mcpgateway.admin.observability.get_db", return_value=iter([mock_db])):
             with patch("mcpgateway.admin.get_current_user_with_permissions", return_value=mock_user):
                 import asyncio
 
@@ -539,14 +539,14 @@ class TestResourceStatistics:
 
         mock_db.query.return_value = mock_query
 
-        from mcpgateway.admin import get_resource_usage
+        from mcpgateway.admin.observability import get_resource_usage
         from fastapi import Request
 
         mock_request = MagicMock(spec=Request)
         mock_user = create_mock_user_context()
         mock_user["db"] = mock_db  # Use the same mock_db so dialect is consistent
 
-        with patch("mcpgateway.admin.get_db", return_value=iter([mock_db])):
+        with patch("mcpgateway.admin.observability.get_db", return_value=iter([mock_db])):
             with patch("mcpgateway.admin.get_current_user_with_permissions", return_value=mock_user):
                 import asyncio
 
@@ -576,14 +576,14 @@ class TestResourceStatistics:
 
         mock_db.query.return_value = mock_query
 
-        from mcpgateway.admin import get_resources_errors
+        from mcpgateway.admin.observability import get_resources_errors
         from fastapi import Request
 
         mock_request = MagicMock(spec=Request)
         mock_user = create_mock_user_context()
         mock_user["db"] = mock_db  # Use the same mock_db so dialect is consistent
 
-        with patch("mcpgateway.admin.get_db", return_value=iter([mock_db])):
+        with patch("mcpgateway.admin.observability.get_db", return_value=iter([mock_db])):
             with patch("mcpgateway.admin.get_current_user_with_permissions", return_value=mock_user):
                 import asyncio
 

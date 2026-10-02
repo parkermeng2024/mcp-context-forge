@@ -80,9 +80,9 @@ class TestExtractPermissionFromRoute:
 class TestValidateSectionPermissions:
     """Test validate_section_permissions function."""
 
-    @patch("mcpgateway.admin.SECTION_PERMISSIONS", {"overview": None, "tools": "tools.read"})
-    @patch("mcpgateway.admin._SECTION_TO_ROUTE_PATH", {"overview": None, "tools": "/admin/tools"})
-    @patch("mcpgateway.admin.LOGGER")
+    @patch("mcpgateway.admin.visibility.SECTION_PERMISSIONS", {"overview": None, "tools": "tools.read"})
+    @patch("mcpgateway.admin.visibility._SECTION_TO_ROUTE_PATH", {"overview": None, "tools": "/admin/tools"})
+    @patch("mcpgateway.admin.visibility.LOGGER")
     def test_validate_section_permissions_with_none_route_path(self, mock_logger):
         """Test validate_section_permissions with None route_path (lines 307-312)."""
         # Create a route that matches the tools path
@@ -100,9 +100,9 @@ class TestValidateSectionPermissions:
         mock_logger.info.assert_called_once()
         assert "validation passed" in mock_logger.info.call_args[0][0]
 
-    @patch("mcpgateway.admin.SECTION_PERMISSIONS", {"tools": "tools.read", "servers": "servers.read"})
-    @patch("mcpgateway.admin._SECTION_TO_ROUTE_PATH", {"tools": "/admin/tools", "servers": "/admin/servers"})
-    @patch("mcpgateway.admin.LOGGER")
+    @patch("mcpgateway.admin.visibility.SECTION_PERMISSIONS", {"tools": "tools.read", "servers": "servers.read"})
+    @patch("mcpgateway.admin.visibility._SECTION_TO_ROUTE_PATH", {"tools": "/admin/tools", "servers": "/admin/servers"})
+    @patch("mcpgateway.admin.visibility.LOGGER")
     def test_validate_section_permissions_with_mismatches(self, mock_logger):
         """Test validate_section_permissions with mismatches raises ValueError in test env."""
         # Create routes with mismatched permissions
@@ -129,9 +129,9 @@ class TestValidateSectionPermissions:
         assert "tools" in error_msg
         assert "servers" in error_msg
 
-    @patch("mcpgateway.admin.SECTION_PERMISSIONS", {"tools": "tools.read", "servers": "servers.read"})
-    @patch("mcpgateway.admin._SECTION_TO_ROUTE_PATH", {"tools": "/admin/tools", "servers": "/admin/servers"})
-    @patch("mcpgateway.admin.LOGGER")
+    @patch("mcpgateway.admin.visibility.SECTION_PERMISSIONS", {"tools": "tools.read", "servers": "servers.read"})
+    @patch("mcpgateway.admin.visibility._SECTION_TO_ROUTE_PATH", {"tools": "/admin/tools", "servers": "/admin/servers"})
+    @patch("mcpgateway.admin.visibility.LOGGER")
     def test_validate_section_permissions_production_warns_on_mismatch(self, mock_logger):
         """Test validate_section_permissions logs warnings in production (non-test) env."""
         route1 = MagicMock()
@@ -156,9 +156,9 @@ class TestValidateSectionPermissions:
         assert "mismatches" in mock_logger.warning.call_args_list[0][0][0]
         assert "mapping needs updating" in mock_logger.warning.call_args_list[1][0][0]
 
-    @patch("mcpgateway.admin.SECTION_PERMISSIONS", {"tools": "tools.read"})
-    @patch("mcpgateway.admin._SECTION_TO_ROUTE_PATH", {"tools": "/admin/tools"})
-    @patch("mcpgateway.admin.LOGGER")
+    @patch("mcpgateway.admin.visibility.SECTION_PERMISSIONS", {"tools": "tools.read"})
+    @patch("mcpgateway.admin.visibility._SECTION_TO_ROUTE_PATH", {"tools": "/admin/tools"})
+    @patch("mcpgateway.admin.visibility.LOGGER")
     def test_validate_section_permissions_all_match(self, mock_logger):
         """Test validate_section_permissions when all permissions match."""
         route = MagicMock()
@@ -241,8 +241,8 @@ class TestPermissionCheckingLogic:
     """Test permission checking logic around line 490."""
 
     @pytest.mark.asyncio
-    @patch("mcpgateway.admin.SECTION_PERMISSIONS", {"tools": "tools.read", "servers": "servers.read"})
-    @patch("mcpgateway.admin.PermissionService")
+    @patch("mcpgateway.admin.visibility.SECTION_PERMISSIONS", {"tools": "tools.read", "servers": "servers.read"})
+    @patch("mcpgateway.admin.visibility.PermissionService")
     async def test_permission_checking_hides_section_on_false(self, mock_perm_service_class):
         """Test that sections are hidden when user lacks permission (line 494)."""
         from mcpgateway.admin import get_hidden_sections_for_user
@@ -260,8 +260,8 @@ class TestPermissionCheckingLogic:
         assert "servers" in result
 
     @pytest.mark.asyncio
-    @patch("mcpgateway.admin.SECTION_PERMISSIONS", {"tools": "tools.read"})
-    @patch("mcpgateway.admin.PermissionService")
+    @patch("mcpgateway.admin.visibility.SECTION_PERMISSIONS", {"tools": "tools.read"})
+    @patch("mcpgateway.admin.visibility.PermissionService")
     async def test_permission_checking_exception_hides_section(self, mock_perm_service_class):
         """Test that sections are hidden on exception (line 499-500)."""
         from mcpgateway.admin import get_hidden_sections_for_user
@@ -278,8 +278,8 @@ class TestPermissionCheckingLogic:
         assert "tools" in result
 
     @pytest.mark.asyncio
-    @patch("mcpgateway.admin.UI_ACTION_PERMISSIONS", {"can_create_tools": "tools.create", "can_edit_servers": "servers.update"})
-    @patch("mcpgateway.admin.PermissionService")
+    @patch("mcpgateway.admin.visibility.UI_ACTION_PERMISSIONS", {"can_create_tools": "tools.create", "can_edit_servers": "servers.update"})
+    @patch("mcpgateway.admin.visibility.PermissionService")
     async def test_get_ui_action_permissions_exception_denies(self, mock_perm_service_class):
         """Test that permissions are denied on exception (line 573-574)."""
         from mcpgateway.admin import get_user_action_permissions
@@ -297,8 +297,8 @@ class TestPermissionCheckingLogic:
         assert result["can_edit_servers"] is False
 
     @pytest.mark.asyncio
-    @patch("mcpgateway.admin.UI_ACTION_PERMISSIONS", {"can_create_tools": "tools.create"})
-    @patch("mcpgateway.admin.PermissionService")
+    @patch("mcpgateway.admin.visibility.UI_ACTION_PERMISSIONS", {"can_create_tools": "tools.create"})
+    @patch("mcpgateway.admin.visibility.PermissionService")
     async def test_get_ui_action_permissions_grants_permission(self, mock_perm_service_class):
         """Test that permissions are granted when check passes (line 571)."""
         from mcpgateway.admin import get_user_action_permissions
@@ -315,7 +315,7 @@ class TestPermissionCheckingLogic:
         assert result["can_create_tools"] is True
 
     @pytest.mark.asyncio
-    @patch("mcpgateway.admin.PermissionService")
+    @patch("mcpgateway.admin.visibility.PermissionService")
     async def test_permission_checking_shows_section_with_permission(self, mock_perm_service_class):
         """Test that sections are shown when user has permission."""
         from mcpgateway.admin import get_ui_visibility_config

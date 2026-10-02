@@ -812,6 +812,105 @@ class TestTokenScopingMiddleware:
             call_next.assert_not_called()
 
     @pytest.mark.asyncio
+    async def test_usage_limits_hourly_denies_request_over_limit_via_db_count(self, middleware, mock_request):
+        """Request N+1 over requests_per_hour is denied via the TokenUsageLog counting path."""
+        mock_request.url.path = "/tools"
+        mock_request.method = "GET"
+        mock_request.headers = {"Authorization": "Bearer token"}
+
+        mock_db = MagicMock()
+        count_result = MagicMock()
+        count_result.scalar.return_value = 3  # N requests already logged inside the window
+        mock_db.execute.return_value = count_result
+
+        with (
+            patch.object(middleware, "_extract_token_scopes") as mock_extract,
+            patch("mcpgateway.db.get_db", return_value=iter([mock_db])),
+        ):
+            mock_extract.return_value = {
+                "jti": "token-jti-1",
+                "scopes": {
+                    "permissions": ["*"],
+                    "usage_limits": {"requests_per_hour": 3},
+                },
+            }
+
+            call_next = AsyncMock()
+            response = await middleware(mock_request, call_next)
+            content = json.loads(response.body)
+
+            assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
+            assert "Hourly request limit exceeded" in content.get("detail")
+            call_next.assert_not_called()
+            mock_db.close.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_usage_limits_daily_denies_request_over_limit_via_db_count(self, middleware, mock_request):
+        """Request N+1 over requests_per_day is denied via the TokenUsageLog counting path."""
+        mock_request.url.path = "/tools"
+        mock_request.method = "GET"
+        mock_request.headers = {"Authorization": "Bearer token"}
+
+        mock_db = MagicMock()
+        count_result = MagicMock()
+        count_result.scalar.return_value = 7  # N requests already logged inside the window
+        mock_db.execute.return_value = count_result
+
+        with (
+            patch.object(middleware, "_extract_token_scopes") as mock_extract,
+            patch("mcpgateway.db.get_db", return_value=iter([mock_db])),
+        ):
+            mock_extract.return_value = {
+                "jti": "token-jti-1",
+                "scopes": {
+                    "permissions": ["*"],
+                    "usage_limits": {"requests_per_day": 7},
+                },
+            }
+
+            call_next = AsyncMock()
+            response = await middleware(mock_request, call_next)
+            content = json.loads(response.body)
+
+            assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
+            assert "Daily request limit exceeded" in content.get("detail")
+            call_next.assert_not_called()
+            mock_db.close.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_usage_limits_allows_request_under_limit_via_db_count(self, middleware, mock_request):
+        """Requests under both hourly and daily usage limits are allowed."""
+        mock_request.url.path = "/tools"
+        mock_request.method = "GET"
+        mock_request.headers = {"Authorization": "Bearer token"}
+
+        mock_db = MagicMock()
+        hourly_result = MagicMock()
+        hourly_result.scalar.return_value = 2
+        daily_result = MagicMock()
+        daily_result.scalar.return_value = 5
+        mock_db.execute.side_effect = [hourly_result, daily_result]
+
+        with (
+            patch.object(middleware, "_extract_token_scopes") as mock_extract,
+            patch("mcpgateway.db.get_db", return_value=iter([mock_db])),
+        ):
+            mock_extract.return_value = {
+                "jti": "token-jti-1",
+                "scopes": {
+                    "permissions": ["*"],
+                    "usage_limits": {"requests_per_hour": 3, "requests_per_day": 10},
+                },
+            }
+
+            call_next = AsyncMock()
+            call_next.return_value = "success"
+
+            result = await middleware(mock_request, call_next)
+            assert result == "success"
+            call_next.assert_called_once()
+
+    @pytest.mark.asyncio
     async def test_whitelisted_paths_bypass_middleware(self, middleware):
         """Test that whitelisted paths bypass all scoping checks."""
         whitelisted_paths = ["/health", "/metrics", "/docs", "/auth/email/login"]

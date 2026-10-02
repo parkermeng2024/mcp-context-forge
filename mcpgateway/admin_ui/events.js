@@ -23,6 +23,7 @@ import { llmModelComboboxSelect } from "./llmModels.js";
 import { closeModal } from "./modals.js";
 import { initializeRealTimeMonitoring } from "./monitoring.js";
 import { ensureAddStoreListeners } from "./servers.js";
+import { initServerWizard } from "./serverWizard.js";
 import { initializeTagFiltering, updateAvailableTags } from "./tags.js";
 import {
   hideTeamEditModal,
@@ -86,6 +87,7 @@ import {
       // 4. Initialize tool selects
       initializeToolSelects();
       ensureAddStoreListeners();
+      initServerWizard();
 
       // 5. Set up all event listeners
       initializeEventListeners();

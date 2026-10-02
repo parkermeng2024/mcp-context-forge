@@ -455,7 +455,7 @@ class TestAdminJoinRequestFlag:
         # First-Party
         from mcpgateway.admin import admin_create_join_request
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.team_join.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.allow_team_join_requests = False
 
@@ -514,7 +514,7 @@ class TestAdminTeamCreationFlagDisabled:
         # First-Party
         from mcpgateway.admin import admin_create_team
 
-        with patch("mcpgateway.admin.settings") as mock_settings:
+        with patch("mcpgateway.admin.teams.settings") as mock_settings:
             mock_settings.email_auth_enabled = True
             mock_settings.allow_team_creation = False
 

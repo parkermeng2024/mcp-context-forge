@@ -185,9 +185,10 @@ Admin.handleSubmitWithConfirmation = handleSubmitWithConfirmation;
 Admin.handleDeleteSubmit = handleDeleteSubmit;
 
 // Gateways
-import { editGateway, refreshGatewayTools, refreshToolsForSelectedGateways, testGateway, viewGateway } from "./gateways.js";
+import { editGateway, handleGatewayDeleteSubmit, refreshGatewayTools, refreshToolsForSelectedGateways, testGateway, viewGateway } from "./gateways.js";
 
 Admin.editGateway = editGateway;
+Admin.handleGatewayDeleteSubmit = handleGatewayDeleteSubmit;
 Admin.refreshGatewayTools = refreshGatewayTools;
 Admin.refreshToolsForSelectedGateways = refreshToolsForSelectedGateways;
 Admin.testGateway = testGateway;
@@ -429,6 +430,25 @@ import { viewServer, editServer } from "./servers.js";
 Admin.viewServer = viewServer;
 Admin.editServer = editServer;
 
+// Server creation wizard (catalog tab)
+import {
+  initServerWizard,
+  loadServerWizardGateways,
+  resetServerWizard,
+  serverWizardBack,
+  serverWizardCreate,
+  serverWizardNext,
+  serverWizardSkip,
+} from "./serverWizard.js";
+
+Admin.initServerWizard = initServerWizard;
+Admin.loadServerWizardGateways = loadServerWizardGateways;
+Admin.resetServerWizard = resetServerWizard;
+Admin.serverWizardBack = serverWizardBack;
+Admin.serverWizardCreate = serverWizardCreate;
+Admin.serverWizardNext = serverWizardNext;
+Admin.serverWizardSkip = serverWizardSkip;
+
 // Tabs
 import { showTab } from "./tabs.js";
 
@@ -519,6 +539,31 @@ Admin.viewTool = viewTool;
 import { hideUserEditModal } from "./users.js";
 
 Admin.hideUserEditModal = hideUserEditModal;
+
+// SSO
+import {
+  approveSsoUser,
+  confirmDeleteSsoProvider,
+  deleteSsoProvider,
+  handleSsoProviderSubmit,
+  handleSsoRejectSubmit,
+  loadSsoPanel,
+  showSsoProviderCreateModal,
+  showSsoProviderEditModal,
+  showSsoRejectModal,
+  toggleSsoProvider,
+} from "./sso.js";
+
+Admin.approveSsoUser = approveSsoUser;
+Admin.confirmDeleteSsoProvider = confirmDeleteSsoProvider;
+Admin.deleteSsoProvider = deleteSsoProvider;
+Admin.handleSsoProviderSubmit = handleSsoProviderSubmit;
+Admin.handleSsoRejectSubmit = handleSsoRejectSubmit;
+Admin.loadSsoPanel = loadSsoPanel;
+Admin.showSsoProviderCreateModal = showSsoProviderCreateModal;
+Admin.showSsoProviderEditModal = showSsoProviderEditModal;
+Admin.showSsoRejectModal = showSsoRejectModal;
+Admin.toggleSsoProvider = toggleSsoProvider;
 
 // ===================================================================
 // TIER 3 & 4: Domain and Orchestration modules (still using IIFE)

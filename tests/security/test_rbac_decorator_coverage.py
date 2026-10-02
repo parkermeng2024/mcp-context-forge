@@ -94,6 +94,15 @@ def _read(rel_path: str) -> str:
     return (REPO_ROOT / rel_path).read_text(encoding="utf-8")
 
 
+def _read_admin_package() -> str:
+    """Concatenate every module of the mcpgateway.admin package.
+
+    The admin routes are split across submodules, so a per-file scan of
+    ``__init__.py`` alone would miss most decorators.
+    """
+    return "\n".join(path.read_text(encoding="utf-8") for path in sorted((REPO_ROOT / "mcpgateway/admin").glob("*.py")))
+
+
 def _has_require_permission(source: str, permission: str) -> bool:
     return f'@require_permission("{permission}"' in source or f"@require_permission('{permission}'" in source
 
@@ -121,8 +130,8 @@ def test_rbac_router_uses_admin_permission_decorator() -> None:
 
 
 def test_admin_py_never_allows_admin_bypass() -> None:
-    source = _read("mcpgateway/admin.py")
+    source = _read_admin_package()
     bypass_true = source.count("allow_admin_bypass=True")
     bypass_false = source.count("allow_admin_bypass=False")
-    assert bypass_true == 0, f"admin.py: {bypass_true} endpoints with allow_admin_bypass=True (should be 0)"
-    assert bypass_false >= 20, f"admin.py: only {bypass_false} endpoints with allow_admin_bypass=False (expected >=20)"
+    assert bypass_true == 0, f"mcpgateway/admin/: {bypass_true} endpoints with allow_admin_bypass=True (should be 0)"
+    assert bypass_false >= 20, f"mcpgateway/admin/: only {bypass_false} endpoints with allow_admin_bypass=False (expected >=20)"

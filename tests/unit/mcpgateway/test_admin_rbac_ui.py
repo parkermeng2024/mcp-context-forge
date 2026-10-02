@@ -82,7 +82,7 @@ class TestGetUserActionPermissions:
         """Platform admin with team scope still checks permissions."""
         db = Mock()
 
-        with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+        with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
             mock_service = AsyncMock()
             mock_service_class.return_value = mock_service
             mock_service.check_permission = AsyncMock(return_value=True)
@@ -103,7 +103,7 @@ class TestGetUserActionPermissions:
         """Regular user with all create permissions gets all flags."""
         db = Mock()
 
-        with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+        with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
             mock_service = AsyncMock()
             mock_service_class.return_value = mock_service
             mock_service.check_permission = AsyncMock(return_value=True)
@@ -124,7 +124,7 @@ class TestGetUserActionPermissions:
         """Regular user with no permissions gets all False flags."""
         db = Mock()
 
-        with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+        with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
             mock_service = AsyncMock()
             mock_service_class.return_value = mock_service
             mock_service.check_permission = AsyncMock(return_value=False)
@@ -150,7 +150,7 @@ class TestGetUserActionPermissions:
         def check_permission_side_effect(user_email, permission, token_teams, allow_admin_bypass, check_any_team):
             return permission in ["teams.create", "tools.create"]
 
-        with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+        with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
             mock_service = AsyncMock()
             mock_service_class.return_value = mock_service
             mock_service.check_permission = AsyncMock(side_effect=check_permission_side_effect)
@@ -173,7 +173,7 @@ class TestGetUserActionPermissions:
         """User with public-only token scope (teams=[]) gets limited permissions."""
         db = Mock()
 
-        with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+        with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
             mock_service = AsyncMock()
             mock_service_class.return_value = mock_service
             mock_service.check_permission = AsyncMock(return_value=False)
@@ -193,7 +193,7 @@ class TestGetUserActionPermissions:
         """Permission check errors should fail closed (deny permission)."""
         db = Mock()
 
-        with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+        with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
             mock_service = AsyncMock()
             mock_service_class.return_value = mock_service
             mock_service.check_permission = AsyncMock(side_effect=Exception("DB error"))
@@ -214,7 +214,7 @@ class TestGetUserActionPermissions:
         """Permission service should be called with correct parameters."""
         db = Mock()
 
-        with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+        with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
             mock_service = AsyncMock()
             mock_service_class.return_value = mock_service
             mock_service.check_permission = AsyncMock(return_value=True)
@@ -244,7 +244,7 @@ class TestGetUserActionPermissions:
         """All 9 permission flags should be checked."""
         db = Mock()
 
-        with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+        with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
             mock_service = AsyncMock()
             mock_service_class.return_value = mock_service
 
@@ -292,7 +292,7 @@ class TestGetUserActionPermissions:
                 raise Exception("Intermittent error")
             return call_count % 2 == 0
 
-        with patch("mcpgateway.admin.PermissionService") as mock_service_class:
+        with patch("mcpgateway.admin.visibility.PermissionService") as mock_service_class:
             mock_service = AsyncMock()
             mock_service_class.return_value = mock_service
             mock_service.check_permission = AsyncMock(side_effect=mixed_results)

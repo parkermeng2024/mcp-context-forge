@@ -2,6 +2,7 @@
  * Unit tests for utils.js module
  * Tests: createMemoizedInit, safeGetElement, safeSetValue, isInactiveChecked,
  *        fetchWithTimeout, handleFetchError, showErrorMessage, showSuccessMessage,
+ *        showWarningMessage,
  *        parseUriTemplate, isAdminUser, copyToClipboard, copyJsonToClipboard,
  *        getCookie, getCurrentTeamId, getCurrentTeamName, updateEditToolUrl,
  *        formatTimestamp, handleKeydown, getRootPath, showToast, showNotification,
@@ -19,6 +20,7 @@ import {
   handleFetchError,
   showErrorMessage,
   showSuccessMessage,
+  showWarningMessage,
   parseUriTemplate,
   isAdminUser,
   copyToClipboard,
@@ -354,6 +356,28 @@ describe("showSuccessMessage", () => {
     expect(document.querySelectorAll(".bg-green-600").length).toBe(1);
     vi.advanceTimersByTime(3000);
     expect(document.querySelectorAll(".bg-green-600").length).toBe(0);
+    vi.useRealTimers();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// showWarningMessage
+// ---------------------------------------------------------------------------
+describe("showWarningMessage", () => {
+  test("creates warning notification preserving line breaks", () => {
+    showWarningMessage("Line one\nLine two");
+    const divs = document.querySelectorAll(".bg-yellow-600");
+    expect(divs.length).toBe(1);
+    expect(divs[0].textContent).toBe("Line one\nLine two");
+    expect(divs[0].classList.contains("whitespace-pre-line")).toBe(true);
+  });
+
+  test("auto-removes warning notification after timeout", () => {
+    vi.useFakeTimers();
+    showWarningMessage("Careful!");
+    expect(document.querySelectorAll(".bg-yellow-600").length).toBe(1);
+    vi.advanceTimersByTime(5000);
+    expect(document.querySelectorAll(".bg-yellow-600").length).toBe(0);
     vi.useRealTimers();
   });
 });

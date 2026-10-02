@@ -3,6 +3,7 @@
 Guidelines for AI coding assistants working with this repository.
 
 For domain-specific guidance, see subdirectory AGENTS.md files:
+
 - `tests/AGENTS.md` - Testing conventions and workflows
 - `plugins/AGENTS.md` - Plugin framework and development
 - `charts/AGENTS.md` - Helm chart operations
@@ -18,7 +19,7 @@ ContextForge is an open source registry and proxy that federates MCP, A2A, and R
 
 ## Project Structure
 
-```
+```text
 mcpgateway/                 # Core FastAPI application
 ├── main.py                 # Application entry point
 ├── config.py               # Environment configuration
@@ -45,6 +46,7 @@ llms/                       # End-user LLM guidance (not for code agents)
 ## Essential Commands
 
 ### Setup
+
 ```bash
 cp .env.example .env && make install-dev check-env    # Complete setup
 make venv                          # Create virtual environment with uv
@@ -54,6 +56,7 @@ make build-ui                      # Rebuild Admin UI JS bundle (requires npm)
 ```
 
 ### Development
+
 ```bash
 make dev                          # Dev server on :8000 with autoreload
 make serve                        # Production gunicorn on :4444
@@ -61,6 +64,7 @@ make serve-ssl                    # HTTPS on :4444 (creates certs if needed)
 ```
 
 ### Code Quality
+
 ```bash
 # After writing code
 make pre-commit
@@ -90,7 +94,7 @@ Add an indented paragraph under a finding only when one line cannot carry it. De
 ### Severity
 
 | Severity | Meaning | Disposition |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | blocking | Meets a blocking criterion with evidence in the diff or linked artifacts | Merge gate; no waiver |
 | functionally-impacting | Affects behavior or maintainability, below the blocking bar | Fix before merge unless the PR documents a waiver |
 | suggestion | A better way exists; optional | May be deferred |
@@ -127,7 +131,7 @@ ContextForge implements a **two-layer security model**:
 **API / legacy tokens** — JWT `teams` claim is the sole authority (`normalize_token_teams()`):
 
 | JWT `teams` State | `is_admin: true` | `is_admin: false` |
-|-------------------|------------------|-------------------|
+| ------------------- | ------------------ | ------------------- |
 | Key MISSING | PUBLIC-ONLY `[]` | PUBLIC-ONLY `[]` |
 | `teams: null` | ADMIN BYPASS | PUBLIC-ONLY `[]` |
 | `teams: []` | PUBLIC-ONLY `[]` | PUBLIC-ONLY `[]` |
@@ -136,7 +140,7 @@ ContextForge implements a **two-layer security model**:
 **Session tokens** (`token_use: "session"`) — DB is the authority; JWT `teams` only narrows (`resolve_session_teams()`):
 
 | JWT `teams` State | DB admin? | Result | Access Level |
-|-------------------|-----------|--------|--------------|
+| ------------------- | ----------- | -------- | -------------- |
 | any | yes | `None` | ADMIN BYPASS (DB authority) |
 | Missing/null/`[]` | no | DB teams | Full DB membership |
 | `["t1"]` | no | intersection | Narrowed to overlap |
@@ -165,8 +169,8 @@ The derived triple is memoized on `request.state` per principal, so calling the 
 - Treat `public` as platform-public scope, not internet-anonymous scope.
 - Explicit exception: when `MCP_REQUIRE_AUTH=false`, unauthenticated `/mcp` requests are allowed with public-only visibility — **unless** the target virtual server has `oauth_enabled=True`, in which case unauthenticated requests are rejected with 401 regardless of the global setting.
 - Keep the two-layer model on every path:
-  - Layer 1: token scoping controls what a caller can see.
-  - Layer 2: RBAC controls what a caller can do.
+    - Layer 1: token scoping controls what a caller can see.
+    - Layer 2: RBAC controls what a caller can do.
 - Do not re-implement token team interpretation logic; use `normalize_token_teams()` for API/legacy tokens and `resolve_session_teams()` for session tokens (both in `mcpgateway/auth.py`).
 - Do not re-implement Layer 1 token scope semantics; use `token_scope_grants()` in `mcpgateway/middleware/rbac.py`, the single policy point shared by the RBAC decorators and `TokenScopingMiddleware`. Empty token scopes mean "inherit from RBAC at runtime" (what `TokenCatalogService._generate_token()` emits for tokens created without an explicit scope) and must never be treated as deny-all; `*` grants everything and `<category>.*` grants that category.
 - Do not accept inbound client auth tokens via URL query parameters.
@@ -193,7 +197,7 @@ The derived triple is memoized on `request.state` per principal, so calling the 
 ### Built-in Roles
 
 | Role | Scope | Key Permissions |
-|------|-------|-----------------|
+| ------ | ------- | ----------------- |
 | `platform_admin` | global | `*` (all) |
 | `team_admin` | team | teams.*, tools.read/execute, resources.read |
 | `developer` | team | tools.read/execute, resources.read |
@@ -204,6 +208,7 @@ The derived triple is memoized on `request.state` per principal, so calling the 
 - **Full RBAC guide**: `docs/docs/manage/rbac.md`
 - **Multi-tenancy architecture**: `docs/docs/architecture/multitenancy.md`
 - **OAuth token delegation**: `docs/docs/architecture/oauth-design.md`
+
 ### User Identity Extraction
 
 **Canonical Email Precedence**: All user-email extraction helpers use a consistent **email-over-sub** precedence order to ensure forensic accuracy across visibility checks and audit logs:
@@ -215,10 +220,9 @@ The derived triple is memoized on `request.state` per principal, so calling the 
 
 **Rationale**: The `email` field is the human-readable identifier used throughout AGENTS.md and user-facing documentation. Consistent precedence prevents forensic confusion where an incident review pivots on a logged email that differs from the principal actually evaluated by RBAC.
 
-
 ## Observability Transaction Behavior
 
-**Issue #3883 - Separate Session Pattern**
+### Issue #3883 - Separate Session Pattern
 
 Observability write operations use **independent database sessions** that commit immediately (best-effort pattern). This means:
 
@@ -230,22 +234,25 @@ Observability write operations use **independent database sessions** that commit
 ### Implementation Details
 
 **Write methods** (use independent sessions):
+
 - `start_trace()`, `end_trace()`
 - `start_span()`, `end_span()`
 - `add_event()`, `record_token_usage()`, `record_metric()`, `delete_old_traces()`
 
 **Query methods** (use request-scoped sessions):
+
 - `get_trace()`, `get_traces()`, `get_spans()`, etc.
 - These accept a `db: Session` parameter for RBAC/token scoping
 
 **Context managers** (create single independent session for lifecycle):
+
 - `trace_span()`, `trace_tool_invocation()`, `trace_a2a_request()`
 
 **Pattern**: Follows existing SQL instrumentation approach in `instrumentation/sqlalchemy.py:58-87`
 
 ## Audit Trail Transaction Behavior
 
-**Issue #2871 - Separate Session Pattern**
+### Issue #2871 - Separate Session Pattern
 
 `AuditTrailService.log_action()` (`mcpgateway/services/audit_trail_service.py`) always opens its own `SessionLocal()` when no `db` is supplied, and closes/rolls back that session itself. Callers in `tool_service.py`, `resource_service.py`, `gateway_service.py`, `prompt_service.py`, `server_service.py`, and `admin.py` must **never** pass `db=db` (the caller's request-scoped session) to `log_action()`. In `admin.py`, plugin-view audit logging goes through `log_audit()`, which is a thin wrapper over `log_action()` and inherits the same optional-session behavior.
 
@@ -311,39 +318,11 @@ python -m mcpgateway.translate --stdio "uvx mcp-server-git" --port 9000
 ```
 
 ### Adding an MCP Server
+
 1. Start: `python -m mcpgateway.translate --stdio "server-command" --port 9000`
 2. Register: `POST /gateways`
 3. Create virtual server: `POST /servers`
 4. Access via SSE/WebSocket endpoints
-
-## ContextForge Web UI
-
-A BFF-style frontend for the gateway API, separate from the built-in Admin UI (`MCPGATEWAY_UI_ENABLED`). Source and docs: https://github.com/contextforge-org/contextforge-web-ui
-
-- Runs as `web_ui` + a dedicated `web_ui_redis` session store in `docker-compose.yml`.
-- Enabled via `--profile ui` (or `--profile testing`, which pulls it in too).
-- `web_ui` depends on `gateway` and `web_ui_redis` being healthy before it starts.
-
-```bash
-# Start the gateway plus the web UI
-docker compose --profile ui up -d
-
-# Access
-open http://localhost:${WEB_UI_PORT:-3001}
-```
-
-Configuration (see the commented `WEB_UI_*` block in `.env.example`):
-
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `WEB_UI_IMAGE` | see `docker-compose.yml` | Image to pull — pinned to a specific released version *and* digest, never `latest`; bumped as part of the release checklist (`docs/docs/development/release-management.md`). Kept in one place (`docker-compose.yml`) rather than duplicated here so it can't drift out of sync. |
-| `WEB_UI_PORT` | `3001` | Host **and** container port (the image reads `PORT` at startup, so both sides of the mapping stay in sync) |
-| `WEB_UI_HOST` | `0.0.0.0` | Bind address inside the container — must stay `0.0.0.0` in Docker |
-| `WEB_UI_CONTEXTFORGE_URL` | `http://gateway:4444` | Gateway API base URL the UI talks to (internal compose network) |
-| `WEB_UI_COOKIE_SECURE` | `false` | Set `true` once the UI is served over HTTPS |
-| `WEB_UI_REDIS_URL` | `redis://web_ui_redis:6379/0` | Session store, separate from the gateway's cache `redis` service |
-
-Refer to the [contextforge-web-ui repo](https://github.com/contextforge-org/contextforge-web-ui) for feature docs, auth flow details, and upstream configuration options beyond what's wired into this compose file.
 
 ## Technology Stack
 
@@ -525,7 +504,7 @@ Full rules and worked examples per artifact: [`docs/docs/development/agent-prose
 Run from the worktree root, in order. Each command must pass, or the PR must document a waiver, before the PR is ready:
 
 | Command | Validates |
-|---------|-----------|
+| --------- | ----------- |
 | `make ruff interrogate pylint` | Lint, docstring coverage, deeper static analysis |
 | `make test` | Full pytest suite |
 | `make coverage diff-cover` | Coverage of changed lines vs. base |
@@ -540,7 +519,7 @@ Distinct from the per-edit hygiene chain in *Essential Commands → Code Quality
 When `detect-secrets` identifies false positives:
 
 - **Python files**: suppress inline with `# pragma: allowlist secret` so they don't appear in `.secrets.baseline` after `make detect-secrets-scan`.
-  - Exception: doctest strings where the comment breaks the assertion. Rely on `.secrets.baseline` and audit with `make detect-secrets-audit`.
+    - Exception: doctest strings where the comment breaks the assertion. Rely on `.secrets.baseline` and audit with `make detect-secrets-audit`.
 - **All other file types**: regenerate the baseline with `make detect-secrets-scan`.
 - **Merge conflicts**: resolve `.secrets.baseline` using the version from `main`.
 

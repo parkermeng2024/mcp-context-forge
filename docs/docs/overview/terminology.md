@@ -1,6 +1,6 @@
 # Product & API Terminology
 
-The React admin UI uses product-facing terms: **MCP server**, **virtual server**, and
+ContextForge uses product-facing terms: **MCP server**, **virtual server**, and
 **A2A agent**. The API predates those terms and still uses its original vocabulary —
 `gateway` and `server` — in routes, models, permission strings, and audit records.
 
@@ -18,13 +18,9 @@ so you don't have to guess whether a mismatch is a documentation gap or a bug.
 
 ## "Server" is ambiguous — always qualify it
 
-Don't use the bare word "server" in docs or UI copy. It means different things
-depending on which side you're standing on:
-
-- In the **API**, `/servers` (and `/v1/virtual-servers`) refers to virtual servers.
-- In the **React UI**, `src/api/servers.ts` wraps the `/v1/mcp-servers` endpoint
-  (migrated in [contextforge-web-ui#98](https://github.com/contextforge-org/contextforge-web-ui/pull/98)) —
-  so "server" there means an MCP server.
+Don't use the bare word "server" in docs or UI copy. In the **API**, `/servers`
+(and `/v1/virtual-servers`) refers to virtual servers — "server" there does not
+mean an MCP server.
 
 Always write "virtual server" or "MCP server," never just "server."
 
@@ -48,13 +44,6 @@ The unversioned `/gateways` and `/servers` paths are a deprecated compatibility 
 - Excluded from the OpenAPI schema — the `/v1` routes are the documented source of
   truth.
 - Carry RFC 8594 `Sunset` headers, defaulting to `Sat, 26 Sep 2026`.
-
-[contextforge-web-ui#85](https://github.com/contextforge-org/contextforge-web-ui/issues/85)
-tracked moving the React UI itself onto the `/v1` paths for MCP servers and virtual
-servers — that migration was completed by
-[contextforge-web-ui#98](https://github.com/contextforge-org/contextforge-web-ui/pull/98)
-(merged 2026-09-14). Tools, resources, prompts, teams, and tokens still call the
-legacy paths directly, so the sunset date remains relevant for those endpoints.
 
 ## What already gets this right
 
