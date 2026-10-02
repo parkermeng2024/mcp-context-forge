@@ -23376,7 +23376,7 @@ class TestAdminTokensPartialHtml:
         mock_token.jti = "jti-123"
 
         monkeypatch.setattr(
-            "mcpgateway.admin.paginate_query",
+            "mcpgateway.admin.tokens.paginate_query",
             AsyncMock(return_value={"data": [mock_token], "pagination": pagination, "links": None}),
         )
         setup_team_service(monkeypatch, [])
@@ -23385,7 +23385,7 @@ class TestAdminTokensPartialHtml:
         mock_token_service = MagicMock()
         mock_token_service.get_user_team_ids = AsyncMock(return_value=[])
         mock_token_service.get_token_revocations_batch = AsyncMock(return_value={})
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_token_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_token_service)
 
         mock_request.headers = {}
         response = await admin_tokens_partial_html(
@@ -23423,7 +23423,7 @@ class TestAdminTokensPartialHtml:
         mock_token.jti = "jti-123"
 
         monkeypatch.setattr(
-            "mcpgateway.admin.paginate_query",
+            "mcpgateway.admin.tokens.paginate_query",
             AsyncMock(return_value={"data": [mock_token], "pagination": pagination, "links": None}),
         )
         setup_team_service(monkeypatch, ["team-1"])
@@ -23432,7 +23432,7 @@ class TestAdminTokensPartialHtml:
         mock_token_service = MagicMock()
         mock_token_service.get_user_team_ids = AsyncMock(return_value=["team-1"])
         mock_token_service.get_token_revocations_batch = AsyncMock(return_value={})
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_token_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_token_service)
 
         mock_request.headers = {}
         response = await admin_tokens_partial_html(
@@ -23470,7 +23470,7 @@ class TestAdminTokensPartialHtml:
         mock_token.jti = "jti-123"
 
         monkeypatch.setattr(
-            "mcpgateway.admin.paginate_query",
+            "mcpgateway.admin.tokens.paginate_query",
             AsyncMock(return_value={"data": [mock_token], "pagination": pagination, "links": None}),
         )
         setup_team_service(monkeypatch, ["team-abc"])
@@ -23479,7 +23479,7 @@ class TestAdminTokensPartialHtml:
         mock_token_service = MagicMock()
         mock_token_service.get_user_team_ids = AsyncMock(return_value=[])
         mock_token_service.get_token_revocations_batch = AsyncMock(return_value={})
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_token_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_token_service)
 
         mock_request.headers = {}
         response = await admin_tokens_partial_html(
@@ -23522,7 +23522,7 @@ class TestAdminTokensPartialHtml:
         mock_token.jti = "jti-123"
 
         monkeypatch.setattr(
-            "mcpgateway.admin.paginate_query",
+            "mcpgateway.admin.tokens.paginate_query",
             AsyncMock(return_value={"data": [mock_token], "pagination": pagination, "links": None}),
         )
         setup_team_service(monkeypatch, [])
@@ -23531,7 +23531,7 @@ class TestAdminTokensPartialHtml:
         mock_token_service = MagicMock()
         mock_token_service.get_user_team_ids = AsyncMock(return_value=[])
         mock_token_service.get_token_revocations_batch = AsyncMock(return_value={})
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_token_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_token_service)
 
         mock_request.headers = {}
         response = await admin_tokens_partial_html(
@@ -23551,7 +23551,7 @@ class TestAdminTokensPartialHtml:
         """Test rendering pagination controls only."""
         pagination = make_pagination_meta()
         monkeypatch.setattr(
-            "mcpgateway.admin.paginate_query",
+            "mcpgateway.admin.tokens.paginate_query",
             AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}),
         )
         setup_team_service(monkeypatch, [])
@@ -23559,7 +23559,7 @@ class TestAdminTokensPartialHtml:
         # Mock TokenCatalogService
         mock_token_service = MagicMock()
         mock_token_service.get_user_team_ids = AsyncMock(return_value=[])
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_token_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_token_service)
 
         mock_request.headers = {}
         response = await admin_tokens_partial_html(
@@ -23597,7 +23597,7 @@ class TestAdminTokensPartialHtml:
         mock_token.jti = "jti-123"
 
         monkeypatch.setattr(
-            "mcpgateway.admin.paginate_query",
+            "mcpgateway.admin.tokens.paginate_query",
             AsyncMock(return_value={"data": [mock_token], "pagination": pagination, "links": None}),
         )
         setup_team_service(monkeypatch, [])
@@ -23611,7 +23611,7 @@ class TestAdminTokensPartialHtml:
         mock_token_service = MagicMock()
         mock_token_service.get_user_team_ids = AsyncMock(return_value=[])
         mock_token_service.get_token_revocations_batch = AsyncMock(return_value={"jti-123": mock_revocation})
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_token_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_token_service)
 
         mock_request.headers = {}
         response = await admin_tokens_partial_html(
@@ -23649,7 +23649,7 @@ class TestAdminTokensPartialHtml:
         mock_token.jti = "jti-123"
 
         monkeypatch.setattr(
-            "mcpgateway.admin.paginate_query",
+            "mcpgateway.admin.tokens.paginate_query",
             AsyncMock(return_value={"data": [mock_token], "pagination": pagination, "links": None}),
         )
         setup_team_service(monkeypatch, ["team-1"])
@@ -23658,7 +23658,7 @@ class TestAdminTokensPartialHtml:
         mock_token_service = MagicMock()
         mock_token_service.get_user_team_ids = AsyncMock(return_value=[])
         mock_token_service.get_token_revocations_batch = AsyncMock(return_value={})
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_token_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_token_service)
 
         # Mock team lookup
         mock_team_result = MagicMock()
@@ -23684,7 +23684,7 @@ class TestAdminTokensPartialHtml:
         mock_db = MagicMock()
         mock_service = MagicMock()
         mock_service.revoke_token = AsyncMock(return_value=True)
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_service)
 
         await admin_revoke_token(token_id="token-1", current_user={"email": "admin@example.com"}, db=mock_db)
 
@@ -23696,7 +23696,7 @@ class TestAdminTokensPartialHtml:
         mock_db = MagicMock()
         mock_service = MagicMock()
         mock_service.revoke_token = AsyncMock(return_value=False)
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_service)
 
         with pytest.raises(HTTPException) as excinfo:
             await admin_revoke_token(token_id="token-1", current_user={"email": "admin@example.com"}, db=mock_db)
@@ -23740,7 +23740,7 @@ class TestAdminTokensSearch:
         mock_token_service = MagicMock()
         mock_token_service.get_user_team_ids = AsyncMock(return_value=[])
         mock_token_service.get_token_revocations_batch = AsyncMock(return_value={})
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_token_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_token_service)
 
         result = await admin_search_tokens(
             q="Production",
@@ -24049,7 +24049,7 @@ class TestAdminTokensPartialSearch:
         mock_token.jti = "jti-123"
 
         monkeypatch.setattr(
-            "mcpgateway.admin.paginate_query",
+            "mcpgateway.admin.tokens.paginate_query",
             AsyncMock(return_value={"data": [mock_token], "pagination": pagination, "links": None}),
         )
         setup_team_service(monkeypatch, [])
@@ -24058,7 +24058,7 @@ class TestAdminTokensPartialSearch:
         mock_token_service = MagicMock()
         mock_token_service.get_user_team_ids = AsyncMock(return_value=[])
         mock_token_service.get_token_revocations_batch = AsyncMock(return_value={})
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_token_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_token_service)
 
         mock_request.headers = {}
         response = await admin_tokens_partial_html(
@@ -24079,7 +24079,7 @@ class TestAdminTokensPartialSearch:
         """Test tokens partial with search query returns empty when no matches."""
         pagination = make_pagination_meta()
         monkeypatch.setattr(
-            "mcpgateway.admin.paginate_query",
+            "mcpgateway.admin.tokens.paginate_query",
             AsyncMock(return_value={"data": [], "pagination": pagination, "links": None}),
         )
         setup_team_service(monkeypatch, [])
@@ -24088,7 +24088,7 @@ class TestAdminTokensPartialSearch:
         mock_token_service = MagicMock()
         mock_token_service.get_user_team_ids = AsyncMock(return_value=[])
         mock_token_service.get_token_revocations_batch = AsyncMock(return_value={})
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_token_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_token_service)
 
         mock_request.headers = {}
         response = await admin_tokens_partial_html(
@@ -24127,7 +24127,7 @@ class TestAdminTokensPartialSearch:
         mock_token.jti = "jti-123"
 
         monkeypatch.setattr(
-            "mcpgateway.admin.paginate_query",
+            "mcpgateway.admin.tokens.paginate_query",
             AsyncMock(return_value={"data": [mock_token], "pagination": pagination, "links": None}),
         )
         setup_team_service(monkeypatch, ["team-123"])
@@ -24136,7 +24136,7 @@ class TestAdminTokensPartialSearch:
         mock_token_service = MagicMock()
         mock_token_service.get_user_team_ids = AsyncMock(return_value=[])
         mock_token_service.get_token_revocations_batch = AsyncMock(return_value={})
-        monkeypatch.setattr("mcpgateway.admin.TokenCatalogService", lambda db: mock_token_service)
+        monkeypatch.setattr("mcpgateway.admin.tokens.TokenCatalogService", lambda db: mock_token_service)
 
         mock_request.headers = {}
         response = await admin_tokens_partial_html(
