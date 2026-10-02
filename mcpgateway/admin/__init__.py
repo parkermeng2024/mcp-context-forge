@@ -189,7 +189,7 @@ from mcpgateway.services.resource_service import ResourceError, ResourceNotFound
 from mcpgateway.services.root_service import RootService as RootService, RootServiceError, RootServiceNotFoundError, RootServiceValidationError
 from mcpgateway.services.server_service import ServerError, ServerLockConflictError, ServerNameConflictError, ServerNotFoundError, ServerService
 from mcpgateway.services.structured_logger import get_structured_logger as get_structured_logger
-from mcpgateway.services.tag_service import TagService
+from mcpgateway.services.tag_service import TagService as TagService
 from mcpgateway.services.team_management_service import JoinRequestNotFoundError as JoinRequestNotFoundError, TeamManagementService, UNSET
 from mcpgateway.services.token_catalog_service import TokenCatalogService
 from mcpgateway.services.tool_service import ToolError, ToolLockConflictError, ToolNameConflictError, ToolNotFoundError, ToolService
@@ -365,6 +365,10 @@ from mcpgateway.admin.team_join import (  # noqa: PLC2701
     admin_list_join_requests as admin_list_join_requests,
     admin_reject_join_request as admin_reject_join_request,
     router as _team_join_router,
+)
+from mcpgateway.admin.tags import (  # noqa: PLC2701
+    admin_list_tags as admin_list_tags,
+    router as _tags_router,
 )
 
 # Import the shared logging service from main
@@ -12739,105 +12743,6 @@ async def admin_test_gateway(
     return await test_gateway_connectivity(request, team_id, user, db)
 
 
-####################
-# Admin Tag Routes #
-####################
-
-
-@admin_router.get("/tags", response_model=PaginatedResponse)
-@require_permission("tags.read", allow_admin_bypass=False)
-async def admin_list_tags(
-    entity_types: Optional[str] = None,
-    include_entities: bool = False,
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user_with_permissions),
-) -> List[Dict[str, Any]]:
-    """
-    List all unique tags with statistics for the admin UI.
-
-    Args:
-        entity_types: Comma-separated list of entity types to filter by
-                     (e.g., "tools,resources,prompts,servers,gateways").
-                     If not provided, returns tags from all entity types.
-        include_entities: Whether to include the list of entities that have each tag
-        db: Database session
-        user: Authenticated user
-
-    Returns:
-        List of tag information with statistics
-
-    Raises:
-        HTTPException: If tag retrieval fails
-
-    Examples:
-        >>> # Test function exists and has correct name
-        >>> from mcpgateway.admin import admin_list_tags
-        >>> admin_list_tags.__name__
-        'admin_list_tags'
-        >>> # Test it's a coroutine function
-        >>> import inspect
-        >>> inspect.iscoroutinefunction(admin_list_tags)
-        True
-    """
-    tag_service = TagService()
-
-    # Parse entity types parameter if provided
-    entity_types_list = None
-    if entity_types:
-        entity_types_list = [et.strip().lower() for et in entity_types.split(",") if et.strip()]
-
-    LOGGER.debug(f"Admin user {user} is retrieving tags for entity types: {entity_types_list}, include_entities: {include_entities}")
-
-    try:
-        user_email = user.get("email") if isinstance(user, dict) else None
-        token_teams = user.get("token_teams") if isinstance(user, dict) else None
-        is_admin = bool(user.get("is_admin")) if isinstance(user, dict) else False
-
-        # Preserve admin bypass only when token/user context is unrestricted.
-        if is_admin and token_teams is None:
-            user_email = None
-
-        tags = await tag_service.get_all_tags(
-            db,
-            entity_types=entity_types_list,
-            include_entities=include_entities,
-            user_email=user_email,
-            token_teams=token_teams,
-        )
-
-        # Convert to list of dicts for admin UI
-        result: List[Dict[str, Any]] = []
-        for tag in tags:
-            tag_dict: Dict[str, Any] = {
-                "name": tag.name,
-                "tools": tag.stats.tools,
-                "resources": tag.stats.resources,
-                "prompts": tag.stats.prompts,
-                "servers": tag.stats.servers,
-                "gateways": tag.stats.gateways,
-                "total": tag.stats.total,
-            }
-
-            # Include entities if requested
-            if include_entities and tag.entities:
-                tag_dict["entities"] = [
-                    {
-                        "id": entity.id,
-                        "name": entity.name,
-                        "type": entity.type,
-                        "description": entity.description,
-                    }
-                    for entity in tag.entities
-                ]
-
-            result.append(tag_dict)
-
-        return result
-    except Exception as e:
-        LOGGER.error(f"Failed to retrieve tags for admin: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve tags")
-
-
 @admin_router.post("/tools/import/")
 @admin_router.post("/tools/import")
 @require_permission("tools.create", allow_admin_bypass=False)
@@ -15178,3 +15083,4 @@ admin_router.routes.extend(_system_router.routes)
 admin_router.routes.extend(_events_router.routes)
 admin_router.routes.extend(_metrics_router.routes)
 admin_router.routes.extend(_team_join_router.routes)
+admin_router.routes.extend(_tags_router.routes)

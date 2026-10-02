@@ -17830,7 +17830,7 @@ async def test_admin_list_tags(monkeypatch, mock_db):
 
     tag_service = MagicMock()
     tag_service.get_all_tags = AsyncMock(return_value=[tag])
-    monkeypatch.setattr("mcpgateway.admin.TagService", lambda: tag_service)
+    monkeypatch.setattr("mcpgateway.admin.tags.TagService", lambda: tag_service)
 
     result = await admin_list_tags(entity_types="tools,resources", include_entities=True, db=mock_db, user={"email": "admin@example.com", "db": mock_db})
     assert result[0]["name"] == "alpha"
@@ -17852,7 +17852,7 @@ async def test_admin_list_tags_admin_bypass_context(monkeypatch, mock_db):
 
     tag_service = MagicMock()
     tag_service.get_all_tags = AsyncMock(return_value=[tag])
-    monkeypatch.setattr("mcpgateway.admin.TagService", lambda: tag_service)
+    monkeypatch.setattr("mcpgateway.admin.tags.TagService", lambda: tag_service)
 
     await admin_list_tags(entity_types=None, include_entities=False, db=mock_db, user={"email": "admin@example.com", "is_admin": True, "db": mock_db})
 
@@ -17870,7 +17870,7 @@ async def test_admin_list_tags_exception_raises_http_500(monkeypatch, mock_db):
     """Cover exception handler in admin_list_tags."""
     tag_service = MagicMock()
     tag_service.get_all_tags = AsyncMock(side_effect=RuntimeError("boom"))
-    monkeypatch.setattr("mcpgateway.admin.TagService", lambda: tag_service)
+    monkeypatch.setattr("mcpgateway.admin.tags.TagService", lambda: tag_service)
 
     with pytest.raises(HTTPException) as excinfo:
         await admin_list_tags(entity_types=None, include_entities=False, db=mock_db, user={"email": "admin@example.com", "db": mock_db})
