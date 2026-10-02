@@ -21844,7 +21844,7 @@ class TestMaintenanceMisc:
                 awaitable.close()
             raise asyncio.TimeoutError()
 
-        monkeypatch.setattr("mcpgateway.admin.asyncio.wait_for", fake_wait_for, raising=True)
+        monkeypatch.setattr("mcpgateway.admin.events.asyncio.wait_for", fake_wait_for, raising=True)
 
         response = await admin_events(request, _user={"email": "admin@test.com"}, _db=mock_db)
         chunks = [chunk async for chunk in response.body_iterator]
@@ -21873,7 +21873,7 @@ class TestMaintenanceMisc:
                 awaitable.close()
             raise asyncio.CancelledError()
 
-        monkeypatch.setattr("mcpgateway.admin.asyncio.wait_for", fake_wait_for, raising=True)
+        monkeypatch.setattr("mcpgateway.admin.events.asyncio.wait_for", fake_wait_for, raising=True)
 
         response = await admin_events(request, _user={"email": "admin@test.com"}, _db=mock_db)
         with pytest.raises(asyncio.CancelledError):
@@ -21896,7 +21896,7 @@ class TestMaintenanceMisc:
         logger = MagicMock()
         logger.debug = MagicMock()
         logger.error = MagicMock()
-        monkeypatch.setattr("mcpgateway.admin.LOGGER", logger, raising=True)
+        monkeypatch.setattr("mcpgateway.admin.events.LOGGER", logger, raising=True)
         monkeypatch.setattr("mcpgateway.admin.gateway_service.subscribe_events", lambda: gw_events())  # noqa: PLW0108
         monkeypatch.setattr("mcpgateway.admin.tool_service.subscribe_events", lambda: tool_events())  # noqa: PLW0108
 
