@@ -22,7 +22,14 @@ from mcpgateway.admin.assets import get_bundle_css_files, get_bundle_js_filename
 from mcpgateway.admin.common import _validated_team_id_param, a2a_service, gateway_service, prompt_service, resource_service, root_service, server_service, tool_service
 from mcpgateway.admin.grpc import GRPC_AVAILABLE, grpc_service_mgr
 from mcpgateway.admin.security import _set_admin_csrf_cookie, enforce_admin_csrf
-from mcpgateway.admin.visibility import get_hidden_sections_for_user, get_ui_visibility_config, get_user_action_permissions, UI_ACTION_PERMISSIONS, UI_HIDE_SECTIONS_COOKIE_MAX_AGE, UI_HIDE_SECTIONS_COOKIE_NAME
+from mcpgateway.admin.visibility import (
+    get_hidden_sections_for_user,
+    get_ui_visibility_config,
+    get_user_action_permissions,
+    UI_ACTION_PERMISSIONS,
+    UI_HIDE_SECTIONS_COOKIE_MAX_AGE,
+    UI_HIDE_SECTIONS_COOKIE_NAME,
+)
 from mcpgateway.auth_context import get_user_email, is_unrestricted_platform_admin
 from mcpgateway.config import settings
 from mcpgateway.db import EmailUser, get_db

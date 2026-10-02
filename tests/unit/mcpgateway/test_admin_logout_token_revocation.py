@@ -87,7 +87,7 @@ class TestAdminLogoutTokenRevocation:
         token, payload = _build_admin_jwt()
 
         with (
-            patch("mcpgateway.admin.verify_jwt_token_cached", new_callable=AsyncMock) as mock_verify,
+            patch("mcpgateway.admin.auth.verify_jwt_token_cached", new_callable=AsyncMock) as mock_verify,
             patch("mcpgateway.services.token_blocklist_service.get_token_blocklist_service") as mock_get_service,
         ):
             mock_verify.return_value = payload
@@ -122,7 +122,7 @@ class TestAdminLogoutTokenRevocation:
 
     def test_post_with_invalid_jwt_cookie_does_not_block_logout(self, client: TestClient, disable_admin_csrf: None) -> None:
         with (
-            patch("mcpgateway.admin.verify_jwt_token_cached", new_callable=AsyncMock) as mock_verify,
+            patch("mcpgateway.admin.auth.verify_jwt_token_cached", new_callable=AsyncMock) as mock_verify,
             patch("mcpgateway.services.token_blocklist_service.get_token_blocklist_service") as mock_get_service,
         ):
             mock_verify.side_effect = Exception("Invalid token")
@@ -143,7 +143,7 @@ class TestAdminLogoutTokenRevocation:
         assert "jti" not in payload
 
         with (
-            patch("mcpgateway.admin.verify_jwt_token_cached", new_callable=AsyncMock) as mock_verify,
+            patch("mcpgateway.admin.auth.verify_jwt_token_cached", new_callable=AsyncMock) as mock_verify,
             patch("mcpgateway.services.token_blocklist_service.get_token_blocklist_service") as mock_get_service,
         ):
             mock_verify.return_value = payload
@@ -163,7 +163,7 @@ class TestAdminLogoutTokenRevocation:
         token, payload = _build_admin_jwt()
 
         with (
-            patch("mcpgateway.admin.verify_jwt_token_cached", new_callable=AsyncMock) as mock_verify,
+            patch("mcpgateway.admin.auth.verify_jwt_token_cached", new_callable=AsyncMock) as mock_verify,
             patch("mcpgateway.services.token_blocklist_service.get_token_blocklist_service") as mock_get_service,
         ):
             mock_verify.return_value = payload
@@ -216,7 +216,7 @@ class TestAdminLogoutDenyPaths:
         token, payload = _build_admin_jwt()
 
         with (
-            patch("mcpgateway.admin.verify_jwt_token_cached", new_callable=AsyncMock) as mock_verify,
+            patch("mcpgateway.admin.auth.verify_jwt_token_cached", new_callable=AsyncMock) as mock_verify,
             patch("mcpgateway.services.token_blocklist_service.get_token_blocklist_service") as mock_get_service,
         ):
             mock_verify.return_value = payload

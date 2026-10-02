@@ -55,7 +55,7 @@ class TestGenerateSchemasFromOpenAPI:
         input_schema = {"type": "object", "properties": {"x": {"type": "number"}}}
         output_schema = {"type": "object", "properties": {"result": {"type": "number"}}}
 
-        with patch("mcpgateway.admin.fetch_and_extract_schemas") as mock_fetch:
+        with patch("mcpgateway.admin.tools.fetch_and_extract_schemas") as mock_fetch:
             mock_fetch.return_value = (input_schema, output_schema, "http://example.com/openapi.json")
 
             response = await generate_schemas_from_openapi(
@@ -73,7 +73,7 @@ class TestGenerateSchemasFromOpenAPI:
     @pytest.mark.asyncio
     async def test_with_openapi_url(self):
         """Custom openapi_url is forwarded to the service."""
-        with patch("mcpgateway.admin.fetch_and_extract_schemas") as mock_fetch:
+        with patch("mcpgateway.admin.tools.fetch_and_extract_schemas") as mock_fetch:
             mock_fetch.return_value = (None, {"type": "object"}, "http://example.com/custom-spec.json")
 
             response = await generate_schemas_from_openapi(
@@ -87,7 +87,7 @@ class TestGenerateSchemasFromOpenAPI:
     @pytest.mark.asyncio
     async def test_default_request_type_is_get(self):
         """request_type defaults to GET when omitted."""
-        with patch("mcpgateway.admin.fetch_and_extract_schemas") as mock_fetch:
+        with patch("mcpgateway.admin.tools.fetch_and_extract_schemas") as mock_fetch:
             mock_fetch.return_value = (None, {"type": "object"}, "http://example.com/openapi.json")
 
             response = await generate_schemas_from_openapi(
@@ -101,7 +101,7 @@ class TestGenerateSchemasFromOpenAPI:
     @pytest.mark.asyncio
     async def test_url_parsing(self):
         """URL is correctly split into base_url and path for the service call."""
-        with patch("mcpgateway.admin.fetch_and_extract_schemas") as mock_fetch:
+        with patch("mcpgateway.admin.tools.fetch_and_extract_schemas") as mock_fetch:
             mock_fetch.return_value = ({"type": "object"}, {"type": "object"}, "https://api.example.com:8443/openapi.json")
 
             response = await generate_schemas_from_openapi(
@@ -232,7 +232,7 @@ class TestGenerateSchemasErrorMapping:
     )
     async def test_exception_to_status(self, exception, expected_status, expected_fragment):
         """Service exceptions are converted to the correct HTTP status and message."""
-        with patch("mcpgateway.admin.fetch_and_extract_schemas") as mock_fetch:
+        with patch("mcpgateway.admin.tools.fetch_and_extract_schemas") as mock_fetch:
             mock_fetch.side_effect = exception
 
             response = await generate_schemas_from_openapi(
