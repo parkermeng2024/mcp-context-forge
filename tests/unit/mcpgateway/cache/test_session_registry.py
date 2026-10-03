@@ -41,7 +41,7 @@ import pytest
 
 # First-Party
 from mcpgateway.cache.session_registry import SessionMessageRecord, SessionRegistry
-from mcpgateway.config import settings
+from mcpgateway.config import get_settings, settings
 
 
 # --------------------------------------------------------------------------- #
@@ -838,6 +838,21 @@ async def test_handle_initialize_success(registry: SessionRegistry):
     body = {"protocol_version": settings.protocol_version}
     res = await registry.handle_initialize_logic(body)
     assert res.protocol_version == settings.protocol_version
+    assert res.server_info.name == settings.display_name
+
+
+@pytest.mark.asyncio
+async def test_handle_initialize_brands_the_server_info_name(registry: SessionRegistry, monkeypatch: pytest.MonkeyPatch):
+    """The handshake reports the branded name, not the raw app_name."""
+    inner = get_settings()
+
+    monkeypatch.setattr(inner, "app_name", "ContextForge")
+    res = await registry.handle_initialize_logic({"protocol_version": settings.protocol_version})
+    assert res.server_info.name == "AI Gateway"
+
+    monkeypatch.setattr(inner, "app_name", "Custom Edition")
+    res = await registry.handle_initialize_logic({"protocol_version": settings.protocol_version})
+    assert res.server_info.name == "Custom Edition"
 
 
 @pytest.mark.asyncio

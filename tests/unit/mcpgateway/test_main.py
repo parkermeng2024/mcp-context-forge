@@ -671,7 +671,7 @@ class TestHealthAndInfrastructure:
             # UI was disabled at import time: API info dict
             assert response.status_code == 200
             data = response.json()
-            assert data["name"] == "ContextForge"
+            assert data["name"] == "AI Gateway"
             assert "version" not in data
             assert "admin_api_enabled" not in data
 

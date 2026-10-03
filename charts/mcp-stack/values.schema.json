@@ -257,7 +257,7 @@
             "APP_NAME": {
               "type": "string",
               "description": "Application name",
-              "default": "ContextForge"
+              "default": "AI Gateway"
             },
             "APP_ROOT_PATH": {
               "type": "string",

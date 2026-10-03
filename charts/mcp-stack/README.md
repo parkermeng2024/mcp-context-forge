@@ -215,7 +215,7 @@ For detailed guidance on resource limits and process management, see `docs/docs/
 | mcpContextForge.config.GUNICORN_PRELOAD_APP | string | `"true"` |  |
 | mcpContextForge.config.GUNICORN_DEV_MODE | string | `"false"` |  |
 | mcpContextForge.config.DISABLE_ACCESS_LOG | string | `"true"` |  |
-| mcpContextForge.config.APP_NAME | string | `"ContextForge"` |  |
+| mcpContextForge.config.APP_NAME | string | `"AI Gateway"` |  |
 | mcpContextForge.config.HOST | string | `"0.0.0.0"` |  |
 | mcpContextForge.config.PORT | string | `"4444"` |  |
 | mcpContextForge.config.APP_ROOT_PATH | string | `""` |  |

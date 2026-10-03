@@ -254,7 +254,7 @@ mcpContextForge:
     DISABLE_ACCESS_LOG: "true"          # disable access logging for performance
 
     # ─ Basic application info ─
-    APP_NAME: ContextForge            # public-facing name of the gateway
+    APP_NAME: AI Gateway               # public-facing name of the gateway
     HOST: 0.0.0.0                    # address the server binds to
     PORT: "4444"                     # internal container port
     APP_ROOT_PATH: ""                # e.g. "/gateway" when deploying under sub-path

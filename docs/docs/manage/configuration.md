@@ -103,7 +103,7 @@ ContextForge supports multiple database backends with full feature parity across
 
 | Setting            | Description                              | Default                | Options                |
 |--------------------|------------------------------------------|------------------------|------------------------|
-| `APP_NAME`         | Gateway / OpenAPI title                  | `ContextForge`         | string                 |
+| `APP_NAME`         | Gateway / OpenAPI title                  | `AI Gateway`         | string                 |
 | `HOST`             | Bind address for the app                 | `127.0.0.1`            | IPv4/IPv6              |
 | `PORT`             | Port the server listens on               | `4444`                 | 1-65535                |
 | `CLIENT_MODE`      | Client-only mode for gateway-as-client   | `false`                | bool                   |

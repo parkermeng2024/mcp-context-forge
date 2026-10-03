@@ -103,7 +103,7 @@ if [ ! -f "$ENV_FILE" ]; then
     echo "Creating default $ENV_FILE..."
     cat > "$ENV_FILE" << EOL
 # Basic Settings
-APP_NAME=ContextForge
+APP_NAME=AI Gateway
 HOST=${HOST}
 PORT=${PORT}
 DATABASE_URL=sqlite:///./mcp.db

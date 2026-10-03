@@ -2141,7 +2141,7 @@ class SessionRegistry(SessionBackend):
             >>> result.protocol_version
             '2025-06-18'
             >>> result.server_info.name
-            'ContextForge'
+            'AI Gateway'
             >>>
             >>> # Missing protocol version
             >>> try:
@@ -2200,7 +2200,7 @@ class SessionRegistry(SessionBackend):
                     completions={},  # Advertise completions capability per MCP spec
                     experimental=experimental,  # OAuth capability when configured
                 ),
-                server_info=Implementation(name=settings.app_name, version=__version__),
+                server_info=Implementation(name=settings.display_name, version=__version__),
                 instructions=("ContextForge providing federated tools, resources and prompts. Use /admin interface for configuration."),
             )
 

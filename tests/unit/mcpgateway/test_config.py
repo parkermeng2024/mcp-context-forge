@@ -619,7 +619,8 @@ def test_settings_default_values():
     with patch.dict(os.environ, dummy_env, clear=True):
         settings = Settings(environment="development", _env_file=None)
 
-        assert settings.app_name == "ContextForge"
+        assert settings.app_name == "AI Gateway"
+        assert settings.display_name == "AI Gateway"
         assert settings.host == "127.0.0.1"
         assert settings.port == 4444
         assert settings.database_url == "sqlite:///./mcp.db"
@@ -639,6 +640,16 @@ def test_settings_default_values():
 def test_api_key_property():
     settings = Settings(basic_auth_user="u", basic_auth_password="p")
     assert settings.api_key == "u:p"
+
+
+def test_display_name_property(monkeypatch):
+    """A custom app_name passes through; the upstream default is branded."""
+    inner = get_settings()
+    monkeypatch.setattr(inner, "app_name", "ContextForge")
+    assert get_settings().display_name == "AI Gateway"
+
+    monkeypatch.setattr(inner, "app_name", "Custom Edition")
+    assert get_settings().display_name == "Custom Edition"
 
 
 # --------------------------------------------------------------------------- #

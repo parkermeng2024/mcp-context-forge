@@ -410,7 +410,7 @@ class ComplianceService:
             "require_token_expiration": getattr(settings, "require_token_expiration", True),
             "require_jti": getattr(settings, "require_jti", True),
             "require_user_in_db": getattr(settings, "require_user_in_db", False),
-            "app_name": getattr(settings, "app_name", "ContextForge"),
+            "app_name": getattr(settings, "app_name", "AI Gateway"),
         }
 
     # ------------------------------------------------------------------

@@ -63,7 +63,7 @@ class TestAPIEndpoints:
         """Test that API documentation is accessible."""
         # Test Swagger UI
         admin_page.page.goto(f"{base_url}/docs")
-        expect(admin_page.page).to_have_title(re.compile(r"ContextForge - Swagger UI"))
+        expect(admin_page.page).to_have_title(re.compile(r"AI Gateway - Swagger UI"))
         try:
             expect(admin_page.page.locator(".swagger-ui")).to_be_visible(timeout=15000)
         except AssertionError:

@@ -8,7 +8,7 @@ This module defines configuration settings for ContextForge AI Gateway using Pyd
 It loads configuration from environment variables with sensible defaults.
 
 Environment variables:
-- APP_NAME: Gateway name (default: "ContextForge")
+- APP_NAME: Gateway name (default: "AI Gateway")
 - HOST: Host to bind to (default: "127.0.0.1")
 - PORT: Port to listen on (default: 4444)
 - DATABASE_URL: SQLite database URL (default: "sqlite:///./mcp.db")
@@ -195,7 +195,7 @@ class Settings(BaseSettings):
         True
         >>> s5 = Settings()
         >>> s5.app_name
-        'ContextForge'
+        'AI Gateway'
         >>> s5.host in ('0.0.0.0', '127.0.0.1')  # Default can be either
         True
         >>> s5.port
@@ -223,7 +223,7 @@ class Settings(BaseSettings):
     """
 
     # Basic Settings
-    app_name: str = "ContextForge"
+    app_name: str = "AI Gateway"
     host: str = "127.0.0.1"
     port: PositiveInt = Field(default=4444, ge=1, le=65535)
     client_mode: bool = False
@@ -3610,6 +3610,27 @@ Disallow: /
             'user123:pass456'
         """
         return f"{self.basic_auth_user}:{self.basic_auth_password.get_secret_value()}"
+
+    @property
+    def display_name(self) -> str:
+        """Return the user-facing application name.
+
+        ``app_name`` is the single source of truth. A legacy ``APP_NAME=ContextForge``
+        value reports as "AI Gateway", so existing deployments pick up the rename.
+
+        Returns:
+            str: Name shown in the Admin UI, the diagnostics payload, and the MCP handshake.
+
+        Examples:
+            >>> from mcpgateway.config import Settings
+            >>> Settings(app_name="AI Gateway").display_name
+            'AI Gateway'
+            >>> Settings(app_name="ContextForge").display_name
+            'AI Gateway'
+            >>> Settings(app_name="Custom Edition").display_name
+            'Custom Edition'
+        """
+        return "AI Gateway" if self.app_name == "ContextForge" else self.app_name
 
     @property
     def supports_http(self) -> bool:

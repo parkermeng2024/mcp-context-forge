@@ -143,11 +143,16 @@ def test_version_json_brands_the_application_name(monkeypatch: pytest.MonkeyPatc
         },
     )
 
-    monkeypatch.setattr(ver_mod.settings, "app_name", "ContextForge", raising=False)
+    # Patch the concrete Settings instance; the module-level ``settings`` is a lazy wrapper
+    # that would only shadow ``app_name`` instead of updating the object the payload reads.
+    # First-Party
+    from mcpgateway.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "app_name", "ContextForge")
     assert client.get("/version").json()["app"]["name"] == "AI Gateway"
     assert "AI Gateway" in client.get("/version?partial=true").text
 
-    monkeypatch.setattr(ver_mod.settings, "app_name", "Custom Edition", raising=False)
+    monkeypatch.setattr(get_settings(), "app_name", "Custom Edition")
     assert client.get("/version").json()["app"]["name"] == "Custom Edition"
 
 
