@@ -47,7 +47,7 @@
     <label for="a2a-bp-team-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('common.table.team') }}:</label>
     <select id="a2a-bp-team-filter"
             class="mt-1 block w-64 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            onchange="filterByTeam(this.value)">
+            data-action-change="filterBindingsByTeam">
       <option value="">{{ t('common.allTeams') }}</option>
       {% for team in teams %}
       {% if selected_team_id == team.id %}
@@ -65,7 +65,7 @@
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
         {{ t('plugins.bindings.tableTitle', count=bindings|length) }}
       </h3>
-      <button onclick="showAddBindingForm()"
+      <button data-action-click="showAddBindingForm"
               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
         {{ t('plugins.bindings.add') }}
       </button>
@@ -141,14 +141,14 @@
   <!-- Add Binding Modal -->
   <div id="add-binding-modal" class="fixed z-40 inset-0 overflow-y-auto hidden">
     <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75 transition-opacity" onclick="closeAddBindingForm()"></div>
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75 transition-opacity" data-action-click="closeAddBindingForm"></div>
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
       <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
         <form id="add-binding-form"
               hx-post="{{ root_path }}/admin/a2a/plugin-bindings"
               hx-target="#a2a-plugin-bindings-panel"
               hx-swap="innerHTML"
-              onsubmit="return validateBindingForm(event)">
+              onsubmit="return window.Admin.validateBindingForm(event)">
           <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('plugins.bindings.addTitle') }}</h3>
           </div>
@@ -216,7 +216,7 @@
             </div>
           </div>
           <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
-            <button type="button" onclick="closeAddBindingForm()"
+            <button type="button" data-action-click="closeAddBindingForm"
                     class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
               {{ t('common.actions.cancel') }}
             </button>
@@ -230,48 +230,3 @@
     </div>
   </div>
 </div>
-
-<script>
-function filterByTeam(teamId) {
-  const params = new URLSearchParams(window.location.search);
-  if (teamId) {
-    params.set('team_id', teamId);
-  } else {
-    params.delete('team_id');
-  }
-  const url = '{{ root_path }}/admin/a2a/plugin-bindings/partial' + (params.toString() ? '?' + params.toString() : '');
-  htmx.ajax('GET', url, { target: '#a2a-plugin-bindings-panel', swap: 'innerHTML' });
-}
-
-function showAddBindingForm() {
-  document.getElementById('add-binding-modal').classList.remove('hidden');
-}
-
-function closeAddBindingForm() {
-  document.getElementById('add-binding-modal').classList.add('hidden');
-}
-
-function validateBindingForm(event) {
-  const team = document.getElementById('new-binding-team').value;
-  const agent = document.getElementById('new-binding-agent').value;
-  const plugin = document.getElementById('new-binding-plugin').value;
-  const configRaw = document.getElementById('new-binding-config').value || '{}';
-
-  if (!team || !agent || !plugin) {
-    alert({{ t('plugins.bindings.validation.required') | tojson }});
-    event.preventDefault();
-    return false;
-  }
-
-  try {
-    JSON.parse(configRaw);
-  } catch (e) {
-    alert({{ t('plugins.bindings.validation.invalidJson', error='') | tojson }} + e.message);
-    event.preventDefault();
-    return false;
-  }
-
-  closeAddBindingForm();
-  return true;
-}
-</script>
