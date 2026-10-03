@@ -121,6 +121,36 @@ def test_version_json_ok(client: TestClient) -> None:
     assert "mounted" in payload["mcp_runtime"]
 
 
+def test_version_json_brands_the_application_name(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The payload shows the branded name, not the raw app_name."""
+    # First-Party
+    from mcpgateway import version as ver_mod
+
+    client = TestClient(_build_app(monkeypatch, auth_ok=True))
+
+    # The partial template formats every system metric, so stub the full set.
+    monkeypatch.setattr(
+        ver_mod,
+        "_system_metrics",
+        lambda: {
+            "cpu_count": 4,
+            "cpu_freq_mhz": 2400,
+            "mem_used_mb": 128.0,
+            "mem_total_mb": 256.0,
+            "disk_used_gb": 1.0,
+            "disk_total_gb": 2.0,
+            "boot_time": "2026-01-01T00:00:00Z",
+        },
+    )
+
+    monkeypatch.setattr(ver_mod.settings, "app_name", "ContextForge", raising=False)
+    assert client.get("/version").json()["app"]["name"] == "AI Gateway"
+    assert "AI Gateway" in client.get("/version?partial=true").text
+
+    monkeypatch.setattr(ver_mod.settings, "app_name", "Custom Edition", raising=False)
+    assert client.get("/version").json()["app"]["name"] == "Custom Edition"
+
+
 def test_version_html_query_param(client: TestClient) -> None:
     rsp = client.get("/version?fmt=html")
     assert rsp.status_code == 200

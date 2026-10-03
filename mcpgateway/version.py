@@ -1024,7 +1024,8 @@ def _build_payload(
         "host": HOSTNAME,
         "uptime_seconds": int(time.time() - START_TIME),
         "app": {
-            "name": settings.app_name,
+            # Keep the displayed name aligned with the FastAPI title in main.py.
+            "name": "AI Gateway" if settings.app_name == "ContextForge" else settings.app_name,
             "version": __version__,
             "mcp_protocol_version": settings.protocol_version,
         },
