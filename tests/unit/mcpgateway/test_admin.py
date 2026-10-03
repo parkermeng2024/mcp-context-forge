@@ -23044,7 +23044,9 @@ class TestTemplateButtonGating:
         admin_template = admin_template_path.read_text(encoding="utf-8")
         assert 'id="server-modal"' in admin_template
         assert "fixed inset-0 transition-opacity pointer-events-none" in admin_template
-        assert "evt.detail.headers = evt.detail.headers || {};" in admin_template
+        # The HTMX request-header wiring moved from the template to admin_ui/htmxClient.js.
+        htmx_client = (settings.templates_dir.parent / "admin_ui" / "htmxClient.js").read_text(encoding="utf-8")
+        assert "evt.detail.headers = evt.detail.headers || {};" in htmx_client
 
     def test_prompts_hides_buttons_for_non_owner(self, jinja_env):
         """Non-owner: no editPrompt in HTML."""
