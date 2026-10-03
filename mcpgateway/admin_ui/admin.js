@@ -570,6 +570,8 @@ Admin.toggleSsoProvider = toggleSsoProvider;
 // after the template has parsed and before DOMContentLoaded fires.
 import { getFlashParams, initFlashMessages } from "./flashMessages.js";
 import { handleEditIntegrationTypeChange, initToolEditModalObserver } from "./toolEdit.js";
+import { initHtmxClient } from "./htmxClient.js";
+import { initNewUserPassword, validateNewUserPassword } from "./newUserPassword.js";
 import { closeAddBindingForm, filterBindingsByTeam, showAddBindingForm, validateBindingForm } from "./a2aPluginBindings.js";
 import {
   buildTeamsPartialUrl,
@@ -616,6 +618,8 @@ Admin.getFlashParams = getFlashParams;
 Admin.initFlashMessages = initFlashMessages;
 Admin.handleEditIntegrationTypeChange = handleEditIntegrationTypeChange;
 Admin.initToolEditModalObserver = initToolEditModalObserver;
+Admin.validateNewUserPassword = validateNewUserPassword;
+window.validateNewUserPassword = validateNewUserPassword;
 Admin.closeAddBindingForm = closeAddBindingForm;
 Admin.filterBindingsByTeam = filterBindingsByTeam;
 Admin.showAddBindingForm = showAddBindingForm;
@@ -658,6 +662,8 @@ Admin.validateDropdownJson = validateDropdownJson;
 Admin.validateJsonInput = validateJsonInput;
 initFlashMessages();
 initToolEditModalObserver();
+initHtmxClient();
+initNewUserPassword();
 
 // ===================================================================
 // TIER 3 & 4: Domain and Orchestration modules (still using IIFE)
