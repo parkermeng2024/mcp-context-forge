@@ -23,7 +23,7 @@
   aria-label="{{ t('language.label') }}"
   class="text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 {{ locale_switcher_classes }}"
 >
-  {% for code, name in supported_locales().items() %}
+  {% for code, name in supported_locales().items() if code in ['zh-CN', 'en'] %}
   <option value="{{ code }}"{{ ' selected' if code == current_locale() else '' }}>{{ name }}</option>
   {% endfor %}
 </select>

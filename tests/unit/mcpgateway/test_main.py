@@ -4747,6 +4747,8 @@ class TestErrorHandling:
         """Test GET /docs with authentication returns 200 or redirect."""
         response = test_client.get("/docs", headers=auth_headers)
         assert response.status_code == 200
+        assert f"<title>{test_client.app.title} - Swagger UI</title>" in response.text
+        assert "/static/ai-gateway-icon_color.svg" in response.text
 
     def test_redoc_with_auth(self, test_client, auth_headers):
         """Test GET /redoc with authentication returns 200 or redirect."""

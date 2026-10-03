@@ -1688,7 +1688,7 @@
   "common.states.offline": "Offline",
   "overview.title": "System Overview",
   "overview.uptime": "Uptime:",
-  "overview.onboarding.title": "Get started with ContextForge",
+  "overview.onboarding.title": "Get started with AI Gateway",
   "overview.onboarding.subtitle": "Connect your first upstream server or agent to start building.",
   "overview.onboarding.addMcpServer.title": "Add MCP Server",
   "overview.onboarding.addMcpServer.description": "Register an upstream MCP server to federate its tools, resources, and prompts.",

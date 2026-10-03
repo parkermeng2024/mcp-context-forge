@@ -53,6 +53,7 @@ from fastapi.background import BackgroundTasks
 from fastapi.exception_handlers import request_validation_exception_handler as fastapi_default_validation_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import JSONResponse, RedirectResponse, Response, StreamingResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
@@ -2194,13 +2195,34 @@ async def setup_passthrough_headers():
 
 # Initialize FastAPI app with orjson for 2-3x faster JSON serialization
 app = FastAPI(
-    title=settings.app_name,
+    title="AI Gateway" if settings.app_name == "ContextForge" else settings.app_name,
+    docs_url=None,
     version=__version__,
-    description="ContextForge AI Gateway — an AI gateway, registry, and proxy for MCP, A2A, and REST/gRPC APIs. Exposes a unified control plane with centralized governance, discovery, and observability. Optimizes agent and tool calling, and supports plugins.",
+    description="AI Gateway — an AI gateway, registry, and proxy for MCP, A2A, and REST/gRPC APIs. Exposes a unified control plane with centralized governance, discovery, and observability. Optimizes agent and tool calling, and supports plugins.",
     root_path=settings.app_root_path,
     lifespan=lifespan,
     default_response_class=ORJSONResponse,  # Use orjson for high-performance JSON serialization
 )
+
+
+@app.get("/docs", include_in_schema=False)
+async def swagger_docs(request: Request):
+    """Return API documentation with the gateway title and icon.
+
+    Args:
+        request: Incoming request with the deployment root path.
+
+    Returns:
+        HTML response containing the Swagger UI.
+    """
+    root_path = resolve_root_path(request).rstrip("/")
+    return get_swagger_ui_html(
+        openapi_url=f"{root_path}{app.openapi_url}",
+        title=f"{app.title} - Swagger UI",
+        swagger_favicon_url=f"{root_path}/static/ai-gateway-icon_color.svg",
+        oauth2_redirect_url=f"{root_path}{app.swagger_ui_oauth2_redirect_url}" if app.swagger_ui_oauth2_redirect_url else None,
+    )
+
 
 # Setup metrics instrumentation
 setup_metrics(app)

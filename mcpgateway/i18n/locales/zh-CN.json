@@ -1688,7 +1688,7 @@
   "common.states.offline": "离线",
   "overview.title": "系统概览",
   "overview.uptime": "运行时长：",
-  "overview.onboarding.title": "ContextForge 快速入门",
+  "overview.onboarding.title": "AI Gateway 快速入门",
   "overview.onboarding.subtitle": "连接您的第一个上游服务器或智能体，开始构建。",
   "overview.onboarding.addMcpServer.title": "添加 MCP 服务器",
   "overview.onboarding.addMcpServer.description": "注册上游 MCP 服务器，以联合其工具、资源和提示词。",
