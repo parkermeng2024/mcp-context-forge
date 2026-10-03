@@ -18,127 +18,7 @@
     <!-- Custom animations - Previously defined via inline Tailwind config, now external for CSP compliance -->
     <link rel="stylesheet" href="{{ root_path }}/static/css/auth-animations.css" />
     <!-- HTMX is now bundled in the main JS bundle -->
-    <script nonce="{{ csp_nonce(request) }}">
-      // Configure HTMX to swap content on 4xx responses (for inline error display)
-      document.addEventListener("htmx:beforeSwap", function (evt) {
-        const xhr = evt.detail.xhr;
-        if (!xhr || xhr.status < 400 || xhr.status >= 500) {
-          return;
-        }
-        const triggerEl = evt.detail.elt;
-        const requestEl = evt.detail.requestConfig?.elt;
-        const isTeamForm =
-          (triggerEl &&
-            triggerEl.closest('[data-team-validation="true"]')) ||
-          (requestEl &&
-            requestEl.closest('[data-team-validation="true"]'));
-        const hasRetarget = !!xhr.getResponseHeader("HX-Retarget");
-        if (isTeamForm || hasRetarget) {
-          evt.detail.shouldSwap = true;
-          evt.detail.isError = false;
-        }
-      });
-
-      // Configure HTMX to include credentials and JWT tokens
-      document.addEventListener("htmx:configRequest", function (evt) {
-        // Force include credentials for same-origin requests
-        evt.detail.credentials = "same-origin"; // pragma: allowlist secret
-        evt.detail.headers = evt.detail.headers || {};
-
-        // Add JWT token from cookie if available
-        const jwtToken = getCookie("jwt_token");
-        if (jwtToken) {
-          evt.detail.headers["{{ auth_header_name|default('Authorization') }}"] = "Bearer " + jwtToken;
-        }
-
-        const csrfToken = getCookie("mcpgateway_csrf_token");
-        if (csrfToken) {
-          evt.detail.headers["X-CSRF-Token"] = csrfToken;
-        }
-      });
-
-      // Helper function to get cookie value
-      function getCookie(name) {
-        const value = "; " + document.cookie;
-        const parts = value.split("; " + name + "=");
-        if (parts.length == 2) return parts.pop().split(";").shift();
-        return "";
-      }
-
-      function isUnsafeHttpMethod(method) {
-        const normalized = (method || "GET").toUpperCase();
-        return normalized !== "GET" && normalized !== "HEAD" && normalized !== "OPTIONS" && normalized !== "TRACE";
-      }
-
-      function isSameOriginRequest(resource) {
-        try {
-          if (resource instanceof Request) {
-            return new URL(resource.url, window.location.origin).origin === window.location.origin;
-          }
-          return new URL(String(resource), window.location.origin).origin === window.location.origin;
-        } catch (e) {
-          return false;
-        }
-      }
-
-      // Ensure all same-origin fetch mutations carry the CSRF header.
-      (function wrapFetchWithCsrf() {
-        if (window.__mcpgatewayCsrfFetchWrapped || typeof window.fetch !== "function") {
-          return;
-        }
-        const originalFetch = window.fetch.bind(window);
-        window.fetch = function(resource, init = {}) {
-          const requestInit = init ? { ...init } : {};
-          const methodFromRequest = resource instanceof Request ? resource.method : null;
-          const method = (requestInit.method || methodFromRequest || "GET").toUpperCase();
-          if (isUnsafeHttpMethod(method) && isSameOriginRequest(resource)) {
-            const csrfToken = getCookie("mcpgateway_csrf_token");
-            const jwtToken = getCookie("jwt_token");
-            if (csrfToken || jwtToken) {
-              const nextHeaders = new Headers(requestInit.headers || (resource instanceof Request ? resource.headers : undefined));
-              const authHeaderName = "{{ auth_header_name|default('Authorization') }}";
-              if (jwtToken && !nextHeaders.has(authHeaderName)) {
-                nextHeaders.set(authHeaderName, "Bearer " + jwtToken);
-              }
-              if (csrfToken) {
-                nextHeaders.set("X-CSRF-Token", csrfToken);
-              }
-              requestInit.headers = nextHeaders;
-            }
-          }
-          return originalFetch(resource, requestInit);
-        };
-        window.__mcpgatewayCsrfFetchWrapped = true;
-      })();
-
-      // Add CSRF token to same-origin non-GET forms as a hidden field.
-      document.addEventListener("submit", function (event) {
-        const form = event.target;
-        if (!(form instanceof HTMLFormElement)) {
-          return;
-        }
-        const method = (form.getAttribute("method") || "GET").toUpperCase();
-        if (!isUnsafeHttpMethod(method)) {
-          return;
-        }
-        const action = form.getAttribute("action") || window.location.href;
-        if (!isSameOriginRequest(action)) {
-          return;
-        }
-        const csrfToken = getCookie("mcpgateway_csrf_token");
-        if (!csrfToken) {
-          return;
-        }
-        let tokenInput = form.querySelector('input[name="csrf_token"]');
-        if (!tokenInput) {
-          tokenInput = document.createElement("input");
-          tokenInput.type = "hidden";
-          tokenInput.name = "csrf_token";
-          form.appendChild(tokenInput);
-        }
-        tokenInput.value = csrfToken;
-      });
-    </script>
+    <!-- HTMX request and response hooks and the CSRF fetch wrapper live in admin_ui/htmxClient.js -->
 
     <!-- Password Validator (shared utility) -->
     <script defer src="{{ root_path }}/static/js/password-validator.js" nonce="{{ csp_nonce(request) }}"></script>
@@ -158,6 +38,7 @@
     </script>
     {# Must precede the bundle: admin_ui modules read window.__I18N__ at import time. #}
     {% include '_i18n_config.html' %}
+    {% include '_admin_config.html' %}
     <script type="module" src="{{ root_path }}/static/{{ bundle_js }}"></script>
     {% if is_admin %}
     <script defer src="{{ root_path }}/static/gantt-chart.js?v=3"></script>
@@ -6141,45 +6022,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   </div>
                   {% endif %}
                 </div>
-                <script nonce="{{ csp_nonce(request) }}">
-                  // Validate the Create User password box using shared PasswordValidator
-                  (function(){
-                    const passwordPolicy = {
-                      enabled: {{ password_policy_enabled | tojson }},
-                      requirements: {{ password_requirements | tojson }}
-                    };
-
-                    window.validateNewUserPassword = function() {
-                      if (!passwordPolicy.enabled || !window.PasswordValidator) return;
-
-                      const password = document.getElementById('new_user_password')?.value || '';
-                      const validation = window.PasswordValidator.validate(password, passwordPolicy.requirements);
-
-                      // Update requirement indicators
-                      window.PasswordValidator.updateRequirementUI('req-length', validation.details.length);
-                      window.PasswordValidator.updateRequirementUI('req-uppercase', validation.details.complexityDetails.uppercase);
-                      window.PasswordValidator.updateRequirementUI('req-lowercase', validation.details.complexityDetails.lowercase);
-                      window.PasswordValidator.updateRequirementUI('req-numbers', validation.details.complexityDetails.numbers);
-                      window.PasswordValidator.updateRequirementUI('req-special', validation.details.complexityDetails.special);
-
-                      // Enable/disable submit button based on validation
-                      const submitBtn = document.getElementById('create_user_submit');
-                      if (submitBtn) {
-                        submitBtn.disabled = !validation.isValid;
-                        if (submitBtn.disabled) {
-                          submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
-                        } else {
-                          submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
-                        }
-                      }
-                    };
-
-                    document.addEventListener('DOMContentLoaded', function(){
-                      // initialize state
-                      window.validateNewUserPassword();
-                    });
-                  })();
-                </script>
+                <!-- Create-user password validation lives in admin_ui/newUserPassword.js -->
                 <div class="flex items-center">
                   <input
                     type="checkbox"

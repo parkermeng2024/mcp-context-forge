@@ -1,0 +1,21 @@
+{#
+  Embeds runtime configuration for the admin UI JavaScript bundle.
+
+  MUST be emitted before the admin UI bundle script tag: modules read
+  `window.__ADMIN_CONFIG__` at import time.
+
+  Context:
+      request: Incoming request, used for the CSP nonce.
+      auth_header_name: Request header that carries the bearer token.
+      password_policy_enabled: Whether the password policy is enforced.
+      password_requirements: Password policy rules for the validator.
+#}
+<script nonce="{{ csp_nonce(request) }}">
+  window.__ADMIN_CONFIG__ = {
+    "authHeaderName": {{ auth_header_name | default('Authorization') | tojson }},
+    "passwordPolicy": {
+      "enabled": {{ password_policy_enabled | default(false) | tojson }},
+      "requirements": {{ password_requirements | default({}) | tojson }}
+    }
+  };
+</script>
