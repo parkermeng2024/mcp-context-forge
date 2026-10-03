@@ -6324,7 +6324,11 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   <option value="">{{ t('tokens.form.expiryNever') }}</option>
                   {% endif %}
                   {% for days in [7, 30, 60, 90, 365] %}
-                  <option value="{{ days }}" {% if days == 30 %}selected{% endif %}>{{ t('tokens.form.expiryDays', days=days) }}</option>
+                  {% if days == 30 %}
+                  <option value="{{ days }}" selected>{{ t('tokens.form.expiryDays', days=days) }}</option>
+                  {% else %}
+                  <option value="{{ days }}">{{ t('tokens.form.expiryDays', days=days) }}</option>
+                  {% endif %}
                   {% endfor %}
                 </select>
                 {% if require_token_expiration %}
