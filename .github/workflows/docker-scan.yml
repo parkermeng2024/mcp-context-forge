@@ -179,7 +179,9 @@ jobs:
           echo "::endgroup::"
 
       - name: Upload SARIF to CodeQL
-        if: always() && (github.event_name == 'merge_group' || github.event_name == 'push') && steps.scan-fedramp.outputs.sarif != ''
+        # Code scanning needs GitHub Advanced Security on private repositories.
+        # Skip the upload there; set the CODE_SCANNING_ENABLED variable to 'true' after enabling it.
+        if: always() && (github.event_name == 'merge_group' || github.event_name == 'push') && steps.scan-fedramp.outputs.sarif != '' && (github.event.repository.private == false || vars.CODE_SCANNING_ENABLED == 'true')
         uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         with:
           sarif_file: "${{ steps.scan-fedramp.outputs.sarif }}"
@@ -253,7 +255,9 @@ jobs:
           echo "::endgroup::"
 
       - name: Upload SARIF to CodeQL
-        if: always() && (github.event_name == 'merge_group' || github.event_name == 'push') && steps.scan.outputs.sarif != ''
+        # Code scanning needs GitHub Advanced Security on private repositories.
+        # Skip the upload there; set the CODE_SCANNING_ENABLED variable to 'true' after enabling it.
+        if: always() && (github.event_name == 'merge_group' || github.event_name == 'push') && steps.scan.outputs.sarif != '' && (github.event.repository.private == false || vars.CODE_SCANNING_ENABLED == 'true')
         uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         with:
           sarif_file: "${{ steps.scan.outputs.sarif }}"
