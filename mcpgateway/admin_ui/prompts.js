@@ -1208,6 +1208,7 @@ export const runPromptTest = async function () {
         const errorData = await response.json();
         errorMessage =
           errorData.message ||
+          errorData.detail ||
           `HTTP ${response.status}: ${response.statusText}`;
 
         // Show more detailed error information

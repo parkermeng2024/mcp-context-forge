@@ -821,6 +821,32 @@ describe("buildPromptTestForm - Extended", () => {
 // runPromptTest - Extended Tests
 // ---------------------------------------------------------------------------
 describe("runPromptTest - Extended", () => {
+  test("displays the backend detail for a rejected render request", async () => {
+    window.ROOT_PATH = "";
+    document.body.innerHTML = '<form id="prompt-test-form"></form><div id="prompt-test-result"></div>';
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubGlobal("fetch", vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: "p-detail", name: "test-prompt", arguments: [] }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+        statusText: "Forbidden",
+        json: async () => ({ detail: "CSRF validation failed" }),
+      }));
+    try {
+      await testPrompt("p-detail");
+      await runPromptTest();
+      expect(document.getElementById("prompt-test-result").textContent).toContain("CSRF validation failed");
+    } finally {
+      cleanupPromptTestModal();
+      consoleSpy.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
   test("handles successful prompt rendering", async () => {
     window.ROOT_PATH = "";
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
