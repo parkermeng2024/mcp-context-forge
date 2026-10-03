@@ -20,6 +20,8 @@
   SELECT team_id, name, COUNT(*) AS duplicate_count FROM tools WHERE visibility = 'team' GROUP BY team_id, name HAVING COUNT(*) > 1 ORDER BY team_id, name;
   SELECT owner_email, name, COUNT(*) AS duplicate_count FROM tools WHERE visibility = 'private' GROUP BY owner_email, name HAVING COUNT(*) > 1 ORDER BY owner_email, name;
   ```
+- **Dead auth animation stylesheet** - `templates/admin.html` and `templates/change-password-required.html` linked `static/css/auth-animations.css`. The file no longer exists, so every page load requested a missing stylesheet. The two links are gone.
+- **Prompt test error detail** - The Admin UI prompt test read only `errorData.message`. A rejected render request answered `{"detail": ...}`, so the panel showed `HTTP 403: Forbidden` and hid the backend reason. The error path now falls back to `errorData.detail`.
 
 ## [1.0.11] - 2026-09-28 - MCP Python SDK 2.x, Tool Preview, SSO Controls, and Live E2E Coverage
 
