@@ -38,9 +38,14 @@ config:
   MD013: false  # Disable line length rule completely
 
   # Optional: Other commonly configured rules
-  # MD024: false  # Multiple headings with the same content
+  # Allow release sections to reuse headings under different parents.
+  MD024:
+    siblings_only: true
   # MD026: false  # Trailing punctuation in heading
-  # MD033: false  # Inline HTML
+  MD033:
+    allowed_elements: [br]
+  MD060:
+    style: compact
   # MD041: false  # First line in file should be a heading
 
 # Show progress while linting
