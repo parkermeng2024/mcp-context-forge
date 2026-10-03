@@ -23048,6 +23048,18 @@ class TestTemplateButtonGating:
         htmx_client = (settings.templates_dir.parent / "admin_ui" / "htmxClient.js").read_text(encoding="utf-8")
         assert "evt.detail.headers = evt.detail.headers || {};" in htmx_client
 
+    def test_rest_api_onboarding_card_links_to_tools(self):
+        """The REST API onboarding card links to the tools tab instead of being disabled."""
+        overview = (settings.templates_dir / "overview_partial.html").read_text(encoding="utf-8")
+        rest_card = overview.split("<!-- REST API")[1].split("<!-- gRPC")[0]
+        assert 'data-action-click="showTab" data-arg0="tools"' in rest_card
+        assert "aria-disabled" not in rest_card
+        assert "overview.onboarding.comingSoon" not in rest_card
+        # The gRPC card stays a disabled placeholder.
+        grpc_card = overview.split("<!-- gRPC")[1]
+        assert 'aria-disabled="true"' in grpc_card
+        assert "overview.onboarding.comingSoon" in grpc_card
+
     def test_prompts_hides_buttons_for_non_owner(self, jinja_env):
         """Non-owner: no editPrompt in HTML."""
         prompt_data = {
