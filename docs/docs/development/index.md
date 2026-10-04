@@ -17,6 +17,8 @@ Welcome! This guide is for developers contributing to ContextForge. Whether you'
 | [Agent Prose Standard](agent-prose.md)                                            | ASD-STE100 prose rules for code comments, commits, PRs, reviews, and issues    |
 | [DEVELOPING.md](https://github.com/IBM/mcp-context-forge/blob/main/DEVELOPING.md) | Development setup, project architecture, workflow, and debugging              |
 
+See the [enterprise REST API to MCP proposal](enterprise-rest-api-to-mcp-proposal.md) for the internal API discovery and publication plan.
+
 ---
 
 ## 🛠 Developer Environment
