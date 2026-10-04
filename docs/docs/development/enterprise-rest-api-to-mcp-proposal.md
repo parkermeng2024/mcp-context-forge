@@ -1,7 +1,9 @@
 # Proposal: Discover Enterprise REST APIs and Publish Them as MCP Tools
 
-**Status:** Proposed  
-**Date:** 2026-10-03  
+**Status:** Proposed
+
+**Date:** 2026-10-03
+
 **Scope:** Search authorized enterprise API catalogs, let users select documented operations, and publish them to the current AI Gateway as REST tools and a virtual MCP server.
 
 ## Summary
