@@ -225,3 +225,21 @@ Extend OpenAPI versions, schema references, authentication types, or parameter s
 3. Which upstream authentication methods do the first target APIs require?
 4. What OpenAPI versions and parameter styles occur in the target APIs?
 5. What retention period applies to document snapshots and publication records?
+
+## Tracking
+
+Implementation work is tracked in the repository issue tracker.
+
+| Topic | Issue |
+| --- | --- |
+| Per-location REST parameter mapping (path, query, header, body) | #17 |
+| Database-enforced publication idempotency and cleanup by recorded ID | #18 |
+| Explicit private visibility for generated resources | #19 |
+| UI strings in all four locale catalogs | #20 |
+| Tool-name namespacing and collision handling | #21 |
+| Snapshot retention and source-lookup index | #22 |
+| Source-fetch credentials for authenticated catalogs | #23 |
+| OpenAPI `servers[]` and path-item parameter inheritance | #24 |
+| Admin UI hierarchy, states, responsive behavior, and accessibility | #25 |
+
+The durable decisions are recorded in [ADR-0057](../architecture/adr/057-enterprise-rest-to-mcp-publication-boundaries.md).
