@@ -1,6 +1,6 @@
 # Tool Invocation & Output-Schema Validation
 
-ContextForge invokes tools across several very different backends — federated MCP peers, REST endpoints, OpenAPI-discovered services, A2A agents, and admin-registered tools — and in all cases exposes the result back to downstream MCP clients. Every one of those paths has at least one output-schema validation layer, and some have three. This document catalogues them end-to-end so contributors can reason about the full lifecycle of a tool call, the invariants at each hop, and where the MCP spec's "skip validation for error responses" rule takes effect.
+ContextForge invokes tools across several very different backends — federated MCP peers, REST endpoints, A2A agents, and admin-registered tools — and in all cases exposes the result back to downstream MCP clients. Every one of those paths has at least one output-schema validation layer, and some have three. This document catalogues them end-to-end so contributors can reason about the full lifecycle of a tool call, the invariants at each hop, and where the MCP spec's "skip validation for error responses" rule takes effect.
 
 > **Why this matters:** ContextForge issue [#4202] surfaced a class of bug where error responses from a tool with a declared `outputSchema` were silently replaced with validation-error payloads at more than one layer in the pipeline. Fixing it required coordinated changes across the ingress validator, the transport handler's egress shape, and an upstream-fixture description filter. Keeping the flow documented prevents re-introductions.
 
@@ -145,15 +145,15 @@ ContextForge invokes tools across several very different backends — federated 
 
 `DbTool.integration_type` is the primary discriminator at invocation time and is one of three literal values: `"MCP"`, `"REST"`, or `"A2A"` (see `mcpgateway/schemas.py::ToolCreate.integration_type`). The `invoke_tool` branches in `tool_service.py` fan out on this field — grep for `if tool_integration_type == "REST":` / `elif tool_integration_type == "MCP":` / `elif tool_integration_type == "A2A"` to land on each.
 
-> **OpenAPI is not a separate class.** There is no `"OPENAPI"` integration type. The OpenAPI importer in `mcpgateway/services/openapi_service.py` compiles each operation down into a `"REST"` tool at registration time — populating `base_url`, `path_template`, `query_mapping`, `header_mapping`, etc. on the resulting `DbTool`. At invocation time an OpenAPI-imported tool is indistinguishable from a hand-registered REST tool and takes the REST branch of `invoke_tool`. Treat the `"REST"` rows below as covering both hand-registered REST endpoints *and* OpenAPI-discovered ones.
+> **OpenAPI is not a separate class.** There is no `"OPENAPI"` integration type. `mcpgateway/services/openapi_service.py` fetches an OpenAPI document and extracts the input and output schemas for one operation (`fetch_openapi_spec`, `extract_schemas_from_openapi`, `fetch_and_extract_schemas`). It does not enumerate operations and it does not create tools. `POST /admin/tools/generate-schemas-from-openapi` and `POST /v1/tools/generate-schemas-from-openapi` return those schemas for a single tool URL and HTTP method; the caller registers a `"REST"` tool through the normal tool route afterwards. `ToolCreate` validators populate `base_url`, `path_template`, `query_mapping`, and `header_mapping` from the tool URL, not from an importer. At invocation time a REST tool takes the REST branch of `invoke_tool` regardless of how its schema was produced. Treat the `"REST"` rows below as covering every REST tool, hand-registered or schema-assisted.
 
 | Backend (`integration_type`) | Invocation branch | Validator A (MCP client SDK) | Validator B (`_extract_and_validate_structured_content`) | Validator C (MCP server SDK) |
 |---|---|---|---|---|
 | **MCP federation, success** | `elif tool_integration_type == "MCP":` (via `mcp.ClientSession`) | ✅ runs against upstream's advertised schema | — not invoked (Validator A is authoritative) | ✅ runs against gateway's advertised schema |
 | **MCP federation, `isError=true`** | same | skipped per MCP spec "Error Handling" | — not invoked | skipped via `CallToolResult` short-circuit (#4202 egress) |
-| **REST (incl. OpenAPI-imported), success** | `if tool_integration_type == "REST":` (via `httpx`) | — n/a (no federated client) | ✅ runs | ✅ runs |
-| **REST (incl. OpenAPI-imported), `isError=true`** | same | — n/a | skipped per MCP spec (#4202 ingress fix) | skipped via `CallToolResult` short-circuit |
-| **REST (incl. OpenAPI-imported), success but no structured payload** | same | — n/a | ⚠️ currently lenient (returns `True`) — tracked in [#4208] | ✅ runs (may reject) |
+| **REST (hand-registered or schema-assisted), success** | `if tool_integration_type == "REST":` (via `httpx`) | — n/a (no federated client) | ✅ runs | ✅ runs |
+| **REST (hand-registered or schema-assisted), `isError=true`** | same | — n/a | skipped per MCP spec (#4202 ingress fix) | skipped via `CallToolResult` short-circuit |
+| **REST (hand-registered or schema-assisted), success but no structured payload** | same | — n/a | ⚠️ currently lenient (returns `True`) — tracked in [#4208] | ✅ runs (may reject) |
 | **A2A agent, success** | `elif tool_integration_type == "A2A"` (via A2A service) | — n/a (no MCP client SDK on this path) | ⚠️ **not invoked today** — Validator B gap | ✅ runs |
 | **A2A agent, `isError=true`** | same | — n/a | ⚠️ **not invoked today** (but moot — no schema enforcement to skip) | skipped via `CallToolResult` short-circuit |
 | **A2A agent, success but no structured payload** | same | — n/a | ⚠️ **not invoked today** | ✅ runs (may reject if Validator C sees outputSchema) |
@@ -165,7 +165,7 @@ A2A tools do not currently route through Validator B. In practice this means gat
 
 ## Known gaps and follow-ups
 
-- **[#4207] — e2e coverage for non-MCP paths.** REST (incl. OpenAPI-imported) tools have Validator B as their only gateway-side enforcement, and A2A has none (see the "option B" item below). Today those paths are covered by unit tests but not by `make test-e2e` tests.
+- **[#4207] — e2e coverage for non-MCP paths.** REST tools (hand-registered or schema-assisted) have Validator B as their only gateway-side enforcement, and A2A has none (see the "option B" item below). Today those paths are covered by unit tests but not by `make test-e2e` tests.
 
 - **[#4208] — success path with declared schema but empty output.** Validator B currently returns `True` when it cannot obtain any structured payload, even if an `outputSchema` is declared. The MCP spec says servers MUST provide conforming structured output in that case. Tightening requires deciding how to handle upstream servers that legitimately return empty success bodies (HTTP 204, REST tools without data shapes) — scoped out of #4202 because the blast radius is wider.
 
