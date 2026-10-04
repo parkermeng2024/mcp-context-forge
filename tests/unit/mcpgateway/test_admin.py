@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 import json
 import logging
 from pathlib import Path
+import re
 import socket
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, mock_open, patch
@@ -23059,6 +23060,63 @@ class TestTemplateButtonGating:
         grpc_card = overview.split("<!-- gRPC")[1]
         assert 'aria-disabled="true"' in grpc_card
         assert "overview.onboarding.comingSoon" in grpc_card
+
+    def _render_overview_partial(self, jinja_env, gateways_total, servers_total, a2a_enabled=True):
+        """Render overview_partial.html with the counters that gate the onboarding block."""
+        template = jinja_env.get_template("overview_partial.html")
+        return template.render(
+            a2a_active=0,
+            a2a_enabled=a2a_enabled,
+            a2a_total=0,
+            avg_latency_ms=0,
+            cache_type="memory",
+            db_dialect="sqlite",
+            db_reachable=True,
+            gateways_active=0,
+            gateways_total=gateways_total,
+            mcp_runtime={"mounted": "python"},
+            plugins_by_hook={},
+            plugins_enabled=False,
+            plugins_total=0,
+            prompts_active=0,
+            prompts_total=0,
+            redis_reachable=False,
+            resources_active=0,
+            resources_total=0,
+            servers_active=0,
+            servers_total=servers_total,
+            success_rate=100.0,
+            tools_active=0,
+            tools_total=0,
+            total_executions=0,
+            uptime_seconds=0,
+            version="1.0.0",
+        )
+
+    @staticmethod
+    def _onboarding_details_tag(html):
+        """Return the startup tag of the onboarding block in rendered overview HTML."""
+        match = re.search(r'<details[^>]*id="overview-onboarding"[^>]*>', html)
+        assert match is not None, "overview_partial.html renders no onboarding block"
+        return match
+
+    def test_onboarding_block_stays_available_on_populated_platform(self, jinja_env):
+        """The onboarding cards stay reachable after the first gateway or virtual server exists."""
+        html = self._render_overview_partial(jinja_env, gateways_total=1, servers_total=1)
+        tag = self._onboarding_details_tag(html).group(0)
+        assert re.search(r"(?<![-\w])open(?![-\w])", tag) is None
+        cards = html[self._onboarding_details_tag(html).end() :].split("</details>")[0]
+        assert 'href="#gateways"' in cards
+        assert 'href="#a2a-agents"' in cards
+        assert 'href="#tools"' in cards
+        assert 'aria-disabled="true"' in cards
+        # t() resolved every label, so no raw translation key leaks into the cards.
+        assert "overview.onboarding." not in cards
+
+    def test_onboarding_block_is_open_on_empty_platform(self, jinja_env):
+        """An empty platform renders the onboarding cards expanded."""
+        html = self._render_overview_partial(jinja_env, gateways_total=0, servers_total=0)
+        assert re.search(r"(?<![-\w])open(?![-\w])", self._onboarding_details_tag(html).group(0)) is not None
 
     def test_prompts_hides_buttons_for_non_owner(self, jinja_env):
         """Non-owner: no editPrompt in HTML."""

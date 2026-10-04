@@ -24,6 +24,7 @@
 - **Dead auth animation stylesheet** - `templates/admin.html` and `templates/change-password-required.html` linked `static/css/auth-animations.css`. The file no longer exists, so every page load requested a missing stylesheet. The two links are gone.
 - **Prompt test error detail** - The Admin UI prompt test read only `errorData.message`. A rejected render request answered `{"detail": ...}`, so the panel showed `HTTP 403: Forbidden` and hid the backend reason. The error path now falls back to `errorData.detail`.
 - **Application display name** - `APP_NAME` now defaults to `AI Gateway` instead of `ContextForge`. The FastAPI title, the version info tab, the `GET /version` payload, the `GET /` API info, the support bundle, and the MCP `initialize` handshake all read that value through `Settings.display_name`. The environment variable default changed, so an operator who pins `APP_NAME=ContextForge` keeps the new brand; any other `APP_NAME` value passes through unchanged.
+- **Admin UI onboarding block** - The four system-overview onboarding cards rendered only while the platform had no gateway and no virtual server, so the first registration removed them. The block is now a collapsible section that starts expanded on an empty platform.
 
 ## [1.0.11] - 2026-09-28 - MCP Python SDK 2.x, Tool Preview, SSO Controls, and Live E2E Coverage
 
