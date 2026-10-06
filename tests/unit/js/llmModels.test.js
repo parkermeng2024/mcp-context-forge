@@ -6,7 +6,8 @@
  *        checkLLMProviderHealth, showAddModelModal, populateProviderDropdown,
  *        closeLLMModelModal, onModelProviderChange, fetchModelsForModelModal,
  *        editLLMModel, saveLLMModel, deleteLLMModel, toggleLLMModel,
- *        filterModelsByProvider, llmApiInfoApp, overviewDashboard
+ *        filterModelsByProvider, llmApiInfoApp, overviewDashboard,
+ *        onLLMPresetChange, OPENAI_COMPATIBLE_PRESETS
  */
 
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
@@ -14,6 +15,8 @@ import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   switchLLMSettingsTab,
   onLLMProviderTypeChange,
+  onLLMPresetChange,
+  OPENAI_COMPATIBLE_PRESETS,
   showAddProviderModal,
   closeLLMProviderModal,
   fetchLLMProviderModels,
@@ -1814,5 +1817,262 @@ describe("overviewDashboard", () => {
   test("handles missing SVG element", () => {
     const dashboard = overviewDashboard();
     expect(() => dashboard.updateSvgColors()).not.toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// onLLMPresetChange / OPENAI_COMPATIBLE_PRESETS
+// ---------------------------------------------------------------------------
+describe("onLLMPresetChange", () => {
+  const buildPresetForm = ({ editing = false } = {}) => {
+    const providerId = document.createElement("input");
+    providerId.id = "llm-provider-id";
+    providerId.value = editing ? "provider-1" : "";
+    document.body.appendChild(providerId);
+
+    const name = document.createElement("input");
+    name.id = "llm-provider-name";
+    document.body.appendChild(name);
+
+    const apiBase = document.createElement("input");
+    apiBase.id = "llm-provider-api-base";
+    document.body.appendChild(apiBase);
+
+    const defaultModel = document.createElement("input");
+    defaultModel.id = "llm-provider-default-model";
+    document.body.appendChild(defaultModel);
+
+    return { providerId, name, apiBase, defaultModel };
+  };
+
+  test("fills api_base, default_model and name for a new provider", () => {
+    const { name, apiBase, defaultModel } = buildPresetForm();
+
+    onLLMPresetChange("deepseek");
+
+    expect(apiBase.value).toBe(OPENAI_COMPATIBLE_PRESETS.deepseek.api_base);
+    expect(defaultModel.value).toBe(
+      OPENAI_COMPATIBLE_PRESETS.deepseek.default_model,
+    );
+    expect(name.value).toBe(OPENAI_COMPATIBLE_PRESETS.deepseek.name);
+  });
+
+  test("switching presets overwrites values still matching the previous preset", () => {
+    const { apiBase, defaultModel } = buildPresetForm();
+
+    onLLMPresetChange("deepseek");
+    onLLMPresetChange("kimi");
+
+    expect(apiBase.value).toBe(OPENAI_COMPATIBLE_PRESETS.kimi.api_base);
+    expect(defaultModel.value).toBe(OPENAI_COMPATIBLE_PRESETS.kimi.default_model);
+  });
+
+  test("does not overwrite a manually entered api_base", () => {
+    const { apiBase, defaultModel } = buildPresetForm();
+    apiBase.value = "https://custom.internal.example.com/v1";
+
+    onLLMPresetChange("qwen");
+
+    expect(apiBase.value).toBe("https://custom.internal.example.com/v1");
+    expect(defaultModel.value).toBe(OPENAI_COMPATIBLE_PRESETS.qwen.default_model);
+  });
+
+  test("selecting custom keeps current field values", () => {
+    const { name, apiBase, defaultModel } = buildPresetForm();
+
+    onLLMPresetChange("deepseek");
+    onLLMPresetChange("");
+
+    expect(apiBase.value).toBe(OPENAI_COMPATIBLE_PRESETS.deepseek.api_base);
+    expect(defaultModel.value).toBe(
+      OPENAI_COMPATIBLE_PRESETS.deepseek.default_model,
+    );
+    expect(name.value).toBe(OPENAI_COMPATIBLE_PRESETS.deepseek.name);
+  });
+
+  test("overwrites the openai_compatible placeholder defaults", async () => {
+    // Fresh module so llmProviderDefaults cache starts empty
+    vi.resetModules();
+    const fresh = await import("../../../mcpgateway/admin_ui/llmModels.js");
+
+    const providerType = document.createElement("select");
+    providerType.id = "llm-provider-type";
+    const option = document.createElement("option");
+    option.value = "openai_compatible";
+    option.selected = true;
+    providerType.appendChild(option);
+    document.body.appendChild(providerType);
+
+    const { apiBase, defaultModel } = buildPresetForm();
+
+    const configSection = document.createElement("div");
+    configSection.id = "llm-provider-specific-config";
+    document.body.appendChild(configSection);
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          openai_compatible: {
+            api_base: "http://localhost:8080/v1",
+            default_model: "",
+            requires_api_key: true,
+          },
+        }),
+    });
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({}),
+    });
+
+    // Type change pre-fills the openai_compatible placeholder api_base
+    await fresh.onLLMProviderTypeChange();
+    expect(apiBase.value).toBe("http://localhost:8080/v1");
+
+    // Preset selection replaces the placeholder
+    fresh.onLLMPresetChange("deepseek");
+    expect(apiBase.value).toBe(fresh.OPENAI_COMPATIBLE_PRESETS.deepseek.api_base);
+    expect(defaultModel.value).toBe(
+      fresh.OPENAI_COMPATIBLE_PRESETS.deepseek.default_model,
+    );
+
+    fetchSpy.mockRestore();
+  });
+
+  test("does not modify fields when editing an existing provider", () => {
+    const { name, apiBase, defaultModel } = buildPresetForm({ editing: true });
+    apiBase.value = "https://existing.example.com/v1";
+    defaultModel.value = "existing-model";
+
+    onLLMPresetChange("glm");
+
+    expect(apiBase.value).toBe("https://existing.example.com/v1");
+    expect(defaultModel.value).toBe("existing-model");
+    expect(name.value).toBe("");
+  });
+});
+
+describe("preset selector visibility", () => {
+  const buildTypeForm = (providerTypeValue) => {
+    const providerType = document.createElement("select");
+    providerType.id = "llm-provider-type";
+    const option = document.createElement("option");
+    option.value = providerTypeValue;
+    option.selected = true;
+    providerType.appendChild(option);
+    document.body.appendChild(providerType);
+
+    const presetField = document.createElement("div");
+    presetField.id = "llm-provider-preset-field";
+    presetField.classList.add("hidden");
+    document.body.appendChild(presetField);
+
+    const configSection = document.createElement("div");
+    configSection.id = "llm-provider-specific-config";
+    document.body.appendChild(configSection);
+
+    return { providerType, presetField };
+  };
+
+  test("shows preset selector only for openai_compatible", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({}),
+    });
+
+    const { presetField } = buildTypeForm("openai_compatible");
+    await onLLMProviderTypeChange();
+    expect(presetField.classList.contains("hidden")).toBe(false);
+
+    const { presetField: otherPresetField } = buildTypeForm("openai");
+    await onLLMProviderTypeChange();
+    expect(otherPresetField.classList.contains("hidden")).toBe(true);
+
+    fetchSpy.mockRestore();
+  });
+
+  test("editLLMProvider reflects the preset matching the stored api_base", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          id: "provider-1",
+          name: "DeepSeek",
+          provider_type: "openai_compatible",
+          description: "",
+          api_base: OPENAI_COMPATIBLE_PRESETS.deepseek.api_base,
+          default_model: "deepseek-chat",
+          default_temperature: 0.7,
+          default_max_tokens: 4096,
+          enabled: true,
+        }),
+    });
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({}),
+    });
+
+    for (const id of [
+      "llm-provider-id",
+      "llm-provider-name",
+      "llm-provider-description",
+      "llm-provider-api-key",
+      "llm-provider-api-base",
+      "llm-provider-default-model",
+      "llm-provider-temperature",
+      "llm-provider-max-tokens",
+    ]) {
+      const el = document.createElement("input");
+      el.id = id;
+      document.body.appendChild(el);
+    }
+
+    const providerType = document.createElement("select");
+    providerType.id = "llm-provider-type";
+    const typeOption = document.createElement("option");
+    typeOption.value = "openai_compatible";
+    providerType.appendChild(typeOption);
+    document.body.appendChild(providerType);
+
+    const enabled = document.createElement("input");
+    enabled.id = "llm-provider-enabled";
+    enabled.type = "checkbox";
+    document.body.appendChild(enabled);
+
+    const preset = document.createElement("select");
+    preset.id = "llm-provider-preset";
+    for (const value of ["", ...Object.keys(OPENAI_COMPATIBLE_PRESETS)]) {
+      const option = document.createElement("option");
+      option.value = value;
+      preset.appendChild(option);
+    }
+    document.body.appendChild(preset);
+
+    const presetField = document.createElement("div");
+    presetField.id = "llm-provider-preset-field";
+    presetField.classList.add("hidden");
+    document.body.appendChild(presetField);
+
+    const modal = document.createElement("div");
+    modal.id = "llm-provider-modal";
+    modal.classList.add("hidden");
+    document.body.appendChild(modal);
+
+    const modalTitle = document.createElement("h2");
+    modalTitle.id = "llm-provider-modal-title";
+    document.body.appendChild(modalTitle);
+
+    const configSection = document.createElement("div");
+    configSection.id = "llm-provider-specific-config";
+    document.body.appendChild(configSection);
+
+    await editLLMProvider("provider-1");
+
+    expect(preset.value).toBe("deepseek");
+    expect(presetField.classList.contains("hidden")).toBe(false);
+
+    fetchSpy.mockRestore();
   });
 });

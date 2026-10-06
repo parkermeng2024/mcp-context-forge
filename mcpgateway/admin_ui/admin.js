@@ -215,6 +215,7 @@ import {
   llmModelComboboxKeydown,
   llmModelComboboxOpen,
   llmModelComboboxSelect,
+  onLLMPresetChange,
   onLLMProviderTypeChange,
   onModelProviderChange,
   overviewDashboard,
@@ -244,6 +245,7 @@ Admin.llmModelComboboxFilter = llmModelComboboxFilter;
 Admin.llmModelComboboxKeydown = llmModelComboboxKeydown;
 Admin.llmModelComboboxOpen = llmModelComboboxOpen;
 Admin.llmModelComboboxSelect = llmModelComboboxSelect;
+Admin.onLLMPresetChange = onLLMPresetChange;
 Admin.onLLMProviderTypeChange = onLLMProviderTypeChange;
 Admin.onModelProviderChange = onModelProviderChange;
 Admin.overviewDashboard = overviewDashboard;

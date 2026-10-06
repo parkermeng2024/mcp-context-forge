@@ -494,6 +494,7 @@
   "llm.provider.apiBase": "API 基础 URL",
   "llm.provider.apiBasePlaceholder": "根据提供商类型自动填写",
   "llm.provider.apiBaseHint": "选择提供商类型后将自动填写",
+  "llm.provider.presetCustom": "自定义(手动填写)",
   "llm.provider.defaultModel": "默认模型",
   "llm.provider.temperature": "温度",
   "llm.provider.maxTokens": "最大 Token 数",

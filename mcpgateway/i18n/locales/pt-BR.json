@@ -494,6 +494,7 @@
   "llm.provider.apiBase": "URL Base da API",
   "llm.provider.apiBasePlaceholder": "Preenchida automaticamente com base no tipo de provedor",
   "llm.provider.apiBaseHint": "Será preenchida automaticamente ao selecionar um tipo de provedor",
+  "llm.provider.presetCustom": "Personalizado (preencher manualmente)",
   "llm.provider.defaultModel": "Modelo Padrão",
   "llm.provider.temperature": "Temperatura",
   "llm.provider.maxTokens": "Máximo de Tokens",

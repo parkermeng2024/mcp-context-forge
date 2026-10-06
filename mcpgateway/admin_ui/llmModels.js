@@ -79,6 +79,99 @@ export const switchLLMSettingsTab = function (tabName) {
 // Cache for provider defaults
 let llmProviderDefaults = null;
 
+// Quick presets for OpenAI-compatible providers. Selecting a preset only
+// auto-fills the form; the stored provider_type stays "openai_compatible".
+export const OPENAI_COMPATIBLE_PRESETS = {
+  qwen: {
+    name: "Qwen (通义千问)",
+    api_base: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    default_model: "qwen-plus",
+  },
+  deepseek: {
+    name: "DeepSeek",
+    api_base: "https://api.deepseek.com/v1",
+    default_model: "deepseek-chat",
+  },
+  kimi: {
+    name: "Kimi (Moonshot)",
+    api_base: "https://api.moonshot.cn/v1",
+    default_model: "moonshot-v1-8k",
+  },
+  glm: {
+    name: "GLM (智谱)",
+    api_base: "https://open.bigmodel.cn/api/paas/v4",
+    default_model: "glm-4-flash",
+  },
+};
+
+// Track previous preset for smart auto-fill
+let previousPreset = null;
+
+/**
+ * Show the preset selector only for openai_compatible providers
+ */
+const updateLLMPresetVisibility = function () {
+  const presetField = safeGetElement("llm-provider-preset-field");
+  if (!presetField) {
+    return;
+  }
+  const providerType = safeGetElement("llm-provider-type")?.value;
+  presetField.classList.toggle("hidden", providerType !== "openai_compatible");
+};
+
+/**
+ * Reverse-lookup a preset key by api_base, for edit-mode display
+ */
+const presetKeyForApiBase = function (apiBase) {
+  for (const [key, preset] of Object.entries(OPENAI_COMPATIBLE_PRESETS)) {
+    if (preset.api_base === apiBase) {
+      return key;
+    }
+  }
+  return "";
+};
+
+/**
+ * Handle preset change - auto-fill api_base/default_model for the form
+ */
+export const onLLMPresetChange = function (presetKey) {
+  const preset = OPENAI_COMPATIBLE_PRESETS[presetKey];
+
+  const apiBaseField = safeGetElement("llm-provider-api-base");
+  const defaultModelField = safeGetElement("llm-provider-default-model");
+  const nameField = safeGetElement("llm-provider-name");
+
+  // Only auto-fill if creating new provider (not editing)
+  const isEditing = safeGetElement("llm-provider-id").value !== "";
+  if (isEditing || !apiBaseField || !defaultModelField) {
+    previousPreset = presetKey || null;
+    return;
+  }
+
+  const previous = previousPreset ? OPENAI_COMPATIBLE_PRESETS[previousPreset] : null;
+  // The type-change handler pre-fills the openai_compatible defaults; treat
+  // those as placeholder values that a preset selection may still overwrite.
+  const compatDefault = llmProviderDefaults?.["openai_compatible"] || null;
+
+  const isOverwritable = (value, previousValue, defaultValue) =>
+    !value || (previous && value === previousValue) || (compatDefault && value === defaultValue);
+
+  if (preset) {
+    // Overwrite only when the field is empty or still holds a placeholder value
+    if (isOverwritable(apiBaseField.value, previous?.api_base, compatDefault?.api_base)) {
+      apiBaseField.value = preset.api_base;
+    }
+    if (isOverwritable(defaultModelField.value, previous?.default_model, compatDefault?.default_model)) {
+      defaultModelField.value = preset.default_model;
+    }
+    if (nameField && !nameField.value) {
+      nameField.value = preset.name;
+    }
+  }
+
+  previousPreset = presetKey || null;
+};
+
 /**
  * Load provider defaults from the server
  */
@@ -110,6 +203,7 @@ let previousProviderType = null;
  */
 export const onLLMProviderTypeChange = async function () {
   const providerType = safeGetElement("llm-provider-type").value;
+  updateLLMPresetVisibility();
   if (!providerType) {
     // Hide provider-specific config section
     const configSection = safeGetElement("llm-provider-specific-config");
@@ -342,6 +436,14 @@ export const showAddProviderModal = async function () {
   // Reset provider type tracker for smart auto-fill
   previousProviderType = null;
 
+  // Reset preset selector
+  previousPreset = null;
+  const presetSelect = safeGetElement("llm-provider-preset");
+  if (presetSelect) {
+    presetSelect.value = "";
+  }
+  updateLLMPresetVisibility();
+
   // Load defaults for quick access
   await loadLLMProviderDefaults();
 
@@ -466,6 +568,17 @@ export const editLLMProvider = async function (providerId) {
     safeGetElement("llm-provider-max-tokens").value =
       provider.default_max_tokens || "";
     safeGetElement("llm-provider-enabled").checked = provider.enabled;
+
+    // Reflect preset selection for openai_compatible providers
+    previousPreset = null;
+    const presetSelect = safeGetElement("llm-provider-preset");
+    if (presetSelect) {
+      presetSelect.value =
+        provider.provider_type === "openai_compatible"
+          ? presetKeyForApiBase(provider.api_base || "")
+          : "";
+    }
+    updateLLMPresetVisibility();
 
     // Render provider-specific fields and populate with existing config
     await renderProviderSpecificFields(provider.provider_type, true);
