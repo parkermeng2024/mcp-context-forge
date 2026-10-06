@@ -9,6 +9,14 @@
     <link rel="alternate icon" type="image/png" sizes="32x32" href="{{ root_path }}/static/favicon.ico" />
     <!-- Tailwind CSS - Using precompiled CSS for strict CSP compliance -->
     <link rel="stylesheet" href="{{ root_path }}/static/css/tailwind.min.css" />
+    <script nonce="{{ csp_nonce(request) }}">
+      (function () {
+        var stored = localStorage.getItem("darkMode");
+        if (stored === "true" || (stored === null && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
     <!-- Font Awesome is bundled via Vite (imported in admin_ui/admin.js) -->
     {% for css_file in bundle_css %}
     <link rel="stylesheet" href="{{ root_path }}/static/{{ css_file }}" />
@@ -36,21 +44,24 @@
           style="animation-delay: 2s"
         ></div>
 
-        <!-- Language switcher -->
-        <div class="absolute top-4 right-4 z-20">
-          {% set locale_switcher_classes = 'shadow-sm' %}
-          {% include '_locale_switcher.html' %}
-        </div>
-
         <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+          <!-- Language switcher -->
+          <div class="flex justify-end mb-3">
+            {% set locale_switcher_classes = 'shadow-sm' %}
+            {% include '_locale_switcher.html' %}
+          </div>
+
           <!-- Login Card -->
           <div
             class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl py-6 px-6 shadow-2xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 animate-slide-up"
             style="animation-delay: 0.2s"
           >
+            <h1 class="text-lg font-bold text-gray-900 dark:text-white mb-4 text-center">{{ t('login.formTitle') }}</h1>
+
             <!-- Error messages -->
             <div
               id="error-message"
+              role="alert"
               class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl text-sm hidden"
             >
               <div class="flex items-center">
@@ -61,6 +72,7 @@
 
             <div
               id="success-message"
+              role="status"
               class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 rounded-xl text-sm hidden"
             >
               <div class="flex items-center">
@@ -129,8 +141,9 @@
                   required
                   value="{{ prefill_email }}"
                   placeholder="{{ t('login.emailPlaceholder') }}"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700/50 dark:text-white transition-all duration-200 backdrop-blur-sm"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg placeholder-gray-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700/50 dark:text-white transition-all duration-200 backdrop-blur-sm"
                 />
+                <p id="email-error" class="mt-1 text-sm text-red-600 dark:text-red-400 hidden"></p>
               </div>
 
               <div>
@@ -148,24 +161,25 @@
                     autocomplete="current-password"
                     required
                     placeholder="{{ t('login.passwordPlaceholder') }}"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700/50 dark:text-white transition-all duration-200 backdrop-blur-sm pr-10"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg placeholder-gray-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700/50 dark:text-white transition-all duration-200 backdrop-blur-sm pr-10"
                   />
                   <button
                     type="button"
                     id="toggle-password-btn"
                     aria-label="{{ t('login.showPassword') }}"
-                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    class="absolute inset-y-0 right-0 w-11 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     <i id="password-icon" class="fas fa-eye"></i>
                   </button>
                 </div>
+                <p id="password-error" class="mt-1 text-sm text-red-600 dark:text-red-400 hidden"></p>
               </div>
 
               {% if password_reset_enabled %}
               <div class="text-right">
                 <a
                   href="{{ root_path }}/admin/forgot-password"
-                  class="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                  class="inline-block py-2 -my-2 text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
                   {{ t('login.forgotPassword') }}
                 </a>
@@ -174,7 +188,7 @@
 
               <button
                 type="submit"
-                class="w-full flex justify-center items-center py-2 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
+                class="w-full flex justify-center items-center py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
               >
                 <i class="fas fa-sign-in-alt mr-2"></i>
                 {{ t('login.submit') }}
@@ -239,7 +253,7 @@
             <p class="text-lg font-semibold text-white mb-1">
               {{ t('login.hero.tagline') }}
             </p>
-            <p class="text-sm text-blue-100 opacity-90">
+            <p class="text-sm text-white/90">
               {{ t('login.hero.subtitle') }}
             </p>
           </div>
@@ -249,7 +263,7 @@
             <!-- Core Platform Features -->
             <div>
               <h3
-                class="text-xs font-semibold text-blue-200 uppercase tracking-wide mb-3 text-center"
+                class="text-xs font-semibold text-white/90 uppercase tracking-wide mb-3 text-center"
               >
                 {{ t('login.hero.corePlatform') }}
               </h3>
@@ -262,10 +276,10 @@
                   >
                     <i class="fas fa-network-wired text-white text-xs"></i>
                   </div>
-                  <h4 class="text-xs font-semibold text-white mb-1">
+                  <h4 class="text-sm font-semibold text-white mb-1">
                     {{ t('login.hero.federation.title') }}
                   </h4>
-                  <p class="text-xs text-blue-100 leading-relaxed">
+                  <p class="text-xs text-white leading-relaxed">
                     {{ t('login.hero.federation.description') }}
                   </p>
                 </div>
@@ -278,10 +292,10 @@
                   >
                     <i class="fas fa-server text-white text-xs"></i>
                   </div>
-                  <h4 class="text-xs font-semibold text-white mb-1">
+                  <h4 class="text-sm font-semibold text-white mb-1">
                     {{ t('login.hero.virtualServers.title') }}
                   </h4>
-                  <p class="text-xs text-blue-100 leading-relaxed">
+                  <p class="text-xs text-white leading-relaxed">
                     {{ t('login.hero.virtualServers.description') }}
                   </p>
                 </div>
@@ -294,10 +308,10 @@
                   >
                     <i class="fas fa-exchange-alt text-white text-xs"></i>
                   </div>
-                  <h4 class="text-xs font-semibold text-white mb-1">
+                  <h4 class="text-sm font-semibold text-white mb-1">
                     {{ t('login.hero.multiTransport.title') }}
                   </h4>
-                  <p class="text-xs text-blue-100 leading-relaxed">
+                  <p class="text-xs text-white leading-relaxed">
                     {{ t('login.hero.multiTransport.description') }}
                   </p>
                 </div>
@@ -307,7 +321,7 @@
             <!-- Enterprise Features -->
             <div>
               <h3
-                class="text-xs font-semibold text-blue-200 uppercase tracking-wide mb-3 text-center"
+                class="text-xs font-semibold text-white/90 uppercase tracking-wide mb-3 text-center"
               >
                 {{ t('login.hero.enterpriseReady') }}
               </h3>
@@ -320,10 +334,10 @@
                   >
                     <i class="fas fa-shield-alt text-white text-xs"></i>
                   </div>
-                  <h4 class="text-xs font-semibold text-white mb-1">
+                  <h4 class="text-sm font-semibold text-white mb-1">
                     {{ t('login.hero.security.title') }}
                   </h4>
-                  <p class="text-xs text-blue-100 leading-relaxed">
+                  <p class="text-xs text-white leading-relaxed">
                     {{ t('login.hero.security.description') }}
                   </p>
                 </div>
@@ -336,10 +350,10 @@
                   >
                     <i class="fas fa-chart-line text-white text-xs"></i>
                   </div>
-                  <h4 class="text-xs font-semibold text-white mb-1">
+                  <h4 class="text-sm font-semibold text-white mb-1">
                     {{ t('login.hero.observability.title') }}
                   </h4>
-                  <p class="text-xs text-blue-100 leading-relaxed">
+                  <p class="text-xs text-white leading-relaxed">
                     {{ t('login.hero.observability.description') }}
                   </p>
                 </div>
@@ -352,10 +366,10 @@
                   >
                     <i class="fas fa-robot text-white text-xs"></i>
                   </div>
-                  <h4 class="text-xs font-semibold text-white mb-1">
+                  <h4 class="text-sm font-semibold text-white mb-1">
                     {{ t('login.hero.a2aAgents.title') }}
                   </h4>
-                  <p class="text-xs text-blue-100 leading-relaxed">
+                  <p class="text-xs text-white leading-relaxed">
                     {{ t('login.hero.a2aAgents.description') }}
                   </p>
                 </div>
@@ -365,7 +379,7 @@
 
           <!-- Bottom accent -->
           <div class="mt-4 text-center">
-            <div class="inline-flex items-center space-x-4 text-blue-100/80">
+            <div class="inline-flex items-center space-x-4 text-white/90">
               <div class="flex items-center space-x-1">
                 <i class="fas fa-check-circle text-green-300 text-xs"></i>
                 <span class="text-xs">{{ t('login.hero.productionReady') }}</span>
@@ -480,6 +494,7 @@
         await loadSSOProviders();
         handleErrorMessages();
         setupAnimations();
+        setupInlineValidation();
 
         // Focus password field if email is prefilled (failed login retry)
         const emailField = document.getElementById("email");
@@ -707,6 +722,27 @@
           submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>';
           submitBtn.append(t("submitting"));
           submitBtn.disabled = true;
+        });
+      }
+
+      // Inline validation hints: keep native validation bubbles, and mirror the
+      // failure as persistent inline text + aria-invalid for assistive tech.
+      function setupInlineValidation() {
+        ["email", "password"].forEach(function (id) {
+          const field = document.getElementById(id);
+          const hint = document.getElementById(id + "-error");
+          if (!field || !hint) return;
+          field.setAttribute("aria-describedby", hint.id);
+          field.addEventListener("invalid", function () {
+            field.setAttribute("aria-invalid", "true");
+            hint.textContent = field.validationMessage;
+            hint.classList.remove("hidden");
+          });
+          field.addEventListener("input", function () {
+            field.removeAttribute("aria-invalid");
+            hint.textContent = "";
+            hint.classList.add("hidden");
+          });
         });
       }
 

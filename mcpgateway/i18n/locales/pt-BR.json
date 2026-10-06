@@ -2246,7 +2246,8 @@
   "header.searchTooltip": "Buscar em ferramentas, prompts, recursos, servidores, gateways, agentes e raízes (Ctrl/Cmd+K)",
 
   "login.title": "Entrar - AI Gateway",
-  "login.logoAlt": "https://1-finger.com/",
+  "login.formTitle": "Entrar no AI Gateway",
+  "login.logoAlt": "AI Gateway",
   "login.continueWith": "Continuar com",
   "login.orContinueWithEmail": "Ou continue com e-mail",
   "login.emailLabel": "Endereço de e-mail",

@@ -2246,7 +2246,8 @@
   "header.searchTooltip": "Search across tools, prompts, resources, servers, gateways, agents, and roots (Ctrl/Cmd+K)",
 
   "login.title": "Sign In - AI Gateway",
-  "login.logoAlt": "https://1-finger.com/",
+  "login.formTitle": "Sign in to AI Gateway",
+  "login.logoAlt": "AI Gateway",
   "login.continueWith": "Continue with",
   "login.orContinueWithEmail": "Or continue with email",
   "login.emailLabel": "Email address",
