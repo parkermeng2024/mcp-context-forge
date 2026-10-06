@@ -2257,6 +2257,7 @@
   "login.showPassword": "显示密码",
   "login.hidePassword": "隐藏密码",
   "login.forgotPassword": "忘记密码？",
+  "login.rememberMe": "记住我",
   "login.submit": "登录",
   "login.sso.continueWith": "继续使用",
   "passwordChange.title": "需要修改密码 - AI Gateway",

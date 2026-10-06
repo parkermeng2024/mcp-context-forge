@@ -213,6 +213,7 @@ async def admin_login_handler(request: Request, db: Session = Depends(get_db)) -
         password_val = form.get("password")
         email = email_val if isinstance(email_val, str) else None
         password = password_val if isinstance(password_val, str) else None
+        remember_me = form.get("remember_me") == "true"
 
         if not email or not password:
             params = "error=missing_fields"
@@ -316,7 +317,7 @@ async def admin_login_handler(request: Request, db: Session = Depends(get_db)) -
 
             # Set JWT token as secure cookie
             try:
-                set_auth_cookie(response, token, remember_me=False)
+                set_auth_cookie(response, token, remember_me=remember_me)
             except CookieTooLargeError:
                 return RedirectResponse(
                     url=f"{root_path}/admin/login?error=token_too_large&email={urllib.parse.quote(email)}",

@@ -175,16 +175,28 @@
                 <p id="password-error" class="mt-1 text-sm text-red-600 dark:text-red-400 hidden"></p>
               </div>
 
-              {% if password_reset_enabled %}
-              <div class="text-right">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember_me"
+                    type="checkbox"
+                    value="true"
+                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700"
+                  />
+                  <label for="remember-me" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    {{ t('login.rememberMe') }}
+                  </label>
+                </div>
+                {% if password_reset_enabled %}
                 <a
                   href="{{ root_path }}/admin/forgot-password"
                   class="inline-block py-2 -my-2 text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
                   {{ t('login.forgotPassword') }}
                 </a>
+                {% endif %}
               </div>
-              {% endif %}
 
               <button
                 type="submit"

@@ -20169,6 +20169,60 @@ class TestAuthLogin:
         assert result.status_code == 303
 
     @pytest.mark.asyncio
+    async def test_admin_login_handler_remember_me_true(self, monkeypatch, mock_db):
+        """Form remember_me=true forwards remember_me=True to set_auth_cookie."""
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.email_auth_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.password_change_enforcement_enabled", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.sso_enabled", False, raising=False)
+
+        mock_user = MagicMock()
+        mock_user.password_change_required = False
+
+        mock_auth_service = MagicMock()
+        mock_auth_service.authenticate_user = AsyncMock(return_value=mock_user)
+        monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: mock_auth_service)
+        monkeypatch.setattr("mcpgateway.admin.auth.create_access_token", AsyncMock(return_value=("fake-token", None)))
+        set_cookie_mock = MagicMock()
+        monkeypatch.setattr("mcpgateway.admin.auth.set_auth_cookie", set_cookie_mock)
+
+        request = MagicMock(spec=Request)
+        request.scope = {"root_path": ""}
+        request.form = AsyncMock(return_value={"email": "admin@test.com", "password": "secret123", "remember_me": "true"})  # pragma: allowlist secret
+
+        result = await admin_login_handler(request, mock_db)
+        assert isinstance(result, RedirectResponse)
+        assert result.status_code == 303
+        set_cookie_mock.assert_called_once()
+        assert set_cookie_mock.call_args.kwargs["remember_me"] is True
+
+    @pytest.mark.asyncio
+    async def test_admin_login_handler_remember_me_absent_defaults_false(self, monkeypatch, mock_db):
+        """Without remember_me in the form, set_auth_cookie receives remember_me=False."""
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.email_auth_enabled", True, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.password_change_enforcement_enabled", False, raising=False)
+        monkeypatch.setattr("mcpgateway.admin.auth.settings.sso_enabled", False, raising=False)
+
+        mock_user = MagicMock()
+        mock_user.password_change_required = False
+
+        mock_auth_service = MagicMock()
+        mock_auth_service.authenticate_user = AsyncMock(return_value=mock_user)
+        monkeypatch.setattr("mcpgateway.admin.auth.EmailAuthService", lambda db: mock_auth_service)
+        monkeypatch.setattr("mcpgateway.admin.auth.create_access_token", AsyncMock(return_value=("fake-token", None)))
+        set_cookie_mock = MagicMock()
+        monkeypatch.setattr("mcpgateway.admin.auth.set_auth_cookie", set_cookie_mock)
+
+        request = MagicMock(spec=Request)
+        request.scope = {"root_path": ""}
+        request.form = AsyncMock(return_value={"email": "admin@test.com", "password": "secret123"})  # pragma: allowlist secret
+
+        result = await admin_login_handler(request, mock_db)
+        assert isinstance(result, RedirectResponse)
+        assert result.status_code == 303
+        set_cookie_mock.assert_called_once()
+        assert set_cookie_mock.call_args.kwargs["remember_me"] is False
+
+    @pytest.mark.asyncio
     async def test_admin_login_handler_non_admin_requires_sso(self, monkeypatch, mock_db):
         monkeypatch.setattr("mcpgateway.admin.auth.settings.email_auth_enabled", True, raising=False)
         monkeypatch.setattr("mcpgateway.admin.auth.settings.sso_enabled", True, raising=False)

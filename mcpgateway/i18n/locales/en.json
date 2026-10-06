@@ -2257,6 +2257,7 @@
   "login.showPassword": "Show password",
   "login.hidePassword": "Hide password",
   "login.forgotPassword": "Forgot password?",
+  "login.rememberMe": "Remember me",
   "login.submit": "Sign In",
   "login.sso.continueWith": "Continue with",
   "passwordChange.title": "Password Change Required - AI Gateway",

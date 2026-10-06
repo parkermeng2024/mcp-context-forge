@@ -2257,6 +2257,7 @@
   "login.showPassword": "Mostrar senha",
   "login.hidePassword": "Ocultar senha",
   "login.forgotPassword": "Esqueceu a senha?",
+  "login.rememberMe": "Lembrar de mim",
   "login.submit": "Entrar",
   "login.sso.continueWith": "Continuar com",
   "passwordChange.title": "Troca de Senha Obrigatória - AI Gateway",
