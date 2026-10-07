@@ -23116,7 +23116,7 @@ class TestTemplateButtonGating:
         assert "overview.onboarding.comingSoon" in grpc_card
 
     def _render_overview_partial(self, jinja_env, gateways_total, servers_total, a2a_enabled=True):
-        """Render overview_partial.html with the counters that gate the onboarding block."""
+        """Render overview_partial.html with the platform counters."""
         template = jinja_env.get_template("overview_partial.html")
         return template.render(
             a2a_active=0,
@@ -23154,11 +23154,11 @@ class TestTemplateButtonGating:
         assert match is not None, "overview_partial.html renders no onboarding block"
         return match
 
-    def test_onboarding_block_stays_available_on_populated_platform(self, jinja_env):
-        """The onboarding cards stay reachable after the first gateway or virtual server exists."""
+    def test_onboarding_block_stays_expanded_on_populated_platform(self, jinja_env):
+        """The onboarding cards render expanded after the first gateway or virtual server exists."""
         html = self._render_overview_partial(jinja_env, gateways_total=1, servers_total=1)
         tag = self._onboarding_details_tag(html).group(0)
-        assert re.search(r"(?<![-\w])open(?![-\w])", tag) is None
+        assert re.search(r"(?<![-\w])open(?![-\w])", tag) is not None
         cards = html[self._onboarding_details_tag(html).end() :].split("</details>")[0]
         assert 'href="#gateways"' in cards
         assert 'href="#a2a-agents"' in cards

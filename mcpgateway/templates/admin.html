@@ -1341,10 +1341,12 @@
         <div id="llm-chat-panel" class="tab-panel hidden">
           <div class="mx-auto px-4">
             <div class="flex justify-between items-center mb-4">
-              <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('nav.llmChat') }}</h2>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {{ t('llm.chat.startHint') }}
-              </p>
+              <div>
+                <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('nav.llmChat') }}</h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {{ t('llm.chat.startHint') }}
+                </p>
+              </div>
             </div>
             <!-- Compact Toolbar -->
             <div
@@ -2028,7 +2030,7 @@
         </div>
         {% endif %}
         <div class="flex justify-between items-center mb-4">
-          <div class="flex items-center space-x-10">
+          <div>
             <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('servers.list.title') }}</h2>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {{ t('servers.list.intro') }}
@@ -4163,10 +4165,12 @@
       <!-- Resources Panel -->
       <div id="resources-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('resources.list.title') }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {{ t('resources.list.intro') }}
-          </p>
+          <div>
+            <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('resources.list.title') }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              {{ t('resources.list.intro') }}
+            </p>
+          </div>
           <div class="flex items-center">
             <input
               type="checkbox"
@@ -4474,10 +4478,12 @@
       <!-- Prompts Panel -->
       <div id="prompts-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('prompts.list.title') }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {{ t('prompts.list.intro') }}
-          </p>
+          <div>
+            <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('prompts.list.title') }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              {{ t('prompts.list.intro') }}
+            </p>
+          </div>
           <div class="flex items-center">
             <input
               type="checkbox"
@@ -4816,12 +4822,14 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
       <!-- Gateways Panel -->
       <div id="gateways-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold dark:text-gray-200">
-            {{ t('gateways.list.title') }}
-          </h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {{ t('gateways.list.intro') }}
-          </p>
+          <div>
+            <h2 class="text-2xl font-bold dark:text-gray-200">
+              {{ t('gateways.list.title') }}
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              {{ t('gateways.list.intro') }}
+            </p>
+          </div>
           <div class="flex items-center">
             <input
               type="checkbox"
@@ -6159,10 +6167,12 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
       {% if email_auth_enabled and 'users' not in hidden_sections %}
       <div id="users-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('users.panel.title') }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {{ t('users.panel.hint') }}
-          </p>
+          <div>
+            <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('users.panel.title') }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              {{ t('users.panel.hint') }}
+            </p>
+          </div>
         </div>
 
         <!-- Create User Modal -->
@@ -6385,12 +6395,14 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
       {% if email_auth_enabled and 'tokens' not in hidden_sections %}
       <div id="tokens-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold dark:text-gray-200">
-            {{ t('tokens.panel.title') }}
-          </h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {{ t('tokens.panel.hint') }}
-          </p>
+          <div>
+            <h2 class="text-2xl font-bold dark:text-gray-200">
+              {{ t('tokens.panel.title') }}
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              {{ t('tokens.panel.hint') }}
+            </p>
+          </div>
           <div class="flex items-center">
             <input
               type="checkbox"
@@ -6913,10 +6925,12 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
       {% if is_admin %}
       <div id="sso-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('sso.panel.title') }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {{ t('sso.panel.hint') }}
-          </p>
+          <div>
+            <h2 class="text-2xl font-bold dark:text-gray-200">{{ t('sso.panel.title') }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              {{ t('sso.panel.hint') }}
+            </p>
+          </div>
         </div>
 
         <!-- Disabled state: shown by sso.js when the SSO API 404s (SSO_ENABLED=false) -->
@@ -6970,12 +6984,14 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
       {% if a2a_enabled and 'agents' not in hidden_sections %}
        <div id="a2a-agents-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold dark:text-gray-200">
-            {{ t('a2a.panel.title') }}
-          </h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {{ t('a2a.panel.hint') }}
-          </p>
+          <div>
+            <h2 class="text-2xl font-bold dark:text-gray-200">
+              {{ t('a2a.panel.title') }}
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              {{ t('a2a.panel.hint') }}
+            </p>
+          </div>
           <div class="flex items-center">
             <input
               type="checkbox"
@@ -7959,12 +7975,14 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
       {% if grpc_enabled and 'grpc-services' not in hidden_sections %}
       <div id="grpc-services-panel" class="tab-panel hidden">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold dark:text-gray-200">
-            {{ t('grpc.panel.title') }}
-          </h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {{ t('grpc.intro') }}
-          </p>
+          <div>
+            <h2 class="text-2xl font-bold dark:text-gray-200">
+              {{ t('grpc.panel.title') }}
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              {{ t('grpc.intro') }}
+            </p>
+          </div>
         </div>
 
         <!-- Add gRPC Service Modal -->

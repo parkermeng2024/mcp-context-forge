@@ -19,12 +19,11 @@
     </div>
   </div>
 
-  <!-- Guided Onboarding: always rendered, expanded while the platform has no MCP server or virtual server -->
-  {% set onboarding_open = gateways_total == 0 and servers_total == 0 %}
+  <!-- Guided Onboarding: always rendered, expanded on first paint -->
   <details
     id="overview-onboarding"
     class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700"
-    {% if onboarding_open %}open{% endif %}
+    open
   >
     <summary class="p-6 cursor-pointer">
       <span class="block text-lg font-semibold text-gray-900 dark:text-gray-100">
