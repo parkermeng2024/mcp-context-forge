@@ -56,7 +56,7 @@ describe("handleToggleSubmit", () => {
       expect.objectContaining({
         method: "POST",
         credentials: "include", // pragma: allowlist secret
-        redirect: "manual",
+        redirect: "follow",
       })
     );
   });
@@ -417,7 +417,7 @@ describe("handleDeleteSubmit", () => {
     expect(navigateAdmin).toHaveBeenCalled();
   });
 
-  test("allows HTMX refresh when fetch returns opaque redirect (status 0)", async () => {
+  test("surfaces the flash error param from a followed redirect", async () => {
     const form = document.createElement("form");
     form.id = "test-form";
     form.action = "/test";
@@ -427,8 +427,35 @@ describe("handleDeleteSubmit", () => {
     tableDiv.id = "tools-table";
     document.body.appendChild(tableDiv);
 
-    // status === 0 with ok: false is treated as success (opaque redirect)
-    const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 0 });
+    // The 303 redirect target carries ?error=; with redirect:"follow" the
+    // final URL is readable and the failure must not be treated as success.
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({ ok: true, url: "http://localhost/admin/?error=Failed+to+add+root" });
+    global.fetch = fetchMock;
+
+    const htmxAjaxMock = vi.fn();
+    global.window.htmx = { ajax: htmxAjaxMock };
+    global.window.ROOT_PATH = "";
+
+    const event = { preventDefault: vi.fn(), target: form };
+
+    await handleToggleSubmit(event, "tools");
+
+    expect(fetchMock).toHaveBeenCalled();
+    expect(htmxAjaxMock).not.toHaveBeenCalled();
+    const toast = document.body.querySelector(".fixed.top-4");
+    expect(toast).not.toBeNull();
+    expect(toast.textContent).toBe("Failed to add root");
+  });
+
+  test("shows alert and reloads when fetch fails (e.g. cross-origin redirect)", async () => {
+    const form = document.createElement("form");
+    form.id = "test-form";
+    form.action = "/test";
+    document.body.appendChild(form);
+
+    const fetchMock = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
     global.fetch = fetchMock;
 
     const htmxAjaxMock = vi.fn();
@@ -444,8 +471,8 @@ describe("handleDeleteSubmit", () => {
     await handleDeleteSubmit(event, "tools", "test-tool", "tools");
 
     expect(fetchMock).toHaveBeenCalled();
-    // HTMX SHOULD be called because status 0 is treated as success
-    expect(htmxAjaxMock).toHaveBeenCalled();
-    expect(global.alert).not.toHaveBeenCalled();
+    expect(htmxAjaxMock).not.toHaveBeenCalled();
+    expect(global.alert).toHaveBeenCalledWith("Failed to refresh table. Reloading page...");
+    expect(navigateAdmin).toHaveBeenCalled();
   });
 });

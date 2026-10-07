@@ -1,7 +1,7 @@
 import { PANEL_SEARCH_CONFIG, TOGGLE_FRAGMENT_MAP } from "./constants.js";
 import { t } from "./i18n.js";
 import { navigateAdmin } from "./navigation.js";
-import { buildTableUrl, getCookie, isInactiveChecked } from "./utils.js";
+import { buildTableUrl, getCookie, isInactiveChecked, showToast } from "./utils.js";
 
 // ===================================================================
 // ENTITY TYPE DISPLAY NAMES
@@ -61,17 +61,24 @@ export const handleFormSubmitAndRefresh = async function (event, type) {
       );
     }
 
-    // Use redirect:'manual' so the browser does not follow the 303
-    // redirect to the backend-direct URL (which bypasses the proxy).
+    // Follow the 303 so its ?error=/?success= flash params stay readable in
+    // response.url. With redirect:"manual" the response is opaque and a
+    // server-side failure was silently treated as success.
     const response = await fetch(form.action, {
       method: "POST",
       body: formData,
       credentials: "include", // pragma: allowlist secret
-      redirect: "manual",
+      redirect: "follow",
     });
-    if (!response.ok && response.status !== 0) {
-      // status === 0 can occur with opaque redirected responses
+    if (!response.ok) {
       throw new Error(`Submit failed: ${response.status}`);
+    }
+
+    const flashError = new URL(response.url, window.location.origin).searchParams.get("error");
+    if (flashError) {
+      // Keep the user's input in place; do not refresh away the form.
+      showToast(flashError, "error");
+      return;
     }
 
     // Use HTMX to refresh the table instead of full page reload
