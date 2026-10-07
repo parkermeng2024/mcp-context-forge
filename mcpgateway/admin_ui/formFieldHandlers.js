@@ -277,6 +277,7 @@ export const handleAddParameter = function () {
 const integrationRequestMap = {
   REST: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   MCP: [],
+  gRPC: [],
 };
 
 export const updateRequestTypeOptions = function (preselectedValue = null) {

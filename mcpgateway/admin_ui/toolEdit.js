@@ -13,14 +13,35 @@
 export const handleEditIntegrationTypeChange = function () {
   const typeSel = document.getElementById("edit-tool-type");
   const reqSel = document.getElementById("edit-tool-request-type");
-  if (!typeSel || !reqSel) {
+  if (!typeSel) {
     return;
   }
 
   const isREST = typeSel.value === "REST";
-  reqSel.disabled = !isREST;
-  if (!isREST) {
-    reqSel.value = "";
+  const isGrpc = typeSel.value === "gRPC";
+
+  if (reqSel) {
+    reqSel.disabled = !isREST;
+    if (!isREST) {
+      reqSel.value = "";
+    }
+  }
+
+  const grpcWrap = document.getElementById("edit-tool-grpc-service-wrap");
+  if (grpcWrap) {
+    grpcWrap.classList.toggle("hidden", !isGrpc);
+  }
+
+  const urlInput = document.getElementById("edit-tool-url");
+  if (urlInput) {
+    urlInput.required = !isGrpc;
+  }
+
+  const urlError = document.querySelector(
+    '#edit-tool-form [data-error-message-for="url"]'
+  );
+  if (urlError) {
+    urlError.classList.add("invisible");
   }
 };
 

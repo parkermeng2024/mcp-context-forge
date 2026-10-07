@@ -412,6 +412,8 @@
   "tools.edit.url": "URL",
   "tools.edit.urlRequired": "URL 必填。",
   "tools.edit.integrationType": "集成类型",
+  "tools.edit.grpcService": "gRPC 服务",
+  "tools.edit.grpcServiceNone": "\u2014 请选择已注册的 gRPC 服务 \u2014",
   "tools.edit.requestType": "请求类型",
   "tools.edit.headers": "请求头（JSON）",
   "tools.edit.inputSchema": "输入模式（JSON）",

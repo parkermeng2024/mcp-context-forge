@@ -786,7 +786,9 @@ class ToolCreate(BaseModel):
     title: Optional[str] = Field(None, max_length=255, description="Human-readable title for the tool (MCP BaseMetadata)")
     url: Optional[Union[str, AnyHttpUrl]] = Field(None, description="Tool endpoint URL")
     description: Optional[str] = Field(None, description="Tool description")
-    integration_type: Literal["REST", "MCP", "A2A"] = Field("REST", description="'REST' for individual endpoints, 'MCP' for gateway-discovered tools, 'A2A' for A2A agents")
+    integration_type: Literal["REST", "MCP", "A2A", "gRPC"] = Field(
+        "REST", description="'REST' for individual endpoints, 'MCP' for gateway-discovered tools, 'A2A' for A2A agents, 'gRPC' for registered gRPC services"
+    )
     request_type: Literal["GET", "POST", "PUT", "DELETE", "PATCH", "SSE", "STDIO", "STREAMABLEHTTP"] = Field("SSE", description="HTTP method to be used for invoking the tool")
     headers: Optional[Dict[str, str]] = Field(None, description="Additional headers to send when invoking the tool")
     input_schema: Optional[Dict[str, Any]] = Field(default_factory=lambda: dict(_DEFAULT_INPUT_SCHEMA), description="JSON Schema for validating tool parameters", alias="inputSchema")
@@ -801,6 +803,7 @@ class ToolCreate(BaseModel):
     # Declared for OpenAPI discoverability; consumed by the ``assemble_auth`` validator to build ``auth`` for the "authheaders" type.
     auth_headers: Optional[List[Dict[str, str]]] = Field(None, description="List of custom headers for 'authheaders' authentication (array of {'key': ..., 'value': ...} entries)")
     gateway_id: Optional[str] = Field(None, description="id of gateway for the tool")
+    grpc_service_id: Optional[str] = Field(None, description="ID of the registered gRPC service this tool invokes when integration_type is 'gRPC'")
     tags: Optional[List[Union[str, Dict[str, str]]]] = Field(default_factory=list, description="Tags for categorizing the tool")
     deprecated: Optional[bool] = Field(default=False, description="Whether the tool is deprecated (visible but non-executable)")
 
@@ -1064,11 +1067,15 @@ class ToolCreate(BaseModel):
             ... except ValueError as e:
             ...     "Unknown integration type" in str(e)
             True
+            >>> # gRPC carries no HTTP verb; the value is unused
+            >>> info_grpc = type('obj', (object,), {'data': {'integration_type': 'gRPC'}})
+            >>> ToolCreate.validate_request_type('SSE', info_grpc)
+            'SSE'
         """
 
         integration_type = info.data.get("integration_type")
 
-        if integration_type not in ["REST", "MCP", "A2A"]:
+        if integration_type not in ["REST", "MCP", "A2A", "gRPC"]:
             raise ValueError(f"Unknown integration type: {integration_type}")
 
         if integration_type == "REST":
@@ -1189,6 +1196,21 @@ class ToolCreate(BaseModel):
             raise ValueError("Cannot manually create MCP tools. Add MCP servers via the Gateways interface - tools will be auto-discovered and registered with integration_type='MCP'.")
         if integration_type == "A2A" and not allow_auto:
             raise ValueError("Cannot manually create A2A tools. Add A2A agents via the A2A interface - tools will be auto-created when agents are associated with servers.")
+        return values
+
+    @model_validator(mode="before")
+    @classmethod
+    def clear_empty_url_for_non_rest(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Clear an empty URL for non-REST tools, which address their own endpoint.
+
+        Args:
+            values (Dict[str, Any]): The input values to validate.
+
+        Returns:
+            Dict[str, Any]: The validated values.
+        """
+        if isinstance(values, dict) and values.get("integration_type") not in (None, "REST") and not values.get("url"):
+            values["url"] = None
         return values
 
     @model_validator(mode="before")
@@ -1382,7 +1404,7 @@ class ToolUpdate(BaseModelWithConfigDict):
     custom_name: Optional[str] = Field(None, description="Custom name for the tool")
     url: Optional[Union[str, AnyHttpUrl]] = Field(None, description="Tool endpoint URL")
     description: Optional[str] = Field(None, description="Tool description")
-    integration_type: Optional[Literal["REST", "MCP", "A2A"]] = Field(None, description="Tool integration type")
+    integration_type: Optional[Literal["REST", "MCP", "A2A", "gRPC"]] = Field(None, description="Tool integration type")
     request_type: Optional[Literal["GET", "POST", "PUT", "DELETE", "PATCH"]] = Field(None, description="HTTP method to be used for invoking the tool")
     headers: Optional[Dict[str, str]] = Field(None, description="Additional headers to send when invoking the tool")
     input_schema: Optional[Dict[str, Any]] = Field(None, description="JSON Schema for validating tool parameters")
@@ -1394,6 +1416,7 @@ class ToolUpdate(BaseModelWithConfigDict):
     # Declared for OpenAPI discoverability; consumed by the ``assemble_auth`` validator to build ``auth`` for the "authheaders" type.
     auth_headers: Optional[List[Dict[str, str]]] = Field(None, description="List of custom headers for 'authheaders' authentication (array of {'key': ..., 'value': ...} entries)")
     gateway_id: Optional[str] = Field(None, description="id of gateway for the tool")
+    grpc_service_id: Optional[str] = Field(None, description="ID of the registered gRPC service this tool invokes when integration_type is 'gRPC'")
     tags: Optional[List[Union[str, Dict[str, str]]]] = Field(None, description="Tags for categorizing the tool")
     deprecated: Optional[bool] = Field(None, description="Whether the tool is deprecated (visible but non-executable)")
     visibility: Optional[Literal["private", "team", "public"]] = Field(None, description="Visibility level: private, team, or public")
@@ -1408,6 +1431,21 @@ class ToolUpdate(BaseModelWithConfigDict):
     allowlist: Optional[List[str]] = Field(None, description="Allowed upstream hosts/schemes for passthrough")
     plugin_chain_pre: Optional[List[str]] = Field(None, description="Pre-plugin chain for passthrough")
     plugin_chain_post: Optional[List[str]] = Field(None, description="Post-plugin chain for passthrough")
+
+    @model_validator(mode="before")
+    @classmethod
+    def clear_empty_url_for_non_rest(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Clear an empty URL for non-REST tools, which address their own endpoint.
+
+        Args:
+            values (Dict[str, Any]): The input values to validate.
+
+        Returns:
+            Dict[str, Any]: The validated values.
+        """
+        if isinstance(values, dict) and values.get("integration_type") not in (None, "REST") and not values.get("url"):
+            values["url"] = None
+        return values
 
     @field_validator("tags")
     @classmethod
@@ -1574,6 +1612,9 @@ class ToolUpdate(BaseModelWithConfigDict):
             allowed = ["SSE", "STDIO", "STREAMABLEHTTP"]
         elif integration_type == "A2A":
             allowed = ["POST"]  # A2A agents typically use POST
+        elif integration_type == "gRPC":
+            # gRPC tools carry no HTTP verb; the value is unused.
+            return v
         else:
             raise ValueError(f"Unknown integration type: {integration_type}")
 

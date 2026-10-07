@@ -922,6 +922,11 @@ async def admin_add_tool(
         else:
             request_type = "GET"
 
+    # Passthrough fields are REST-only; leave the value unset for other integration types.
+    expose_passthrough = form.get("expose_passthrough")
+    if expose_passthrough is None and integration_type == "REST":
+        expose_passthrough = "true"
+
     user_email = get_user_email(user)
     team_service = TeamManagementService(db)
     team_id = await team_service.verify_team_for_user(user_email, team_id)
@@ -963,6 +968,7 @@ async def admin_add_tool(
         "description": form.get("description"),
         "request_type": request_type,
         "integration_type": integration_type,
+        "grpc_service_id": form.get("grpc_service_id") or None,
         "headers": headers,
         "input_schema": input_schema,
         "output_schema": output_schema,
@@ -976,7 +982,7 @@ async def admin_add_tool(
         "query_mapping": query_mapping,
         "header_mapping": header_mapping,
         "timeout_ms": int(form.get("timeout_ms")) if form.get("timeout_ms") and form.get("timeout_ms").strip() else None,
-        "expose_passthrough": form.get("expose_passthrough", "true"),
+        "expose_passthrough": expose_passthrough,
         "allowlist": allowlist,
         "plugin_chain_pre": plugin_chain_pre,
         "plugin_chain_post": plugin_chain_post,
@@ -1039,6 +1045,7 @@ async def admin_edit_tool(
       - description (optional)
       - requestType (to be mapped to request_type)
       - integrationType (to be mapped to integration_type)
+      - grpc_service_id (optional, for gRPC tools)
       - headers (as a JSON string)
       - input_schema (as a JSON string)
       - output_schema (as a JSON string, optional)
@@ -1126,6 +1133,9 @@ async def admin_edit_tool(
         "owner_email": user_email,
         "team_id": team_id,
     }
+    # Only include grpc_service_id if it's provided (the field is hidden for non-gRPC tools)
+    if form.get("grpc_service_id"):
+        tool_data["grpc_service_id"] = form.get("grpc_service_id")
     # Only include integration_type if it's provided (not disabled in form)
     if "integrationType" in form:
         tool_data["integration_type"] = form.get("integrationType")

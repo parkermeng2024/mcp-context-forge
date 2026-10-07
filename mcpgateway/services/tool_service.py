@@ -2398,6 +2398,7 @@ class ToolService(BaseService):
                 auth_type=auth_type,
                 auth_value=auth_value,
                 gateway_id=tool.gateway_id,
+                grpc_service_id=getattr(tool, "grpc_service_id", None),
                 tags=tool.tags or [],
                 # Metadata fields
                 created_by=created_by,

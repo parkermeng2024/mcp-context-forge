@@ -412,6 +412,8 @@
   "tools.edit.url": "URL",
   "tools.edit.urlRequired": "La URL es obligatoria.",
   "tools.edit.integrationType": "Tipo de integración",
+  "tools.edit.grpcService": "Servicio gRPC",
+  "tools.edit.grpcServiceNone": "\u2014 seleccione un servicio gRPC registrado \u2014",
   "tools.edit.requestType": "Tipo de solicitud",
   "tools.edit.headers": "Cabeceras (JSON)",
   "tools.edit.inputSchema": "Esquema de entrada (JSON)",

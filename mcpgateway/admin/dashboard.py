@@ -43,6 +43,23 @@ from mcpgateway.utils.verify_credentials import verify_jwt_token_cached
 
 LOGGER: logging.Logger = logging.getLogger("mcpgateway.admin")
 
+
+def _grpc_service_items(list_result: Any) -> list:
+    """Return the item list from either shape returned by GrpcService.list_services.
+
+    Args:
+        list_result: A dict (page-based pagination) or an ``(items, next_cursor)`` tuple.
+
+    Returns:
+        list: The gRPC service rows. Never None.
+    """
+    if isinstance(list_result, dict):
+        return list_result.get("data") or []
+    if isinstance(list_result, tuple):
+        return list_result[0] or []
+    return list_result or []
+
+
 # mcpgateway.admin (__init__) appends this router's routes to admin_router, so the
 # prefix, tags, and CSRF dependency must mirror admin_router exactly.
 router = APIRouter(
@@ -519,7 +536,7 @@ async def admin_ui(
                 user_email=user_email,
                 team_id=selected_team_id,
             )
-            grpc_services = [service.model_dump(by_alias=True) for service in grpc_services_raw]
+            grpc_services = [service.model_dump(by_alias=True) for service in _grpc_service_items(grpc_services_raw)]
             grpc_services = _to_dict_and_filter(grpc_services) if isinstance(grpc_services, (list, tuple)) else grpc_services
     except Exception as e:
         LOGGER.exception("Failed to load gRPC services: %s", e)

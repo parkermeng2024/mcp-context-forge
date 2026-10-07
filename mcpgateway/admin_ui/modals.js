@@ -81,9 +81,11 @@ export function closeModal(modalId, clearId = null) {
       return;
     }
 
-    // Clear specified content if provided
-    if (clearId) {
-      const resultEl = safeGetElement(clearId);
+    // data-action-click dispatch appends the event as the last argument, so a
+    // non-string here is not a real element id.
+    const clearTarget = typeof clearId === "string" ? clearId : null;
+    if (clearTarget) {
+      const resultEl = safeGetElement(clearTarget);
       if (resultEl) {
         resultEl.innerHTML = "";
       }
@@ -158,6 +160,18 @@ export function resetModalState(modalId) {
         console.error("Error resetting form:", error);
       }
     });
+
+    // Re-sync conditional fields (for example the gRPC TLS cert/key inputs) whose
+    // visibility is derived by a data-action-change handler on the modal.
+    document
+      .querySelectorAll(`#${modalId} [data-action-change]`)
+      .forEach((el) => {
+        try {
+          el.dispatchEvent(new Event("change", { bubbles: true }));
+        } catch (error) {
+          console.error("Error re-syncing conditional field:", error);
+        }
+      });
 
     console.log(`✓ Reset modal state: ${modalId}`);
   } catch (error) {

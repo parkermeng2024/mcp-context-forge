@@ -1549,6 +1549,37 @@ class TeamManagementService:
             logger.error("Failed to get teams for user %s: %s", SecurityValidator.sanitize_log_message(user_email), e)
             return []
 
+    async def build_team_filter_clause(self, model_cls: Any, user_email: Optional[str], team_id: Optional[str] = None) -> Optional[Any]:
+        """Build a visibility clause limiting rows to what the user may access.
+
+        Args:
+            model_cls: ORM model exposing ``team_id``, ``owner_email`` and ``visibility``.
+            user_email: Caller email. When empty, no filtering is applied.
+            team_id: Optional team scope. When set, only that team is visible and only if the user is a member.
+
+        Returns:
+            Optional[Any]: SQLAlchemy boolean clause, or None when no filtering applies.
+        """
+        if not user_email:
+            return None
+
+        try:
+            user_teams = await self.get_user_teams(user_email)
+            team_ids = [team.id for team in user_teams]
+        except Exception as e:
+            logger.error("Failed to resolve teams for user %s: %s", SecurityValidator.sanitize_log_message(user_email), e)
+            team_ids = []
+
+        if team_id:
+            team_ids = [team_id] if team_id in team_ids else []
+
+        conditions = [model_cls.visibility == "public"]
+        if team_ids:
+            conditions.append(and_(model_cls.team_id.in_(team_ids), model_cls.visibility.in_(["team", "public"])))
+        if hasattr(model_cls, "owner_email"):
+            conditions.append(and_(model_cls.owner_email == user_email, model_cls.visibility == "private"))
+        return or_(*conditions)
+
     async def verify_team_for_user(self, user_email, team_id=None):
         """
         Retrieve a team ID for a user based on their membership and optionally a specific team ID.

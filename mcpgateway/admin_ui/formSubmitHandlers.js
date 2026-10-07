@@ -693,13 +693,16 @@ export const handleToolFormSubmit = async function (event) {
       form.elements["name"]?.value,
       "tool"
     );
+    const integrationType = (
+      form.elements["integrationType"]?.value || "REST"
+    ).toLowerCase();
     const urlValidation = validateUrl(form.elements["url"]?.value);
 
     if (!nameValidation.valid) {
       throw new Error(nameValidation.error);
     }
 
-    if (!urlValidation.valid) {
+    if (integrationType !== "grpc" && !urlValidation.valid) {
       throw new Error(urlValidation.error);
     }
 
@@ -779,13 +782,16 @@ export const handleEditToolFormSubmit = async function (event) {
     // Basic validation before touching editors
     const name = form.elements["name"]?.value;
     const url = form.elements["url"]?.value;
+    const integrationType = (
+      form.elements["integrationType"]?.value || "REST"
+    ).toLowerCase();
     const nameValidation = validateInputName(name, "tool");
     const urlValidation = validateUrl(url);
 
     if (!nameValidation.valid) {
       throw new Error(nameValidation.error);
     }
-    if (!urlValidation.valid) {
+    if (integrationType !== "grpc" && !urlValidation.valid) {
       throw new Error(urlValidation.error);
     }
 

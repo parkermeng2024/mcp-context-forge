@@ -527,9 +527,11 @@ import {
   validateTool,
   runToolTest,
   viewTool,
+  toggleToolIntegrationFields,
 } from "./tools.js";
 
 Admin.editTool = editTool;
+Admin.toggleToolIntegrationFields = toggleToolIntegrationFields;
 Admin.initToolSelect = initToolSelect;
 Admin.invokeTool = invokeTool;
 Admin.testTool = testTool;

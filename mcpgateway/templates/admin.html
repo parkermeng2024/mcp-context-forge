@@ -3571,6 +3571,24 @@
                 />
               </div>
 
+              <div id="tool-create-grpc-service-wrap" class="hidden">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                  for="tool-create-grpc-service"
+                  >{{ t('tools.edit.grpcService') }}</label
+                >
+                <select
+                  id="tool-create-grpc-service"
+                  name="grpc_service_id"
+                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-300"
+                >
+                  <option value="">{{ t('tools.edit.grpcServiceNone') }}</option>
+                  {% for service in grpc_services or [] %}
+                  <option value="{{ service.id }}">{{ service.name }} ({{ service.target }})</option>
+                  {% endfor %}
+                </select>
+              </div>
+
               <div class="relative">
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
@@ -3605,9 +3623,11 @@
                   id="integrationType"
                   name="integrationType"
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                  data-action-change="updateRequestTypeOptions"
+                  data-action-change="toggleToolIntegrationFields"
                 >
                   <option value="REST">REST</option>
+                  <option value="MCP">MCP</option>
+                  <option value="gRPC">gRPC</option>
                 </select>
               </div>
               <div>
@@ -9193,6 +9213,24 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                       >
                         <option value="REST">REST</option>
                         <option value="MCP">{{ t('nav.section.mcp') }}</option>
+                        <option value="gRPC">gRPC</option>
+                      </select>
+                    </div>
+                    <div id="edit-tool-grpc-service-wrap" class="hidden">
+                      <label
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        for="edit-tool-grpc-service"
+                        >{{ t('tools.edit.grpcService') }}</label
+                      >
+                      <select
+                        name="grpc_service_id"
+                        id="edit-tool-grpc-service"
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                      >
+                        <option value="">{{ t('tools.edit.grpcServiceNone') }}</option>
+                        {% for service in grpc_services or [] %}
+                        <option value="{{ service.id }}">{{ service.name }} ({{ service.target }})</option>
+                        {% endfor %}
                       </select>
                     </div>
                     <div>

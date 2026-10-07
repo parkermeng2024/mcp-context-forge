@@ -240,7 +240,7 @@ class GrpcService:
         # Apply team filtering
         if user_email and team_id:
             team_service = TeamManagementService(db)
-            team_filter = await team_service.build_team_filter_clause(DbGrpcService, user_email, team_id)  # pylint: disable=no-member
+            team_filter = await team_service.build_team_filter_clause(DbGrpcService, user_email, team_id)
             if team_filter is not None:
                 query = query.where(team_filter)
         elif team_id:
@@ -325,7 +325,7 @@ class GrpcService:
         # Apply team access control
         if user_email:
             team_service = TeamManagementService(db)
-            team_filter = await team_service.build_team_filter_clause(DbGrpcService, user_email, None)  # pylint: disable=no-member
+            team_filter = await team_service.build_team_filter_clause(DbGrpcService, user_email, None)
             if team_filter is not None:
                 query = query.where(team_filter)
 

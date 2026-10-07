@@ -1,6 +1,6 @@
 import { AppState } from "./appState.js";
 import { loadAuthHeaders, updateAuthHeadersJSON } from "./auth.js";
-import { updateEditToolRequestTypes } from "./formFieldHandlers.js";
+import { updateEditToolRequestTypes, updateRequestTypeOptions } from "./formFieldHandlers.js";
 import { getSelectedGatewayIds } from "./gateways.js";
 import { t } from "./i18n.js";
 import { closeModal, openModal } from "./modals.js";
@@ -16,6 +16,7 @@ import {
 import { getEditSelections } from "./servers.js";
 import { getUiHiddenSections } from "./tabs.js";
 import { applyVisibilityRestrictions, isTeamScopedView } from "./teams.js";
+import { handleEditIntegrationTypeChange } from "./toolEdit.js";
 import {
   decodeHtml,
   fetchWithTimeout,
@@ -842,6 +843,10 @@ export const editTool = async function (toolId) {
     if (typeField) {
       // Always set value from DB, never from previous UI state
       typeField.value = tool.integrationType;
+      const grpcServiceField = safeGetElement("edit-tool-grpc-service");
+      if (grpcServiceField) {
+        grpcServiceField.value = tool.grpcServiceId || "";
+      }
       // Remove any previous hidden field for type
       const prevHiddenType = safeGetElement("hidden-edit-tool-type");
       if (prevHiddenType) {
@@ -916,6 +921,7 @@ export const editTool = async function (toolId) {
       // Update request types and URL field
       updateEditToolRequestTypes(tool.requestType || null);
       updateEditToolUrl(tool.url || null);
+      handleEditIntegrationTypeChange();
     }
 
     // Auth containers
@@ -3793,5 +3799,37 @@ export const invokeTool = async function (toolName) {
     showErrorMessage(
       t("tools.test.openFailed", { error: error.message })
     );
+  }
+};
+
+export const toggleToolIntegrationFields = function (event) {
+  const form = event?.target?.form || document.getElementById("add-tool-form");
+  if (!form) return;
+
+  const typeEl = safeGetElement("integrationType");
+  const typeValue = (typeEl?.value || "").toLowerCase();
+  const isGrpc = typeValue === "grpc";
+
+  updateRequestTypeOptions();
+
+  // gRPC tools carry no HTTP verb; disable the control so it is left out of FormData.
+  const requestTypeEl = safeGetElement("requestType");
+  if (requestTypeEl) {
+    requestTypeEl.disabled = isGrpc;
+  }
+
+  const grpcWrap = form.querySelector("#tool-create-grpc-service-wrap");
+  if (grpcWrap) {
+    grpcWrap.classList.toggle("hidden", !isGrpc);
+  }
+
+  const urlInput = form.querySelector("#tool-url");
+  if (urlInput) {
+    urlInput.required = !isGrpc;
+  }
+
+  const urlError = form.querySelector('[data-error-message-for="url"]');
+  if (urlError) {
+    urlError.classList.add("invisible");
   }
 };
