@@ -242,7 +242,8 @@ class TestHTMXInteractions:
         # Navigate to tools tab
         tools_page.navigate_to_tools_tab()
 
-        # Try to submit empty form - click submit without filling required fields
+        # Open the create modal, then try to submit empty form
+        tools_page.open_create_tool_modal()
         tools_page.add_tool_btn.click()
 
         # Check for HTML5 validation (browser will prevent submission)
@@ -373,7 +374,8 @@ class TestHTMXInteractions:
 
         tools_page.page.route("**/*", handle_route)
 
-        # Try to create a tool
+        # Open the create modal, then try to create a tool
+        tools_page.open_create_tool_modal()
         tools_page.tool_name_input.fill("Network Error Test")
         tools_page.tool_url_input.fill("http://example.com")
 

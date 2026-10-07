@@ -1,8 +1,8 @@
 <!-- htmlhint doctype-first:false -->
 <div class="space-y-6">
   <!-- LLM Providers Overview -->
-  <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg shadow-lg p-6 text-white">
-    <h2 class="text-2xl font-bold mb-4 flex items-center">
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+    <h2 class="text-2xl font-bold mb-4 flex items-center text-gray-900 dark:text-white">
       <svg class="h-8 w-8 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
         stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -10,23 +10,23 @@
       </svg>
       {{ t('llm.providers.title') }}
     </h2>
-    <p class="text-blue-100 mb-4">{{ t('llm.providers.hint') }}</p>
+    <p class="text-gray-500 dark:text-gray-400 mb-4">{{ t('llm.providers.hint') }}</p>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ providers|length }}</div>
-        <div class="text-blue-100 text-sm">{{ t('llm.providers.totalProviders') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ providers|length }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('llm.providers.totalProviders') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ providers|selectattr('enabled')|list|length }}</div>
-        <div class="text-blue-100 text-sm">{{ t('llm.providers.statEnabled') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ providers|selectattr('enabled')|list|length }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('llm.providers.statEnabled') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ providers|selectattr('health_status', 'eq', 'healthy')|list|length }}</div>
-        <div class="text-blue-100 text-sm">{{ t('llm.providers.statHealthy') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ providers|selectattr('health_status', 'eq', 'healthy')|list|length }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('llm.providers.statHealthy') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ providers|sum(attribute='model_count') }}</div>
-        <div class="text-blue-100 text-sm">{{ t('llm.providers.totalModels') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ providers|sum(attribute='model_count') }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('llm.providers.totalModels') }}</div>
       </div>
     </div>
   </div>

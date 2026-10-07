@@ -36,9 +36,9 @@
 <div class="space-y-6">
   <!-- Plugin Overview Card -->
   <div
-    class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg shadow-lg p-6 text-white"
+    class="bg-white dark:bg-gray-800 shadow rounded-lg p-6"
   >
-    <h2 class="text-2xl font-bold mb-4 flex items-center">
+    <h2 class="text-2xl font-bold mb-4 flex items-center text-gray-900 dark:text-white">
       <svg
         class="h-8 w-8 mr-3"
         xmlns="http://www.w3.org/2000/svg"
@@ -68,22 +68,22 @@
     {% else %}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ stats.total_plugins }}</div>
-        <div class="text-purple-100 text-sm">{{ t('plugins.stats.total') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.total_plugins }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('plugins.stats.total') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ stats.enabled_plugins }}</div>
-        <div class="text-purple-100 text-sm">{{ t('common.states.enabled') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.enabled_plugins }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('common.states.enabled') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ stats.disabled_plugins }}</div>
-        <div class="text-purple-100 text-sm">{{ t('common.states.disabled') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.disabled_plugins }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('common.states.disabled') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-3xl font-bold">
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">
           {{ (stats.plugins_by_mode.enforce | default(0)) + (stats.plugins_by_mode.sequential | default(0)) + (stats.plugins_by_mode.enforce_ignore_error | default(0)) + (stats.plugins_by_mode.concurrent | default(0)) }}
         </div>
-        <div class="text-purple-100 text-sm">{{ t('plugins.stats.enforcing') }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('plugins.stats.enforcing') }}</div>
       </div>
     </div>
     {% endif %}

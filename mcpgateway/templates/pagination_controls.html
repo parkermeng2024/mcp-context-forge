@@ -62,8 +62,9 @@
         :class="hasPrev ? 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20' : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'"
         class="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 transition-colors"
         title="{{ t('pagination.firstPage') }}"
+        aria-label="{{ t('pagination.firstPage') }}"
       >
-        ⏮️
+        <span aria-hidden="true">⏮️</span>
       </button>
 
       <!-- Previous Page Button -->
@@ -72,7 +73,6 @@
         :disabled="!hasPrev"
         :class="hasPrev ? 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20' : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'"
         class="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 transition-colors"
-        title="{{ t('pagination.previousPage') }}"
       >
         {{ t('pagination.prevButton') }}
       </button>
@@ -142,7 +142,6 @@
         :disabled="!hasNext"
         :class="hasNext ? 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20' : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'"
         class="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 transition-colors"
-        title="{{ t('pagination.nextPage') }}"
       >
         {{ t('pagination.nextButton') }}
       </button>
@@ -154,8 +153,9 @@
         :class="hasNext ? 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20' : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'"
         class="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 transition-colors"
         title="{{ t('pagination.lastPage') }}"
+        aria-label="{{ t('pagination.lastPage') }}"
       >
-        ⏭️
+        <span aria-hidden="true">⏭️</span>
       </button>
     </div>
   </template>

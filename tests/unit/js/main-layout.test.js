@@ -1,10 +1,30 @@
 /**
  * Unit tests for components/main-layout.js
- * Tests: mainLayout factory, init resize listener
+ * Tests: mainLayout factory, init resize listener, sidebarCollapsed persistence
  */
 
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { mainLayout } from "../../../mcpgateway/admin_ui/components/main-layout.js";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function makeComponent() {
+  const component = mainLayout();
+  const watchCallbacks = {};
+  component.$watch = vi.fn((prop, cb) => {
+    watchCallbacks[prop] = cb;
+  });
+  return { component, watchCallbacks };
+}
+
+function makeLocalStorage() {
+  const values = new Map();
+  return {
+    clear: () => values.clear(),
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, String(value)),
+  };
+}
 
 // ─── Setup / teardown ─────────────────────────────────────────────────────────
 
@@ -12,6 +32,8 @@ let originalInnerWidth;
 
 beforeEach(() => {
   originalInnerWidth = window.innerWidth;
+  vi.stubGlobal("localStorage", makeLocalStorage());
+  localStorage.clear();
 });
 
 afterEach(() => {
@@ -21,6 +43,8 @@ afterEach(() => {
     configurable: true,
   });
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+  delete window.Admin;
 });
 
 // ─── Factory ──────────────────────────────────────────────────────────────────
@@ -69,7 +93,7 @@ describe("mainLayout factory", () => {
 describe("init — resize listener", () => {
   test("updates isDesktop to true when resized to >= 1024", () => {
     Object.defineProperty(window, "innerWidth", { value: 800, writable: true, configurable: true });
-    const component = mainLayout();
+    const { component } = makeComponent();
     component.init();
 
     Object.defineProperty(window, "innerWidth", { value: 1280, writable: true, configurable: true });
@@ -80,7 +104,7 @@ describe("init — resize listener", () => {
 
   test("updates isDesktop to false when resized to < 1024", () => {
     Object.defineProperty(window, "innerWidth", { value: 1280, writable: true, configurable: true });
-    const component = mainLayout();
+    const { component } = makeComponent();
     component.init();
 
     Object.defineProperty(window, "innerWidth", { value: 600, writable: true, configurable: true });
@@ -91,7 +115,7 @@ describe("init — resize listener", () => {
 
   test("sets sidebarOpen to true when resized to >= 1024", () => {
     Object.defineProperty(window, "innerWidth", { value: 800, writable: true, configurable: true });
-    const component = mainLayout();
+    const { component } = makeComponent();
     component.sidebarOpen = false;
     component.init();
 
@@ -103,7 +127,7 @@ describe("init — resize listener", () => {
 
   test("does not change sidebarOpen when resized to < 1024", () => {
     Object.defineProperty(window, "innerWidth", { value: 1280, writable: true, configurable: true });
-    const component = mainLayout();
+    const { component } = makeComponent();
     component.sidebarOpen = false;
     component.init();
 
@@ -115,7 +139,7 @@ describe("init — resize listener", () => {
 
   test("updates isDesktop on exact 1024 boundary", () => {
     Object.defineProperty(window, "innerWidth", { value: 800, writable: true, configurable: true });
-    const component = mainLayout();
+    const { component } = makeComponent();
     component.init();
 
     Object.defineProperty(window, "innerWidth", { value: 1024, writable: true, configurable: true });
@@ -126,12 +150,53 @@ describe("init — resize listener", () => {
 
   test("updates isDesktop on 1023 boundary (just below desktop)", () => {
     Object.defineProperty(window, "innerWidth", { value: 1280, writable: true, configurable: true });
-    const component = mainLayout();
+    const { component } = makeComponent();
     component.init();
 
     Object.defineProperty(window, "innerWidth", { value: 1023, writable: true, configurable: true });
     window.dispatchEvent(new Event("resize"));
 
     expect(component.isDesktop).toBe(false);
+  });
+});
+
+// ─── sidebarCollapsed persistence ─────────────────────────────────────────────
+
+describe("sidebarCollapsed persistence", () => {
+  test("reads persisted collapsed state from localStorage on init", () => {
+    localStorage.setItem("sidebarCollapsed", "true");
+    const { component } = makeComponent();
+    component.init();
+    expect(component.sidebarCollapsed).toBe(true);
+  });
+
+  test("defaults to false when localStorage has no value", () => {
+    const { component } = makeComponent();
+    component.init();
+    expect(component.sidebarCollapsed).toBe(false);
+  });
+
+  test("falls back to false when stored value is corrupt", () => {
+    localStorage.setItem("sidebarCollapsed", "{not-json");
+    window.Admin = { logRestrictedContext: vi.fn() };
+    const { component } = makeComponent();
+    component.init();
+    expect(component.sidebarCollapsed).toBe(false);
+    expect(window.Admin.logRestrictedContext).toHaveBeenCalled();
+  });
+
+  test("registers a $watch on sidebarCollapsed", () => {
+    const { component } = makeComponent();
+    component.init();
+    expect(component.$watch).toHaveBeenCalledWith("sidebarCollapsed", expect.any(Function));
+  });
+
+  test("writes collapsed state to localStorage via $watch callback", () => {
+    const { component, watchCallbacks } = makeComponent();
+    component.init();
+    watchCallbacks.sidebarCollapsed(true);
+    expect(localStorage.getItem("sidebarCollapsed")).toBe("true");
+    watchCallbacks.sidebarCollapsed(false);
+    expect(localStorage.getItem("sidebarCollapsed")).toBe("false");
   });
 });

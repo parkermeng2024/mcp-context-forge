@@ -2,9 +2,9 @@
 <div class="space-y-6" x-data="llmApiInfoApp">
   <!-- Overview Card -->
   <div
-    class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-lg p-6 text-white"
+    class="bg-white dark:bg-gray-800 shadow rounded-lg p-6"
   >
-    <h2 class="text-2xl font-bold mb-4 flex items-center">
+    <h2 class="text-2xl font-bold mb-4 flex items-center text-gray-900 dark:text-white">
       <svg
         class="h-8 w-8 mr-3"
         xmlns="http://www.w3.org/2000/svg"
@@ -29,17 +29,17 @@
       <p class="font-bold">{{ t('llm.apiInfo.disabled') }}</p>
     </div>
     {% else %}
-    <p class="text-blue-100 mb-4">
+    <p class="text-gray-500 dark:text-gray-400 mb-4">
       {{ t('llm.apiInfo.hint') }}
     </p>
     <div class="grid grid-cols-2 gap-4">
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ stats.total_providers }}</div>
-        <div class="text-blue-100 text-sm">{{ t('llm.settings.tab.providers') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.total_providers }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('llm.settings.tab.providers') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ stats.total_models }}</div>
-        <div class="text-blue-100 text-sm">{{ t('llm.settings.tab.models') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.total_models }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('llm.settings.tab.models') }}</div>
       </div>
     </div>
     {% endif %}

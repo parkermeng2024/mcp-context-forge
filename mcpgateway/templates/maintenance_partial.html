@@ -1,8 +1,8 @@
 <!-- htmlhint doctype-first:false -->
 <div class="space-y-6">
   <!-- Maintenance Header -->
-  <div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg shadow-lg p-6 text-white">
-    <h2 class="text-2xl font-bold mb-2 flex items-center">
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+    <h2 class="text-2xl font-bold mb-2 flex items-center text-gray-900 dark:text-white">
       <svg
         class="h-8 w-8 mr-3"
         xmlns="http://www.w3.org/2000/svg"
@@ -26,7 +26,7 @@
       </svg>
       {{ t('maint.title') }}
     </h2>
-    <p class="text-amber-100">
+    <p class="text-gray-500 dark:text-gray-400">
       {{ t('maint.hint') }}
     </p>
   </div>
@@ -225,7 +225,7 @@
         <button
           @click="showRollupConfirm = true"
           :disabled="rollupLoading"
-          class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-medium rounded-md shadow-sm transition-colors"
+          class="w-full inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-sm font-medium rounded-md shadow-sm transition-colors"
         >
           <template x-if="rollupLoading">
             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
@@ -241,7 +241,7 @@
           <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="showRollupConfirm = false">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md mx-4">
               <div class="flex items-center mb-4">
-                <svg class="h-6 w-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="h-6 w-6 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
                 <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ t('maint.rollup.confirmTitle') }}</h4>
@@ -263,7 +263,7 @@
                 </button>
                 <button
                   @click="runRollup()"
-                  class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+                  class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md"
                 >
                   {{ t('maint.rollup.confirm') }}
                 </button>

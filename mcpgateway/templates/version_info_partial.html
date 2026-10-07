@@ -3,9 +3,9 @@
   <!-- Application Overview Card (Similar to System Summary) -->
   <div
     id="version-app-overview-card"
-    class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-lg p-6 text-white"
+    class="bg-white dark:bg-gray-800 shadow rounded-lg p-6"
   >
-    <h2 class="text-2xl font-bold mb-4 flex items-center">
+    <h2 class="text-2xl font-bold mb-4 flex items-center text-gray-900 dark:text-white">
       <svg
         class="h-8 w-8 mr-3"
         xmlns="http://www.w3.org/2000/svg"
@@ -26,30 +26,32 @@
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="text-center">
-        <div class="text-2xl font-bold">{{ payload.app.name }}</div>
-        <div class="text-blue-100 text-sm">{{ t('about.overview.application') }}</div>
+        <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ payload.app.name }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('about.overview.application') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-2xl font-bold">{{ payload.host }}</div>
-        <div class="text-blue-100 text-sm">{{ t('about.overview.host') }}</div>
+        <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ payload.host }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('about.overview.host') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-2xl font-bold">
+        <div class="text-2xl font-bold text-gray-900 dark:text-white">
           {{ payload.app.mcp_protocol_version }}
         </div>
-        <div class="text-blue-100 text-sm">{{ t('about.overview.mcpProtocol') }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('about.overview.mcpProtocol') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-2xl font-bold">{{ payload.uptime_seconds }}s</div>
-        <div class="text-blue-100 text-sm">{{ t('about.overview.uptime') }}</div>
+        <div class="text-2xl font-bold text-gray-900 dark:text-white">
+          {% set hours = payload.uptime_seconds // 3600 %}{% set minutes = (payload.uptime_seconds % 3600) // 60 %}{% if hours > 0 %}{{ hours }}h {{ minutes }}m{% else %}{{ minutes }}m {{ payload.uptime_seconds % 60 }}s{% endif %}
+        </div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('about.overview.uptime') }}</div>
       </div>
     </div>
 
     {% if payload.app.version %}
-    <div class="mt-4 pt-4 border-t border-blue-300">
+    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
       <div class="text-center">
-        <div class="text-lg font-medium">{{ t('about.overview.version') }}</div>
-        <div class="text-blue-100 font-mono text-sm">
+        <div class="text-lg font-medium text-gray-900 dark:text-white">{{ t('about.overview.version') }}</div>
+        <div class="text-gray-500 dark:text-gray-400 font-mono text-sm">
           {{ payload.app.version }}
         </div>
       </div>

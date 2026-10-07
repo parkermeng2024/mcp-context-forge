@@ -1,8 +1,8 @@
 <!-- htmlhint doctype-first:false -->
 <div class="space-y-6">
   <!-- LLM Models Overview -->
-  <div class="bg-gradient-to-r from-green-600 to-teal-700 rounded-lg shadow-lg p-6 text-white">
-    <h2 class="text-2xl font-bold mb-4 flex items-center">
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+    <h2 class="text-2xl font-bold mb-4 flex items-center text-gray-900 dark:text-white">
       <svg class="h-8 w-8 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
         stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -10,23 +10,23 @@
       </svg>
       {{ t('llm.models.title') }}
     </h2>
-    <p class="text-green-100 mb-4">{{ t('llm.models.hint') }}</p>
+    <p class="text-gray-500 dark:text-gray-400 mb-4">{{ t('llm.models.hint') }}</p>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ models|length }}</div>
-        <div class="text-green-100 text-sm">{{ t('llm.models.totalModels') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ models|length }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('llm.models.totalModels') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ models|selectattr('enabled')|list|length }}</div>
-        <div class="text-green-100 text-sm">{{ t('llm.models.statEnabled') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ models|selectattr('enabled')|list|length }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('llm.models.statEnabled') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ models|selectattr('supports_streaming')|list|length }}</div>
-        <div class="text-green-100 text-sm">{{ t('llm.models.statStreaming') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ models|selectattr('supports_streaming')|list|length }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('llm.models.statStreaming') }}</div>
       </div>
       <div class="text-center">
-        <div class="text-3xl font-bold">{{ models|selectattr('supports_function_calling')|list|length }}</div>
-        <div class="text-green-100 text-sm">{{ t('llm.models.statFunctionCalling') }}</div>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ models|selectattr('supports_function_calling')|list|length }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ t('llm.models.statFunctionCalling') }}</div>
       </div>
     </div>
   </div>
