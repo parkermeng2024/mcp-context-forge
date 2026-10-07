@@ -79,8 +79,8 @@ class PromptsPage(BasePage):
 
     @property
     def prompt_rows(self) -> Locator:
-        """All prompt table rows."""
-        return self.prompts_table_body.locator("tr")
+        """Data rows in the prompt table, excluding the empty state."""
+        return self.prompts_table_body.locator("tr:not(.empty-state-row)")
 
     @property
     def prompt_items(self) -> Locator:

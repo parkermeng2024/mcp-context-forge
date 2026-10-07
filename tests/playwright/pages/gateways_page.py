@@ -76,8 +76,8 @@ class GatewaysPage(BasePage):
 
     @property
     def gateway_rows(self) -> Locator:
-        """All gateway table rows."""
-        return self.gateways_table_body.locator("tr")
+        """Data rows in the gateway table, excluding the empty state."""
+        return self.gateways_table_body.locator("tr:not(.empty-state-row)")
 
     @property
     def loading_indicator(self) -> Locator:

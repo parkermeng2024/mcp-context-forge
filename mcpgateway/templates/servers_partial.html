@@ -20,7 +20,7 @@
   </thead>
   <tbody id="servers-table-body" data-testid="server-list" class="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
   {% if data|length == 0 %}
-  <tr data-testid="servers-empty-state">
+  <tr data-testid="servers-empty-state" class="empty-state-row">
     <td colspan="14" class="px-6 py-8 text-center">
       <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
         {% if query_params is defined and query_params.get('team_id') %}

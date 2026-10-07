@@ -73,8 +73,8 @@ class ServersPage(BasePage):
 
     @property
     def server_rows(self) -> Locator:
-        """All server table rows."""
-        return self.servers_table_body.locator("tr")
+        """Data rows in the server table, excluding the empty state."""
+        return self.servers_table_body.locator("tr:not(.empty-state-row)")
 
     @property
     def server_items(self) -> Locator:

@@ -82,8 +82,8 @@ class ToolsPage(BasePage):
 
     @property
     def tool_rows(self) -> Locator:
-        """All tool table rows."""
-        return self.tools_table_body.locator("tr")
+        """Data rows in the tool table, excluding the empty state."""
+        return self.tools_table_body.locator("tr:not(.empty-state-row)")
 
     # ==================== Tool Modal Elements ====================
 

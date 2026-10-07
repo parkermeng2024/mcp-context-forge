@@ -310,8 +310,8 @@ class AgentsPage(BasePage):
 
     @property
     def agent_rows(self) -> Locator:
-        """All agent table rows."""
-        return self.agents_table_body.locator("tr")
+        """Data rows in the agent table, excluding the empty state."""
+        return self.agents_table_body.locator("tr:not(.empty-state-row)")
 
     # ==================== High-Level Navigation Methods ====================
 

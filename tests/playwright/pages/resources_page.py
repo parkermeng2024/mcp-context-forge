@@ -79,8 +79,8 @@ class ResourcesPage(BasePage):
 
     @property
     def resource_rows(self) -> Locator:
-        """All resource table rows."""
-        return self.resources_table_body.locator("tr")
+        """Data rows in the resource table, excluding the empty state."""
+        return self.resources_table_body.locator("tr:not(.empty-state-row)")
 
     @property
     def resource_items(self) -> Locator:
