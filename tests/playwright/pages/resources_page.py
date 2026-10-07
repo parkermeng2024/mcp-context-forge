@@ -26,6 +26,16 @@ class ResourcesPage(BasePage):
     # ==================== Resource Form Elements ====================
 
     @property
+    def resource_create_btn(self) -> Locator:
+        """'+ New resource' button that opens the create modal."""
+        return self.page.locator("#resource-create-btn")
+
+    @property
+    def resource_create_modal(self) -> Locator:
+        """Create resource modal container."""
+        return self.page.locator("#resource-create-modal")
+
+    @property
     def add_resource_form(self) -> Locator:
         """Add resource form."""
         return self.page.locator("#add-resource-form")
@@ -137,6 +147,11 @@ class ResourcesPage(BasePage):
         # Wait for table body to exist in DOM (may be empty, so don't require visible)
         self.wait_for_attached(self.resources_table_body, timeout=timeout)
 
+    def open_create_resource_modal(self) -> None:
+        """Open the create-resource modal via the list header button."""
+        self.click_locator(self.resource_create_btn)
+        self.page.wait_for_selector("#resource-create-modal:not(.hidden)", state="visible", timeout=10000)
+
     def create_resource(self, uri: str, name: str, mime_type: str, description: str) -> None:
         """Create a new resource by filling and submitting the form.
 
@@ -146,6 +161,7 @@ class ResourcesPage(BasePage):
             mime_type: Resource MIME type
             description: Resource description
         """
+        self.open_create_resource_modal()
         self.fill_locator(self.resource_uri_input, uri)
         self.fill_locator(self.resource_name_input, name)
         self.fill_locator(self.resource_mime_type_input, mime_type)
@@ -161,6 +177,8 @@ class ResourcesPage(BasePage):
             mime_type: Resource MIME type
             description: Resource description
         """
+        if not self.resource_create_modal.is_visible():
+            self.open_create_resource_modal()
         self.fill_locator(self.resource_uri_input, uri)
         self.fill_locator(self.resource_name_input, name)
         self.fill_locator(self.resource_mime_type_input, mime_type)

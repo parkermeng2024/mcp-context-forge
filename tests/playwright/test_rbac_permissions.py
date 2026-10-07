@@ -748,6 +748,7 @@ def _submit_prompt_form_and_get_status(pr_page: PromptsPage, name: str) -> int:
         HTTP status code of the POST response.
         200/201 = success, 403 = RBAC denied.
     """
+    pr_page.open_create_prompt_modal()
     pr_page.fill_locator(pr_page.prompt_name_input, name)
     pr_page.fill_locator(pr_page.prompt_description_input, "RBAC test prompt")
     try:

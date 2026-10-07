@@ -7,6 +7,7 @@
  */
 
 import { t } from "./i18n.js";
+import { openModal, closeModal } from "./modals.js";
 import { escapeHtml } from "./security.js";
 import { getCookie, getPaginationParams, getRootPath, showToast } from "./utils.js";
 
@@ -50,7 +51,7 @@ window.updateTeamContext = updateTeamContext;
  * Open the create-team modal and focus the team name field.
  */
 export const openCreateTeamModal = function () {
-  document.getElementById("create-team-modal").classList.remove("hidden");
+  openModal("create-team-modal");
   setTimeout(() => {
     document.getElementById("team-name").focus();
   }, 100);
@@ -60,7 +61,7 @@ export const openCreateTeamModal = function () {
  * Close the create-team modal and reset its form.
  */
 export const closeCreateTeamModal = function () {
-  document.getElementById("create-team-modal").classList.add("hidden");
+  closeModal("create-team-modal");
   document.getElementById("create-team-form").reset();
 };
 

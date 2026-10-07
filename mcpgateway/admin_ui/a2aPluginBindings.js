@@ -7,6 +7,7 @@
  */
 
 import { t } from "./i18n.js";
+import { openModal, closeModal } from "./modals.js";
 import { getRootPath } from "./utils.js";
 
 /**
@@ -33,14 +34,14 @@ export const filterBindingsByTeam = function (teamId) {
  * Open the add-binding modal.
  */
 export const showAddBindingForm = function () {
-  document.getElementById("add-binding-modal").classList.remove("hidden");
+  openModal("add-binding-modal");
 };
 
 /**
  * Close the add-binding modal.
  */
 export const closeAddBindingForm = function () {
-  document.getElementById("add-binding-modal").classList.add("hidden");
+  closeModal("add-binding-modal");
 };
 
 /**

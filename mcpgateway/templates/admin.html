@@ -3136,83 +3136,8 @@
           </div>
         </div>
         <div class="bg-white shadow rounded-lg p-6 mb-8 dark:bg-gray-800">
-          <div id="tools-table-wrapper" class="overflow-x-auto">
-            <!-- Table will be loaded via HTMX -->
-            <div id="tools-table"
-                 x-init="$tableHxGet('tools', '{{ root_path }}/admin/tools/partial', 'show-inactive-tools', false{% if selected_team_id %}, {team_id: '{{ selected_team_id }}'}{% endif %})"
-                 hx-trigger="load"
-                 hx-swap="outerHTML"
-                 hx-indicator="#tools-loading">
-
-            </div>
-          </div>
-
-          <!-- Loading Indicator for HTMX -->
-          <div id="tools-loading" class="htmx-indicator">
-            <div class="flex items-center justify-center p-4">
-              <svg class="animate-spin h-8 w-8 text-indigo-600 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span class="ml-2 text-gray-600 dark:text-gray-400">{{ t('tools.loading') }}</span>
-            </div>
-          </div>
-
-          <!-- Pagination Controls -->
-          {# ---- compute safe pagination values first ---- #}
-          {% set page = page if page is defined else 1 %}
-          {% set per_page = per_page if per_page is defined else 50 %}
-          {% set total_items = tools|length if tools is defined else 0 %}
-          {% set total_pages = (total_items + per_page - 1) // per_page if total_items > 0 else 0 %}
-          {% set has_prev = page > 1 %}
-          {% set has_next = (page * per_page) < total_items %}
-
-          {% set pagination = {
-            'page': page,
-            'per_page': per_page,
-            'total_items': total_items,
-            'total_pages': total_pages,
-            'has_prev': has_prev,
-            'has_next': has_next,
-            'page_items': None
-          } %}
-
-          {# build the refresh URL for controls #}
-          {% set controls_url = root_path + '/admin/tools/partial'
-            + '?render=controls'
-            + '&page=' + page|string
-            + '&per_page=' + per_page|string
-            + '&include_inactive=' + (include_inactive|default(false)|string|lower) %}
-
-          <div id="tools-pagination-controls"
-              hx-get="{{ controls_url }}"
-              hx-trigger="refreshControls"
-              hx-target="#tools-pagination-controls"
-              hx-swap="outerHTML"
-              hx-indicator="#tools-loading">
-
-            {# helpers used by pagination_controls.html #}
-            {% set base_url = root_path + '/admin/tools/partial' %}
-            {% set hx_target = '#tools-table' %}
-            {% set hx_swap = 'outerHTML' %}
-            {% set hx_indicator = '#tools-loading' %}
-            {% set table_name = 'tools' %}
-            {% set query_params = {'include_inactive': include_inactive} %}
-            {% include 'pagination_controls.html' %}
-          </div>
-        </div>
-        {% if user_permissions.can_create_tool %}
-        <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
-          <div class="flex justify-between items-center mb-4">
-            <div>
-              <h3 class="text-lg font-bold dark:text-gray-200">
-                {{ t('tools.add.title') }}
-              </h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {{ t('tools.add.hint') }}
-              </p>
-            </div>
-
+          {% if user_permissions.can_create_tool %}
+          <div class="flex justify-end items-center mb-4 space-x-2">
             <!-- Bulk Import Dropdown -->
             <div class="relative">
               <button
@@ -3497,9 +3422,125 @@
                 </div>
               </div>
             </div>
+            <button
+              id="tool-create-btn"
+              type="button"
+              data-action-click="openModal" data-arg0="tool-create-modal"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              {{ t('tools.add.title') }}
+            </button>
+          </div>
+          {% endif %}
+          <div id="tools-table-wrapper" class="overflow-x-auto">
+            <!-- Table will be loaded via HTMX -->
+            <div id="tools-table"
+                 x-init="$tableHxGet('tools', '{{ root_path }}/admin/tools/partial', 'show-inactive-tools', false{% if selected_team_id %}, {team_id: '{{ selected_team_id }}'}{% endif %})"
+                 hx-trigger="load"
+                 hx-swap="outerHTML"
+                 hx-indicator="#tools-loading">
+
+            </div>
           </div>
 
-          <form method="POST" id="add-tool-form">
+          <!-- Loading Indicator for HTMX -->
+          <div id="tools-loading" class="htmx-indicator">
+            <div class="flex items-center justify-center p-4">
+              <svg class="animate-spin h-8 w-8 text-indigo-600 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span class="ml-2 text-gray-600 dark:text-gray-400">{{ t('tools.loading') }}</span>
+            </div>
+          </div>
+
+          <!-- Pagination Controls -->
+          {# ---- compute safe pagination values first ---- #}
+          {% set page = page if page is defined else 1 %}
+          {% set per_page = per_page if per_page is defined else 50 %}
+          {% set total_items = tools|length if tools is defined else 0 %}
+          {% set total_pages = (total_items + per_page - 1) // per_page if total_items > 0 else 0 %}
+          {% set has_prev = page > 1 %}
+          {% set has_next = (page * per_page) < total_items %}
+
+          {% set pagination = {
+            'page': page,
+            'per_page': per_page,
+            'total_items': total_items,
+            'total_pages': total_pages,
+            'has_prev': has_prev,
+            'has_next': has_next,
+            'page_items': None
+          } %}
+
+          {# build the refresh URL for controls #}
+          {% set controls_url = root_path + '/admin/tools/partial'
+            + '?render=controls'
+            + '&page=' + page|string
+            + '&per_page=' + per_page|string
+            + '&include_inactive=' + (include_inactive|default(false)|string|lower) %}
+
+          <div id="tools-pagination-controls"
+              hx-get="{{ controls_url }}"
+              hx-trigger="refreshControls"
+              hx-target="#tools-pagination-controls"
+              hx-swap="outerHTML"
+              hx-indicator="#tools-loading">
+
+            {# helpers used by pagination_controls.html #}
+            {% set base_url = root_path + '/admin/tools/partial' %}
+            {% set hx_target = '#tools-table' %}
+            {% set hx_swap = 'outerHTML' %}
+            {% set hx_indicator = '#tools-loading' %}
+            {% set table_name = 'tools' %}
+            {% set query_params = {'include_inactive': include_inactive} %}
+            {% include 'pagination_controls.html' %}
+          </div>
+        </div>
+        {% if user_permissions.can_create_tool %}
+        <!-- Add Tool Modal -->
+        <div
+          id="tool-create-modal"
+          data-reset-on-open
+          class="fixed inset-0 z-40 hidden overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="tool-create-modal-title"
+        >
+          <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              aria-hidden="true"
+              data-action-click="closeModal" data-arg0="tool-create-modal"
+            ></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="relative z-20 inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+              <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 id="tool-create-modal-title" class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      {{ t('tools.add.title') }}
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {{ t('tools.add.hint') }}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    data-action-click="closeModal" data-arg0="tool-create-modal"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    aria-label="{{ t('common.actions.close') }}"
+                  >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <form method="POST" id="add-tool-form">
+                  <div class="max-h-[60vh] overflow-y-auto pr-1">
             <div class="grid grid-cols-1 gap-7">
               <div class="relative">
                 <label
@@ -3832,16 +3873,28 @@
                 </div>
               </div>
             </div>
-            <div class="mt-6">
-              <button
-                type="submit"
-                x-tooltip="'💡  Registers a new Tool from an existing REST endpoint. Use Gateways to add MCP servers.'"
-                class="inline-flex justify-center py-2 px-4 border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                {{ t('tools.add.submit') }}
-              </button>
             </div>
-          </form>
+                </form>
+              </div>
+              <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="submit"
+                  form="add-tool-form"
+                  x-tooltip="'💡  Registers a new Tool from an existing REST endpoint. Use Gateways to add MCP servers.'"
+                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  {{ t('tools.add.submit') }}
+                </button>
+                <button
+                  type="button"
+                  data-action-click="closeModal" data-arg0="tool-create-modal"
+                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500"
+                >
+                  {{ t('common.actions.cancel') }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         {% endif %}
       </div>
@@ -4149,6 +4202,21 @@
           </div>
         </div>
         <div class="bg-white shadow rounded-lg p-6 mb-8 dark:bg-gray-800">
+          {% if user_permissions.can_create_resource %}
+          <div class="flex justify-end mb-4">
+            <button
+              id="resource-create-btn"
+              type="button"
+              data-action-click="openModal" data-arg0="resource-create-modal"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              {{ t('resources.form.addTitle') }}
+            </button>
+          </div>
+          {% endif %}
           <div id="resources-table-wrapper" class="overflow-x-auto">
             <!-- HTMX container: will be replaced by /admin/resources/partial -->
             <div id="resources-list-container"
@@ -4177,11 +4245,40 @@
         </div>
 
         {% if user_permissions.can_create_resource %}
-        <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
-          <h3 class="text-lg font-bold mb-4 dark:text-gray-200">
-            {{ t('resources.form.addTitle') }}
-          </h3>
-          <form method="POST" id="add-resource-form">
+        <!-- Add Resource Modal -->
+        <div
+          id="resource-create-modal"
+          data-reset-on-open
+          class="fixed inset-0 z-40 hidden overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="resource-create-modal-title"
+        >
+          <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              aria-hidden="true"
+              data-action-click="closeModal" data-arg0="resource-create-modal"
+            ></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="relative z-20 inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+              <form method="POST" id="add-resource-form">
+                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 id="resource-create-modal-title" class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      {{ t('resources.form.addTitle') }}
+                    </h3>
+                    <button
+                      type="button"
+                      data-action-click="closeModal" data-arg0="resource-create-modal"
+                      class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      aria-label="{{ t('common.actions.close') }}"
+                    >
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
             <div class="grid grid-cols-1 gap-7">
               <div class="relative">
                 <label
@@ -4331,16 +4428,26 @@
                 </div>
               </div>
             </div>
-            <div class="mt-6">
-              <button
-                type="submit"
-                x-tooltip="'💡{{ t('resources.form.submitTooltip') }}'"
-                class="inline-flex justify-center py-2 px-4 border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                {{ t('resources.form.submit') }}
-              </button>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                    type="submit"
+                    x-tooltip="'💡{{ t('resources.form.submitTooltip') }}'"
+                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  >
+                    {{ t('resources.form.submit') }}
+                  </button>
+                  <button
+                    type="button"
+                    data-action-click="closeModal" data-arg0="resource-create-modal"
+                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500"
+                  >
+                    {{ t('common.actions.cancel') }}
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
         {% endif %}
       </div>
@@ -4406,6 +4513,21 @@
           </div>
         </div>
         <div class="bg-white shadow rounded-lg p-6 mb-8 dark:bg-gray-800">
+          {% if user_permissions.can_create_prompt %}
+          <div class="flex justify-end mb-4">
+            <button
+              id="prompt-create-btn"
+              type="button"
+              data-action-click="openModal" data-arg0="prompt-create-modal"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              {{ t('prompts.form.addTitle') }}
+            </button>
+          </div>
+          {% endif %}
           <div id="prompts-table-wrapper" class="overflow-x-auto">
             <!-- HTMX container: will be replaced by /admin/prompts/partial -->
             <div id="prompts-list-container"
@@ -4435,15 +4557,44 @@
 
 
         {% if user_permissions.can_create_prompt %}
-        <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
-          <h3 class="text-lg font-bold mb-4 dark:text-gray-200">
-            {{ t('prompts.form.addTitle') }}
-          </h3>
-          <form
-            method="POST"
-            action="{{ root_path }}/admin/prompts"
-            id="add-prompt-form"
-          >
+        <!-- Add Prompt Modal -->
+        <div
+          id="prompt-create-modal"
+          data-reset-on-open
+          class="fixed inset-0 z-40 hidden overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="prompt-create-modal-title"
+        >
+          <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              aria-hidden="true"
+              data-action-click="closeModal" data-arg0="prompt-create-modal"
+            ></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="relative z-20 inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+              <form
+                method="POST"
+                action="{{ root_path }}/admin/prompts"
+                id="add-prompt-form"
+              >
+                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 id="prompt-create-modal-title" class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      {{ t('prompts.form.addTitle') }}
+                    </h3>
+                    <button
+                      type="button"
+                      data-action-click="closeModal" data-arg0="prompt-create-modal"
+                      class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      aria-label="{{ t('common.actions.close') }}"
+                    >
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
             <div class="grid grid-cols-1 gap-7">
               <div class="relative">
                 <label
@@ -4601,16 +4752,26 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 </div>
               </div>
             </div>
-            <div class="mt-6">
-              <button
-                type="submit"
-                x-tooltip="'💡{{ t('prompts.form.submitTooltip') }}'"
-                class="inline-flex justify-center py-2 px-4 border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                {{ t('prompts.form.submit') }}
-              </button>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                    type="submit"
+                    x-tooltip="'💡{{ t('prompts.form.submitTooltip') }}'"
+                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  >
+                    {{ t('prompts.form.submit') }}
+                  </button>
+                  <button
+                    type="button"
+                    data-action-click="closeModal" data-arg0="prompt-create-modal"
+                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500"
+                  >
+                    {{ t('common.actions.cancel') }}
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
         {% endif %}
       </div>
@@ -4698,6 +4859,21 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
         </div>
 
         <div class="bg-white shadow rounded-lg p-6 mb-8 dark:bg-gray-800">
+          {% if user_permissions.can_create_gateway %}
+          <div class="flex justify-end mb-4">
+            <button
+              id="gateway-create-btn"
+              type="button"
+              data-action-click="openModal" data-arg0="gateway-create-modal"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              {{ t('gateways.form.addTitle') }}
+            </button>
+          </div>
+          {% endif %}
           <div id="gateways-table-wrapper" class="overflow-x-auto">
             <!-- Table will be loaded via HTMX -->
             <div id="gateways-table"
@@ -5100,11 +5276,41 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
         </div>
 
         {% if user_permissions.can_create_gateway %}
-        <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800 mt-8">
-          <h3 class="text-lg font-bold mb-4 dark:text-gray-200">
-            {{ t('gateways.form.addTitle') }}
-          </h3>
-          <form method="POST" id="add-gateway-form">
+        <!-- Add Gateway Modal -->
+        <div
+          id="gateway-create-modal"
+          data-reset-on-open
+          class="fixed inset-0 z-40 hidden overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="gateway-create-modal-title"
+        >
+          <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              aria-hidden="true"
+              data-action-click="closeModal" data-arg0="gateway-create-modal"
+            ></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="relative z-20 inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+              <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 id="gateway-create-modal-title" class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                    {{ t('gateways.form.addTitle') }}
+                  </h3>
+                  <button
+                    type="button"
+                    data-action-click="closeModal" data-arg0="gateway-create-modal"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    aria-label="{{ t('common.actions.close') }}"
+                  >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <form method="POST" id="add-gateway-form">
+                  <div class="max-h-[60vh] overflow-y-auto pr-1">
             <div class="grid grid-cols-1 gap-7">
               <div class="relative">
                 <label
@@ -5796,16 +6002,28 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               </div>
               <div id="ca-certificate-feedback" class="mt-2 text-sm"></div>
             </div>
-            <div class="mt-6">
-              <button
-                type="submit"
-                x-tooltip="'💡{{ t('gateways.form.submitTooltip') }}'"
-                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                {{ t('gateways.form.submit') }}
-              </button>
+                  </div>
+                </form>
+              </div>
+              <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="submit"
+                  form="add-gateway-form"
+                  x-tooltip="'💡{{ t('gateways.form.submitTooltip') }}'"
+                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  {{ t('gateways.form.submit') }}
+                </button>
+                <button
+                  type="button"
+                  data-action-click="closeModal" data-arg0="gateway-create-modal"
+                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500"
+                >
+                  {{ t('common.actions.cancel') }}
+                </button>
+              </div>
             </div>
-          </form>
+          </div>
         </div>
         {% endif %}
       </div>
@@ -5930,23 +6148,49 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
           </p>
         </div>
 
-        <!-- Create User Form -->
+        <!-- Create User Modal -->
          {% if user_permissions.can_create_user %}
-        <div class="bg-white shadow rounded-lg mb-6 dark:bg-gray-800">
-          <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              {{ t('users.form.title') }}
-            </h3>
-            <!-- User Creation Messages -->
-            <div id="user-creation-messages" class="mb-4"></div>
-
-            <form
-              id="create-user-form"
-              hx-post="{{ root_path }}/admin/users"
-              hx-target="#user-creation-messages"
-              hx-swap="innerHTML"
-              class="space-y-4"
-            >
+        <div
+          id="user-create-modal"
+          data-reset-on-open
+          class="fixed inset-0 z-40 hidden overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="user-create-modal-title"
+        >
+          <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              aria-hidden="true"
+              data-action-click="closeModal" data-arg0="user-create-modal"
+            ></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="relative z-20 inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <form
+                id="create-user-form"
+                hx-post="{{ root_path }}/admin/users"
+                hx-target="#user-creation-messages"
+                hx-swap="innerHTML"
+              >
+                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 id="user-create-modal-title" class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      {{ t('users.form.title') }}
+                    </h3>
+                    <button
+                      type="button"
+                      data-action-click="closeModal" data-arg0="user-create-modal"
+                      class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      aria-label="{{ t('common.actions.close') }}"
+                    >
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <!-- User Creation Messages -->
+                  <div id="user-creation-messages" class="mb-4"></div>
+                  <div class="space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label
@@ -6045,16 +6289,26 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   </label>
                 </div>
               </div>
-              <div class="flex justify-end">
-                <button
-                  type="submit"
-                  id="create_user_submit"
-                  class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  {{ t('users.form.submit') }}
-                </button>
-              </div>
+                  </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                    type="submit"
+                    id="create_user_submit"
+                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  >
+                    {{ t('users.form.submit') }}
+                  </button>
+                  <button
+                    type="button"
+                    data-action-click="closeModal" data-arg0="user-create-modal"
+                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500"
+                  >
+                    {{ t('common.actions.cancel') }}
+                  </button>
+                </div>
             </form>
+            </div>
           </div>
         </div>
         {% endif %}
@@ -6062,9 +6316,24 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
         <!-- Users List -->
         <div class="bg-white shadow rounded-lg dark:bg-gray-800">
           <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              {{ t('users.list.title') }}
-            </h3>
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                {{ t('users.list.title') }}
+              </h3>
+              {% if user_permissions.can_create_user %}
+              <button
+              id="user-create-btn"
+                type="button"
+                data-action-click="openModal" data-arg0="user-create-modal"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                {{ t('users.form.title') }}
+              </button>
+              {% endif %}
+            </div>
 
             <!-- Loading indicator -->
             <div id="users-loading" class="htmx-indicator">
@@ -6745,11 +7014,26 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 <!-- A2A Agents List -->
         <div class="bg-white shadow rounded-lg p-4 mb-4 dark:bg-gray-800">
           <div class="p-0">
-            <h3
-              class="text-lg font-medium text-gray-900 dark:text-gray-200 mb-4"
-            >
-              {{ t('a2a.panel.registered') }}
-            </h3>
+            <div class="flex justify-between items-center mb-4">
+              <h3
+                class="text-lg font-medium text-gray-900 dark:text-gray-200"
+              >
+                {{ t('a2a.panel.registered') }}
+              </h3>
+              {% if user_permissions.can_create_agent %}
+              <button
+              id="a2a-create-btn"
+                type="button"
+                data-action-click="openModal" data-arg0="a2a-create-modal"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                {{ t('a2a.form.addTitle') }}
+              </button>
+              {% endif %}
+            </div>
             <div id="agents-table-wrapper" class="overflow-x-auto">
               <!-- Table will be loaded via HTMX -->
               <div id="agents-table"
@@ -6825,12 +7109,41 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
         </div>
 
         {% if user_permissions.can_create_agent %}
-        <!-- A2A Agent Add Form -->
-        <div class="bg-white shadow rounded-lg p-6 mb-6 dark:bg-gray-800 mt-8">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-200 mb-4">
-            {{ t('a2a.form.addTitle') }}
-          </h3>
-          <form method="POST" id="add-a2a-form">
+        <!-- Add A2A Agent Modal -->
+        <div
+          id="a2a-create-modal"
+          data-reset-on-open
+          class="fixed inset-0 z-40 hidden overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="a2a-create-modal-title"
+        >
+          <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              aria-hidden="true"
+              data-action-click="closeModal" data-arg0="a2a-create-modal"
+            ></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="relative z-20 inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+              <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 id="a2a-create-modal-title" class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                    {{ t('a2a.form.addTitle') }}
+                  </h3>
+                  <button
+                    type="button"
+                    data-action-click="closeModal" data-arg0="a2a-create-modal"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    aria-label="{{ t('common.actions.close') }}"
+                  >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <form method="POST" id="add-a2a-form">
+                  <div class="max-h-[60vh] overflow-y-auto pr-1">
             <div class="grid grid-cols-1 gap-7 sm:grid-cols-2">
               <!-- Agent Name -->
               <div class="relative">
@@ -7580,18 +7893,28 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               >
                 {{ t('a2a.form.submitting') }}
               </div>
-
-              <!-- Submit -->
-              <div class="sm:col-span-2 mt-6">
+            </div>
+                  </div>
+                </form>
+              </div>
+              <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   type="submit"
-                  class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  form="add-a2a-form"
+                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
                 >
                   {{ t('a2a.form.submit') }}
                 </button>
+                <button
+                  type="button"
+                  data-action-click="closeModal" data-arg0="a2a-create-modal"
+                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500"
+                >
+                  {{ t('common.actions.cancel') }}
+                </button>
               </div>
             </div>
-          </form>
+          </div>
         </div>
         {% endif %}
 
@@ -7627,12 +7950,40 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
           </p>
         </div>
 
-        <!-- gRPC Service Add Form -->
-        <div class="bg-white shadow rounded-lg p-6 mb-6 dark:bg-gray-800">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-200 mb-4">
-            {{ t('grpc.register') }}
-          </h3>
-          <form method="POST" id="add-grpc-service-form">
+        <!-- Add gRPC Service Modal -->
+        <div
+          id="grpc-create-modal"
+          data-reset-on-open
+          class="fixed inset-0 z-40 hidden overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="grpc-create-modal-title"
+        >
+          <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              aria-hidden="true"
+              data-action-click="closeModal" data-arg0="grpc-create-modal"
+            ></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="relative z-20 inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <form method="POST" id="add-grpc-service-form">
+                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 id="grpc-create-modal-title" class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      {{ t('grpc.register') }}
+                    </h3>
+                    <button
+                      type="button"
+                      data-action-click="closeModal" data-arg0="grpc-create-modal"
+                      class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      aria-label="{{ t('common.actions.close') }}"
+                    >
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
             <div class="grid grid-cols-1 gap-7 sm:grid-cols-2">
               <!-- Service Name -->
               <div class="relative">
@@ -7792,14 +8143,6 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               </div>
             </div>
 
-            <div class="mt-6">
-              <button
-                type="submit"
-                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                {{ t('grpc.form.submit') }}
-              </button>
-            </div>
             <!-- Loading Indicator -->
             <div
               id="add-grpc-loading"
@@ -7807,16 +8150,47 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
             >
               {{ t('grpc.form.submitting') }}
             </div>
+            <!-- Error Message Display -->
+            <div id="grpcFormError" class="mt-4 text-red-600 dark:text-red-400 hidden"></div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                    type="submit"
+                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  >
+                    {{ t('grpc.form.submit') }}
+                  </button>
+                  <button
+                    type="button"
+                    data-action-click="closeModal" data-arg0="grpc-create-modal"
+                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500"
+                  >
+                    {{ t('common.actions.cancel') }}
+                  </button>
+                </div>
           </form>
-          <!-- Error Message Display -->
-          <div id="grpcFormError" class="mt-4 text-red-600 dark:text-red-400 hidden"></div>
+            </div>
+          </div>
         </div>
 
         <!-- Registered gRPC Services List -->
         <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-200 mb-4">
-            {{ t('grpc.list.title') }}
-          </h3>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-200">
+              {{ t('grpc.list.title') }}
+            </h3>
+            <button
+              id="grpc-create-btn"
+              type="button"
+              data-action-click="openModal" data-arg0="grpc-create-modal"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              {{ t('grpc.register') }}
+            </button>
+          </div>
           <div class="space-y-4" id="grpc-services-list">
             {% if grpc_services %}
               {% for service in grpc_services %}
@@ -7891,7 +8265,22 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
               </div>
               {% endfor %}
             {% else %}
-              <p class="text-gray-500 dark:text-gray-400">{{ t('grpc.list.empty') }}</p>
+              <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ t('grpc.list.empty') }}</p>
+                <button
+                  type="button"
+                  data-action-click="openModal" data-arg0="grpc-create-modal"
+                  class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  {{ t('grpc.register') }}
+                </button>
+              </div>
             {% endif %}
           </div>
         </div>
@@ -7908,6 +8297,17 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
             <h2 class="text-2xl font-bold dark:text-gray-200">
               {{ t('roots.list.title') }}
             </h2>
+            <button
+              id="root-create-btn"
+              type="button"
+              data-action-click="openModal" data-arg0="root-create-modal"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              {{ t('roots.form.addTitle') }}
+            </button>
           </div>
 
           <!-- Description -->
@@ -8043,60 +8443,118 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     {{ root.name }}
                   </td>
                 </tr>
+                {% else %}
+                <tr>
+                  <td colspan="4" class="px-6 py-12 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ t('roots.empty.title') }}</p>
+                    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">{{ t('roots.empty.hint') }}</p>
+                    <button
+                      type="button"
+                      data-action-click="openModal" data-arg0="root-create-modal"
+                      class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                      {{ t('roots.form.addTitle') }}
+                    </button>
+                  </td>
+                </tr>
                 {% endfor %}
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- Add new root -------------------------------------------------------->
-        <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
-          <h3 class="text-lg font-bold mb-4 dark:text-gray-200">
-            {{ t('roots.form.addTitle') }}
-          </h3>
-          <form
-            method="POST"
-            action="{{ root_path }}/admin/roots"
-            id="add-root-form"
-            data-action-submit="handleToggleSubmit" data-arg0="roots"
-          >
-            <div class="grid grid-cols-1 gap-7">
-              <div>
-                <label
-                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >{{ t('common.table.uri') }}</label
-                >
-                <input
-                  type="text"
-                  name="uri"
-                  required
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                  placeholder="file:///path/to/directory"
-                />
-              </div>
-              <div class="relative">
-                <label
-                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >{{ t('common.table.name') }}</label
-                >
-                <input
-                  type="text"
-                  name="name"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                  placeholder="{{ t('roots.form.namePlaceholder') }}"
-                />
-              </div>
-            </div>
-            <div class="mt-6">
-              <button
-                type="submit"
-                x-tooltip="'💡{{ t('roots.form.submitTooltip') }}'"
-                class="inline-flex justify-center py-2 px-4 border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        <!-- Add Root Modal -->
+        <div
+          id="root-create-modal"
+          data-reset-on-open
+          class="fixed inset-0 z-40 hidden overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="root-create-modal-title"
+        >
+          <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              aria-hidden="true"
+              data-action-click="closeModal" data-arg0="root-create-modal"
+            ></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="relative z-20 inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <form
+                method="POST"
+                action="{{ root_path }}/admin/roots"
+                id="add-root-form"
+                data-action-submit="handleToggleSubmit" data-arg0="roots"
               >
-                {{ t('roots.form.submit') }}
-              </button>
+                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 id="root-create-modal-title" class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      {{ t('roots.form.addTitle') }}
+                    </h3>
+                    <button
+                      type="button"
+                      data-action-click="closeModal" data-arg0="root-create-modal"
+                      class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      aria-label="{{ t('common.actions.close') }}"
+                    >
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-1 gap-7">
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >{{ t('common.table.uri') }}</label
+                      >
+                      <input
+                        type="text"
+                        name="uri"
+                        required
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                        placeholder="file:///path/to/directory"
+                      />
+                    </div>
+                    <div class="relative">
+                      <label
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >{{ t('common.table.name') }}</label
+                      >
+                      <input
+                        type="text"
+                        name="name"
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
+                        placeholder="{{ t('roots.form.namePlaceholder') }}"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                    type="submit"
+                    x-tooltip="'💡{{ t('roots.form.submitTooltip') }}'"
+                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  >
+                    {{ t('roots.form.submit') }}
+                  </button>
+                  <button
+                    type="button"
+                    data-action-click="closeModal" data-arg0="root-create-modal"
+                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500"
+                  >
+                    {{ t('common.actions.cancel') }}
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
       </div>
       {% endif %}
@@ -13941,7 +14399,6 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
       window.Admin.closeInviteUserModal = closeInviteUserModal;
       window.Admin.closeRoleAssignmentModal = closeRoleAssignmentModal;
       window.Admin.toggleEmailInput = toggleEmailInput;
-      window.Admin.validateNewUserPassword = validateNewUserPassword;
       if (typeof approveJoinRequest !== 'undefined') window.Admin.approveJoinRequest = approveJoinRequest;
       if (typeof rejectJoinRequest !== 'undefined') window.Admin.rejectJoinRequest = rejectJoinRequest;
     </script>

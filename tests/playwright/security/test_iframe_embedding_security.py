@@ -697,6 +697,10 @@ class TestIframeFormSubmission:
             gw_tab.click()
             frame.locator("#gateways-panel").wait_for(state="visible", timeout=15000)
 
+            # Open the create-gateway modal before filling the form
+            frame.locator("#gateway-create-btn").click()
+            frame.locator("#gateway-create-modal:not(.hidden)").wait_for(state="visible", timeout=10000)
+
             # Fill form with unique fast-fail URL (connection refused is faster than DNS timeout)
             unique_url = self._get_unique_gateway_url(gw_name)
             frame.locator("#mcp-server-name").fill(gw_name)
@@ -722,7 +726,7 @@ class TestIframeFormSubmission:
             # Submit and wait for the POST response from the admin form handler.
             # The admin form uses JS fetch() so the page does NOT navigate.
             with page.expect_response(lambda r: "/admin/gateways" in r.url and r.request.method == "POST", timeout=30000) as resp_info:
-                frame.locator('#add-gateway-form button[type="submit"]').click()
+                frame.locator('button[form="add-gateway-form"]').click()
 
             post_resp = resp_info.value
             if post_resp.status >= 400:
@@ -794,13 +798,17 @@ class TestIframeFormSubmission:
             tools_tab.click()
             frame.locator("#tools-panel").wait_for(state="visible", timeout=15000)
 
+            # Open the create-tool modal before filling the form
+            frame.locator("#tool-create-btn").click()
+            frame.locator("#tool-create-modal:not(.hidden)").wait_for(state="visible", timeout=10000)
+
             # Fill form
             frame.locator("#tool-name").fill(tool_name)
             frame.locator("#tool-url").fill(tool_url)
 
             # Submit and wait for response
             with page.expect_response(lambda r: "/admin/tools" in r.url and r.request.method == "POST", timeout=15000):
-                frame.locator('#add-tool-form button[type="submit"]').click()
+                frame.locator('button[form="add-tool-form"]').click()
 
             # Verify via API
             resp = admin_api.get("/tools/")

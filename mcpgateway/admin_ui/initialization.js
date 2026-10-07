@@ -999,6 +999,11 @@ export const setupSchemaModeHandlers = function () {
           if (jsonInputContainer) {
             jsonInputContainer.style.display = "block";
           }
+          // The add-tool form now lives in a modal, so schemaEditor was
+          // initialized while hidden and needs a refresh once visible.
+          if (window.schemaEditor && typeof window.schemaEditor.refresh === "function") {
+            window.schemaEditor.refresh();
+          }
           updateSchemaPreview();
         }
       } catch (error) {

@@ -306,6 +306,7 @@ Admin.testMCPSearchManually = testMCPSearchManually;
 import {
   closeApiKeyModal,
   closeModal,
+  openModal,
   showApiKeyModal,
   submitApiKeyForm,
   toggleGrpcTlsFields,
@@ -314,6 +315,8 @@ import {
 
 Admin.closeApiKeyModal = closeApiKeyModal;
 Admin.closeModal = closeModal;
+Admin.openModal = openModal;
+window.openModal = openModal;
 Admin.showApiKeyModal = showApiKeyModal;
 Admin.submitApiKeyForm = submitApiKeyForm;
 Admin.toggleGrpcTlsFields = toggleGrpcTlsFields;

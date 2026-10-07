@@ -1,7 +1,7 @@
 import { AppState } from "./appState.js";
 import { getAuthHeaders } from "./auth.js";
 import { t } from "./i18n.js";
-import { showCopyableModal } from "./modals.js";
+import { openModal, closeModal, showCopyableModal } from "./modals.js";
 import { parseErrorResponse } from "./security.js";
 import { safeGetElement, showToast } from "./utils.js";
 
@@ -447,14 +447,14 @@ export const showAddProviderModal = async function () {
   // Load defaults for quick access
   await loadLLMProviderDefaults();
 
-  safeGetElement("llm-provider-modal").classList.remove("hidden");
+  openModal("llm-provider-modal");
 };
 
 /**
  * Close Provider Modal
  */
 export const closeLLMProviderModal = function () {
-  safeGetElement("llm-provider-modal").classList.add("hidden");
+  closeModal("llm-provider-modal");
 };
 
 /**
@@ -599,7 +599,7 @@ export const editLLMProvider = async function (providerId) {
 
     safeGetElement("llm-provider-modal-title").textContent =
       t("llm.providers.modalEditTitle");
-    document.getElementById("llm-provider-modal").classList.remove("hidden");
+    openModal("llm-provider-modal");
   } catch (error) {
     console.error("Error fetching provider:", error);
     showToast(t("llm.providers.loadFailed"), "error");
@@ -830,7 +830,7 @@ export const showAddModelModal = async function () {
   // Populate providers dropdown
   await populateProviderDropdown();
 
-  safeGetElement("llm-model-modal").classList.remove("hidden");
+  openModal("llm-model-modal");
 };
 
 /**
@@ -864,7 +864,7 @@ export const populateProviderDropdown = async function () {
  * Close Model Modal
  */
 export const closeLLMModelModal = function () {
-  safeGetElement("llm-model-modal").classList.add("hidden");
+  closeModal("llm-model-modal");
 };
 
 /**
@@ -986,7 +986,7 @@ export const editLLMModel = async function (modelId) {
     safeGetElement("llm-model-deprecated").checked = model.deprecated;
 
     safeGetElement("llm-model-modal-title").textContent = "Edit LLM Model";
-    safeGetElement("llm-model-modal").classList.remove("hidden");
+    openModal("llm-model-modal");
   } catch (error) {
     console.error("Error fetching model:", error);
     showToast("Failed to load model details", "error");

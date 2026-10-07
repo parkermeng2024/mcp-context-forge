@@ -44,6 +44,7 @@ class TestAgentsUI:
         # Navigate to agents tab
         agents_page.navigate_to_agents_tab()
         agents_page.wait_for_agents_panel_loaded()
+        agents_page.open_create_agent_modal()
 
         # Verify form is visible
         expect(agents_page.add_agent_form).to_be_visible()
@@ -54,6 +55,7 @@ class TestAgentsUI:
         """Test that all required form fields are present."""
         # Navigate to agents tab
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         # Verify all main form fields are present
         expect(agents_page.agent_name_input).to_be_visible()
@@ -100,6 +102,7 @@ class TestAgentsUI:
         """Test that visibility radio buttons are present and functional."""
         # Navigate to agents tab
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         # Verify all visibility options are present
         expect(agents_page.visibility_public_radio).to_be_visible()
@@ -206,6 +209,7 @@ class TestAgentsUI:
         """Test form validation for required fields."""
         # Navigate to agents tab
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         # Try to submit empty form
         agents_page.click_locator(agents_page.add_agent_btn)
@@ -277,6 +281,7 @@ class TestAgentsUI:
         """Test the passthrough headers field."""
         # Navigate to agents tab
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         # Fill passthrough headers
         test_headers = "Authorization, X-Tenant-Id, X-Trace-Id"
@@ -391,6 +396,7 @@ class TestAgentsUI:
         """Test that UAID checkbox is present and functional."""
         # Navigate to agents tab
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         # Verify UAID checkbox is visible
         expect(agents_page.generate_uaid_checkbox).to_be_visible()
@@ -403,6 +409,7 @@ class TestAgentsUI:
         """Test that UAID fields appear when checkbox is checked."""
         # Navigate to agents tab
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         # Check UAID checkbox
         agents_page.click_locator(agents_page.generate_uaid_checkbox)
@@ -422,6 +429,7 @@ class TestAgentsUI:
         """Test that UAID protocol select has correct options."""
         # Navigate to agents tab
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         # Enable UAID fields
         agents_page.click_locator(agents_page.generate_uaid_checkbox)
@@ -441,6 +449,7 @@ class TestAgentsUI:
         """Test that UAID fields have correct default values."""
         # Navigate to agents tab
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         # Enable UAID fields
         agents_page.click_locator(agents_page.generate_uaid_checkbox)
@@ -458,6 +467,7 @@ class TestAgentsUI:
         """Test that editing an agent without UAID allows adding one."""
         # Navigate to agents tab
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         # Use a unique agent name to avoid 409 conflicts from prior test runs
         agent_name = f"Test Agent No UAID {uuid.uuid4().hex[:8]}"
@@ -516,6 +526,7 @@ class TestAgentsUI:
     def test_protocol_version_select_present(self, agents_page: AgentsPage):
         """Test that the A2A protocol version select is present on the add form."""
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         expect(agents_page.protocol_version_select).to_be_visible()
 
@@ -534,6 +545,7 @@ class TestAgentsUI:
     def test_edit_agent_protocol_version_prefilled(self, agents_page: AgentsPage):
         """Test that the edit modal prefills the protocol version from the saved agent."""
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         agent_name = f"Test Agent Protocol {uuid.uuid4().hex[:8]}"
 
@@ -563,6 +575,7 @@ class TestAgentsUI:
         """Test that editing an agent with UAID shows read-only fields."""
         # Navigate to agents tab
         agents_page.navigate_to_agents_tab()
+        agents_page.open_create_agent_modal()
 
         # Use a unique agent name to avoid 409 conflicts from prior test runs
         agent_name = f"Test Agent With UAID {uuid.uuid4().hex[:8]}"

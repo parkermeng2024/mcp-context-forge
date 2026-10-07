@@ -34,6 +34,16 @@ class AgentsPage(BasePage):
     # ==================== Agent Form Elements ====================
 
     @property
+    def agent_create_btn(self) -> Locator:
+        """'+ New agent' button that opens the create modal."""
+        return self.page.locator("#a2a-create-btn")
+
+    @property
+    def agent_create_modal(self) -> Locator:
+        """Create agent modal container."""
+        return self.page.locator("#a2a-create-modal")
+
+    @property
     def add_agent_form(self) -> Locator:
         """Add A2A agent form."""
         return self.page.locator("#add-a2a-form")
@@ -161,8 +171,8 @@ class AgentsPage(BasePage):
 
     @property
     def add_agent_btn(self) -> Locator:
-        """Add agent submit button."""
-        return self.add_agent_form.locator('button[type="submit"]:has-text("Add A2A Agent")')
+        """Add agent submit button (rendered outside the form via the form attribute)."""
+        return self.page.locator('button[form="add-a2a-form"]')
 
     @property
     def form_error_message(self) -> Locator:
@@ -323,6 +333,16 @@ class AgentsPage(BasePage):
         # Wait for form to be attached
         self.wait_for_attached(self.add_agent_form, timeout=timeout)
 
+    def open_create_agent_modal(self) -> None:
+        """Open the create-agent modal via the list header button."""
+        self.click_locator(self.agent_create_btn)
+        self.page.wait_for_selector("#a2a-create-modal:not(.hidden)", state="visible", timeout=10000)
+
+    def _ensure_create_modal_open(self) -> None:
+        """Open the create-agent modal unless it is already visible."""
+        if not self.agent_create_modal.is_visible():
+            self.open_create_agent_modal()
+
     def create_agent_basic(self, name: str, endpoint_url: str, agent_type: str = "generic", description: str = "", tags: str = "", visibility: str = "public") -> None:
         """Create a new A2A agent with basic configuration (no auth).
 
@@ -334,6 +354,7 @@ class AgentsPage(BasePage):
             tags: Comma-separated tags
             visibility: Visibility setting (public, team, private)
         """
+        self.open_create_agent_modal()
         self.fill_locator(self.agent_name_input, name)
         self.fill_locator(self.agent_endpoint_url_input, endpoint_url)
         self.agent_type_select.select_option(agent_type)
@@ -365,6 +386,7 @@ class AgentsPage(BasePage):
             tags: Comma-separated tags
             visibility: Visibility setting (public, team, private)
         """
+        self._ensure_create_modal_open()
         self.fill_locator(self.agent_name_input, name)
         self.fill_locator(self.agent_endpoint_url_input, endpoint_url)
         self.agent_type_select.select_option(agent_type)
@@ -389,6 +411,7 @@ class AgentsPage(BasePage):
         Args:
             auth_type: Authentication type (none, basic, bearer, authheaders, oauth, query_param)
         """
+        self._ensure_create_modal_open()
         self.auth_type_select.select_option(auth_type if auth_type != "none" else "")
 
     def fill_basic_auth(self, username: str, password: str) -> None:
@@ -410,6 +433,7 @@ class AgentsPage(BasePage):
             registry: Registry name (default: context-forge)
             protocol: Protocol type (a2a, mcp, rest, grpc)
         """
+        self._ensure_create_modal_open()
         # Check the UAID checkbox
         self.click_locator(self.generate_uaid_checkbox)
         # Wait for UAID fields to become visible

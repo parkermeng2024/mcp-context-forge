@@ -88,6 +88,7 @@ class TestResourcesTableStructure:
     def test_add_resource_form_visible(self, resources_page: ResourcesPage):
         """Test that the add resource form is visible on the page."""
         resources_page.navigate_to_resources_tab()
+        resources_page.open_create_resource_modal()
         resources_page.wait_for_resources_table_loaded()
 
         expect(resources_page.add_resource_form).to_be_visible()
@@ -126,6 +127,7 @@ class TestResourcesAddForm:
     def test_uri_field_present(self, resources_page: ResourcesPage):
         """Test that the URI input field is present in the add form."""
         resources_page.navigate_to_resources_tab()
+        resources_page.open_create_resource_modal()
         resources_page.wait_for_resources_table_loaded()
 
         expect(resources_page.resource_uri_input).to_be_visible()
@@ -133,6 +135,7 @@ class TestResourcesAddForm:
     def test_name_field_present(self, resources_page: ResourcesPage):
         """Test that the Name input field is present in the add form."""
         resources_page.navigate_to_resources_tab()
+        resources_page.open_create_resource_modal()
         resources_page.wait_for_resources_table_loaded()
 
         expect(resources_page.resource_name_input).to_be_visible()
@@ -140,6 +143,7 @@ class TestResourcesAddForm:
     def test_description_field_present(self, resources_page: ResourcesPage):
         """Test that the Description textarea is present in the add form."""
         resources_page.navigate_to_resources_tab()
+        resources_page.open_create_resource_modal()
         resources_page.wait_for_resources_table_loaded()
 
         expect(resources_page.resource_description_input).to_be_visible()
@@ -147,6 +151,7 @@ class TestResourcesAddForm:
     def test_mime_type_field_present(self, resources_page: ResourcesPage):
         """Test that the MIME Type input field is present in the add form."""
         resources_page.navigate_to_resources_tab()
+        resources_page.open_create_resource_modal()
         resources_page.wait_for_resources_table_loaded()
 
         expect(resources_page.resource_mime_type_input).to_be_visible()
@@ -170,6 +175,7 @@ class TestResourcesAddForm:
     def test_tags_field_present(self, resources_page: ResourcesPage):
         """Test that the Tags input field is present in the add form."""
         resources_page.navigate_to_resources_tab()
+        resources_page.open_create_resource_modal()
         resources_page.wait_for_resources_table_loaded()
 
         tags_input = resources_page.add_resource_form.locator('[name="tags"]')
@@ -195,6 +201,7 @@ class TestResourcesAddForm:
     def test_add_button_present(self, resources_page: ResourcesPage):
         """Test that the Add Resource submit button is present."""
         resources_page.navigate_to_resources_tab()
+        resources_page.open_create_resource_modal()
         resources_page.wait_for_resources_table_loaded()
 
         expect(resources_page.add_resource_btn).to_be_visible()

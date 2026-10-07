@@ -177,6 +177,13 @@ def _fill_add_gateway_form(root, unique_name: str) -> None:
     The add-gateway form uses ``#mcp-server-name`` / ``#mcp-server-url``
     (not ``#gateway-*`` which belongs to the edit modal).
     """
+    # The form lives in the create modal since the modal-unification refactor.
+    create_btn = root.locator("#gateway-create-btn")
+    if create_btn.count() == 0:
+        pytest.skip("Add-gateway create button not found — skipping.")
+    create_btn.first.click()
+    root.locator("#gateway-create-modal:not(.hidden)").first.wait_for(state="visible", timeout=10000)
+
     name_input = root.locator("#add-gateway-form #mcp-server-name, #add-gateway-form input[name='name']").first
     url_input = root.locator("#add-gateway-form #mcp-server-url, #add-gateway-form input[name='url']").first
 

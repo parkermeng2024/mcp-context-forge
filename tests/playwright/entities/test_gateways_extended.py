@@ -691,6 +691,7 @@ class TestOAuthGrantTypeSwitching:
     def test_authorization_code_shows_auth_url_fields(self, gateways_page: GatewaysPage):
         """Test that authorization_code grant type shows Authorization URL and Redirect URI."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Select OAuth auth type
         gateways_page.auth_type_select.select_option("oauth")
@@ -709,6 +710,7 @@ class TestOAuthGrantTypeSwitching:
     def test_client_credentials_hides_auth_url_fields(self, gateways_page: GatewaysPage):
         """Test that client_credentials grant type hides auth URL and redirect URI."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("oauth")
 
@@ -749,6 +751,7 @@ class TestOAuthGrantTypeSwitching:
     def test_switch_between_grant_types(self, gateways_page: GatewaysPage):
         """Test switching between add-form grant types, and into password grant in the edit modal."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("oauth")
 
@@ -779,6 +782,7 @@ class TestOAuthGrantTypeSwitching:
     def test_oauth_issuer_input(self, gateways_page: GatewaysPage):
         """Test filling the OAuth issuer URL input."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("oauth")
 
@@ -789,6 +793,7 @@ class TestOAuthGrantTypeSwitching:
     def test_oauth_token_url_input(self, gateways_page: GatewaysPage):
         """Test filling the OAuth token URL input."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("oauth")
 
@@ -799,6 +804,7 @@ class TestOAuthGrantTypeSwitching:
     def test_oauth_scopes_input(self, gateways_page: GatewaysPage):
         """Test filling the OAuth scopes input."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("oauth")
 
@@ -809,6 +815,7 @@ class TestOAuthGrantTypeSwitching:
     def test_oauth_store_tokens_default_checked(self, gateways_page: GatewaysPage):
         """Test that store tokens checkbox is checked by default for authorization_code."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("oauth")
 
@@ -819,6 +826,7 @@ class TestOAuthGrantTypeSwitching:
     def test_oauth_auto_refresh_default_checked(self, gateways_page: GatewaysPage):
         """Test that auto refresh checkbox is checked by default for authorization_code."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("oauth")
 
@@ -840,6 +848,7 @@ class TestCustomHeadersAuth:
     def test_add_header_creates_row(self, gateways_page: GatewaysPage):
         """Test that clicking Add Header creates a new header row."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("authheaders")
 
@@ -858,6 +867,7 @@ class TestCustomHeadersAuth:
     def test_add_multiple_headers(self, gateways_page: GatewaysPage):
         """Test adding multiple header rows."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("authheaders")
 
@@ -872,6 +882,7 @@ class TestCustomHeadersAuth:
     def test_header_key_value_inputs(self, gateways_page: GatewaysPage):
         """Test that header key and value inputs are fillable."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("authheaders")
 
@@ -886,6 +897,7 @@ class TestCustomHeadersAuth:
     def test_remove_header_row(self, gateways_page: GatewaysPage):
         """Test that clicking the remove button removes a header row from DOM and updates JSON."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("authheaders")
 
@@ -1126,6 +1138,7 @@ class TestGatewayCreationWithAuth:
     def test_create_gateway_with_custom_headers_auth(self, gateways_page: GatewaysPage, test_gateway_data: dict):
         """Test creating a gateway with custom headers authentication."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
         gateways_page.wait_for_gateways_table_loaded()
 
         data = test_gateway_data.copy()
@@ -1284,6 +1297,7 @@ class TestAuthTypeSwitching:
     def test_switching_from_basic_to_bearer_hides_basic_shows_bearer(self, gateways_page: GatewaysPage):
         """Test that switching from basic to bearer hides basic fields and shows bearer."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Select basic first
         gateways_page.auth_type_select.select_option("basic")
@@ -1298,6 +1312,7 @@ class TestAuthTypeSwitching:
     def test_switching_from_oauth_to_none_hides_oauth(self, gateways_page: GatewaysPage):
         """Test that switching from OAuth to None hides OAuth fields."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.auth_type_select.select_option("oauth")
         expect(gateways_page.oauth_fields).to_be_visible()
@@ -1308,6 +1323,7 @@ class TestAuthTypeSwitching:
     def test_all_auth_fields_hidden_when_none_selected(self, gateways_page: GatewaysPage):
         """Test that all auth-specific fields are hidden when None is selected."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Select None (default)
         gateways_page.auth_type_select.select_option("")
@@ -1321,6 +1337,7 @@ class TestAuthTypeSwitching:
     def test_cycle_through_all_auth_types(self, gateways_page: GatewaysPage):
         """Test cycling through all auth types shows correct fields for each."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         auth_field_map = {
             "basic": gateways_page.auth_basic_fields,

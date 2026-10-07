@@ -41,6 +41,7 @@ from mcpgateway.admin.common import (
     prompt_service,
 )
 from mcpgateway.admin.security import enforce_admin_csrf
+from mcpgateway.admin.visibility import get_user_action_permissions
 from mcpgateway.auth_context import get_scoped_resource_access_context, get_token_teams_from_request, get_user_email
 from mcpgateway.common.query_params import QueryGatewayIdList, QueryRenderMode, QueryTagsFilter
 from mcpgateway.config import settings
@@ -345,6 +346,7 @@ async def admin_prompts_partial_html(
 
     _is_admin = bool(user.get("is_admin", False) if isinstance(user, dict) else getattr(user, "is_admin", False))
     _team_roles = _get_user_team_roles(db, user_email) if not _is_admin else {}
+    _user_permissions = await get_user_action_permissions(db=db, user_email=user_email, is_admin=_is_admin, token_teams=get_token_teams_from_request(request))
     return request.app.state.templates.TemplateResponse(
         request,
         "prompts_partial.html",
@@ -359,6 +361,7 @@ async def admin_prompts_partial_html(
             "current_user_email": user_email,
             "is_admin": _is_admin,
             "user_team_roles": _team_roles,
+            "user_permissions": _user_permissions,
         },
     )
 

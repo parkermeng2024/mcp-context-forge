@@ -87,6 +87,16 @@ class GatewaysPage(BasePage):
     # ==================== Gateway Form Elements ====================
 
     @property
+    def gateway_create_btn(self) -> Locator:
+        """'+ New gateway' button that opens the create modal."""
+        return self.page.locator("#gateway-create-btn")
+
+    @property
+    def gateway_create_modal(self) -> Locator:
+        """Create gateway modal container."""
+        return self.page.locator("#gateway-create-modal")
+
+    @property
     def add_gateway_form(self) -> Locator:
         """Add gateway form."""
         return self.page.locator("#add-gateway-form")
@@ -123,8 +133,8 @@ class GatewaysPage(BasePage):
 
     @property
     def add_gateway_btn(self) -> Locator:
-        """Add gateway submit button."""
-        return self.add_gateway_form.locator('button[type="submit"]:has-text("Add Gateway")')
+        """Add gateway submit button (rendered outside the form via the form attribute)."""
+        return self.page.locator('button[form="add-gateway-form"]')
 
     # ==================== Visibility Radio Buttons ====================
 
@@ -347,6 +357,16 @@ class GatewaysPage(BasePage):
             self.page.wait_for_selector("#gateways-panel:not(.hidden)", timeout=timeout)
             self.wait_for_attached(self.gateways_table_body, timeout=timeout)
 
+    def open_create_gateway_modal(self) -> None:
+        """Open the create-gateway modal via the list header button."""
+        self.click_locator(self.gateway_create_btn)
+        self.page.wait_for_selector("#gateway-create-modal:not(.hidden)", state="visible", timeout=10000)
+
+    def _ensure_create_modal_open(self) -> None:
+        """Open the create-gateway modal unless it is already visible."""
+        if not self.gateway_create_modal.is_visible():
+            self.open_create_gateway_modal()
+
     def create_gateway(self, gateway_data: dict) -> None:
         """Create a new MCP Server gateway by filling and submitting the form.
 
@@ -360,6 +380,7 @@ class GatewaysPage(BasePage):
                 - visibility: Visibility setting - "public", "team", or "private" (default: "public")
                 - auth_type: Authentication type (optional)
         """
+        self.open_create_gateway_modal()
         self.fill_locator(self.gateway_name_input, gateway_data["name"])
         self.fill_locator(self.gateway_url_input, gateway_data["url"])
 
@@ -397,6 +418,7 @@ class GatewaysPage(BasePage):
             tags: Comma-separated tags (optional)
             transport: Transport type (default: "SSE")
         """
+        self._ensure_create_modal_open()
         self.fill_locator(self.gateway_name_input, name)
         self.fill_locator(self.gateway_url_input, url)
         if description:
@@ -828,6 +850,7 @@ class GatewaysPage(BasePage):
             username: Basic auth username
             password: Basic auth password
         """
+        self._ensure_create_modal_open()
         self.auth_type_select.select_option("basic")
         self.wait_for_visible(self.auth_basic_fields)
         self.fill_locator(self.auth_username_input, username)
@@ -839,6 +862,7 @@ class GatewaysPage(BasePage):
         Args:
             token: Bearer token
         """
+        self._ensure_create_modal_open()
         self.auth_type_select.select_option("bearer")
         self.wait_for_visible(self.auth_bearer_fields)
         self.fill_locator(self.auth_token_input, token)
@@ -850,6 +874,7 @@ class GatewaysPage(BasePage):
             param_key: Query parameter name
             param_value: Query parameter value (API key)
         """
+        self._ensure_create_modal_open()
         self.auth_type_select.select_option("query_param")
         self.wait_for_visible(self.auth_query_param_fields)
         self.fill_locator(self.auth_query_param_key_input, param_key)
@@ -870,6 +895,7 @@ class GatewaysPage(BasePage):
             authorization_url: OAuth authorization endpoint URL (optional, for authorization_code)
             redirect_uri: OAuth redirect URI (optional, for authorization_code)
         """
+        self._ensure_create_modal_open()
         self.auth_type_select.select_option("oauth")
         self.wait_for_visible(self.oauth_fields)
 
@@ -919,6 +945,7 @@ class GatewaysPage(BasePage):
         Args:
             enable: True to enable one-time auth, False to disable
         """
+        self._ensure_create_modal_open()
         is_checked = self.one_time_auth_checkbox.is_checked()
         if (enable and not is_checked) or (not enable and is_checked):
             self.click_locator(self.one_time_auth_checkbox)

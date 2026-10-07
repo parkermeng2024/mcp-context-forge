@@ -29,6 +29,16 @@ class ToolsPage(BasePage):
     # ==================== Tool Form Elements ====================
 
     @property
+    def tool_create_btn(self) -> Locator:
+        """'+ New tool' button that opens the create modal."""
+        return self.page.locator("#tool-create-btn")
+
+    @property
+    def tool_create_modal(self) -> Locator:
+        """Create tool modal container."""
+        return self.page.locator("#tool-create-modal")
+
+    @property
     def add_tool_form(self) -> Locator:
         """Add tool form."""
         return self.page.locator("#add-tool-form")
@@ -55,8 +65,8 @@ class ToolsPage(BasePage):
 
     @property
     def add_tool_btn(self) -> Locator:
-        """Add tool submit button."""
-        return self.add_tool_form.locator('button[type="submit"]')
+        """Add tool submit button (rendered outside the form via the form attribute)."""
+        return self.page.locator('button[form="add-tool-form"]')
 
     # ==================== Tool Table Elements ====================
 
@@ -169,6 +179,11 @@ class ToolsPage(BasePage):
             self.page.wait_for_selector("#tools-panel:not(.hidden)", timeout=timeout)
             self.wait_for_attached(self.tools_table_body, timeout=timeout)
 
+    def open_create_tool_modal(self) -> None:
+        """Open the create-tool modal via the list header button."""
+        self.click_locator(self.tool_create_btn)
+        self.page.wait_for_selector("#tool-create-modal:not(.hidden)", state="visible", timeout=10000)
+
     def create_tool(self, name: str, url: str, description: str, integration_type: str) -> None:
         """Create a new tool by filling and submitting the form.
 
@@ -178,6 +193,7 @@ class ToolsPage(BasePage):
             description: Tool description
             integration_type: Integration type (e.g., "REST", "GraphQL")
         """
+        self.open_create_tool_modal()
         self.fill_locator(self.tool_name_input, name)
         self.fill_locator(self.tool_url_input, url)
         self.fill_locator(self.tool_description_input, description)
@@ -193,6 +209,8 @@ class ToolsPage(BasePage):
             description: Tool description
             integration_type: Integration type (e.g., "REST", "GraphQL")
         """
+        if not self.tool_create_modal.is_visible():
+            self.open_create_tool_modal()
         self.fill_locator(self.tool_name_input, name)
         self.fill_locator(self.tool_url_input, url)
         self.fill_locator(self.tool_description_input, description)

@@ -46,6 +46,7 @@ from mcpgateway.admin.common import (
     tool_service,
 )
 from mcpgateway.admin.security import enforce_admin_csrf
+from mcpgateway.admin.visibility import get_user_action_permissions
 from mcpgateway.auth_context import get_scoped_resource_access_context, get_token_teams_from_request, get_user_email
 from mcpgateway.common.query_params import QueryGatewayIdList, QueryRenderModeControls, QueryTagsFilter
 from mcpgateway.common.validators import SecurityValidator
@@ -365,6 +366,7 @@ async def admin_tools_partial_html(
         )
 
     # Render template with paginated data
+    _user_permissions = await get_user_action_permissions(db=db, user_email=user_email, is_admin=_is_admin, token_teams=get_token_teams_from_request(request))
     return request.app.state.templates.TemplateResponse(
         request,
         "tools_partial.html",
@@ -379,6 +381,7 @@ async def admin_tools_partial_html(
             "current_user_email": user_email,
             "is_admin": _is_admin,
             "user_team_roles": _team_roles,
+            "user_permissions": _user_permissions,
         },
     )
 

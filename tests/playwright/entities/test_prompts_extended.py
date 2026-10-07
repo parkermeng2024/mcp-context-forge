@@ -81,6 +81,7 @@ class TestPromptsTableStructure:
     def test_add_prompt_form_visible(self, prompts_page: PromptsPage):
         """Test that the add prompt form section is visible."""
         prompts_page.navigate_to_prompts_tab()
+        prompts_page.open_create_prompt_modal()
         prompts_page.wait_for_prompts_table_loaded()
 
         expect(prompts_page.add_prompt_form).to_be_visible()
@@ -88,6 +89,7 @@ class TestPromptsTableStructure:
     def test_add_form_heading(self, prompts_page: PromptsPage):
         """Test that the add form has the correct heading."""
         prompts_page.navigate_to_prompts_tab()
+        prompts_page.open_create_prompt_modal()
         prompts_page.wait_for_prompts_table_loaded()
 
         heading = prompts_page.prompts_panel.locator('h3:has-text("Add New Prompt")')
@@ -134,6 +136,7 @@ class TestPromptsAddForm:
     def test_name_input_present(self, prompts_page: PromptsPage):
         """Test that the Name input field is present."""
         prompts_page.navigate_to_prompts_tab()
+        prompts_page.open_create_prompt_modal()
         prompts_page.wait_for_prompts_table_loaded()
 
         expect(prompts_page.prompt_name_input).to_be_visible()
@@ -141,6 +144,7 @@ class TestPromptsAddForm:
     def test_name_input_has_label(self, prompts_page: PromptsPage):
         """Test that the Name field has its label."""
         prompts_page.navigate_to_prompts_tab()
+        prompts_page.open_create_prompt_modal()
         prompts_page.wait_for_prompts_table_loaded()
 
         # Use .first to avoid strict mode with "Display Name" label
@@ -150,6 +154,7 @@ class TestPromptsAddForm:
     def test_display_name_input_present(self, prompts_page: PromptsPage):
         """Test that the Display Name input field is present."""
         prompts_page.navigate_to_prompts_tab()
+        prompts_page.open_create_prompt_modal()
         prompts_page.wait_for_prompts_table_loaded()
 
         display_name = prompts_page.add_prompt_form.locator('[name="display_name"]')
@@ -158,6 +163,7 @@ class TestPromptsAddForm:
     def test_description_textarea_present(self, prompts_page: PromptsPage):
         """Test that the Description textarea is present."""
         prompts_page.navigate_to_prompts_tab()
+        prompts_page.open_create_prompt_modal()
         prompts_page.wait_for_prompts_table_loaded()
 
         expect(prompts_page.prompt_description_input).to_be_visible()
@@ -183,6 +189,7 @@ class TestPromptsAddForm:
     def test_tags_input_present(self, prompts_page: PromptsPage):
         """Test that the Tags input field is present with help text."""
         prompts_page.navigate_to_prompts_tab()
+        prompts_page.open_create_prompt_modal()
         prompts_page.wait_for_prompts_table_loaded()
 
         tags = prompts_page.add_prompt_form.locator('[name="tags"]')
@@ -212,6 +219,7 @@ class TestPromptsAddForm:
         try:
             prompts_page.navigate_to_prompts_tab()
             prompts_page.wait_for_prompts_table_loaded()
+            prompts_page.open_create_prompt_modal()
         except AssertionError as e:
             if "redirect loop" in str(e).lower():
                 pytest.skip(f"Server redirect loop detected, skipping test: {e}")

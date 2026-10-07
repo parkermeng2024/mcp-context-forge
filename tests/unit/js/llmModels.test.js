@@ -46,6 +46,8 @@ import { showToast } from "../../../mcpgateway/admin_ui/utils.js";
 // Mock dependencies before imports
 vi.mock("../../../mcpgateway/admin_ui/modals.js", () => ({
   showCopyableModal: vi.fn(),
+  openModal: vi.fn((id) => document.getElementById(id)?.classList.remove("hidden")),
+  closeModal: vi.fn((id) => document.getElementById(id)?.classList.add("hidden")),
 }));
 
 vi.mock("../../../mcpgateway/admin_ui/security.js", () => ({

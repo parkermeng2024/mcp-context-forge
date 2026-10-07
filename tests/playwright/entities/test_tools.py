@@ -26,6 +26,7 @@ class TestToolsCRUD:
         """Test creating a new tool with debug screenshots and waits."""
         # Go to the Global Tools tab
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
 
         # Fill the form using Page Object properties
         tools_page.fill_locator(tools_page.tool_name_input, test_tool_data["name"])
@@ -51,6 +52,7 @@ class TestToolsCRUD:
         """Test deleting a tool."""
         # Go to the Global Tools tab
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
 
         # Create tool first using Page Object properties
         tools_page.fill_locator(tools_page.tool_name_input, test_tool_data["name"])

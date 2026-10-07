@@ -40,18 +40,21 @@ class TestAutocompleteAttributes:
     def test_gateway_basic_auth_password_has_autocomplete_off(self, gateways_page: GatewaysPage):
         """Gateway basic-auth password field should not trigger browser autofill."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
         gateways_page.auth_type_select.select_option("basic")
         expect(gateways_page.auth_password_input).to_have_attribute("autocomplete", "off")
 
     def test_gateway_bearer_token_has_autocomplete_off(self, gateways_page: GatewaysPage):
         """Gateway bearer-token field should not trigger browser autofill."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
         gateways_page.auth_type_select.select_option("bearer")
         expect(gateways_page.auth_token_input).to_have_attribute("autocomplete", "off")
 
     def test_gateway_oauth_client_secret_has_autocomplete_off(self, gateways_page: GatewaysPage):
         """Gateway OAuth client secret should not trigger browser autofill."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
         gateways_page.auth_type_select.select_option("oauth")
         expect(gateways_page.oauth_client_secret_input).to_have_attribute("autocomplete", "off")
 
@@ -60,6 +63,8 @@ class TestAutocompleteAttributes:
     def test_user_creation_password_has_new_password(self, admin_page: AdminPage):
         """User creation password should use autocomplete=new-password for browser password generation."""
         admin_page.sidebar.click_users_tab()
+        admin_page.page.locator("#user-create-btn").click()
+        admin_page.page.locator("#user-create-modal:not(.hidden)").wait_for(state="visible", timeout=10000)
         password_input = admin_page.page.locator("#new_user_password")
         expect(password_input).to_have_attribute("autocomplete", "new-password")
 

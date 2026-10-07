@@ -94,6 +94,7 @@ class TestToolsTableStructure:
     def test_add_tool_form_visible(self, tools_page: ToolsPage):
         """Test that the add tool form is visible on the page."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         expect(tools_page.add_tool_form).to_be_visible()
@@ -101,6 +102,7 @@ class TestToolsTableStructure:
     def test_add_tool_form_heading(self, tools_page: ToolsPage):
         """Test that the add tool form has the correct heading."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         heading = tools_page.page.locator('h3:has-text("Add New Tool from REST API")')
@@ -156,6 +158,7 @@ class TestToolsAddForm:
     def test_name_field_present(self, tools_page: ToolsPage):
         """Test that the name input field is visible in the add form."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         expect(tools_page.tool_name_input).to_be_visible()
@@ -163,6 +166,7 @@ class TestToolsAddForm:
     def test_url_field_present(self, tools_page: ToolsPage):
         """Test that the URL input field is visible in the add form."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         expect(tools_page.tool_url_input).to_be_visible()
@@ -170,6 +174,7 @@ class TestToolsAddForm:
     def test_description_field_present(self, tools_page: ToolsPage):
         """Test that the description textarea is visible in the add form."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         expect(tools_page.tool_description_input).to_be_visible()
@@ -177,6 +182,7 @@ class TestToolsAddForm:
     def test_integration_type_select_present(self, tools_page: ToolsPage):
         """Test that the integration type select is visible in the add form."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         expect(tools_page.tool_integration_type_select).to_be_visible()
@@ -192,6 +198,7 @@ class TestToolsAddForm:
     def test_request_type_select_present(self, tools_page: ToolsPage):
         """Test that the request type select is visible in the add form."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         request_type = tools_page.add_tool_form.locator('[name="requestType"]')
@@ -212,6 +219,7 @@ class TestToolsAddForm:
     def test_auth_type_select_present(self, tools_page: ToolsPage):
         """Test that the authentication type select is present in the add form."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         auth_type = tools_page.add_tool_form.locator('[name="auth_type"]')
@@ -264,6 +272,7 @@ class TestToolsAddForm:
     def test_tags_help_text(self, tools_page: ToolsPage):
         """Test that the tags field has help text about categorization."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         help_text = tools_page.add_tool_form.locator("text=Enter tags separated by commas")
@@ -272,6 +281,7 @@ class TestToolsAddForm:
     def test_output_schema_optional_text(self, tools_page: ToolsPage):
         """Test that the output schema field has a note about being optional."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         optional_text = tools_page.add_tool_form.locator("text=Optional JSON Schema for validating structured tool output")
@@ -280,6 +290,7 @@ class TestToolsAddForm:
     def test_submit_button_present(self, tools_page: ToolsPage):
         """Test that the Add Tool submit button is visible."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         expect(tools_page.add_tool_btn).to_be_visible()
@@ -288,6 +299,7 @@ class TestToolsAddForm:
     def test_display_name_field_present(self, tools_page: ToolsPage):
         """Test that the optional display name input field is present."""
         tools_page.navigate_to_tools_tab()
+        tools_page.open_create_tool_modal()
         tools_page.wait_for_tools_table_loaded()
 
         display_name = tools_page.add_tool_form.locator('[name="displayName"]')

@@ -37,6 +37,16 @@ class UsersPage(BasePage):
     # ==================== Create User Form Elements ====================
 
     @property
+    def user_create_btn(self) -> Locator:
+        """'+ New user' button that opens the create modal."""
+        return self.page.locator("#user-create-btn")
+
+    @property
+    def user_create_modal(self) -> Locator:
+        """Create user modal container."""
+        return self.page.locator("#user-create-modal")
+
+    @property
     def create_user_form(self) -> Locator:
         """Create user form."""
         return self.page.locator("#create-user-form")
@@ -104,6 +114,11 @@ class UsersPage(BasePage):
 
     # ==================== User Creation ====================
 
+    def open_create_user_modal(self) -> None:
+        """Open the create-user modal via the list header button."""
+        self.click_locator(self.user_create_btn)
+        self.page.wait_for_selector("#user-create-modal:not(.hidden)", state="visible", timeout=10000)
+
     def create_user(self, email: str, full_name: str, password: str, is_admin: bool = False) -> None:
         """Create a new user by filling and submitting the form.
 
@@ -113,6 +128,7 @@ class UsersPage(BasePage):
             password: User password
             is_admin: Whether to grant admin privileges
         """
+        self.open_create_user_modal()
         self.fill_locator(self.user_email_input, email)
         self.fill_locator(self.user_full_name_input, full_name)
         self.fill_locator(self.user_password_input, password)

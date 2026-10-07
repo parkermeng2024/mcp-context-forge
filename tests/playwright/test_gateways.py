@@ -50,6 +50,7 @@ class TestGatewaysPage:
     def test_add_gateway_form_visible(self, gateways_page: GatewaysPage):
         """Test that add gateway form is visible and has required fields."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         expect(gateways_page.add_gateway_form).to_be_visible()
         expect(gateways_page.gateway_name_input).to_be_visible()
@@ -93,6 +94,7 @@ class TestGatewaysPage:
     def test_transport_type_options(self, gateways_page: GatewaysPage):
         """Test that transport type select has correct options."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         transport_select = gateways_page.transport_select
         expect(transport_select).to_be_visible()
@@ -104,6 +106,7 @@ class TestGatewaysPage:
     def test_auth_type_options(self, gateways_page: GatewaysPage):
         """Test that authentication type select has correct options."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         auth_select = gateways_page.auth_type_select
         expect(auth_select).to_be_visible()
@@ -130,6 +133,7 @@ class TestGatewaysPage:
     def test_basic_auth_fields_visibility(self, gateways_page: GatewaysPage):
         """Test that basic auth fields appear when basic auth is selected."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Initially hidden
         expect(gateways_page.auth_basic_fields).to_be_hidden()
@@ -145,6 +149,7 @@ class TestGatewaysPage:
     def test_bearer_auth_fields_visibility(self, gateways_page: GatewaysPage):
         """Test that bearer token fields appear when bearer auth is selected."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Initially hidden
         expect(gateways_page.auth_bearer_fields).to_be_hidden()
@@ -159,6 +164,7 @@ class TestGatewaysPage:
     def test_oauth_fields_visibility(self, gateways_page: GatewaysPage):
         """Test that OAuth fields appear when OAuth is selected."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Initially hidden
         expect(gateways_page.oauth_fields).to_be_hidden()
@@ -176,6 +182,7 @@ class TestGatewaysPage:
     def test_query_param_auth_fields_visibility(self, gateways_page: GatewaysPage):
         """Test that query parameter auth fields appear when selected."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Initially hidden
         expect(gateways_page.auth_query_param_fields).to_be_hidden()
@@ -191,6 +198,7 @@ class TestGatewaysPage:
     def test_custom_headers_auth_fields_visibility(self, gateways_page: GatewaysPage):
         """Test that custom headers auth fields appear when selected."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Initially hidden
         expect(gateways_page.auth_headers_fields).to_be_hidden()
@@ -212,6 +220,7 @@ class TestGatewaysPage:
         import json
 
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Select Custom Headers auth type
         gateways_page.auth_type_select.select_option("authheaders")
@@ -237,6 +246,7 @@ class TestGatewaysPage:
     def test_oauth_grant_type_options(self, gateways_page: GatewaysPage):
         """Test OAuth grant type options."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Select OAuth to show fields
         gateways_page.auth_type_select.select_option("oauth")
@@ -256,6 +266,7 @@ class TestGatewaysPage:
     def test_one_time_auth_checkbox(self, gateways_page: GatewaysPage):
         """Test one-time authentication checkbox."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         expect(gateways_page.one_time_auth_checkbox).to_be_visible()
 
@@ -269,6 +280,7 @@ class TestGatewaysPage:
     def test_passthrough_headers_input(self, gateways_page: GatewaysPage):
         """Test passthrough headers input field."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         expect(gateways_page.passthrough_headers_input).to_be_visible()
 
@@ -280,6 +292,7 @@ class TestGatewaysPage:
     def test_ca_certificate_upload_elements(self, gateways_page: GatewaysPage):
         """Test CA certificate upload elements are present."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         expect(gateways_page.ca_certificate_upload_input).to_be_attached()
         expect(gateways_page.ca_certificate_drop_zone).to_be_visible()
@@ -498,6 +511,7 @@ class TestGatewayCreation:
     def test_form_validation_empty_name(self, gateways_page: GatewaysPage):
         """Test form validation for empty gateway name."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Try to submit with empty name
         gateways_page.gateway_url_input.fill("https://example.com/sse")
@@ -510,6 +524,7 @@ class TestGatewayCreation:
     def test_form_validation_empty_url(self, gateways_page: GatewaysPage):
         """Test form validation for empty gateway URL."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         # Try to submit with empty URL
         gateways_page.gateway_name_input.fill("Test Gateway")
@@ -890,6 +905,7 @@ class TestGatewayVisibility:
     def test_change_visibility_to_team(self, gateways_page: GatewaysPage):
         """Test changing visibility to team."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.visibility_team_radio.click()
 
@@ -900,6 +916,7 @@ class TestGatewayVisibility:
     def test_change_visibility_to_private(self, gateways_page: GatewaysPage):
         """Test changing visibility to private."""
         gateways_page.navigate_to_gateways_tab()
+        gateways_page.open_create_gateway_modal()
 
         gateways_page.visibility_private_radio.click()
 

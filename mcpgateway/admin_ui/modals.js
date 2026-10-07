@@ -26,14 +26,46 @@ export function openModal(modalId) {
       return;
     }
 
-    // Reset modal state
-    const resetModelVariable = false;
-    if (resetModelVariable) {
+    // Create-form modals opt in via data-reset-on-open; edit modals populate
+    // their fields before calling openModal, so a blanket reset would wipe them.
+    const resetOnOpen = modal.hasAttribute("data-reset-on-open");
+    if (resetOnOpen) {
       resetModalState(modalId);
     }
 
     modal.classList.remove("hidden");
     AppState.setModalActive(modalId);
+
+    // Refresh CodeMirror editors that were initialized while the modal was
+    // hidden; the wrapper element carries the instance as .CodeMirror.
+    // form.reset() restores the textarea default but not the editor display,
+    // so create-form modals also re-sync editor content from the textarea.
+    modal.querySelectorAll(".CodeMirror").forEach((el) => {
+      const cm = el.CodeMirror;
+      if (!cm || typeof cm.refresh !== "function") {
+        return;
+      }
+      try {
+        if (resetOnOpen && typeof cm.getTextArea === "function") {
+          cm.setValue(cm.getTextArea().value);
+          cm.clearHistory();
+        }
+        cm.refresh();
+      } catch (error) {
+        console.error("Failed to refresh CodeMirror editor:", error);
+      }
+    });
+
+    if (resetOnOpen) {
+      setTimeout(() => {
+        const firstField = modal.querySelector(
+          "form input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([disabled]), form select:not([disabled]), form textarea:not([disabled])"
+        );
+        if (firstField) {
+          firstField.focus();
+        }
+      }, 100);
+    }
 
     console.log(`✓ Opened modal: ${modalId}`);
   } catch (error) {

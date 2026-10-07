@@ -1,5 +1,6 @@
 import { escapeHtml } from "./security.js";
 import { t } from "./i18n.js";
+import { closeModal } from "./modals.js";
 import {
   dedupeSelectorItems,
   extractTeamId,
@@ -320,6 +321,7 @@ export const registerAdminActionListeners = function () {
   document.body.addEventListener("adminTeamAction", handleAdminTeamAction);
   document.body.addEventListener("adminUserAction", handleAdminUserAction);
   document.body.addEventListener("userCreated", function () {
+    closeModal("user-create-modal");
     handleAdminUserAction({ detail: { refreshUsersList: true } });
   });
 

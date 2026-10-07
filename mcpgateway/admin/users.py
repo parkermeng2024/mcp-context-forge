@@ -418,6 +418,9 @@ async def admin_users_partial_html(
                     "pagination": pagination.model_dump(),
                     "root_path": _resolve_root_path(request),
                     "current_user_email": current_user_email,
+                    # The route is gated on admin.user_management, which is the
+                    # same permission behind can_create_user in the dashboard.
+                    "can_create_user": True,
                 },
             )
 

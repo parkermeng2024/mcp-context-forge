@@ -26,6 +26,16 @@ class PromptsPage(BasePage):
     # ==================== Prompt Form Elements ====================
 
     @property
+    def prompt_create_btn(self) -> Locator:
+        """'+ New prompt' button that opens the create modal."""
+        return self.page.locator("#prompt-create-btn")
+
+    @property
+    def prompt_create_modal(self) -> Locator:
+        """Create prompt modal container."""
+        return self.page.locator("#prompt-create-modal")
+
+    @property
     def add_prompt_form(self) -> Locator:
         """Add prompt form."""
         return self.page.locator("#add-prompt-form")
@@ -162,6 +172,11 @@ class PromptsPage(BasePage):
         # Wait for table body to exist in DOM (may be empty, so don't require visible)
         self.wait_for_attached(self.prompts_table_body, timeout=timeout)
 
+    def open_create_prompt_modal(self) -> None:
+        """Open the create-prompt modal via the list header button."""
+        self.click_locator(self.prompt_create_btn)
+        self.page.wait_for_selector("#prompt-create-modal:not(.hidden)", state="visible", timeout=10000)
+
     def create_prompt(self, name: str, description: str, content: str = None, arguments: str = None) -> None:
         """Create a new prompt by filling and submitting the form.
 
@@ -171,6 +186,7 @@ class PromptsPage(BasePage):
             content: Optional prompt content/template
             arguments: Optional prompt arguments (JSON string)
         """
+        self.open_create_prompt_modal()
         self.fill_locator(self.prompt_name_input, name)
         self.fill_locator(self.prompt_description_input, description)
         if content:
@@ -188,6 +204,8 @@ class PromptsPage(BasePage):
             content: Optional prompt content/template
             arguments: Optional prompt arguments (JSON string)
         """
+        if not self.prompt_create_modal.is_visible():
+            self.open_create_prompt_modal()
         self.fill_locator(self.prompt_name_input, name)
         self.fill_locator(self.prompt_description_input, description)
         if content:
