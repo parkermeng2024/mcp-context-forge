@@ -503,6 +503,7 @@ import {
   getAuthToken,
   getTeamNameById,
   loadTokensList,
+  scrollToCreateTokenForm,
   setupCreateTokenForm,
   showTokenDetailsModal,
   showUsageStatsModal,
@@ -511,6 +512,7 @@ import {
 Admin.getAuthToken = getAuthToken;
 Admin.getTeamNameById = getTeamNameById;
 Admin.loadTokensList = loadTokensList;
+Admin.scrollToCreateTokenForm = scrollToCreateTokenForm;
 Admin.setupCreateTokenForm = setupCreateTokenForm;
 Admin.showTokenDetailsModal = showTokenDetailsModal;
 Admin.showUsageStatsModal = showUsageStatsModal;

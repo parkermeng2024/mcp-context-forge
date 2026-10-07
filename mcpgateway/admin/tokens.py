@@ -21,7 +21,8 @@ from sqlalchemy.orm import Session
 # First-Party
 from mcpgateway.admin.common import _escape_like, _validated_team_id_param
 from mcpgateway.admin.security import enforce_admin_csrf
-from mcpgateway.auth_context import get_user_email
+from mcpgateway.admin.visibility import get_user_action_permissions
+from mcpgateway.auth_context import get_token_teams_from_request, get_user_email
 from mcpgateway.common.query_params import QueryRenderMode
 from mcpgateway.config import settings
 from mcpgateway.db import EmailApiToken, EmailTeam, get_db, utc_now
@@ -194,6 +195,7 @@ async def admin_tokens_partial_html(
 
     db.commit()
 
+    _is_admin = bool(user.get("is_admin", False) if isinstance(user, dict) else getattr(user, "is_admin", False))
     return request.app.state.templates.TemplateResponse(
         request,
         "tokens_partial.html",
@@ -205,6 +207,7 @@ async def admin_tokens_partial_html(
             "root_path": _resolve_root_path(request),
             "include_inactive": include_inactive,
             "team_id": team_id,
+            "user_permissions": await get_user_action_permissions(db=db, user_email=user_email, is_admin=_is_admin, token_teams=get_token_teams_from_request(request)),
         },
     )
 

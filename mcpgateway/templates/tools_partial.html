@@ -129,7 +129,7 @@
         >
           {{ (pagination.page - 1) * pagination.per_page + loop.index }}
         </td>
-        <td class="px-2 py-4 whitespace-normal break-all text-sm font-medium text-gray-900 dark:text-gray-300 max-w-32">{{ tool.id }}</td>
+        <td class="px-2 py-4 whitespace-nowrap overflow-hidden text-ellipsis text-sm font-medium text-gray-900 dark:text-gray-300 max-w-32" title="{{ tool.id }}">{{ tool.id }}</td>
         <td class="px-2 py-4 text-sm w-36">
           <div class="font-medium text-gray-900 dark:text-gray-100">{{ tool.gatewaySlug }}</div>
           <div class="text-xs text-gray-500 dark:text-gray-400 break-words">{{ tool.url }}</div>

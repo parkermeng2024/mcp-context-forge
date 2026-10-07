@@ -10,3 +10,8 @@
     animation: none;
   }
 }
+
+/* Keep table headers on one line so two-character headers do not wrap vertically */
+main th {
+  white-space: nowrap;
+}

@@ -27,7 +27,8 @@ from sqlalchemy.orm import Session
 # First-Party
 from mcpgateway.admin.common import _get_user_team_ids, _normalize_search_query
 from mcpgateway.admin.security import enforce_admin_csrf
-from mcpgateway.auth_context import extract_token_team_ids, get_user_email
+from mcpgateway.admin.visibility import get_user_action_permissions
+from mcpgateway.auth_context import extract_token_team_ids, get_token_teams_from_request, get_user_email
 from mcpgateway.common.query_params import QueryRelationship, QueryRenderModeControls, QueryVisibility, QueryVisibilityCompact
 from mcpgateway.common.validators import SecurityValidator
 from mcpgateway.config import settings
@@ -642,6 +643,7 @@ async def admin_teams_partial_html(
             "links": links.model_dump() if links and not isinstance(links, dict) else links,
             "root_path": root_path,
             "query_params": query_params_dict,
+            "user_permissions": await get_user_action_permissions(db=db, user_email=user_email, is_admin=bool(current_user.is_admin), token_teams=get_token_teams_from_request(request)),
         },
     )
     # Prevent nginx caching for real-time team updates
@@ -753,6 +755,7 @@ async def admin_list_teams(
                 "pagination": pagination if isinstance(pagination, dict) else pagination.model_dump(),
                 "links": links.model_dump() if links and not isinstance(links, dict) else links,
                 "root_path": root_path,
+                "user_permissions": await get_user_action_permissions(db=db, user_email=user_email, is_admin=bool(current_user.is_admin), token_teams=get_token_teams_from_request(request)),
             },
         )
 

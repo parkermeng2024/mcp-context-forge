@@ -140,7 +140,7 @@ describe("updateAvailableTags", () => {
     consoleSpy.mockRestore();
   });
 
-  test("shows 'No tags found' when no tags available", () => {
+  test("hides container when no tags available", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     buildTable("tools", []);
 
@@ -149,7 +149,8 @@ describe("updateAvailableTags", () => {
     document.body.appendChild(container);
 
     updateAvailableTags("tools");
-    expect(container.innerHTML).toContain("No tags found");
+    expect(container.classList.contains("hidden")).toBe(true);
+    expect(container.querySelectorAll("button").length).toBe(0);
     consoleSpy.mockRestore();
   });
 

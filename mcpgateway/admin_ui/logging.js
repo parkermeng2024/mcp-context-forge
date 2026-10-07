@@ -175,16 +175,18 @@ export const displayLogResults = function (data) {
   if (!data.results || data.results.length === 0) {
     tbody.innerHTML = `
       <tr><td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-        📭 No logs found matching your criteria
+        📭 ${t("logs.empty.message")}
       </td></tr>
     `;
-    logCount.textContent = "0 logs";
+    logCount.textContent = t("logs.empty.count", { count: 0 });
     logStats.innerHTML = `<span class="text-sm">${t("logs.noResults")}</span>`;
     return;
   }
 
   // Update stats
-  logCount.textContent = `${data.total.toLocaleString()} logs`;
+  logCount.textContent = t("logs.empty.count", {
+    count: data.total.toLocaleString(),
+  });
   const start = currentLogPage * currentLogLimit + 1;
   const end = Math.min(start + data.results.length - 1, data.total);
   logStats.innerHTML = `
@@ -312,22 +314,22 @@ export const restoreLogTableHeaders = function () {
     thead.innerHTML = `
       <tr>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-          Time
+          ${t("logs.table.time")}
         </th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-          Level
+          ${t("logs.table.level")}
         </th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-          Component
+          ${t("logs.table.component")}
         </th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-          Message
+          ${t("logs.table.message")}
         </th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-          User
+          ${t("logs.table.user")}
         </th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-          Duration
+          ${t("logs.table.duration")}
         </th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
           ${t("logs.table.correlationId")}
@@ -346,7 +348,7 @@ export const showCorrelationTrace = async function (correlationId) {
   if (!correlationId) {
     const searchInput = safeGetElement("log-search");
     correlationId = prompt(
-      "Enter Correlation ID to trace:",
+      t("logs.prompt.correlationId"),
       searchInput?.value || ""
     );
     if (!correlationId) {
@@ -547,25 +549,25 @@ export const displayCorrelationTrace = function (trace) {
     thead.innerHTML = `
       <tr>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Time
+              ${t("logs.table.time")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               ${t("logs.table.eventType")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Component
+              ${t("logs.table.component")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Message/Description
+              ${t("logs.table.messageDescription")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              User
+              ${t("logs.table.user")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Duration
+              ${t("logs.table.duration")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Status/Severity
+              ${t("logs.table.statusSeverity")}
           </th>
       </tr>
     `;
@@ -794,19 +796,19 @@ export const displaySecurityEvents = function (events) {
     thead.innerHTML = `
         <tr>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Time
+              ${t("logs.table.time")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Severity
+              ${t("logs.table.severity")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               ${t("logs.table.eventType")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Description
+              ${t("logs.table.description")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              User/Source
+              ${t("logs.table.userSource")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               ${t("logs.table.threatScore")}
@@ -948,22 +950,22 @@ export const displayAuditTrail = function (trails) {
     thead.innerHTML = `
         <tr>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Time
+                ${t("logs.table.time")}
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Action
+                ${t("logs.table.action")}
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 ${t("logs.table.resourceType")}
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Resource
+                ${t("logs.table.resource")}
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                User
+                ${t("logs.table.user")}
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Status
+                ${t("logs.table.status")}
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 ${t("logs.table.correlationId")}
@@ -1125,19 +1127,19 @@ export const displayPerformanceMetrics = function (metrics) {
     thead.innerHTML = `
       <tr>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Time
+              ${t("logs.table.time")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Component
+              ${t("logs.table.component")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Operation
+              ${t("logs.table.operation")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               ${t("logs.table.avgDuration")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              Requests
+              ${t("logs.table.requests")}
           </th>
           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               ${t("logs.table.errorRate")}

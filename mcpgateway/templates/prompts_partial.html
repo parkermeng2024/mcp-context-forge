@@ -113,8 +113,8 @@
           <div class="text-xs text-gray-500 dark:text-gray-400 italic">{{ prompt.title }}</div>
           {% endif %}
         </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 w-48" aria-labelledby="prompt-id-header">
-          <div class="font-mono text-xs">{{ prompt.id }}</div>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 w-48" aria-labelledby="prompt-id-header" title="{{ prompt.id }}">
+          <div class="font-mono text-xs whitespace-nowrap overflow-hidden text-ellipsis">{{ prompt.id }}</div>
         </td>
         <td class="px-6 py-4 whitespace-normal break-words text-sm text-gray-500 dark:text-gray-300">{% set clean_desc = (prompt.description or "") | decode_html | replace('\n', ' ') | replace('\r', ' ') %} {% set refactor_desc = clean_desc | striptags | trim %} {% if refactor_desc | length is greaterthan 220 %} {{ refactor_desc[:400] + "..." }} {% else %} {{ refactor_desc }} {% endif %}</td>
         <td class="px-6 py-4 whitespace-nowrap">{% if prompt.tags %} {% for tag in prompt.tags %}<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 mr-1 mb-1" data-tag="{% if tag is mapping %}{{ tag.id }}{% else %}{{ tag }}{% endif %}">{% if tag is mapping %}{{ tag.id }}{% else %}{{ tag }}{% endif %}</span>{% endfor %} {% else %}<span class="text-gray-500 dark:text-gray-300 text-xs">{{ t('common.states.none') }}</span>{% endif %}</td>

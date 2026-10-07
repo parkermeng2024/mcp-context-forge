@@ -77,10 +77,11 @@ export const updateAvailableTags = function (entityType) {
   availableTagsContainer.innerHTML = "";
 
   if (tags.length === 0) {
-    availableTagsContainer.innerHTML =
-        `<span class="text-sm text-gray-500">${t("tags.empty.short")}</span>`;
+    availableTagsContainer.classList.add("hidden");
     return;
   }
+
+  availableTagsContainer.classList.remove("hidden");
 
   tags.forEach((tag) => {
     const tagButton = document.createElement("button");

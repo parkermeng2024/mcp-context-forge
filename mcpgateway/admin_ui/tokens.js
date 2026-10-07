@@ -244,6 +244,21 @@ export const initializeTeamScopingMonitor = function () {
 };
 
 /**
+ * Scroll to the create token form and focus its first field
+ */
+export const scrollToCreateTokenForm = function () {
+  const form = safeGetElement("create-token-form");
+  if (!form) {
+    return;
+  }
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+  const firstField = form.querySelector("input, select, textarea");
+  if (firstField) {
+    firstField.focus({ preventScroll: true });
+  }
+};
+
+/**
  * Set up create token form handling
  */
 export const setupCreateTokenForm = function () {
