@@ -200,3 +200,133 @@ describe("sidebarCollapsed persistence", () => {
     expect(localStorage.getItem("sidebarCollapsed")).toBe("false");
   });
 });
+
+// ─── syncNavLabels — collapsed rail tooltips ──────────────────────────────────
+
+describe("syncNavLabels", () => {
+  const NAV_MARKUP = `
+    <a class="sidebar-link" href="#overview">
+      <span class="sidebar-icon text-lg">📊</span>
+      <span x-show="!sidebarCollapsed">  概览  </span>
+    </a>
+    <a class="sidebar-link" href="#tools">
+      <span class="sidebar-icon text-lg">🛠️</span>
+      <span x-show="!sidebarCollapsed">工具</span>
+    </a>
+    <a class="sidebar-link" href="#bare">
+      <span class="sidebar-icon text-lg">❔</span>
+    </a>
+  `;
+
+  const links = () => [...document.querySelectorAll(".sidebar-link")];
+  const tooltip = () => document.querySelector(".sidebar-rail-tooltip");
+
+  beforeEach(() => {
+    document.body.innerHTML = NAV_MARKUP;
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
+  test("exposes a syncNavLabels method", () => {
+    expect(typeof mainLayout().syncNavLabels).toBe("function");
+  });
+
+  test("sets aria-label from the trimmed label text when collapsed", () => {
+    mainLayout().syncNavLabels(true);
+    const [overview, tools] = links();
+    expect(overview.getAttribute("aria-label")).toBe("概览");
+    expect(tools.getAttribute("aria-label")).toBe("工具");
+  });
+
+  test("removes aria-label when expanded", () => {
+    const component = mainLayout();
+    component.syncNavLabels(true);
+    component.syncNavLabels(false);
+    expect(links().every((link) => !link.hasAttribute("aria-label"))).toBe(true);
+  });
+
+  test("leaves a link without a label untouched", () => {
+    mainLayout().syncNavLabels(true);
+    expect(
+      document.querySelector('a[href="#bare"]').hasAttribute("aria-label"),
+    ).toBe(false);
+  });
+
+  test("applies labels on init when the persisted state is collapsed", () => {
+    localStorage.setItem("sidebarCollapsed", "true");
+    const { component } = makeComponent();
+    component.init();
+    expect(
+      links().filter((link) => link.hasAttribute("aria-label")).length,
+    ).toBe(2);
+  });
+
+  test("applies no labels on init when the persisted state is expanded", () => {
+    const { component } = makeComponent();
+    component.init();
+    expect(links().some((link) => link.hasAttribute("aria-label"))).toBe(false);
+  });
+
+  test("updates labels when the watch callback fires", () => {
+    const { component, watchCallbacks } = makeComponent();
+    component.init();
+    watchCallbacks.sidebarCollapsed(true);
+    expect(links()[0].getAttribute("aria-label")).toBe("概览");
+    watchCallbacks.sidebarCollapsed(false);
+    expect(links()[0].hasAttribute("aria-label")).toBe(false);
+  });
+
+  test("renders a tooltip on mouseenter while collapsed", () => {
+    const { component } = makeComponent();
+    localStorage.setItem("sidebarCollapsed", "true");
+    component.init();
+    links()[0].dispatchEvent(new MouseEvent("mouseenter"));
+
+    const el = tooltip();
+    expect(el).not.toBeNull();
+    expect(el.textContent).toBe("概览");
+    expect(el.getAttribute("role")).toBe("tooltip");
+    expect(el.parentElement).toBe(document.body);
+    expect(el.style.left).toBe("8px");
+  });
+
+  test("keeps a single tooltip while the pointer moves between links", () => {
+    const { component } = makeComponent();
+    localStorage.setItem("sidebarCollapsed", "true");
+    component.init();
+    links()[0].dispatchEvent(new MouseEvent("mouseenter"));
+    links()[1].dispatchEvent(new MouseEvent("mouseenter"));
+
+    expect(document.querySelectorAll(".sidebar-rail-tooltip").length).toBe(1);
+    expect(tooltip().textContent).toBe("工具");
+  });
+
+  test("removes the tooltip on mouseleave", () => {
+    const { component } = makeComponent();
+    localStorage.setItem("sidebarCollapsed", "true");
+    component.init();
+    links()[0].dispatchEvent(new MouseEvent("mouseenter"));
+    links()[0].dispatchEvent(new MouseEvent("mouseleave"));
+    expect(tooltip()).toBeNull();
+  });
+
+  test("renders no tooltip while expanded", () => {
+    const { component } = makeComponent();
+    component.init();
+    links()[0].dispatchEvent(new MouseEvent("mouseenter"));
+    expect(tooltip()).toBeNull();
+  });
+
+  test("removes the tooltip when the rail expands", () => {
+    const { component, watchCallbacks } = makeComponent();
+    localStorage.setItem("sidebarCollapsed", "true");
+    component.init();
+    links()[0].dispatchEvent(new MouseEvent("mouseenter"));
+    expect(tooltip()).not.toBeNull();
+
+    watchCallbacks.sidebarCollapsed(false);
+    expect(tooltip()).toBeNull();
+  });
+});

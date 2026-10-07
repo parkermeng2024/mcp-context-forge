@@ -123,15 +123,10 @@
             <img src="{{ root_path }}/static/ai-gateway-logo_horizontal_color.svg" alt="{{ t('common.branding.logoAlt') }}" class="h-8 dark:hidden" />
             <img src="{{ root_path }}/static/ai-gateway-logo_horizontal_white.svg" alt="{{ t('common.branding.logoAlt') }}" class="h-8 hidden dark:block" />
           </a>
-          <button @click="sidebarCollapsed = false" class="flex items-center justify-center" x-show="sidebarCollapsed" title="{{ t('common.sidebar.expand') }}">
-            <img src="{{ root_path }}/static/ai-gateway-icon_color.svg" alt="{{ t('common.branding.iconAlt') }}" class="h-8 w-8 dark:hidden" />
-            <img src="{{ root_path }}/static/ai-gateway-icon_white.svg" alt="{{ t('common.branding.iconAlt') }}" class="h-8 w-8 hidden dark:block" />
-          </button>
           <button
             @click="sidebarCollapsed = !sidebarCollapsed"
-            class="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hidden lg:block"
+            class="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
             :title="sidebarCollapsed ? '{{ t('common.sidebar.expand') }}' : '{{ t('common.sidebar.collapse') }}'"
-            x-show="!sidebarCollapsed"
           >
             <svg class="w-5 h-5 transition-transform" :class="{ 'rotate-180': sidebarCollapsed }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
