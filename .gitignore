@@ -334,6 +334,13 @@ cover.md
 snakefood.png
 snakefood.svg
 
+# Generated architecture diagrams (self-contained HTML with spec and visual-check artifacts).
+# Regenerate with the archify skill; keep these local.
+architecture-*.html
+architecture-*.spec.json
+architecture-*.visual-check.json
+architecture-*.visual-check.*.png
+
 # Playground & attic
 playground/
 .attic
