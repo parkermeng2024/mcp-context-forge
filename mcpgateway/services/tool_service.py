@@ -6064,6 +6064,29 @@ class ToolService(BaseService):
                         credentials = {k: SecurityValidator.sanitize_credential_value(v) for k, v in credentials.items()}
                         # Filter out empty header names/values to avoid "Illegal header name" errors
                         filtered_credentials = {k: v for k, v in credentials.items() if k and v}
+                        # Template substitution: replace {{param}} in header values with call arguments
+                        # Fallback: if a template param is missing from arguments, try to extract it
+                        # from the MCP client's request headers (e.g. Authorization Bearer token).
+                        _tmpl_pattern = re.compile(r"\{\{(\w+)\}\}")
+                        _req_headers_lower = {k.lower(): v for k, v in (request_headers or {}).items()}
+                        for _hk, _hv in list(filtered_credentials.items()):
+                            if isinstance(_hv, str) and "{{" in _hv:
+                                for _tmpl_param in _tmpl_pattern.findall(_hv):
+                                    if _tmpl_param in arguments:
+                                        _hv = _hv.replace("{{" + _tmpl_param + "}}", str(arguments[_tmpl_param]))
+                                    elif _tmpl_param == "tiga_token":
+                                        # Fallback: extract Tiga token from MCP client headers.
+                                        # Prefer X-MCP-Token, then X-Tiga-Token, then Authorization Bearer.
+                                        _tiga_token = _req_headers_lower.get("x-mcp-token", "")
+                                        if not _tiga_token:
+                                            _tiga_token = _req_headers_lower.get("x-tiga-token", "")
+                                        if not _tiga_token:
+                                            _auth_header = _req_headers_lower.get("authorization", "")
+                                            if _auth_header.lower().startswith("bearer "):
+                                                _tiga_token = _auth_header[7:].strip()
+                                        if _tiga_token:
+                                            _hv = _hv.replace("{{" + _tmpl_param + "}}", _tiga_token.strip())
+                                filtered_credentials[_hk] = _hv
                         headers.update(filtered_credentials)
 
                     # Use cached passthrough headers (no DB query needed)
@@ -6221,7 +6244,7 @@ class ToolService(BaseService):
                             get_correlation_id(),
                         )
                         raise ToolInvocationError("Outbound URL blocked by URL policy")
-                    if resolved_ip and original_hostname and original_authority:
+                    if settings.ssrf_protection_enabled and resolved_ip and original_hostname and original_authority:
                         final_url = pin_url_to_resolved_ip(final_url, resolved_ip)
                         headers = {hk: hv for hk, hv in headers.items() if hk.lower() != "host"}
                         headers["Host"] = original_authority
