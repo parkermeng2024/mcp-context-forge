@@ -481,6 +481,58 @@ def _decrypt_tool_headers_for_runtime(headers: Optional[Dict[str, Any]]) -> Dict
     return {key: SecurityValidator.sanitize_credential_value(_decrypt_tool_header_value(value)) for key, value in headers.items()}
 
 
+_HEADER_TEMPLATE_PATTERN = re.compile(r"\{\{(\w+)\}\}")
+
+
+def _apply_header_templates(
+    headers: Optional[Dict[str, Any]],
+    arguments: Optional[Dict[str, Any]],
+    request_headers: Optional[Dict[str, str]],
+) -> Dict[str, Any]:
+    """Substitute ``{{param}}`` placeholders in outbound header values.
+
+    Call arguments fill placeholders by name. The ``tiga_token`` placeholder
+    falls back to a token carried by the inbound MCP client request headers
+    (``X-MCP-Token``, then ``X-Tiga-Token``, then ``Authorization: Bearer``).
+    Unresolved placeholders stay intact so misconfiguration reaches the upstream
+    as an observable invalid value instead of a silently empty credential.
+
+    Applies to both a tool's static header map and its auth-credential headers;
+    previously only auth-credential headers were templated, so a no-auth REST
+    tool sent literal ``{{token}}`` upstream.
+
+    Args:
+        headers: Outbound header mapping with optional ``{{param}}`` values.
+        arguments: Tool call arguments supplied by the MCP client.
+        request_headers: Inbound request headers used for tiga_token fallback.
+
+    Returns:
+        New header mapping with placeholders substituted where possible.
+    """
+    if not headers:
+        return {}
+    call_arguments = arguments or {}
+    request_headers_lower = {k.lower(): v for k, v in (request_headers or {}).items()}
+    resolved: Dict[str, Any] = {}
+    for header_name, header_value in headers.items():
+        if isinstance(header_value, str) and "{{" in header_value:
+            for template_param in _HEADER_TEMPLATE_PATTERN.findall(header_value):
+                if template_param in call_arguments:
+                    header_value = header_value.replace("{{" + template_param + "}}", str(call_arguments[template_param]))
+                elif template_param == "tiga_token":
+                    tiga_token = request_headers_lower.get("x-mcp-token", "")
+                    if not tiga_token:
+                        tiga_token = request_headers_lower.get("x-tiga-token", "")
+                    if not tiga_token:
+                        auth_header = request_headers_lower.get("authorization", "")
+                        if auth_header.lower().startswith("bearer "):
+                            tiga_token = auth_header[7:].strip()
+                    if tiga_token:
+                        header_value = header_value.replace("{{tiga_token}}", tiga_token.strip())
+        resolved[header_name] = header_value
+    return resolved
+
+
 #: Top-level keys that the MCP ``CallToolResult`` envelope admits (including
 #: the gateway's internal snake-case aliases). Any dict with keys outside
 #: this set is treated as a business payload rather than an MCP envelope.
@@ -6041,6 +6093,11 @@ class ToolService(BaseService):
                     gateway_grant_type = gateway_oauth_config.get("grant_type", "client_credentials")
 
                 if tool_integration_type == "REST":
+                    # Substitute {{param}} placeholders in the tool's static
+                    # header map (no-auth REST tools carry tokens this way; the
+                    # credential-headers path below applies the same helper).
+                    headers = _apply_header_templates(headers, arguments, request_headers)
+
                     # Handle OAuth authentication for REST tools
                     if tool_auth_type == "oauth" and isinstance(tool_oauth_config, dict) and tool_oauth_config:
                         try:
@@ -6064,29 +6121,9 @@ class ToolService(BaseService):
                         credentials = {k: SecurityValidator.sanitize_credential_value(v) for k, v in credentials.items()}
                         # Filter out empty header names/values to avoid "Illegal header name" errors
                         filtered_credentials = {k: v for k, v in credentials.items() if k and v}
-                        # Template substitution: replace {{param}} in header values with call arguments
-                        # Fallback: if a template param is missing from arguments, try to extract it
-                        # from the MCP client's request headers (e.g. Authorization Bearer token).
-                        _tmpl_pattern = re.compile(r"\{\{(\w+)\}\}")
-                        _req_headers_lower = {k.lower(): v for k, v in (request_headers or {}).items()}
-                        for _hk, _hv in list(filtered_credentials.items()):
-                            if isinstance(_hv, str) and "{{" in _hv:
-                                for _tmpl_param in _tmpl_pattern.findall(_hv):
-                                    if _tmpl_param in arguments:
-                                        _hv = _hv.replace("{{" + _tmpl_param + "}}", str(arguments[_tmpl_param]))
-                                    elif _tmpl_param == "tiga_token":
-                                        # Fallback: extract Tiga token from MCP client headers.
-                                        # Prefer X-MCP-Token, then X-Tiga-Token, then Authorization Bearer.
-                                        _tiga_token = _req_headers_lower.get("x-mcp-token", "")
-                                        if not _tiga_token:
-                                            _tiga_token = _req_headers_lower.get("x-tiga-token", "")
-                                        if not _tiga_token:
-                                            _auth_header = _req_headers_lower.get("authorization", "")
-                                            if _auth_header.lower().startswith("bearer "):
-                                                _tiga_token = _auth_header[7:].strip()
-                                        if _tiga_token:
-                                            _hv = _hv.replace("{{" + _tmpl_param + "}}", _tiga_token.strip())
-                                filtered_credentials[_hk] = _hv
+                        # Substitute {{param}} placeholders in credential header
+                        # values (arguments first, inbound token headers fallback).
+                        filtered_credentials = _apply_header_templates(filtered_credentials, arguments, request_headers)
                         headers.update(filtered_credentials)
 
                     # Use cached passthrough headers (no DB query needed)

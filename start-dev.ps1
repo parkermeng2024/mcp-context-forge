@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿# ContextForge 开发服务器启动脚本 (Windows PowerShell)
+﻿﻿﻿﻿﻿﻿# ContextForge 开发服务器启动脚本
 # 用法:
 #   .\start-dev.ps1              # 默认端口 8004
 #   .\start-dev.ps1 -Port 8001   # 指定端口
@@ -7,7 +7,6 @@ param(
     [int]$Port = 8004
 )
 
-# 修复 PowerShell 5 中文乱码
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 chcp 65001 > $null
