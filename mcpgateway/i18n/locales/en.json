@@ -1732,6 +1732,7 @@
   "overview.card.avgLatency": "Avg Latency",
   "overview.card.activeEntities": "Active Entities",
   "overview.architecture.title": "Architecture Flow",
+  "overview.architecture.scopeNote": "Counts are platform-wide. The entity lists show only items you can access: public items, items from your teams, and your own private items.",
   "overview.architecture.inputs": "INPUTS",
   "overview.architecture.gateway": "GATEWAY",
   "overview.architecture.middleware": "Middleware (Plugins)",

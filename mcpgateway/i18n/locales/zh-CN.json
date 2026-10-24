@@ -1732,6 +1732,7 @@
   "overview.card.avgLatency": "平均延迟",
   "overview.card.activeEntities": "活跃实体",
   "overview.architecture.title": "架构流程",
+  "overview.architecture.scopeNote": "计数为平台全局统计；各实体列表仅显示你可访问的条目：公开内容、你所属团队的内容，以及你自己的私有内容。",
   "overview.architecture.inputs": "输入",
   "overview.architecture.gateway": "网关",
   "overview.architecture.middleware": "中间件（插件）",
