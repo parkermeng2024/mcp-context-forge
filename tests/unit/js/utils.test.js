@@ -40,6 +40,7 @@ import {
   decodeHtml,
   getPaginationParams,
   buildTableUrl,
+  updateInactiveUrlState,
   makeCopyIdButton,
   handleDeleteUserError,
 } from "../../../mcpgateway/admin_ui/utils.js";
@@ -1254,6 +1255,48 @@ describe("buildTableUrl", () => {
     const url = buildTableUrl("tools", "/api/tools");
     expect(url).toContain("page=4");
     expect(url).toContain("per_page=20");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// updateInactiveUrlState
+// ---------------------------------------------------------------------------
+describe("updateInactiveUrlState", () => {
+  beforeEach(() => {
+    window.Admin = {
+      safeReplaceState: (data, title, url) => window.history.replaceState(data, title, url),
+    };
+    window.history.replaceState({}, "", "/admin/?tools_q=alpha#tools");
+  });
+
+  afterEach(() => {
+    delete window.Admin;
+    window.history.replaceState({}, "", "/");
+  });
+
+  test("writes the namespaced inactive flag and resets the page", () => {
+    updateInactiveUrlState("tools", true);
+    const url = new URL(window.location.href);
+    expect(url.searchParams.get("tools_inactive")).toBe("true");
+    expect(url.searchParams.get("tools_page")).toBe("1");
+  });
+
+  test("writes false when the checkbox is cleared", () => {
+    updateInactiveUrlState("tools", false);
+    const url = new URL(window.location.href);
+    expect(url.searchParams.get("tools_inactive")).toBe("false");
+  });
+
+  test("preserves unrelated query parameters and the hash", () => {
+    updateInactiveUrlState("tools", true);
+    const url = new URL(window.location.href);
+    expect(url.searchParams.get("tools_q")).toBe("alpha");
+    expect(url.hash).toBe("#tools");
+  });
+
+  test("does nothing when the safeReplaceState helper is unavailable", () => {
+    delete window.Admin;
+    expect(() => updateInactiveUrlState("tools", true)).not.toThrow();
   });
 });
 

@@ -1,5 +1,5 @@
 import Alpine from '@alpinejs/csp';
-import { buildTableUrl, syncCheckboxFromUrl } from './utils.js';
+import { buildTableUrl, syncCheckboxFromUrl, updateInactiveUrlState } from './utils.js';
 import { appRoot } from './components/app-root.js';
 import { mainLayout } from './components/main-layout.js';
 import { overflowMenu } from './components/overflow-menu.js';
@@ -14,6 +14,12 @@ Alpine.data('maintenancePanel', maintenancePanel);
 
 Alpine.magic('syncCheckbox', function () {
   return syncCheckboxFromUrl;
+});
+
+// Exposed as a magic because @alpinejs/csp evaluates expressions in a restricted
+// scope: bare globals (including window.*) are unavailable there.
+Alpine.magic('updateInactiveUrlState', function () {
+  return updateInactiveUrlState;
 });
 
 Alpine.magic('tableHxGet', function (el) {
