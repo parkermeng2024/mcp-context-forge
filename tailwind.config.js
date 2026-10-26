@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const daisyThemes = require("daisyui/src/theming/themes");
+
 module.exports = {
     content: [
         "./mcpgateway/templates/**/*.html",
@@ -33,5 +35,28 @@ module.exports = {
             },
         },
     },
-    plugins: [],
+    plugins: [require("daisyui")],
+    daisyui: {
+        // base:false keeps daisyUI out of global element resets; component styles
+        // apply only where daisyUI classes are used.
+        base: false,
+        logs: false,
+        // The app toggles a .dark class on <html> (Alpine darkMode); use it for the dark theme.
+        darkTheme: "dark",
+        themes: [
+            {
+                light: {
+                    ...daisyThemes.light,
+                    // Match the existing indigo-600 brand color.
+                    primary: "#4f46e5",
+                },
+            },
+            {
+                dark: {
+                    ...daisyThemes.dark,
+                    primary: "#4f46e5",
+                },
+            },
+        ],
+    },
 };
