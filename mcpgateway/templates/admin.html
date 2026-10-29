@@ -2190,7 +2190,7 @@
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                   >
-                    S. No.
+                    {{ t('common.table.serialNo') }}
                   </th>
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
@@ -2544,9 +2544,8 @@
                     required
                     id="server-wizard-name"
                     maxlength="100"
-                    class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                  />
-                  <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('servers.form.nameRequired') }}</p>
+                    class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="server-wizard-name-error" />
+                  <p id="server-wizard-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('servers.form.nameRequired') }}</p>
                 </div>
                 <div>
                   <label
@@ -3553,9 +3552,8 @@
                   name="name"
                   required
                   id="tool-name"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('tools.edit.nameRequired') }}</p>
+                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="tool-name-error" />
+                <p id="tool-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('tools.edit.nameRequired') }}</p>
               </div>
 
               <div>
@@ -3600,9 +3598,8 @@
                   name="url"
                   required
                   id="tool-url"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-                <p data-error-message-for="url" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('tools.edit.urlRequired') }}</p>
+                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="tool-url-error" />
+                <p id="tool-url-error" role="alert" data-error-message-for="url" class="mt-1 text-xs text-red-500 invisible">{{ t('tools.edit.urlRequired') }}</p>
               </div>
               <div>
                 <label
@@ -3831,7 +3828,7 @@
               <input
                 type="text"
                 name="tags"
-                placeholder="e.g., api,data-processing,external (comma-separated)"
+                placeholder="{{ t('common.placeholder.tags') }}"
                 class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
               />
               <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -4313,9 +4310,8 @@
                   name="uri"
                   id="resource-uri"
                   required
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-                <p data-error-message-for="uri" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('resources.form.uriRequired') }}</p>
+                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="resource-uri-error" />
+                <p id="resource-uri-error" role="alert" data-error-message-for="uri" class="mt-1 text-xs text-red-500 invisible">{{ t('resources.form.uriRequired') }}</p>
               </div>
               <div class="relative">
                 <label
@@ -4328,13 +4324,13 @@
                   name="name"
                   required
                   id="resource-name"
-                  aria-describedby="resource-name-helper"
+                  aria-describedby="resource-name-helper resource-name-error"
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 />
                 <p id="resource-name-helper" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {{ t('resources.form.nameHelper') }}
                 </p>
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('resources.form.nameRequired') }}</p>
+                <p id="resource-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('resources.form.nameRequired') }}</p>
               </div>
               <div>
                 <label
@@ -4631,9 +4627,8 @@
                   name="name"
                   required
                   id="prompt-name"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('prompts.form.nameRequired') }}</p>
+                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="prompt-name-error" />
+                <p id="prompt-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('prompts.form.nameRequired') }}</p>
               </div>
               <div>
                 <label
@@ -4973,7 +4968,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   <th
                     class="px-3 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-200 uppercase tracking-wider"
                   >
-                    S. No.
+                    {{ t('common.table.serialNo') }}
                   </th>
                   <th
                     class="px-3 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-200 uppercase tracking-wider"
@@ -5349,9 +5344,8 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   name="name"
                   required
                   id="mcp-server-name"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('gateways.form.nameRequired') }}</p>
+                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="mcp-server-name-error" />
+                <p id="mcp-server-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('gateways.form.nameRequired') }}</p>
               </div>
               <div class="relative">
                 <label
@@ -5364,9 +5358,8 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   name="url"
                   required
                   id="mcp-server-url"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-                <p data-error-message-for="url" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('gateways.form.urlRequired') }}</p>
+                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="mcp-server-url-error" />
+                <p id="mcp-server-url-error" role="alert" data-error-message-for="url" class="mt-1 text-xs text-red-500 invisible">{{ t('gateways.form.urlRequired') }}</p>
               </div>
               <div>
                 <label
@@ -5631,7 +5624,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                         type="url"
                         name="oauth_issuer"
                         class="px-1.5 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                        placeholder="http://localhost:3003 or https://oauth.example.com"
+                        placeholder="{{ t('gateways.form.issuerPlaceholder') }}"
                       />
                       <button
                         type="button"
@@ -5656,7 +5649,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       type="text"
                       name="oauth_resource"
                       class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      placeholder="https://api.example.com or your-client-id"
+                      placeholder="{{ t('gateways.form.resourcePlaceholder') }}"
                     />
                     <p class="mt-1 text-sm text-gray-500">
                       {{ t('gateways.form.resourceHint') }}
@@ -5908,7 +5901,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       type="text"
                       name="oauth_scopes"
                       class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      placeholder="repo read:user (space-separated)"
+                      placeholder="{{ t('gateways.form.scopesPlaceholder') }}"
                     />
                     <p class="mt-1 text-sm text-gray-500">
                       {{ t('gateways.form.scopesHint') }}
@@ -6243,7 +6236,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                     required
                     autocomplete="off"
                     class="input input-bordered w-full"
-                    placeholder="John Smith"
+                    placeholder="{{ t('common.placeholder.fullName') }}"
                   />
                 </div>
               </div>
@@ -6425,9 +6418,8 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   id="api-token-name"
                   maxlength="255"
                   class="mt-1 px-3 py-2 block w-full border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300"
-                  placeholder="Production API Access"
-                />
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('tokens.form.nameRequired') }}</p>
+                  placeholder="{{ t('tokens.form.namePlaceholder') }}" aria-describedby="api-token-name-error" />
+                <p id="api-token-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('tokens.form.nameRequired') }}</p>
               </div>
               <div>
                 <label
@@ -7168,9 +7160,8 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   required
                   id="a2a-agent-name"
                   placeholder="my-assistant-agent"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('a2a.form.agentNameRequired') }}</p>
+                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="a2a-agent-name-error" />
+                <p id="a2a-agent-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('a2a.form.agentNameRequired') }}</p>
               </div>
 
               <!-- Endpoint URL -->
@@ -7186,9 +7177,8 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   required
                   id="a2a-agent-endpoint-url"
                   placeholder="https://api.example.com/agent"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-                <p data-error-message-for="url" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('a2a.form.endpointUrlRequired') }}</p>
+                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="a2a-agent-endpoint-url-error" />
+                <p id="a2a-agent-endpoint-url-error" role="alert" data-error-message-for="url" class="mt-1 text-xs text-red-500 invisible">{{ t('a2a.form.endpointUrlRequired') }}</p>
               </div>
 
               <!-- Agent Type -->
@@ -7403,7 +7393,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                         type="url"
                         name="oauth_issuer"
                         class="px-1.5 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                        placeholder="http://localhost:3003 or https://oauth.example.com"
+                        placeholder="{{ t('gateways.form.issuerPlaceholder') }}"
                       />
                       <button
                         type="button"
@@ -7642,7 +7632,7 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                       type="text"
                       name="oauth_scopes"
                       class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      placeholder="repo read:user (space-separated)"
+                      placeholder="{{ t('gateways.form.scopesPlaceholder') }}"
                     />
                     <p class="mt-1 text-sm text-gray-500">
                       {{ t('gateways.form.scopesHint') }}
@@ -7676,13 +7666,13 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                 <label
                   for="a2a-agent-auth-value"
                   class="block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >Authentication Value</label
+                  >{{ t('a2a.form.authValue') }}</label
                 >
                 <input
                   type="password"
                   id="a2a-agent-auth-value"
                   name="auth_value"
-                  placeholder="API key, token, etc."
+                  placeholder="{{ t('a2a.form.authValuePlaceholder') }}"
                   autocomplete="off"
                   class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
                 />
@@ -8010,9 +8000,8 @@ Hello &#123;&#123; name &#125;&#125;, welcome to &#123;&#123; company &#125;&#12
                   required
                   id="grpc-service-name"
                   placeholder="my-grpc-service"
-                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                />
-                <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('grpc.form.serviceNameRequired') }}</p>
+                  class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="grpc-service-name-error" />
+                <p id="grpc-service-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('grpc.form.serviceNameRequired') }}</p>
               </div>
 
               <!-- Target (host:port) -->
@@ -9147,9 +9136,8 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         name="customName"
                         required
                         id="edit-tool-custom-name"
-                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      />
-                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('tools.edit.nameRequired') }}</p>
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="edit-tool-custom-name-error" />
+                      <p id="edit-tool-custom-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('tools.edit.nameRequired') }}</p>
                     </div>
 
                     <div>
@@ -9177,9 +9165,8 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         name="url"
                         required
                         id="edit-tool-url"
-                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      />
-                      <p data-error-message-for="url" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('tools.edit.urlRequired') }}</p>
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="edit-tool-url-error" />
+                      <p id="edit-tool-url-error" role="alert" data-error-message-for="url" class="mt-1 text-xs text-red-500 invisible">{{ t('tools.edit.urlRequired') }}</p>
                     </div>
                     <div>
                       <label
@@ -9667,9 +9654,8 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         name="customName"
                         required
                         id="edit-resource-custom-name"
-                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      />
-                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('resources.form.nameRequired') }}</p>
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="edit-resource-custom-name-error" />
+                      <p id="edit-resource-custom-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('resources.form.nameRequired') }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
@@ -9880,9 +9866,8 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         name="customName"
                         required
                         id="edit-prompt-custom-name"
-                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      />
-                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('prompts.form.nameRequired') }}</p>
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="edit-prompt-custom-name-error" />
+                      <p id="edit-prompt-custom-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('prompts.form.nameRequired') }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -10261,7 +10246,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                   </div>
                   <div>
                     <label for="sso-provider-display-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('sso.form.displayName') }} *</label>
-                    <input type="text" id="sso-provider-display-name" name="display_name" required placeholder="Corporate Okta"
+                    <input type="text" id="sso-provider-display-name" name="display_name" required placeholder="{{ t('sso.form.displayNamePlaceholder') }}"
                       class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" />
                   </div>
                   <div>
@@ -10483,11 +10468,10 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                 name="url"
                 type="text"
                 id="gateway-test-url"
-                class="mt-1 px-3 py-2 block w-full rounded-md shadow-sm p-1 bg-gray-200 dark:bg-gray-800"
-              />
+                class="mt-1 px-3 py-2 block w-full rounded-md shadow-sm p-1 bg-gray-200 dark:bg-gray-800" aria-describedby="gateway-test-url-error" />
               <p
                 data-error-message-for="url"
-                class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible"
+                class="mt-1 text-xs text-red-500 invisible"
                 >{{ t('gateways.test.serverUrlRequired') }}</p
               >
             </div>
@@ -10642,9 +10626,8 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         name="name"
                         required
                         id="edit-gateway-name"
-                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      />
-                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('gateways.form.nameRequired') }}</p>
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="edit-gateway-name-error" />
+                      <p id="edit-gateway-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('gateways.form.nameRequired') }}</p>
                     </div>
                     <div class="relative">
                       <label
@@ -10657,9 +10640,8 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         name="url"
                         required
                         id="edit-gateway-url"
-                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      />
-                      <p data-error-message-for="url" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('gateways.form.urlRequired') }}</p>
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="edit-gateway-url-error" />
+                      <p id="edit-gateway-url-error" role="alert" data-error-message-for="url" class="mt-1 text-xs text-red-500 invisible">{{ t('gateways.form.urlRequired') }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700"
@@ -10931,7 +10913,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               name="oauth_issuer"
                               id="oauth-issuer-gw-edit"
                               class="px-1.5 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                              placeholder="http://localhost:3003 or https://oauth.example.com"
+                              placeholder="{{ t('gateways.form.issuerPlaceholder') }}"
                             />
                             <button
                               type="button"
@@ -10957,7 +10939,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                             name="oauth_resource"
                             id="oauth-resource-gw-edit"
                             class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                            placeholder="https://api.example.com or your-client-id"
+                            placeholder="{{ t('gateways.form.resourcePlaceholder') }}"
                           />
                           <p class="mt-1 text-sm text-gray-500">
                             {{ t('gateways.form.resourceHintAdmin') }}
@@ -11137,7 +11119,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               name="oauth_scopes"
                               id="oauth-scopes-gw-edit"
                               class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                              placeholder="repo read:user (space-separated)"
+                              placeholder="{{ t('gateways.form.scopesPlaceholder') }}"
                             />
                             <p class="mt-1 text-sm text-gray-500">
                               {{ t('gateways.form.scopesHint') }}
@@ -11241,9 +11223,8 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           required
                           placeholder="my-assistant-agent"
                           class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm
-                                focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                        />
-                        <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('a2a.form.agentNameRequired') }}</p>
+                                focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="a2a-agent-name-edit-error" />
+                        <p id="a2a-agent-name-edit-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('a2a.form.agentNameRequired') }}</p>
                       </div>
 
                       <!-- Endpoint URL -->
@@ -11258,9 +11239,8 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                           required
                           placeholder="https://api.example.com/agent"
                           class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm
-                                focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                        />
-                        <p data-error-message-for="url" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('a2a.form.endpointUrlRequired') }}</p>
+                                focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="a2a-agent-endpoint-url-edit-error" />
+                        <p id="a2a-agent-endpoint-url-edit-error" role="alert" data-error-message-for="url" class="mt-1 text-xs text-red-500 invisible">{{ t('a2a.form.endpointUrlRequired') }}</p>
                       </div>
 
                       <!-- Agent Type -->
@@ -11454,7 +11434,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                                 name="oauth_issuer"
                                 id="oauth-issuer-a2a-edit"
                                 class="px-1.5 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                                placeholder="http://localhost:3003 or https://oauth.example.com"
+                                placeholder="{{ t('gateways.form.issuerPlaceholder') }}"
                               />
                               <button
                                 type="button"
@@ -11627,7 +11607,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                               name="oauth_scopes"
                               id="oauth-scopes-a2a-edit"
                               class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                              placeholder="repo read:user (space-separated)"
+                              placeholder="{{ t('gateways.form.scopesPlaceholder') }}"
                             />
                             <p class="mt-1 text-sm text-gray-500">
                               {{ t('gateways.form.scopesHint') }}
@@ -11936,9 +11916,8 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
                         name="name"
                         required
                         id="edit-server-name"
-                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300"
-                      />
-                      <p data-error-message-for="name" class="absolute top-full left-0 mt-1 text-xs text-red-500 invisible">{{ t('servers.form.nameRequired') }}</p>
+                        class="mt-1 px-3 py-2 block w-full rounded-md border border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:placeholder-gray-300 dark:text-gray-300" aria-describedby="edit-server-name-error" />
+                      <p id="edit-server-name-error" role="alert" data-error-message-for="name" class="mt-1 text-xs text-red-500 invisible">{{ t('servers.form.nameRequired') }}</p>
                     </div>
                     <div>
                       <label
@@ -13006,7 +12985,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
 
         // Populate teams dropdown
         const teamSelect = document.getElementById('assign-team');
-        teamSelect.innerHTML = '<option value="">Select a team...</option>';
+        teamSelect.innerHTML = '<option value="">' + t("common.select.team") + '</option>';
 
         // Try to get teams data from multiple sources
         let teamsData = [];
@@ -13050,7 +13029,7 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
 
         // Populate users dropdown - load from API
         const userSelect = document.getElementById('assign-user');
-        userSelect.innerHTML = '<option value="">Select a user...</option>';
+        userSelect.innerHTML = '<option value="">' + t("common.select.user") + '</option>';
 
         // Load users from the database
         const headers = {
@@ -13392,8 +13371,8 @@ class="fixed z-40 inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-ce
               "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40";
             modal.innerHTML = `
               <div class="bg-white rounded-lg p-6 max-w-md w-full max-h-96 overflow-y-auto">
-                <h3 class="text-lg font-bold mb-4">Available Log Files</h3>
-                <p class="text-sm text-gray-600 mb-4">Directory: ${data.log_directory}</p>
+                <h3 class="text-lg font-bold mb-4">${t("logs.files.title")}</h3>
+                <p class="text-sm text-gray-600 mb-4">${t("logs.files.directory")} ${data.log_directory}</p>
                 <ul class="space-y-2">
                   ${data.files
                     .map(

@@ -41,8 +41,11 @@ module.exports = {
         // apply only where daisyUI classes are used.
         base: false,
         logs: false,
-        // The app toggles a .dark class on <html> (Alpine darkMode); use it for the dark theme.
-        darkTheme: "dark",
+        // The app toggles dark mode manually via .dark class and data-theme on <html>
+        // (Alpine darkMode). false keeps daisyUI from also auto-applying the dark
+        // theme under prefers-color-scheme, which would set color-scheme: dark on
+        // :root and flip form controls dark on always-light pages (e.g. login).
+        darkTheme: false,
         themes: [
             {
                 light: {

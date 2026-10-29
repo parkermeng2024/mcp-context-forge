@@ -16,6 +16,54 @@ import { t } from "./i18n.js";
 // ENHANCED FORM HANDLERS with Input Validation
 // ===================================================================
 
+/**
+ * Split the comma-separated `passthrough_headers` field into header names.
+ *
+ * @param {FormData} formData - Form data carrying the field.
+ * @returns {string[]} Header names with empty entries removed.
+ */
+function passthroughHeaderNames(formData) {
+  return (formData.get("passthrough_headers") || "")
+    .split(",")
+    .map((header) => header.trim())
+    .filter((header) => header.length > 0);
+}
+
+/**
+ * Reject passthrough headers whose names the gateway cannot forward.
+ *
+ * @param {string[]} names - Header names to check.
+ * @returns {boolean} True when every name is valid; false after showing an error.
+ */
+function validatePassthroughHeaders(names) {
+  for (const name of names) {
+    if (!HEADER_NAME_REGEX.test(name)) {
+      showErrorMessage(t("tools.error.invalidPassthroughHeader", { name }));
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Validate passthrough headers, then store them as a JSON array when present.
+ *
+ * @param {FormData} formData - Form data with a comma-separated `passthrough_headers` field.
+ * @returns {boolean} True when the headers were normalised; false on an invalid name.
+ */
+function normalizePassthroughHeaders(formData) {
+  const raw = formData.get("passthrough_headers");
+  const names = passthroughHeaderNames(formData);
+  if (!validatePassthroughHeaders(names)) {
+    return false;
+  }
+  if (raw && raw.trim()) {
+    formData.delete("passthrough_headers");
+    formData.append("passthrough_headers", JSON.stringify(names));
+  }
+  return true;
+}
+
 export const handleGatewayFormSubmit = async function (e) {
   e.preventDefault();
 
@@ -52,30 +100,8 @@ export const handleGatewayFormSubmit = async function (e) {
     formData.append("is_inactive_checked", isInactiveCheckedBool);
 
     // Process passthrough headers - convert comma-separated string to array
-    const passthroughHeadersString = formData.get("passthrough_headers");
-    if (passthroughHeadersString && passthroughHeadersString.trim()) {
-      // Split by comma and clean up each header name
-      const passthroughHeaders = passthroughHeadersString
-        .split(",")
-        .map((header) => header.trim())
-        .filter((header) => header.length > 0);
-
-      // Validate each header name
-      for (const headerName of passthroughHeaders) {
-        if (!HEADER_NAME_REGEX.test(headerName)) {
-          showErrorMessage(
-            `Invalid passthrough header name: "${headerName}". Only letters, numbers, and hyphens are allowed.`
-          );
-          return;
-        }
-      }
-
-      // Remove the original string and add as JSON array
-      formData.delete("passthrough_headers");
-      formData.append(
-        "passthrough_headers",
-        JSON.stringify(passthroughHeaders)
-      );
+    if (!normalizePassthroughHeaders(formData)) {
+      return;
     }
 
     // Handle auth_headers JSON field
@@ -193,6 +219,7 @@ function showFieldError(form, field, inputId, message) {
   const input = safeGetElement(inputId);
   if (input) {
     input.classList.add(...FIELD_ERROR_CLASSES);
+    input.setAttribute("aria-invalid", "true");
     input.focus();
   }
 }
@@ -217,6 +244,7 @@ function clearFieldError(form, field, inputId) {
   const input = safeGetElement(inputId);
   if (input) {
     input.classList.remove(...FIELD_ERROR_CLASSES);
+    input.removeAttribute("aria-invalid");
   }
 }
 
@@ -583,30 +611,8 @@ export const handleA2AFormSubmit = async function (e) {
     const isInactiveCheckedBool = isInactiveChecked("a2a-agents");
     formData.append("is_inactive_checked", isInactiveCheckedBool);
     // Process passthrough headers - convert comma-separated string to array
-    const passthroughHeadersString = formData.get("passthrough_headers");
-    if (passthroughHeadersString && passthroughHeadersString.trim()) {
-      // Split by comma and clean up each header name
-      const passthroughHeaders = passthroughHeadersString
-        .split(",")
-        .map((header) => header.trim())
-        .filter((header) => header.length > 0);
-
-      // Validate each header name
-      for (const headerName of passthroughHeaders) {
-        if (!HEADER_NAME_REGEX.test(headerName)) {
-          showErrorMessage(
-            `Invalid passthrough header name: "${headerName}". Only letters, numbers, and hyphens are allowed.`
-          );
-          return;
-        }
-      }
-
-      // Remove the original string and add as JSON array
-      formData.delete("passthrough_headers");
-      formData.append(
-        "passthrough_headers",
-        JSON.stringify(passthroughHeaders)
-      );
+    if (!normalizePassthroughHeaders(formData)) {
+      return;
     }
 
     // Handle auth_headers JSON field
@@ -866,20 +872,9 @@ export const handleEditGatewayFormSubmit = async function (e) {
     }
 
     // Handle passthrough headers
-    const passthroughHeadersString = formData.get("passthrough_headers") || "";
-    const passthroughHeaders = passthroughHeadersString
-      .split(",")
-      .map((header) => header.trim())
-      .filter((header) => header.length > 0);
-
-    // Validate each header name
-    for (const headerName of passthroughHeaders) {
-      if (headerName && !HEADER_NAME_REGEX.test(headerName)) {
-        showErrorMessage(
-          `Invalid passthrough header name: "${headerName}". Only letters, numbers, and hyphens are allowed.`
-        );
-        return;
-      }
+    const passthroughHeaders = passthroughHeaderNames(formData);
+    if (!validatePassthroughHeaders(passthroughHeaders)) {
+      return;
     }
 
     formData.append("passthrough_headers", JSON.stringify(passthroughHeaders));
@@ -963,20 +958,9 @@ export const handleEditA2AAgentFormSubmit = async function (e) {
     }
 
     // Handle passthrough headers
-    const passthroughHeadersString = formData.get("passthrough_headers") || "";
-    const passthroughHeaders = passthroughHeadersString
-      .split(",")
-      .map((header) => header.trim())
-      .filter((header) => header.length > 0);
-
-    // Validate each header name
-    for (const headerName of passthroughHeaders) {
-      if (headerName && !HEADER_NAME_REGEX.test(headerName)) {
-        showErrorMessage(
-          `Invalid passthrough header name: "${headerName}". Only letters, numbers, and hyphens are allowed.`
-        );
-        return;
-      }
+    const passthroughHeaders = passthroughHeaderNames(formData);
+    if (!validatePassthroughHeaders(passthroughHeaders)) {
+      return;
     }
 
     formData.append("passthrough_headers", JSON.stringify(passthroughHeaders));

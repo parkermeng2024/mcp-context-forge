@@ -841,6 +841,6 @@ export const showTab = function (tabName) {
     console.log(`✓ Successfully switched to tab: ${tabName}`);
   } catch (error) {
     console.error(`Error switching to tab ${tabName}:`, error);
-    showErrorMessage(`Failed to switch to ${tabName} tab`);
+    showErrorMessage(t("tabs.switchFailed", { tab: tabName }));
   }
 };

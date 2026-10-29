@@ -172,6 +172,8 @@ vi.mock("../../../mcpgateway/admin_ui/utils.js", () => ({
     })
   ),
   isAdminUser: vi.fn(() => true),
+  editorTheme: vi.fn(() => "default"),
+  refreshEditorThemes: vi.fn(),
   safeGetElement: vi.fn((id) => document.getElementById(id)),
 }));
 

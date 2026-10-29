@@ -54,7 +54,7 @@ import {
   updateHashForTab,
 } from "./tabs.js";
 import { initToolSelect } from "./tools.js";
-import { bindMcpAppMimeHelper, fetchWithTimeout, isAdminUser, safeGetElement } from "./utils.js";
+import { bindMcpAppMimeHelper, editorTheme, fetchWithTimeout, isAdminUser, refreshEditorThemes, safeGetElement } from "./utils.js";
 import { debouncedServerSideTokenSearch, getTeamNameById } from "./tokens.js";
 import {
   closeGlobalSearchModal,
@@ -146,7 +146,7 @@ export const initializeCodeMirrorEditors = function () {
       try {
         window[config.varName] = window.CodeMirror.fromTextArea(element, {
           mode: config.mode,
-          theme: "monokai",
+          theme: editorTheme(),
           lineNumbers: false,
           autoCloseBrackets: true,
           matchBrackets: true,
@@ -163,6 +163,14 @@ export const initializeCodeMirrorEditors = function () {
       );
     }
   });
+
+  if (!window.__editorThemeObserver) {
+    window.__editorThemeObserver = new MutationObserver(refreshEditorThemes);
+    window.__editorThemeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  }
 };
 
 export const initializeToolSelects = function () {

@@ -1945,7 +1945,10 @@ export const refreshGatewayTools = async function (gatewayId, gatewayName, butto
   } catch (err) {
     console.error("refreshGatewayTools error:", err);
     showErrorMessage(
-      `Failed to refresh tools for ${gatewayName}: ${err.message}`
+      t("gateways.error.refreshToolsFailed", {
+        gateway: gatewayName,
+        error: err.message,
+      })
     );
   } finally {
     if (buttonEl) {

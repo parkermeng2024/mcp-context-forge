@@ -19,6 +19,7 @@ import { applyVisibilityRestrictions, isTeamScopedView } from "./teams.js";
 import { handleEditIntegrationTypeChange } from "./toolEdit.js";
 import {
   decodeHtml,
+  editorTheme,
   fetchWithTimeout,
   getCurrentTeamId,
   handleFetchError,
@@ -33,6 +34,19 @@ import {
 // ===================================================================
 // SCHEMA TYPE HELPERS
 // ===================================================================
+
+/**
+ * Warn that a tool test was debounced, and report the remaining wait.
+ *
+ * @param {number} remainingMs - Milliseconds left before the next test is allowed.
+ */
+function showToolTestRateLimited(remainingMs) {
+  showErrorMessage(
+    t("tools.validation.rateLimited", {
+      seconds: Math.ceil(remainingMs / 1000),
+    })
+  );
+}
 
 /**
  * Returns true when a JSON Schema property describes an object type,
@@ -1514,12 +1528,7 @@ export const testTool = async function (toolId) {
       console.log(
         `Tool ${toolId} test request debounced (${timeSinceLastRequest}ms ago)`
       );
-      const waitTime = Math.ceil(
-        (enhancedDebounceDelay - timeSinceLastRequest) / 1000
-      );
-      showErrorMessage(
-        `Please wait ${waitTime} more second${waitTime > 1 ? "s" : ""} before testing again`
-      );
+      showToolTestRateLimited(enhancedDebounceDelay - timeSinceLastRequest);
       return;
     }
 
@@ -1997,12 +2006,7 @@ export const enrichTool = async function (toolId) {
       console.log(
         `Tool ${toolId} test request debounced (${timeSinceLastRequest}ms ago)`
       );
-      const waitTime = Math.ceil(
-        (enhancedDebounceDelay - timeSinceLastRequest) / 1000
-      );
-      showErrorMessage(
-        `Please wait ${waitTime} more second${waitTime > 1 ? "s" : ""} before testing again`
-      );
+      showToolTestRateLimited(enhancedDebounceDelay - timeSinceLastRequest);
       return;
     }
 
@@ -2114,12 +2118,7 @@ export const generateToolTestCases = async function (toolId) {
       console.log(
         `Tool ${toolId} test request debounced (${timeSinceLastRequest}ms ago)`
       );
-      const waitTime = Math.ceil(
-        (enhancedDebounceDelay - timeSinceLastRequest) / 1000
-      );
-      showErrorMessage(
-        `Please wait ${waitTime} more second${waitTime > 1 ? "s" : ""} before testing again`
-      );
+      showToolTestRateLimited(enhancedDebounceDelay - timeSinceLastRequest);
       return;
     }
 
@@ -2257,12 +2256,7 @@ export const validateTool = async function (toolId) {
       console.log(
         `Tool ${toolId} test request debounced (${timeSinceLastRequest}ms ago)`
       );
-      const waitTime = Math.ceil(
-        (enhancedDebounceDelay - timeSinceLastRequest) / 1000
-      );
-      showErrorMessage(
-        `Please wait ${waitTime} more second${waitTime > 1 ? "s" : ""} before testing again`
-      );
+      showToolTestRateLimited(enhancedDebounceDelay - timeSinceLastRequest);
       return;
     }
 
@@ -2844,9 +2838,7 @@ export const validateTool = async function (toolId) {
           document
             .getElementById("run-all-tests-btn")
             ?.addEventListener("click", async () => {
-              showSuccessMessage(
-                "🔍 Validation in progress; View results by expanding each test case."
-              );
+              showSuccessMessage(t("tools.validation.inProgressHint"));
               const total = testCases.length;
               document
                 .querySelectorAll("#tool-validation-form-fields > div")
@@ -2993,7 +2985,7 @@ export const runToolValidation = async function (testIndex) {
           } catch (error) {
             console.error(`Error parsing array values for ${key}:`, error);
             showErrorMessage(
-              `Invalid input format for ${key}. Please check the values are in correct format.`
+              t("tools.validation.invalidInputFormat", { key })
             );
             throw error;
           }
@@ -3065,7 +3057,11 @@ export const runToolValidation = async function (testIndex) {
               headerValue
             );
             if (!validation.valid) {
-              showErrorMessage(`Invalid header: ${validation.error}`);
+              showErrorMessage(
+                t("tools.validation.invalidHeader", {
+                  error: validation.error,
+                })
+              );
               return;
             }
 
@@ -3102,7 +3098,7 @@ export const runToolValidation = async function (testIndex) {
         AppState.toolTestResultEditor = window.CodeMirror(resultContainer, {
           value: resultStr,
           mode: "application/json",
-          theme: "monokai",
+          theme: editorTheme(),
           readOnly: true,
           lineNumbers: true,
         });
@@ -3226,7 +3222,11 @@ export const runToolAgentValidation = async function (testIndex) {
               headerValue
             );
             if (!validation.valid) {
-              showErrorMessage(`Invalid header: ${validation.error}`);
+              showErrorMessage(
+                t("tools.validation.invalidHeader", {
+                  error: validation.error,
+                })
+              );
               return;
             }
 
@@ -3265,7 +3265,7 @@ export const runToolAgentValidation = async function (testIndex) {
         AppState.toolTestResultEditor = window.CodeMirror(resultContainer, {
           value: resultStr,
           mode: "application/json",
-          theme: "monokai",
+          theme: editorTheme(),
           readOnly: true,
           lineNumbers: true,
         });
@@ -3406,7 +3406,7 @@ export const runToolTest = async function () {
           } catch (error) {
             console.error(`Error parsing array values for ${key}:`, error);
             showErrorMessage(
-              `Invalid input format for ${key}. Please check the values are in correct format.`
+              t("tools.validation.invalidInputFormat", { key })
             );
             throw error;
           }
@@ -3477,7 +3477,11 @@ export const runToolTest = async function () {
               headerValue
             );
             if (!validation.valid) {
-              showErrorMessage(`Invalid header: ${validation.error}`);
+              showErrorMessage(
+                t("tools.validation.invalidHeader", {
+                  error: validation.error,
+                })
+              );
               return;
             }
 
@@ -3514,7 +3518,7 @@ export const runToolTest = async function () {
         AppState.toolTestResultEditor = window.CodeMirror(resultContainer, {
           value: resultStr,
           mode: "application/json",
-          theme: "monokai",
+          theme: editorTheme(),
           readOnly: true,
           lineNumbers: true,
         });

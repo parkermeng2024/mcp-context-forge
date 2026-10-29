@@ -904,3 +904,31 @@ export const bindMcpAppMimeHelper = function (
 
   updateHelperVisibility();
 };
+
+/**
+ * CodeMirror theme for the active colour mode.
+ *
+ * @returns {string} `"monokai"` in dark mode, `"default"` otherwise.
+ */
+export function editorTheme() {
+  return document.documentElement.classList.contains("dark")
+    ? "monokai"
+    : "default";
+}
+
+/**
+ * Re-apply the colour-mode theme to every mounted CodeMirror editor.
+ *
+ * Editors are created before the user toggles dark mode, so a class change on
+ * `<html>` does not re-style them on its own.
+ *
+ * @returns {void}
+ */
+export function refreshEditorThemes() {
+  document.querySelectorAll(".CodeMirror").forEach((wrapper) => {
+    const editor = wrapper.CodeMirror;
+    if (editor && typeof editor.setOption === "function") {
+      editor.setOption("theme", editorTheme());
+    }
+  });
+}

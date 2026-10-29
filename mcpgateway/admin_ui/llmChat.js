@@ -1231,7 +1231,7 @@ export const disconnectLLMChat = async function () {
 
     // Display backend error if available
     showErrorMessage(
-      `Disconnection error: ${error.message}. Local session cleared.`
+      t("llm.chat.disconnectedSessionCleared", { error: error.message })
     );
   } finally {
     // Reset button state only if it's still visible (error case where we didn't disconnect)

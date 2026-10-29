@@ -62,6 +62,7 @@ vi.mock("../../../mcpgateway/admin_ui/security.js", () => ({
 }));
 vi.mock("../../../mcpgateway/admin_ui/utils", () => ({
   decodeHtml: vi.fn((s) => s || ""),
+  editorTheme: vi.fn(() => "default"),
   fetchWithTimeout: vi.fn(),
   getCurrentTeamId: vi.fn(() => null),
   handleFetchError: vi.fn((e) => e.message),

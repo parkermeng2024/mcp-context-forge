@@ -376,14 +376,16 @@ export const requestToJoinTeam = async function (teamId) {
 
     // Show success message
     showSuccessMessage(
-      `Join request sent to ${result.team_name}! Team owners will review your request.`
+      t("teams.toast.joinRequestSent", { team: result.team_name })
     );
 
     // Refresh the public teams list
     setTimeout(loadPublicTeams, 1000);
   } catch (error) {
     console.error("Error requesting to join team:", error);
-    showErrorMessage(`Failed to send join request: ${error.message}`);
+    showErrorMessage(
+      t("teams.toast.joinRequestSendFailed", { error: error.message })
+    );
   }
 };
 
@@ -428,7 +430,7 @@ export const leaveTeam = async function (teamId, teamName) {
     await response.json();
 
     // Show success message
-    showSuccessMessage(`Successfully left ${teamName}`);
+    showSuccessMessage(t("teams.toast.leftTeam", { team: teamName }));
 
     // Refresh teams list
     const teamsList = safeGetElement("unified-teams-list");
@@ -445,7 +447,9 @@ export const leaveTeam = async function (teamId, teamName) {
     }
   } catch (error) {
     console.error("Error leaving team:", error);
-    showErrorMessage(`Failed to leave team: ${error.message}`);
+    showErrorMessage(
+      t("teams.toast.leaveFailed", { error: error.message })
+    );
   }
 };
 
@@ -484,7 +488,7 @@ export const approveJoinRequest = async function (teamId, requestId) {
 
     // Show success message
     showSuccessMessage(
-      `Join request approved! ${result.user_email} is now a member.`
+      t("teams.toast.joinApproved", { email: result.user_email })
     );
 
     // Refresh teams list
@@ -494,7 +498,9 @@ export const approveJoinRequest = async function (teamId, requestId) {
     }
   } catch (error) {
     console.error("Error approving join request:", error);
-    showErrorMessage(`Failed to approve join request: ${error.message}`);
+    showErrorMessage(
+      t("teams.toast.approveFailed", { error: error.message })
+    );
   }
 };
 
@@ -545,7 +551,9 @@ export const rejectJoinRequest = async function (teamId, requestId) {
     }
   } catch (error) {
     console.error("Error rejecting join request:", error);
-    showErrorMessage(`Failed to reject join request: ${error.message}`);
+    showErrorMessage(
+      t("teams.toast.rejectFailed", { error: error.message })
+    );
   }
 };
 

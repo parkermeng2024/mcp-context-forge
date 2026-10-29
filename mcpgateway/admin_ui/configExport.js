@@ -286,7 +286,7 @@ export const downloadConfig = function () {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 
-    showSuccessMessage(`Configuration downloaded as ${a.download}`);
+    showSuccessMessage(t("common.toast.configDownloaded", { filename: a.download }));
   } catch (error) {
     console.error("Error downloading config:", error);
     showErrorMessage(t("configExport.error.downloadFailed"));

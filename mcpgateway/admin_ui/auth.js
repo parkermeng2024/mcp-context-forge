@@ -447,7 +447,10 @@ export async function fetchToolsForGateway(gatewayId, gatewayName) {
 
     // Show error message
     showErrorMessage(
-      `Failed to fetch tools from ${gatewayName}: ${error.message}`,
+      t("auth.error.fetchToolsFailed", {
+        gateway: gatewayName,
+        error: error.message,
+      }),
     );
   }
 }

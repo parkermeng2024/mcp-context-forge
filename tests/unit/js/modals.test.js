@@ -144,6 +144,27 @@ describe("resetModalState", () => {
     consoleSpy.mockRestore();
   });
 
+  test("forgets touched fields so a reopened modal starts quiet", () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const modal = document.createElement("div");
+    modal.id = "test-modal";
+
+    const form = document.createElement("form");
+    const input = document.createElement("input");
+    input.setAttribute("data-touched", "true");
+    input.classList.add("border-red-500");
+    input.setAttribute("aria-invalid", "true");
+    form.appendChild(input);
+    modal.appendChild(form);
+    document.body.appendChild(modal);
+
+    resetModalState("test-modal");
+
+    expect(input.hasAttribute("data-touched")).toBe(false);
+    expect(input.hasAttribute("aria-invalid")).toBe(false);
+    consoleSpy.mockRestore();
+  });
+
   test("removes error message elements from forms", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const modal = document.createElement("div");

@@ -218,7 +218,7 @@ import {
     // Generic API call for Enrich/Validate
     const callEnrichment = async function () {
       if (selectedTools.length === 0) {
-        showErrorMessage("⚠️ Please select at least one tool.");
+        showErrorMessage(t("tools.bulk.selectAtLeastOne"));
         return;
       }
       try {
@@ -249,7 +249,7 @@ import {
         updateSelectedList();
       } catch (err) {
         //   responseDiv.textContent = `❌ Error: ${err.message}`;
-        showErrorMessage(`❌ Error: ${err.message}`);
+        showErrorMessage(t("common.error.withMessage", { message: err.message }));
       }
     };
 
@@ -262,9 +262,7 @@ import {
       );
 
       if (!testCases || !variations || testCases < 1 || variations < 1) {
-        showErrorMessage(
-          "⚠️ Please enter valid numbers for test cases and variations."
-        );
+        showErrorMessage(t("tools.bulk.invalidNumbers"));
         return;
       }
 
@@ -297,14 +295,14 @@ import {
         // Close modal immediately after clicking Generate
         closeModal("bulk-testcase-gen-modal");
       } catch (err) {
-        showErrorMessage(`❌ Error: ${err.message}`);
+        showErrorMessage(t("common.error.withMessage", { message: err.message }));
       }
     };
     Admin.generateBulkTestCases = generateBulkTestCases;
 
     const openTestCaseModal = function () {
       if (selectedToolIds.length === 0) {
-        showErrorMessage("⚠️ Please select at least one tool.");
+        showErrorMessage(t("tools.bulk.selectAtLeastOne"));
         return;
       }
 
@@ -357,7 +355,7 @@ import {
         const prevType = this.dataset.prevValue;
         const selectedType = this.value;
         if (prevType === "REST" && selectedType === "MCP") {
-          alert("You cannot change integration type from REST to MCP.");
+          alert(t("tools.integrationType.restToMcpBlocked"));
           this.value = prevType;
           // Optionally, reset any dependent fields here
         } else {

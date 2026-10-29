@@ -1261,7 +1261,7 @@ export const downloadLogFile = async function(filename) {
     const modal = document.querySelector(".fixed.inset-0");
     if (modal) modal.remove();
 
-    showSuccessMessage(`Downloaded: ${filename}`);
+    showSuccessMessage(t("common.toast.downloaded", { filename }));
   } catch (error) {
     console.error("Error downloading log file:", error);
     showErrorMessage(error.message || t("logs.downloadFailed"));

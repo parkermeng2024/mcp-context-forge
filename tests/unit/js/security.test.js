@@ -19,6 +19,8 @@ import {
   sanitizeHtmlForInsertion,
   validateJson,
   validatePassthroughHeader,
+  validateInputName,
+  validateUrl,
 } from "../../../mcpgateway/admin_ui/security.js";
 
 // ---------------------------------------------------------------------------
@@ -664,5 +666,31 @@ describe("safeReplaceState", () => {
     spy.mockRestore();
     debugSpy.mockRestore();
     AppState.restrictedContextLogged = false;
+  });
+});
+
+// ---------------------------------------------------------------------------
+// validateInputName / validateUrl message localization
+// ---------------------------------------------------------------------------
+describe("validation messages come from the i18n catalog", () => {
+  test("required name message interpolates the field label", () => {
+    expect(validateInputName("", "Name").error).toBe("Name is required");
+  });
+
+  test("required url message interpolates the field label", () => {
+    expect(validateUrl("").error).toBe("Enter a URL.");
+    expect(validateUrl("", "gateway URL").error).toBe("Enter a gateway URL.");
+  });
+
+  test("invalid character message is translated", () => {
+    expect(validateInputName("<script>alert(1)</script>", "Name").error).toBe(
+      "Name contains invalid characters"
+    );
+  });
+
+  test("over-length message interpolates the limit", () => {
+    expect(validateInputName("a".repeat(256), "Name").error).toBe(
+      "Name must be 255 characters or less"
+    );
   });
 });

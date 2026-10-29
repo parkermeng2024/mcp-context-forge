@@ -137,6 +137,10 @@ export function resetModalState(modalId) {
     forms.forEach((form) => {
       try {
         form.reset();
+        // Forget "user already typed here" so a reopened modal starts quiet.
+        form.querySelectorAll("[data-touched]").forEach((el) => {
+          el.removeAttribute("data-touched");
+        });
         // Clear any error messages
         const errorElements = form.querySelectorAll(".error-message");
         errorElements.forEach((el) => el.remove());
@@ -155,6 +159,7 @@ export function resetModalState(modalId) {
             "dark:ring-red-500"
           );
           el.setCustomValidity("");
+          el.removeAttribute("aria-invalid");
         });
       } catch (error) {
         console.error("Error resetting form:", error);
@@ -368,11 +373,15 @@ export const submitApiKeyForm = function (event) {
           });
         }
       } else {
-        alert("Registration failed: " + (data.error || data.message));
+        alert(
+          t("auth.error.registrationFailed", {
+            error: data.error || data.message,
+          })
+        );
       }
     })
     .catch((error) => {
-      alert("Error registering server: " + error);
+      alert(t("servers.error.registerFailed", { error }));
     });
 };
 
@@ -430,6 +439,6 @@ export const viewGrpcMethods = function (serviceId) {
       }
     })
     .catch((error) => {
-      alert("Error fetching methods: " + error);
+      alert(t("servers.error.fetchMethodsFailed", { error }));
     });
 };

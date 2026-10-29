@@ -211,7 +211,10 @@ export function validatePassthroughHeader(name, value) {
  */
 export function validateInputName(name, type = "input") {
   if (!name || typeof name !== "string") {
-    return { valid: false, error: `${type} is required` };
+    return {
+      valid: false,
+      error: t("security.field.required", { field: type }),
+    };
   }
 
   // Remove any HTML tags
@@ -230,20 +233,20 @@ export function validateInputName(name, type = "input") {
     if (pattern.test(name)) {
       return {
         valid: false,
-        error: `${type} contains invalid characters`,
+        error: t("security.field.invalidChars", { field: type }),
       };
     }
   }
 
   // Length validation
   if (cleaned.length < 1) {
-    return { valid: false, error: `${type} cannot be empty` };
+    return { valid: false, error: t("security.field.empty", { field: type }) };
   }
 
   if (cleaned.length > MAX_NAME_LENGTH) {
     return {
       valid: false,
-      error: `${type} must be ${MAX_NAME_LENGTH} characters or less`,
+      error: t("security.field.tooLong", { field: type, max: MAX_NAME_LENGTH }),
     };
   }
 
@@ -268,7 +271,10 @@ export function validateInputName(name, type = "input") {
  */
 export function validateUrl(url, label = "") {
   if (!url || typeof url !== "string") {
-    return { valid: false, error: `Enter a ${label || "URL"}.` };
+    return {
+      valid: false,
+      error: t("security.url.required", { field: label || "URL" }),
+    };
   }
 
   try {

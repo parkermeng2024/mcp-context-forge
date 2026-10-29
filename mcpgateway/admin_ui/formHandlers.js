@@ -140,7 +140,7 @@ export const handleFormSubmitAndRefresh = async function (event, type) {
   } catch (error) {
     // Network error or missing config — notify user and fallback to full reload
     console.error("Form submit error:", error);
-    alert("Failed to refresh table. Reloading page...");
+    alert(t("common.error.tableRefreshFailedReload"));
     const fragment = TOGGLE_FRAGMENT_MAP[type] || type;
     const params = new URLSearchParams();
     params.set("include_inactive", String(isInactiveCheckedBool));
